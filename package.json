@@ -1,0 +1,29 @@
+{
+  "name": "populus-viewer",
+  "version": "0.1.0",
+  "description": "A pdf viewer for Populus",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --progress --mode=production",
+    "watch": "webpack --progress --watch",
+    "serve": "webpack-dev-server"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.13.10",
+    "@babel/plugin-proposal-class-properties": "^7.13.0",
+    "@babel/plugin-transform-react-jsx": "^7.12.17",
+    "babel-loader": "^8.2.2",
+    "webpack": "^5.27.1",
+    "webpack-cli": "^4.5.0",
+    "webpack-dev-server": "^3.11.2"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "matrix-js-sdk": "^9.7.0",
+    "pdfjs-dist": "^2.6.347",
+    "preact": "^10.5.12",
+    "worker-loader": "^3.0.8"
+  }
+}
