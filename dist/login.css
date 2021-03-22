@@ -1,0 +1,10 @@
+#loginModal {
+    display: inline-block;
+    border: 1px solid black;
+    padding: 1em;
+    padding-bottom: 2em;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%) translateY(-50%);
+    top: 50%;
+}

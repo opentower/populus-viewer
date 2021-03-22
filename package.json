@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --progress --mode=production",
     "watch": "webpack --progress --watch",
-    "serve": "webpack-dev-server"
+    "serve": "webpack serve --mode development"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
@@ -21,6 +21,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "buffer": "^6.0.3",
     "matrix-js-sdk": "^9.7.0",
     "pdfjs-dist": "^2.6.347",
     "preact": "^10.5.12",

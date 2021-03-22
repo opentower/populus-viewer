@@ -9,6 +9,11 @@ module.exports = {
         compress: true,
         port: 9000,
     },
+    resolve: {
+        fallback: { 
+            "buffer": require.resolve("buffer/") 
+        },
+    },
     module: {
         rules: [
             {
