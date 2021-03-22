@@ -11,19 +11,34 @@ import LoginView from './login.js';
 class PopulusViewer extends Component {
     constructor () {
         super()
-        this.state = {
-            loggedIn : false
-        }
         this.client = Matrix.createClient({
             baseUrl : "http://localhost:8008",
             userId : localStorage.getItem("userId"),
             accessToken : localStorage.getItem("accessToken"),
             timelineSupport : true,
         })
-        window.addEventListener('login',this.loginHandler)
+        this.state = {
+            loggedIn : this.client.getUserId() ? true : false
+        }
+        window.addEventListener('login', this.loginHandler)
+        window.addEventListener('logout', this.logoutHandler)
     }
 
-    loginHandler = _ => { this.setState({loggedIn : true}) }
+    logoutHandler = _ => { 
+        localStorage.clear()
+        this.client.logout()
+        this.client = Matrix.createClient({
+            baseUrl : "http://localhost:8008",
+            timelineSupport : true,
+        })
+        this.setState({loggedIn : false}) 
+    }
+
+    loginHandler = _ => { 
+        localStorage.setItem("accessToken", this.client.getAccessToken())
+        localStorage.setItem("userId", this.client.getUserId())
+        this.setState({loggedIn : true}) 
+    }
 
     render(props,state) {
         if (state.loggedIn) {
@@ -32,6 +47,10 @@ class PopulusViewer extends Component {
             return <LoginView client={this.client}/>
         }
     }
+}
+
+export function recaptchaHandler (recaptchaToken) {
+    window.dispatchEvent(new CustomEvent('recaptcha', { detail : recaptchaToken }))
 }
 
 render(<PopulusViewer/>, document.body)

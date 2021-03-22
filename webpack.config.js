@@ -8,6 +8,9 @@ module.exports = {
         contentBase: path.join(__dirname, 'dist'),
         compress: true,
         port: 9000,
+        // injectClient: false,
+        // XXX: needed for exports, https://github.com/webpack/webpack-dev-server/issues/2484
+        // So registration in dev-mode won't work without this.
     },
     resolve: {
         fallback: { 
