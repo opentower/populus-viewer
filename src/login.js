@@ -62,7 +62,7 @@ class RegistrationModal extends Component {
     constructor (props) {
         super(props)
         this.client = props.client
-        window.addEventListener('recaptcha', this.recaptchaHandler)
+        window.addEventListener('recaptcha', this.recaptchaHandler) //TODO: remove on unload of this component
     }
 
     recaptchaHandler = e => {
@@ -107,7 +107,7 @@ class UserData extends Component {
                 </div>
                 <div>
                     <label for="password">Password</label>
-                    <input type="text" id="password" name="password"></input>
+                    <input type="password" id="password" name="password"></input>
                 </div>
             </Fragment>
         )

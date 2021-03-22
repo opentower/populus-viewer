@@ -17,11 +17,10 @@ class PopulusViewer extends Component {
             accessToken : localStorage.getItem("accessToken"),
             timelineSupport : true,
         })
-        this.state = {
-            loggedIn : this.client.getUserId() ? true : false
-        }
+        this.state = { loggedIn : false }
         window.addEventListener('login', this.loginHandler)
         window.addEventListener('logout', this.logoutHandler)
+        if (this.client.getUserId()) this.loginHandler()
     }
 
     logoutHandler = _ => { 
@@ -37,7 +36,9 @@ class PopulusViewer extends Component {
     loginHandler = _ => { 
         localStorage.setItem("accessToken", this.client.getAccessToken())
         localStorage.setItem("userId", this.client.getUserId())
-        this.setState({loggedIn : true}) 
+        this.client.startClient({initialSyncLimit:1}).then(_ => {
+            this.setState({loggedIn : true}) 
+        })
     }
 
     render(props,state) {
