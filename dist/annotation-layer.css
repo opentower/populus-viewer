@@ -1,0 +1,23 @@
+#annotation-layer { 
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    overflow: hidden;
+    line-height:1;
+    opacity: 0.2;
+    visibility: hidden;
+}
+
+#annotation-layer > span {
+    background-color:blue;
+    position: absolute;
+    white-space: pre;
+    cursor: text;
+    transform-origin: 0% 0%;
+}
+
+#annotation-layer > span[data-annotation-focused='true'] {
+    background-color:red;
+}

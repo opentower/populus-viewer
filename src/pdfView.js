@@ -1,6 +1,7 @@
 import { h, render, Fragment, Component } from 'preact';
 import * as PDFJS from "pdfjs-dist/webpack"
 import * as Matrix from "matrix-js-sdk"
+import * as Layout from "./layout.js"
 
 export default class PdfView extends Component {
 
@@ -38,7 +39,9 @@ export default class PdfView extends Component {
     }
 
     drawPdf () {
-        var theCanvas = document.getElementById("pdfCanvas")
+        var theCanvas = document.getElementById("pdf-canvas")
+        var textLayer = document.getElementById("text-layer")
+        var annotationLayer = document.getElementById("annotation-layer")
         this.state.pdfPromise.then(pdf => {
               // Fetch the first page
               pdf.getPage(1).then(function(page) {
@@ -65,11 +68,11 @@ export default class PdfView extends Component {
                 }).then(function(text) {
                   //resize the text and annotation layers to sit on top of the rendered PDF page
 
-                  layout.positionAt(theCanvas.getBoundingClientRect(), textLayer);
-                  layout.positionAt(theCanvas.getBoundingClientRect(), annotationLayer);
+                  Layout.positionAt(theCanvas.getBoundingClientRect(), textLayer);
+                  Layout.positionAt(theCanvas.getBoundingClientRect(), annotationLayer);
 
                   //insert the pdf text into the text layer
-                  pdfjsLib.renderTextLayer({
+                  PDFJS.renderTextLayer({
                       textContent: text,
                       container: document.getElementById("text-layer"),
                       viewport: viewport,
@@ -83,7 +86,11 @@ export default class PdfView extends Component {
     render(props,state) {
         return (
             <Fragment>
-                <canvas id="pdfCanvas"></canvas>
+                <div id="document-view">
+                    <canvas id="pdf-canvas"/>
+                    <div id="annotation-layer"/>
+                    <div id="text-layer"/>
+                </div>
             </Fragment>
         )
     }
