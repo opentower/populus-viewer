@@ -6,7 +6,7 @@ export default class WelcomeView extends Component {
         return (
             <Fragment>
                 <RoomList client={props.client}/>
-                <Logout/>
+                <Logout logoutHandler={props.logoutHandler}/>
             </Fragment>
         )
     }
@@ -33,15 +33,10 @@ class RoomList extends Component {
 
 class Logout extends Component {
 
-    handleClick = (e) => {
-            e.preventDefault()
-            window.dispatchEvent(new CustomEvent('logout'))
-    }
-
     render (props,state) {
         return (
             <footer>
-                <a href='#' onclick={this.handleClick}>logout</a>
+                <a href='#' onclick={props.logoutHandler}>logout</a>
             </footer>
         )
     }

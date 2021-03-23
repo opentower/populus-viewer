@@ -18,8 +18,6 @@ class PopulusViewer extends Component {
             timelineSupport : true,
         })
         this.state = { loggedIn : false }
-        window.addEventListener('login', this.loginHandler)
-        window.addEventListener('logout', this.logoutHandler)
         if (this.client.getUserId()) this.loginHandler()
     }
 
@@ -43,9 +41,9 @@ class PopulusViewer extends Component {
 
     render(props,state) {
         if (state.loggedIn) {
-            return <WelcomeView client={this.client}/>
+            return <WelcomeView logoutHandler={this.logoutHandler} client={this.client}/>
         } else {
-            return <LoginView client={this.client}/>
+            return <LoginView loginHandler={this.loginHandler} client={this.client}/>
         }
     }
 }
