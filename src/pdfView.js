@@ -7,13 +7,14 @@ export default class PdfView extends Component {
     constructor(props) {
         super(props)
         this.client = props.client
-        if (this.client.isInitialSyncComplete()) {
-            this.fetchPdf(props.queryParams.get("title"))
-        } else {
-            this.client.on("sync", (state,prevState,data) => {
+        let fetchPdf = _ => this.fetchPdf(props.queryParams.get("title"))
+        if (props.client.isInitialSyncComplete()) fetchPdf() 
+        else {
+            props.client.on("sync", function syncListener (state,prevState,data) {
                 if (state == "PREPARED") {
-                    this.fetchPdf(props.queryParams.get("title"))
-                }//need to remove this listener after initial sync
+                    fetchPdf(props.queryParams.get("title"))
+                    props.client.off("sync", syncListener)
+                }
             })
         }
     }
@@ -64,8 +65,8 @@ export default class PdfView extends Component {
                 }).then(function(text) {
                   //resize the text and annotation layers to sit on top of the rendered PDF page
 
-                  layout.positionAt(theCanvas.getBoundingClientRect(),textLayer);
-                  layout.positionAt(theCanvas.getBoundingClientRect(),annotationLayer);
+                  layout.positionAt(theCanvas.getBoundingClientRect(), textLayer);
+                  layout.positionAt(theCanvas.getBoundingClientRect(), annotationLayer);
 
                   //insert the pdf text into the text layer
                   pdfjsLib.renderTextLayer({
