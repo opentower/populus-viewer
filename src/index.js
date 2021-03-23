@@ -2,6 +2,7 @@ import * as Matrix from "matrix-js-sdk"
 import { h, render, Fragment, Component } from 'preact';
 import WelcomeView from './welcome.js';
 import LoginView from './login.js';
+import PdfView from './pdfView.js';
 
 // This module is the entrypoint for the viewer. It'll be reponsible for the
 // main container element, for initializing the client object, and potentially
@@ -11,24 +12,28 @@ import LoginView from './login.js';
 class PopulusViewer extends Component {
     constructor () {
         super()
+        this.queryParams = new URLSearchParams(window.location.search)
         this.client = Matrix.createClient({
             baseUrl : "http://localhost:8008",
             userId : localStorage.getItem("userId"),
             accessToken : localStorage.getItem("accessToken"),
             timelineSupport : true,
         })
-        this.state = { loggedIn : false }
+        this.state = { 
+            loggedIn : false,
+            pdfFocused : this.queryParams.get("title")
+        }
         if (this.client.getUserId()) this.loginHandler()
     }
 
     logoutHandler = _ => { 
         localStorage.clear()
-        this.client.logout()
+        this.client.stopClient()
         this.client = Matrix.createClient({
             baseUrl : "http://localhost:8008",
             timelineSupport : true,
         })
-        this.setState({loggedIn : false}) 
+        this.setState({loggedIn : false})
     }
 
     loginHandler = _ => { 
@@ -40,10 +45,12 @@ class PopulusViewer extends Component {
     }
 
     render(props,state) {
-        if (state.loggedIn) {
-            return <WelcomeView logoutHandler={this.logoutHandler} client={this.client}/>
-        } else {
+        if (!state.loggedIn) {
             return <LoginView loginHandler={this.loginHandler} client={this.client}/>
+        } if (state.pdfFocused) {
+            return <PdfView queryParams={this.queryParams} client={this.client}/>
+        } else {
+            return <WelcomeView logoutHandler={this.logoutHandler} client={this.client}/>
         }
     }
 }
