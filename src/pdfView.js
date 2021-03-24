@@ -13,7 +13,7 @@ export default class PdfView extends Component {
         else {
             props.client.on("sync", function syncListener (state,prevState,data) {
                 if (state == "PREPARED") {
-                    fetchPdf(props.queryParams.get("title"))
+                    fetchPdf()
                     props.client.off("sync", syncListener)
                 }
             })

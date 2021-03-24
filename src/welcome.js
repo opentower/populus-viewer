@@ -1,4 +1,5 @@
 import { h, render, Fragment, Component } from 'preact';
+import * as Matrix from "matrix-js-sdk"
 
 export default class WelcomeView extends Component {
 
@@ -27,7 +28,12 @@ class RoomList extends Component {
         //TODO: We're going to want to have different subcategories of rooms,
         //for actual pdfs, and for annotation discussions
         const rooms = state.rooms.map(room => <RoomListing room={room}/>)
-        return <div>{rooms}</div>
+        return (
+            <Fragment>
+                <h3>Current Conversations</h3>
+                <div>{rooms}</div>
+            </Fragment>
+        )
     }
 }
 
@@ -44,6 +50,28 @@ class Logout extends Component {
 
 class RoomListing extends Component {
     render (props, state) {
-        return (<div id={props.room.name}>{props.room.name}</div>)
+        var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents("org.populus.pdf","")
+        if (pdfEvent) return (<PDFRoomEntry pdfevent={pdfEvent} room={props.room}/>)
+        else return (<AnnotationRoomEntry room={props.room}/>)
+    }
+}
+
+class PDFRoomEntry extends Component {
+    render (props, state) {
+        console.log()
+        return (
+            <div class="roomListingEntry" id={props.room.roomId}>
+                <div>PDF:
+                    <a>{props.room.name}</a>
+                </div>
+                <div>Last Active: {Date(props.room.getLastActiveTimestamp())}</div> 
+            </div>
+            )
+    }
+}
+
+class AnnotationRoomEntry extends Component {
+    render (props, state) {
+        return (<div class="roomListingEntry" id={props.room.name}>{props.room.name}</div>)
     }
 }
