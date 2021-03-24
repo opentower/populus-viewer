@@ -4,7 +4,6 @@ import * as Matrix from "matrix-js-sdk"
 export default class WelcomeView extends Component {
 
     render(props,state) {
-        console.log(props.loadPDF)
         return (
             <Fragment>
                 <RoomList {...props}/>
@@ -63,11 +62,11 @@ class PDFRoomEntry extends Component {
         return (
             <div class="roomListingEntry" id={props.room.roomId}>
                 <div>PDF:
-                    <a href="#" onclick={_ => props.loadPDF(props.room.name)}>{props.room.name}</a>
+                    <a onclick={_ => props.loadPDF(props.room.name)}>{props.room.name}</a>
                 </div>
                 <div>Last Active: {Date(props.room.getLastActiveTimestamp())}</div> 
             </div>
-            )
+        )
     }
 }
 

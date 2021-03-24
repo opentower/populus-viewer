@@ -21,9 +21,16 @@ class PopulusViewer extends Component {
         })
         this.state = { 
             loggedIn : false,
-            pdfFocused : this.queryParams.get("title")
+            pdfFocused : this.queryParams.get("title") || false
         }
         if (this.client.getUserId()) this.loginHandler()
+        //initialize navigation history
+        window.history.pushState({ pdfFocused : this.state.pdfFocused },"", "?" + this.queryParams.toString()) 
+        //handle navigation events
+        window.addEventListener('popstate', e => {
+            if (e.state.pdfFocused) this.setState({pdfFocused : e.state.pdfFocused})
+            else this.setState({pdfFocused : false })
+        })
     }
 
     logoutHandler = _ => { 
@@ -45,8 +52,9 @@ class PopulusViewer extends Component {
     }
 
     loadPDF = (title) => {
-       this.queryParams.set("title", title)
        this.setState({pdfFocused : title})
+       this.queryParams.set("title", title)
+       window.history.pushState({ pdfFocused : title},"", "?" + this.queryParams.toString())
     }
 
     render(props,state) {

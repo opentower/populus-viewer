@@ -3,3 +3,8 @@
     margin: 1em;
     padding: 1em;
 }
+.roomListingEntry a {
+  color: #069;
+  text-decoration: underline;
+  cursor: pointer;
+}
