@@ -59,12 +59,13 @@ class RoomListing extends Component {
 class PDFRoomEntry extends Component {
 
     render (props, state) {
+        const date = new Date(props.room.getLastActiveTimestamp())
         return (
             <div class="roomListingEntry" id={props.room.roomId}>
                 <div>PDF:
                     <a onclick={_ => props.loadPDF(props.room.name)}>{props.room.name}</a>
                 </div>
-                <div>Last Active: {Date(props.room.getLastActiveTimestamp())}</div> 
+                <div>Last Active: {date.toDateString()}, {date.toTimeString()}</div> 
             </div>
         )
     }
