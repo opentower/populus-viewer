@@ -4,9 +4,10 @@ import * as Matrix from "matrix-js-sdk"
 export default class WelcomeView extends Component {
 
     render(props,state) {
+        console.log(props.loadPDF)
         return (
             <Fragment>
-                <RoomList client={props.client}/>
+                <RoomList {...props}/>
                 <Logout logoutHandler={props.logoutHandler}/>
             </Fragment>
         )
@@ -27,7 +28,7 @@ class RoomList extends Component {
     render(props,state) {
         //TODO: We're going to want to have different subcategories of rooms,
         //for actual pdfs, and for annotation discussions
-        const rooms = state.rooms.map(room => <RoomListing room={room}/>)
+        const rooms = state.rooms.map(room => <RoomListing {...props} room={room}/>)
         return (
             <Fragment>
                 <h3>Current Conversations</h3>
@@ -51,18 +52,18 @@ class Logout extends Component {
 class RoomListing extends Component {
     render (props, state) {
         var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents("org.populus.pdf","")
-        if (pdfEvent) return (<PDFRoomEntry pdfevent={pdfEvent} room={props.room}/>)
+        if (pdfEvent) return (<PDFRoomEntry {...props} pdfevent={pdfEvent}/>)
         else return (<AnnotationRoomEntry room={props.room}/>)
     }
 }
 
 class PDFRoomEntry extends Component {
+
     render (props, state) {
-        console.log()
         return (
             <div class="roomListingEntry" id={props.room.roomId}>
                 <div>PDF:
-                    <a>{props.room.name}</a>
+                    <a href="#" onclick={_ => props.loadPDF(props.room.name)}>{props.room.name}</a>
                 </div>
                 <div>Last Active: {Date(props.room.getLastActiveTimestamp())}</div> 
             </div>

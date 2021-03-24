@@ -44,13 +44,18 @@ class PopulusViewer extends Component {
         })
     }
 
+    loadPDF = (title) => {
+       this.queryParams.set("title", title)
+       this.setState({pdfFocused : title})
+    }
+
     render(props,state) {
         if (!state.loggedIn) {
             return <LoginView loginHandler={this.loginHandler} client={this.client}/>
         } if (state.pdfFocused) {
             return <PdfView queryParams={this.queryParams} client={this.client}/>
         } else {
-            return <WelcomeView logoutHandler={this.logoutHandler} client={this.client}/>
+            return <WelcomeView loadPDF={this.loadPDF} logoutHandler={this.logoutHandler} client={this.client}/>
         }
     }
 }
