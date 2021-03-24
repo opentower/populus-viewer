@@ -8,7 +8,7 @@ export default class PdfView extends Component {
     constructor(props) {
         super(props)
         this.client = props.client
-        let fetchPdf = _ => this.fetchPdf(props.queryParams.get("title"))
+        let fetchPdf = _ => this.fetchPdf(props.pdfFocused)
         if (props.client.isInitialSyncComplete()) fetchPdf() 
         else {
             props.client.on("sync", function syncListener (state,prevState,data) {
