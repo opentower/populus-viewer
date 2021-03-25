@@ -5,19 +5,20 @@ import * as Layout from "./layout.js"
 
 export default class PdfView extends Component {
 
+    static PDFStore = {} 
+    //we store downloaded PDFs here in order to avoid excessive downloads. 
+    //Could alternatively use localstorage or some such eventually. We don't
+    //use preact state since changes here aren't relevent to UI.
+
     constructor(props) {
         super(props)
         this.client = props.client
-        let fetchPdf = _ => this.fetchPdf(props.pdfFocused)
-        if (props.client.isInitialSyncComplete()) fetchPdf() 
-        else {
-            props.client.on("sync", function syncListener (state,prevState,data) {
-                if (state == "PREPARED") {
-                    fetchPdf()
-                    props.client.off("sync", syncListener)
-                }
-            })
-        }
+        let syncListener = (state,prevState,data) =>
+                state == "PREPARED" 
+                ? this.fetchPdf(props.pdfFocused)
+                : props.client.off("sync", syncListener)
+        if (props.client.isInitialSyncComplete()) this.fetchPdf(props.pdfFocused) 
+        else props.client.on("sync",syncListener)
     }
 
     fetchPdf (title) {
@@ -33,16 +34,18 @@ export default class PdfView extends Component {
                  var theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
                  var pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf","").getContent().identifier
                  this.setState({pdfIdentifier : pdfIdentifier})
-                 var loadingTask = PDFJS.getDocument('http://localhost:8008/_matrix/media/r0/download/localhost/' + pdfIdentifier)
-                 this.setState({pdfPromise : loadingTask.promise})
-             }).then(_ => this.drawPdf())
+                 if (!PdfView.PDFStore[pdfIdentifier]) {
+                     PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument('http://localhost:8008/_matrix/media/r0/download/localhost/' + pdfIdentifier).promise
+                 }
+                 return pdfIdentifier
+             }).then(this.drawPdf)
     }
 
-    drawPdf () {
+    drawPdf (pdfIdentifier) {
         var theCanvas = document.getElementById("pdf-canvas")
         var textLayer = document.getElementById("text-layer")
         var annotationLayer = document.getElementById("annotation-layer")
-        this.state.pdfPromise.then(pdf => {
+        PdfView.PDFStore[pdfIdentifier].then(pdf => {
               // Fetch the first page
               pdf.getPage(1).then(function(page) {
                 console.log('Page loaded');
