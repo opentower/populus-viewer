@@ -13,10 +13,8 @@ export default class PdfView extends Component {
     constructor(props) {
         super(props)
         this.client = props.client
-        this.state = {
-            page : 1,
-            pdfIdentifier : null
-        }
+        this.pendingRender = null
+        this.state = { pdfIdentifier : null }
         let syncListener = (state,prevState,data) =>
                 state == "PREPARED" 
                 ? this.fetchPdf(props.pdfFocused)
@@ -40,18 +38,22 @@ export default class PdfView extends Component {
                  var pdfPath = 'http://localhost:8008/_matrix/media/r0/download/localhost/' + pdfIdentifier
                  this.setState({pdfIdentifier : pdfIdentifier})
                  if (!PdfView.PDFStore[pdfIdentifier]) {
+                     console.log('fetched ' + title )
                      PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
                  }
-             }).then(_ => this.drawPdf())
+             })
     }
 
     drawPdf () {
         var theCanvas = document.getElementById("pdf-canvas")
         var textLayer = document.getElementById("text-layer")
         var annotationLayer = document.getElementById("annotation-layer")
+        try {this.pendingRender._internalRenderTask.cancel()} catch {}
         PdfView.PDFStore[this.state.pdfIdentifier].then(pdf => {
+              //Lock navigation
+              this.navLock = true
               // Fetch the first page
-              pdf.getPage(this.state.page).then(function(page) {
+                pdf.getPage(this.props.pageFocused || 1).then(page => {
                 console.log('Page loaded');
               
                 var scale = 1.5;
@@ -68,11 +70,12 @@ export default class PdfView extends Component {
                   viewport: viewport
                 };
 
-                var renderTask = page.render(renderContext);
-                renderTask.promise.then(function () {
+                this.pendingRender = page.render(renderContext);
+                this.pendingRender.promise.then(_ => {
                   console.log('Page rendered');
                   return page.getTextContent();
-                }).then(function(text) {
+                }).then(text => {
+                   
                   //resize the text and annotation layers to sit on top of the rendered PDF page
 
                   Layout.positionAt(theCanvas.getBoundingClientRect(), textLayer);
@@ -90,12 +93,6 @@ export default class PdfView extends Component {
         })
     }
 
-    setPage = (pageNo) => {
-        var theCanvas = document.getElementById("pdf-canvas")
-        theCanvas.getContext('2d').clearRect(0,0, theCanvas.width, theCanvas.height)
-        this.setState({ page : pageNo })
-    }
-
     componentDidUpdate(prevProps, prevState, snapshot) {
         this.drawPdf()
     }
@@ -104,13 +101,13 @@ export default class PdfView extends Component {
         return (
             <Fragment>
                 <div id="document-view">
-                    <canvas data-page={state.page} id="pdf-canvas"/>
+                    <canvas data-page={props.pageFocused.page} id="pdf-canvas"/>
                     <div id="annotation-layer"/>
                     <div id="text-layer"/>
                 </div>
                 <div>
-                    <button onclick={_ => this.setPage(state.page + 1)}>Next</button>
-                    <button onclick={_ => this.setPage(state.page - 1)}>Prev</button>
+                    <button onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>
+                    <button onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>
                 </div>
             </Fragment>
         )
