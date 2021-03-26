@@ -1,7 +1,8 @@
-import { h, render, Fragment, Component } from 'preact';
+import { h, render, createRef, Fragment, Component } from 'preact';
 import * as PDFJS from "pdfjs-dist/webpack"
 import * as Matrix from "matrix-js-sdk"
 import * as Layout from "./layout.js"
+import AnnotationLayer from "./annotation.js"
 
 export default class PdfView extends Component {
 
@@ -10,11 +11,20 @@ export default class PdfView extends Component {
     //Could alternatively use localstorage or some such eventually. We don't
     //use preact state since changes here aren't relevent to UI.
 
+    textLayer = createRef()
+
+    annotationLayer = createRef()
+
+    canvas = createRef()
+
     constructor(props) {
         super(props)
         this.client = props.client
         this.pendingRender = null
-        this.state = { pdfIdentifier : null }
+        this.state = { 
+            pdfIdentifier : null,
+            roomId : null
+        }
         let syncListener = (state,prevState,data) =>
                 state == "PREPARED" 
                 ? this.fetchPdf(props.pdfFocused)
@@ -32,10 +42,10 @@ export default class PdfView extends Component {
                  this.client.joinRoom(theId)
              }).then(_ => {
                  this.setState({roomId : theId})
-                 var theRoom = this.client.getRoom(theId)
-                 var theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-                 var pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf","").getContent().identifier
-                 var pdfPath = 'http://localhost:8008/_matrix/media/r0/download/localhost/' + pdfIdentifier
+                 const theRoom = this.client.getRoom(theId)
+                 const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+                 const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf","").getContent().identifier
+                 const pdfPath = 'http://localhost:8008/_matrix/media/r0/download/localhost/' + pdfIdentifier
                  this.setState({pdfIdentifier : pdfIdentifier})
                  if (!PdfView.PDFStore[pdfIdentifier]) {
                      console.log('fetched ' + title )
@@ -45,9 +55,8 @@ export default class PdfView extends Component {
     }
 
     drawPdf () {
-        var theCanvas = document.getElementById("pdf-canvas")
-        var textLayer = document.getElementById("text-layer")
-        var annotationLayer = document.getElementById("annotation-layer")
+        //could use preact refs for these
+        const theCanvas = this.canvas.current
         try {this.pendingRender._internalRenderTask.cancel()} catch {}
         PdfView.PDFStore[this.state.pdfIdentifier].then(pdf => {
               //Lock navigation
@@ -78,8 +87,8 @@ export default class PdfView extends Component {
                    
                   //resize the text and annotation layers to sit on top of the rendered PDF page
 
-                  Layout.positionAt(theCanvas.getBoundingClientRect(), textLayer);
-                  Layout.positionAt(theCanvas.getBoundingClientRect(), annotationLayer);
+                  Layout.positionAt(theCanvas.getBoundingClientRect(), this.textLayer.current);
+                  Layout.positionAt(theCanvas.getBoundingClientRect(), this.annotationLayer.current.base);
 
                   //insert the pdf text into the text layer
                   PDFJS.renderTextLayer({
@@ -94,22 +103,26 @@ export default class PdfView extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        this.textLayer.current.innerHTML = ""
         this.drawPdf()
     }
 
     render(props,state) {
         return (
-            <Fragment>
+            <div id="content-container">
                 <div id="document-view">
-                    <canvas data-page={props.pageFocused.page} id="pdf-canvas"/>
-                    <div id="annotation-layer"/>
-                    <div id="text-layer"/>
+                    <canvas ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas"/>
+                    <AnnotationLayer ref={this.annotationLayer} 
+                                     page={props.pageFocused} 
+                                     roomId={state.roomId} 
+                                     client={props.client}/>
+                    <div ref={this.textLayer} id="text-layer"/>
                 </div>
                 <div>
                     <button onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>
                     <button onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>
                 </div>
-            </Fragment>
+            </div>
         )
     }
 }

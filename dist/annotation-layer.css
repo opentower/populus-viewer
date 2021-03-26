@@ -7,10 +7,10 @@
     overflow: hidden;
     line-height:1;
     opacity: 0.2;
-    visibility: hidden;
+    /* visibility: hidden; */
 }
 
-#annotation-layer > span {
+#annotation-layer span {
     background-color:blue;
     position: absolute;
     white-space: pre;
@@ -18,6 +18,6 @@
     transform-origin: 0% 0%;
 }
 
-#annotation-layer > span[data-annotation-focused='true'] {
+#annotation-layer span[data-annotation-focused='true'] {
     background-color:red;
 }

@@ -11,6 +11,16 @@ export function positionAt(rect,elt) {
       elt.style.width = rect.width + "px"
 }
 
+export function positionRelativeAt(rect,elt) {
+
+      var parent = elt.offsetParent
+
+      elt.style.left = rect.left + parent.offsetLeft + "px"
+      elt.style.top = rect.top + parent.offsetTop + "px"
+      elt.style.height = rect.height + "px"
+      elt.style.width = rect.width + "px"
+}
+
 //take boundingClientRect, in coordinates relative to the viewport, and produce
 //a rect in coordinates relative to the given element
 export function rectRelativeTo(elt,rect) {
