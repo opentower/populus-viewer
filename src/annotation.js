@@ -10,7 +10,6 @@ export default class AnnotationLayer extends Component {
         this.state = { focus : null }
         props.client.on("RoomState.events", event => {
             if (event.event.room_id == props.roomId && event.event.type == eventVersion) {
-                console.log("update state")
                 this.forceUpdate()
             }
         }) //TODO: remove listener on unmount
@@ -23,6 +22,8 @@ export default class AnnotationLayer extends Component {
         )
     }
 
+    setFocus = (uuid) => this.setState({focus : uuid})
+
     render(props,state) {
         //just to get started
         const theRoom = props.client.getRoom(props.roomId)
@@ -31,7 +32,9 @@ export default class AnnotationLayer extends Component {
             const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
             annotations = theRoomState.getStateEvents(eventVersion)
                                       .filter(event => this.filterAnnotations(props.page,event))
-                                      .map(event => <Annotation event={event}/>)
+                                      .map(event => <Annotation focused={state.focus == event.event.content.uuid}
+                                                                setFocus={this.setFocus} 
+                                                                event={event}/>)
         }
         return (
             <div id="annotation-layer">
@@ -47,10 +50,13 @@ class Annotation extends Component {
         super(props)
     }
 
+    setFocus = _ => this.props.setFocus(this.props.event.event.content.uuid)
+
     render(props,state) {
+        const uuid = props.event.event.content.uuid
         const spans = JSON.parse(props.event.event.content.clientRects)
-                          .map(rect => (<RectSpan rect={rect}/>))
-        return <div id={props.event.event.content.uuid}>{spans}</div>
+                          .map(rect => (<RectSpan setFocus={this.setFocus} rect={rect}/>))
+        return <div data-focused={props.focused} id={uuid}>{spans}</div>
     }
 }
 
@@ -63,6 +69,6 @@ class RectSpan extends Component {
     componentDidUpdate() { Layout.positionRelativeAt(this.props.rect,this.ref.current) }
 
     render(props,state) {
-        return <span ref={this.ref}></span>
+        return <span onclick={props.setFocus} data-annotation ref={this.ref}></span>
     }
 }

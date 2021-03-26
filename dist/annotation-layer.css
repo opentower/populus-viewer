@@ -18,6 +18,6 @@
     transform-origin: 0% 0%;
 }
 
-#annotation-layer span[data-annotation-focused='true'] {
+#annotation-layer > div[data-focused] > span {
     background-color:red;
 }

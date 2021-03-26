@@ -107,6 +107,15 @@ export default class PdfView extends Component {
         this.drawPdf()
     }
 
+    componentDidMount() {
+        this.textLayer.current.addEventListener('click', event => {
+            const mouseEvent = new MouseEvent(event.type, event)
+            document.elementsFromPoint(event.clientX, event.clientY).forEach(elt => {
+                if (elt.hasAttribute("data-annotation")) elt.dispatchEvent(mouseEvent)
+            })
+        })
+    }
+
     render(props,state) {
         return (
             <div id="content-container">
