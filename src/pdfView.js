@@ -24,7 +24,6 @@ export default class PdfView extends Component {
         this.state = { 
             pdfIdentifier : null,
             roomId : null,
-            focus: null,
         }
         let syncListener = (state,prevState,data) =>
                 state == "PREPARED" 
