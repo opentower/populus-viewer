@@ -3,6 +3,7 @@ import * as PDFJS from "pdfjs-dist/webpack"
 import * as Matrix from "matrix-js-sdk"
 import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
+import { eventVersion }  from "./constants.js"
 
 export default class PdfView extends Component {
 
@@ -19,7 +20,6 @@ export default class PdfView extends Component {
 
     constructor(props) {
         super(props)
-        this.client = props.client
         this.pendingRender = null
         this.state = { 
             pdfIdentifier : null,
@@ -35,14 +35,14 @@ export default class PdfView extends Component {
 
     fetchPdf (title) {
         var theId
-        this.client
+        this.props.client
              .getRoomIdForAlias("#" + title + ":localhost")
              .then(id => {
                  theId = id.room_id
-                 this.client.joinRoom(theId)
+                 this.props.client.joinRoom(theId)
              }).then(_ => {
                  this.setState({roomId : theId})
-                 const theRoom = this.client.getRoom(theId)
+                 const theRoom = this.props.client.getRoom(theId)
                  const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
                  const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf","").getContent().identifier
                  const pdfPath = 'http://localhost:8008/_matrix/media/r0/download/localhost/' + pdfIdentifier
@@ -52,6 +52,34 @@ export default class PdfView extends Component {
                      PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
                  }
              })
+    }
+
+    addAnnotation = _ => {
+        var theSelection = window.getSelection()
+        if (theSelection.isCollapsed) return
+        var theRange = theSelection.getRangeAt(0)
+        var clientRects = Array.from(theRange.getClientRects())
+                               .map(rect => Layout.rectRelativeTo(this.annotationLayer.current, rect))
+        var uuid = Math.random().toString(36).substring(2)
+        //room creation is a bit slow, might want to rework this slightly for responsiveness
+        this.props.client.createRoom({ 
+            room_alias_name : "room" + uuid,
+            name : "room" + uuid,
+            visibility : "public",
+            topic : "bloviating",
+            initial_state : [{
+                "type": "m.room.join_rules",
+                "state_key":"",
+                "content": {"join_rule": "public"}
+            }]
+        }).then(_ => {
+            this.props.client.sendStateEvent(this.state.roomId, eventVersion, {
+                uuid : uuid, 
+                clientRects : JSON.stringify(clientRects),
+                activityStatus: "open",
+                pageNumber : this.props.pageFocused
+            }, uuid)
+        })
     }
 
     drawPdf () {
@@ -88,7 +116,7 @@ export default class PdfView extends Component {
                   //resize the text and annotation layers to sit on top of the rendered PDF page
 
                   Layout.positionAt(theCanvas.getBoundingClientRect(), this.textLayer.current);
-                  Layout.positionAt(theCanvas.getBoundingClientRect(), this.annotationLayer.current.base);
+                  Layout.positionAt(theCanvas.getBoundingClientRect(), this.annotationLayer.current);
 
                   //insert the pdf text into the text layer
                   PDFJS.renderTextLayer({
@@ -117,11 +145,12 @@ export default class PdfView extends Component {
     }
 
     render(props,state) {
+        console.log(this.annotationLayer.current)
         return (
             <div id="content-container">
                 <div id="document-view">
                     <canvas ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas"/>
-                    <AnnotationLayer ref={this.annotationLayer} 
+                    <AnnotationLayer deepref={this.annotationLayer} 
                                      page={props.pageFocused} 
                                      roomId={state.roomId} 
                                      client={props.client}/>
@@ -130,6 +159,7 @@ export default class PdfView extends Component {
                 <div>
                     <button onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>
                     <button onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>
+                    <button onclick={this.addAnnotation}>Add Annotation</button>
                 </div>
             </div>
         )

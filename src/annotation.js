@@ -1,8 +1,7 @@
 import { h, render, createRef, Fragment, Component } from 'preact';
 import * as Layout from "./layout.js"
 import * as Matrix from "matrix-js-sdk"
-
-const eventVersion = "org.populus.annotation.3" //increment to start over with a fresh event type
+import { eventVersion }  from "./constants.js"
 
 export default class AnnotationLayer extends Component {
     constructor(props) {
@@ -15,7 +14,6 @@ export default class AnnotationLayer extends Component {
             }
         }) 
         window.addEventListener('keydown', e => { if (e.key == "D") this.closeFocus(); })
-        window.addEventListener('keydown', e => { if (e.key == "S") this.addAnnotation(); })
         //TODO: remove listeners on unmount
     }
 
@@ -26,8 +24,6 @@ export default class AnnotationLayer extends Component {
         )
     }
 
-    annotationLayer = createRef()
-
     setFocus = content => this.setState({focus : content})
 
     closeFocus = _ => {
@@ -36,34 +32,6 @@ export default class AnnotationLayer extends Component {
             "clientRects": this.state.focus.clientRects,
             "activityStatus": "closed"
         }, this.state.focus.uuid)
-    }
-
-    addAnnotation = _ => {
-        var theSelection = window.getSelection()
-        if (theSelection.isCollapsed) return
-        var theRange = theSelection.getRangeAt(0)
-        var clientRects = Array.from(theRange.getClientRects())
-                               .map(rect => Layout.rectRelativeTo(this.annotationLayer.current, rect))
-        var uuid = Math.random().toString(36).substring(2)
-        //room creation is a bit slow, might want to rework this slightly for responsiveness
-        this.props.client.createRoom({ 
-            room_alias_name : "room" + uuid,
-            name : "room" + uuid,
-            visibility : "public",
-            topic : "bloviating",
-            initial_state : [{
-                "type": "m.room.join_rules",
-                "state_key":"",
-                "content": {"join_rule": "public"}
-            }]
-        }).then(_ => {
-            this.props.client.sendStateEvent(this.props.roomId, eventVersion, {
-                uuid : uuid, 
-                clientRects : JSON.stringify(clientRects),
-                activityStatus: "open",
-                pageNumber : this.props.page
-            }, uuid)
-        })
     }
 
     render(props,state) {
@@ -80,7 +48,7 @@ export default class AnnotationLayer extends Component {
                                                                 event={event}/>)
         }
         return (
-            <div ref={this.annotationLayer} id="annotation-layer">
+            <div ref={props.deepref} id="annotation-layer">
                 {annotations}
             </div>
         )
