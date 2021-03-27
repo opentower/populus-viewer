@@ -48,7 +48,7 @@ export default class AnnotationLayer extends Component {
                                                                 event={event}/>)
         }
         return (
-            <div ref={props.deepref} id="annotation-layer">
+            <div id="annotation-layer">
                 {annotations}
             </div>
         )

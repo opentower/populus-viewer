@@ -23,7 +23,8 @@ export default class PdfView extends Component {
         this.pendingRender = null
         this.state = { 
             pdfIdentifier : null,
-            roomId : null
+            roomId : null,
+            focus: null,
         }
         let syncListener = (state,prevState,data) =>
                 state == "PREPARED" 
@@ -54,12 +55,12 @@ export default class PdfView extends Component {
              })
     }
 
-    addAnnotation = _ => {
+    openAnnotation = _ => {
         var theSelection = window.getSelection()
         if (theSelection.isCollapsed) return
         var theRange = theSelection.getRangeAt(0)
         var clientRects = Array.from(theRange.getClientRects())
-                               .map(rect => Layout.rectRelativeTo(this.annotationLayer.current, rect))
+                               .map(rect => Layout.rectRelativeTo(this.annotationLayer.current.base, rect))
         var uuid = Math.random().toString(36).substring(2)
         //room creation is a bit slow, might want to rework this slightly for responsiveness
         this.props.client.createRoom({ 
@@ -81,6 +82,22 @@ export default class PdfView extends Component {
             }, uuid)
         })
     }
+
+    closeAnnotation = _ => {
+        this.props.client.sendStateEvent(this.state.roomId, eventVersion, {
+            "uuid": this.annotationLayer.current.state.focus.uuid, 
+            "clientRects": this.annotationLayer.current.state.focus.clientRects,
+            "activityStatus": "closed"
+        }, this.annotationLayer.current.state.focus.uuid)
+        //using the child state directly like this is supposed to be bad
+        //practice, but maintaining the focus state in the pdfView makes the
+        //pdf rerender on changes, which is undesirable. So we do this in
+        //oreder to let buttons in the pdf view do things that depend on the
+        //state of the annotationLayer
+        //
+        //Might be able to fix by moving the pdf layer to a separate child component.
+    }
+
 
     drawPdf () {
         //could use preact refs for these
@@ -116,7 +133,7 @@ export default class PdfView extends Component {
                   //resize the text and annotation layers to sit on top of the rendered PDF page
 
                   Layout.positionAt(theCanvas.getBoundingClientRect(), this.textLayer.current);
-                  Layout.positionAt(theCanvas.getBoundingClientRect(), this.annotationLayer.current);
+                  Layout.positionAt(theCanvas.getBoundingClientRect(), this.annotationLayer.current.base);
 
                   //insert the pdf text into the text layer
                   PDFJS.renderTextLayer({
@@ -145,12 +162,11 @@ export default class PdfView extends Component {
     }
 
     render(props,state) {
-        console.log(this.annotationLayer.current)
         return (
             <div id="content-container">
                 <div id="document-view">
                     <canvas ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas"/>
-                    <AnnotationLayer deepref={this.annotationLayer} 
+                    <AnnotationLayer ref={this.annotationLayer} 
                                      page={props.pageFocused} 
                                      roomId={state.roomId} 
                                      client={props.client}/>
@@ -159,7 +175,8 @@ export default class PdfView extends Component {
                 <div>
                     <button onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>
                     <button onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>
-                    <button onclick={this.addAnnotation}>Add Annotation</button>
+                    <button onclick={this.openAnnotation}>Add Annotation</button>
+                    <button onclick={this.closeAnnotation}>Remove Annotation</button>
                 </div>
             </div>
         )
