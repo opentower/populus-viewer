@@ -12,7 +12,9 @@ export default class AnnotationLayer extends Component {
             if (event.event.room_id == props.roomId && event.event.type == eventVersion) {
                 this.forceUpdate()
             }
-        }) //TODO: remove listener on unmount
+        }) 
+        window.addEventListener('keydown', e => { if (e.key == "D") this.closeFocus(); })
+        //TODO: remove listeners on unmount
     }
 
     filterAnnotations (page,event) {
@@ -22,17 +24,26 @@ export default class AnnotationLayer extends Component {
         )
     }
 
-    setFocus = (uuid) => this.setState({focus : uuid})
+    setFocus = content => this.setState({focus : content})
+
+    closeFocus = _ => {
+        this.props.client.sendStateEvent(this.props.roomId, eventVersion, {
+            "uuid": this.state.focus.uuid, 
+            "clientRects": this.state.focus.clientRects,
+            "activityStatus": "closed"
+        }, this.state.focus.uuid)
+    }
 
     render(props,state) {
         //just to get started
         const theRoom = props.client.getRoom(props.roomId)
+        const uuid = state.focus ? state.focus.uuid : null
         var annotations = []
         if (theRoom) { 
             const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
             annotations = theRoomState.getStateEvents(eventVersion)
                                       .filter(event => this.filterAnnotations(props.page,event))
-                                      .map(event => <Annotation focused={state.focus == event.event.content.uuid}
+                                      .map(event => <Annotation focused={uuid == event.event.content.uuid}
                                                                 setFocus={this.setFocus} 
                                                                 event={event}/>)
         }
@@ -50,7 +61,7 @@ class Annotation extends Component {
         super(props)
     }
 
-    setFocus = _ => this.props.setFocus(this.props.event.event.content.uuid)
+    setFocus = _ => this.props.setFocus(this.props.event.event.content)
 
     render(props,state) {
         const uuid = props.event.event.content.uuid
