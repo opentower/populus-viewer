@@ -6,7 +6,6 @@ import { eventVersion }  from "./constants.js"
 export default class AnnotationLayer extends Component {
     constructor(props) {
         super(props)
-        this.state = { focus : null }
         props.client.on("RoomState.events", event => {
             //Important that it be "this.props", so that it tracks the changing props of the component
             if (event.event.room_id == this.props.roomId && event.event.type == eventVersion) {
@@ -24,27 +23,17 @@ export default class AnnotationLayer extends Component {
         )
     }
 
-    setFocus = content => this.setState({focus : content})
-
-    closeFocus = _ => {
-        this.props.client.sendStateEvent(this.props.roomId, eventVersion, {
-            "uuid": this.state.focus.uuid, 
-            "clientRects": this.state.focus.clientRects,
-            "activityStatus": "closed"
-        }, this.state.focus.uuid)
-    }
-
     render(props,state) {
         //just to get started
         const theRoom = props.client.getRoom(props.roomId)
-        const uuid = state.focus ? state.focus.uuid : null
+        const uuid = props.focus ? props.focus.uuid : null
         var annotations = []
         if (theRoom) { 
             const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
             annotations = theRoomState.getStateEvents(eventVersion)
                                       .filter(event => this.filterAnnotations(event))
                                       .map(event => <Annotation focused={uuid == event.event.content.uuid}
-                                                                setFocus={this.setFocus} 
+                                                                setFocus={props.setFocus} 
                                                                 event={event}/>)
         }
         return (

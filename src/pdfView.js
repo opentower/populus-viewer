@@ -12,47 +12,18 @@ export default class PdfView extends Component {
     //Could alternatively use localstorage or some such eventually. We don't
     //use preact state since changes here aren't relevent to UI.
 
-    textLayer = createRef()
-
     annotationLayer = createRef()
-
-    canvas = createRef()
 
     constructor(props) {
         super(props)
-        this.pendingRender = null
         this.state = { 
             pdfIdentifier : null,
             roomId : null,
+            focus: null
         }
-        let syncListener = (state,prevState,data) =>
-                state == "PREPARED" 
-                ? this.fetchPdf(props.pdfFocused)
-                : props.client.off("sync", syncListener)
-        if (props.client.isInitialSyncComplete()) this.fetchPdf(props.pdfFocused) 
-        else props.client.on("sync", syncListener)
     }
 
-    fetchPdf (title) {
-        var theId
-        this.props.client
-             .getRoomIdForAlias("#" + title + ":localhost")
-             .then(id => {
-                 theId = id.room_id
-                 this.props.client.joinRoom(theId)
-             }).then(_ => {
-                 this.setState({roomId : theId})
-                 const theRoom = this.props.client.getRoom(theId)
-                 const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-                 const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf","").getContent().identifier
-                 const pdfPath = 'http://localhost:8008/_matrix/media/r0/download/localhost/' + pdfIdentifier
-                 this.setState({pdfIdentifier : pdfIdentifier})
-                 if (!PdfView.PDFStore[pdfIdentifier]) {
-                     console.log('fetched ' + title )
-                     PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
-                 }
-             })
-    }
+    setId = id => this.setState({roomId : id})
 
     openAnnotation = _ => {
         var theSelection = window.getSelection()
@@ -84,22 +55,81 @@ export default class PdfView extends Component {
 
     closeAnnotation = _ => {
         this.props.client.sendStateEvent(this.state.roomId, eventVersion, {
-            "uuid": this.annotationLayer.current.state.focus.uuid, 
-            "clientRects": this.annotationLayer.current.state.focus.clientRects,
+            "uuid": this.state.focus.uuid, 
+            "clientRects": this.state.focus.clientRects,
             "activityStatus": "closed"
-        }, this.annotationLayer.current.state.focus.uuid)
-        //using the child state directly like this is supposed to be bad
-        //practice, but maintaining the focus state in the pdfView makes the
-        //pdf rerender on changes, which is undesirable. So we do this in
-        //oreder to let buttons in the pdf view do things that depend on the
-        //state of the annotationLayer
-        //
-        //Might be able to fix by moving the pdf layer to a separate child component.
+        }, this.state.focus.uuid)
     }
 
+    setFocus = content => this.setState({focus : content})
+
+    render(props,state) {
+        return (
+            <div id="content-container">
+                <div id="document-view">
+                    <PdfCanvas annotationLayer={this.annotationLayer}
+                               pdfFocused={props.pdfFocused}
+                               pageFocused={props.pageFocused}
+                               setId={this.setId}
+                               client={props.client}/>
+                    <AnnotationLayer ref={this.annotationLayer} 
+                                     page={props.pageFocused} 
+                                     roomId={state.roomId} 
+                                     setFocus={this.setFocus}
+                                     focus={state.focus}
+                                     client={props.client}/>
+                </div>
+                <div>
+                    <button onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>
+                    <button onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>
+                    <button onclick={this.openAnnotation}>Add Annotation</button>
+                    {state.focus && <button onclick={this.closeAnnotation}>Remove Annotation</button>}
+                </div>
+            </div>
+        )
+    }
+}
+
+class PdfCanvas extends Component {
+
+    constructor(props) {
+        super(props)
+        this.pendingRender = null
+        this.hasRendered = false //we allow one initial render, but then require a page change for a redraw
+        let syncListener = (state,prevState,data) =>
+                state == "PREPARED" 
+                ? this.fetchPdf(props.pdfFocused)
+                : props.client.off("sync", syncListener)
+        if (props.client.isInitialSyncComplete()) this.fetchPdf(props.pdfFocused) 
+        else props.client.on("sync", syncListener)
+    }
+
+    textLayer = createRef()
+
+    canvas = createRef()
+
+    fetchPdf (title) {
+        var theId
+        this.props.client
+             .getRoomIdForAlias("#" + title + ":localhost")
+             .then(id => {
+                 theId = id.room_id
+                 this.props.client.joinRoom(theId)
+             }).then(_ => {
+                 this.props.setId(theId)
+                 const theRoom = this.props.client.getRoom(theId)
+                 const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+                 const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf","").getContent().identifier
+                 const pdfPath = 'http://localhost:8008/_matrix/media/r0/download/localhost/' + pdfIdentifier
+                 this.setState({pdfIdentifier : pdfIdentifier})
+                 if (!PdfView.PDFStore[pdfIdentifier]) {
+                     console.log('fetched ' + title )
+                     PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
+                 }
+             })
+    }
 
     drawPdf () {
-        //could use preact refs for these
         const theCanvas = this.canvas.current
         try {this.pendingRender._internalRenderTask.cancel()} catch {}
         PdfView.PDFStore[this.state.pdfIdentifier].then(pdf => {
@@ -132,7 +162,7 @@ export default class PdfView extends Component {
                   //resize the text and annotation layers to sit on top of the rendered PDF page
 
                   Layout.positionAt(theCanvas.getBoundingClientRect(), this.textLayer.current);
-                  Layout.positionAt(theCanvas.getBoundingClientRect(), this.annotationLayer.current.base);
+                  Layout.positionAt(theCanvas.getBoundingClientRect(), this.props.annotationLayer.current.base);
 
                   //insert the pdf text into the text layer
                   PDFJS.renderTextLayer({
@@ -141,9 +171,13 @@ export default class PdfView extends Component {
                       viewport: viewport,
                       textDivs: []
                   });
-                })
+                }).then(_ => { this.hasRendered = true })
               });
         })
+    }
+
+    shouldComponentUpdate(nextProps) {
+        return (!this.hasRendered || (nextProps.pageFocused != this.props.pageFocused))
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -162,22 +196,10 @@ export default class PdfView extends Component {
 
     render(props,state) {
         return (
-            <div id="content-container">
-                <div id="document-view">
-                    <canvas ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas"/>
-                    <AnnotationLayer ref={this.annotationLayer} 
-                                     page={props.pageFocused} 
-                                     roomId={state.roomId} 
-                                     client={props.client}/>
-                    <div ref={this.textLayer} id="text-layer"/>
-                </div>
-                <div>
-                    <button onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>
-                    <button onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>
-                    <button onclick={this.openAnnotation}>Add Annotation</button>
-                    <button onclick={this.closeAnnotation}>Remove Annotation</button>
-                </div>
-            </div>
+            <Fragment>
+                <canvas ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas"/>
+                <div style="z-index:3" ref={this.textLayer} id="text-layer"/>
+            </Fragment>
         )
     }
 }
