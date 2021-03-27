@@ -9,20 +9,24 @@ export default class AnnotationLayer extends Component {
         super(props)
         this.state = { focus : null }
         props.client.on("RoomState.events", event => {
-            if (event.event.room_id == props.roomId && event.event.type == eventVersion) {
+            //Important that it be "this.props", so that it tracks the changing props of the component
+            if (event.event.room_id == this.props.roomId && event.event.type == eventVersion) {
                 this.forceUpdate()
             }
         }) 
         window.addEventListener('keydown', e => { if (e.key == "D") this.closeFocus(); })
+        window.addEventListener('keydown', e => { if (e.key == "S") this.addAnnotation(); })
         //TODO: remove listeners on unmount
     }
 
-    filterAnnotations (page,event) {
+    filterAnnotations (event) {
         return (
-            event.event.content.pageNumber == page 
+            event.event.content.pageNumber == this.props.page 
             && event.event.content.activityStatus != "closed"
         )
     }
+
+    annotationLayer = createRef()
 
     setFocus = content => this.setState({focus : content})
 
@@ -34,6 +38,34 @@ export default class AnnotationLayer extends Component {
         }, this.state.focus.uuid)
     }
 
+    addAnnotation = _ => {
+        var theSelection = window.getSelection()
+        if (theSelection.isCollapsed) return
+        var theRange = theSelection.getRangeAt(0)
+        var clientRects = Array.from(theRange.getClientRects())
+                               .map(rect => Layout.rectRelativeTo(this.annotationLayer.current, rect))
+        var uuid = Math.random().toString(36).substring(2)
+        //room creation is a bit slow, might want to rework this slightly for responsiveness
+        this.props.client.createRoom({ 
+            room_alias_name : "room" + uuid,
+            name : "room" + uuid,
+            visibility : "public",
+            topic : "bloviating",
+            initial_state : [{
+                "type": "m.room.join_rules",
+                "state_key":"",
+                "content": {"join_rule": "public"}
+            }]
+        }).then(_ => {
+            this.props.client.sendStateEvent(this.props.roomId, eventVersion, {
+                uuid : uuid, 
+                clientRects : JSON.stringify(clientRects),
+                activityStatus: "open",
+                pageNumber : this.props.page
+            }, uuid)
+        })
+    }
+
     render(props,state) {
         //just to get started
         const theRoom = props.client.getRoom(props.roomId)
@@ -42,13 +74,13 @@ export default class AnnotationLayer extends Component {
         if (theRoom) { 
             const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
             annotations = theRoomState.getStateEvents(eventVersion)
-                                      .filter(event => this.filterAnnotations(props.page,event))
+                                      .filter(event => this.filterAnnotations(event))
                                       .map(event => <Annotation focused={uuid == event.event.content.uuid}
                                                                 setFocus={this.setFocus} 
                                                                 event={event}/>)
         }
         return (
-            <div id="annotation-layer">
+            <div ref={this.annotationLayer} id="annotation-layer">
                 {annotations}
             </div>
         )
