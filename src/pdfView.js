@@ -182,13 +182,11 @@ class PdfCanvas extends Component {
         this.hasRendered = true
     }
 
-    shouldComponentUpdate(nextProps) {
-        return (!this.hasRendered || (nextProps.pageFocused != this.props.pageFocused))
-    }
-
     componentDidUpdate(prevProps, prevState, snapshot) {
-        this.textLayer.current.innerHTML = ""
-        this.drawPdf()
+        if (!this.hasRendered || (prevProps.pageFocused != this.props.pageFocused)) {
+            this.textLayer.current.innerHTML = ""
+            this.drawPdf()
+        }
     }
 
     componentDidMount() {
