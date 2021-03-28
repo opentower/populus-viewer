@@ -1,0 +1,38 @@
+#chat-panel {
+    border: 1px dashed black;
+    display:inline-flex;
+    flex-direction: column-reverse;
+    width:300px;
+    margin-top:200px;
+    vertical-align:top;
+    height:800px;
+    overflow-y: scroll
+}
+
+#chat-panel > textarea {
+    min-height:100px;
+    resize:none;
+}
+
+#chat-panel .message {
+    padding-top:5px;
+    padding-bottom:5px;
+}
+
+#chat-panel .message > .name {
+    margin:5px;
+    background:#aadada;
+    border-radius:5px;
+    padding:5px
+}
+
+#chat-panel .message > .body{
+    display: inline-block;
+    max-width:220px;
+    text-align:left;
+    vertical-align:top;
+}
+
+#chat-panel .me {
+    text-align:right;
+}

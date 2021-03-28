@@ -3,6 +3,7 @@ import * as PDFJS from "pdfjs-dist/webpack"
 import * as Matrix from "matrix-js-sdk"
 import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
+import Chat from "./chat.js"
 import { eventVersion }  from "./constants.js"
 
 export default class PdfView extends Component {
@@ -60,8 +61,9 @@ export default class PdfView extends Component {
                 "state_key":"",
                 "content": {"join_rule": "public"}
             }]
-        }).then(_ => {
+        }).then(roominfo => {
             this.props.client.sendStateEvent(this.state.roomId, eventVersion, {
+                room_id : roominfo.room_id,
                 uuid : uuid, 
                 clientRects : JSON.stringify(clientRects),
                 activityStatus: "open",
@@ -99,6 +101,7 @@ export default class PdfView extends Component {
                                      focus={state.focus}
                                      client={props.client}/>
                 </div>
+                <Chat client={props.client} focus={state.focus}/>
                 <div>
                     {props.pageFocused > 1 && <button onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>}
                     {state.totalPages > props.pageFocused && <button onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>}

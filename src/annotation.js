@@ -50,7 +50,7 @@ class Annotation extends Component {
         super(props)
     }
 
-    setFocus = _ => this.props.setFocus(this.props.event.event.content)
+    setFocus = _ => { this.props.setFocus(this.props.event.event.content) }
 
     render(props,state) {
         const uuid = props.event.event.content.uuid
