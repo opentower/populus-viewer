@@ -68,7 +68,7 @@ export default class PdfView extends Component {
                 clientRects : JSON.stringify(clientRects),
                 activityStatus: "open",
                 pageNumber : this.props.pageFocused
-            }, uuid)
+            }, uuid).catch(e => alert(e))
             theSelection.removeAllRanges()
         })
     }

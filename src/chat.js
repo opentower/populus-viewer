@@ -39,28 +39,27 @@ export default class Chat extends Component {
         }
     }
 
-    tryLoad = _ => {
+    tryLoad = (room) => {
         var anchor = document.getElementById("scroll-anchor")
         var chatPanel = document.getElementById("chat-panel")
         if (anchor && chatPanel.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
-            var room = this.props.client.getRoom(this.props.focus.room_id)
             this.props.client.scrollback(room)
             var oldState = room.getLiveTimeline().getState(sdk.EventTimeline.BACKWARDS)
             if (!oldState.paginationToken) { 
                 this.scrolledIdents.add(this.props.focus.room_id)
                 this.setState({ fullyScrolled : true }) 
             }
-            setTimeout(this.tryLoad,100)
+            setTimeout(_ => this.tryLoad(room),100)
         }
     }
 
-    componentDidUpdate(prevProps, prevState, snapshot) {
+    async componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.focus != this.props.focus) {
-            var room = this.props.client.getRoom(this.props.focus.room_id)
+            const room = await this.props.client.joinRoom(this.props.focus.room_id)
             this.setState({ 
                 fullyScrolled : this.scrolledIdents.has(this.props.focus.room_id),
                 events : room.getLiveTimeline().getEvents(),
-            },this.tryLoad)
+            }, _ => this.tryLoad(room))
         }
     }
 
