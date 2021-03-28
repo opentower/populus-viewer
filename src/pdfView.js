@@ -19,11 +19,25 @@ export default class PdfView extends Component {
         this.state = { 
             pdfIdentifier : null,
             roomId : null,
-            focus: null
+            focus: null,
+            hasSelection: false,
         }
+        this.checkForSelection = this.checkForSelection.bind(this)
+        //need the `bind` here in order to pass a named function into the event
+        //listener with the proper `this` reference
     }
 
+    componentDidMount() { document.addEventListener("selectionchange", this.checkForSelection) }
+
+    componentWillUnmount() { document.removeEventListener("selectionchange", this.checkForSelection) }
+
     setId = id => this.setState({roomId : id})
+
+    checkForSelection () {
+        if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
+        this.selectionTimeout = setTimeout(200,this.setState({hasSelection : !window.getSelection().isCollapsed}))
+        //timeout to avoid excessive rerendering
+    }
 
     openAnnotation = _ => {
         var theSelection = window.getSelection()
@@ -50,6 +64,7 @@ export default class PdfView extends Component {
                 activityStatus: "open",
                 pageNumber : this.props.pageFocused
             }, uuid)
+            theSelection.removeAllRanges()
         })
     }
 
@@ -59,13 +74,14 @@ export default class PdfView extends Component {
             "clientRects": this.state.focus.clientRects,
             "activityStatus": "closed"
         }, this.state.focus.uuid)
+        this.setState({focus : null})
     }
 
     setFocus = content => this.setState({focus : content})
 
     render(props,state) {
         return (
-            <div id="content-container">
+            <div  id="content-container">
                 <div id="document-view">
                     <PdfCanvas annotationLayer={this.annotationLayer}
                                pdfFocused={props.pdfFocused}
@@ -82,7 +98,7 @@ export default class PdfView extends Component {
                 <div>
                     <button onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>
                     <button onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>
-                    <button onclick={this.openAnnotation}>Add Annotation</button>
+                    {state.hasSelection && <button onclick={this.openAnnotation}>Add Annotation</button>}
                     {state.focus && <button onclick={this.closeAnnotation}>Remove Annotation</button>}
                 </div>
             </div>
