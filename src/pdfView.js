@@ -124,72 +124,62 @@ class PdfCanvas extends Component {
 
     canvas = createRef()
 
-    fetchPdf (title) {
-        var theId
-        this.props.client
-             .getRoomIdForAlias("#" + title + ":localhost")
-             .then(id => {
-                 theId = id.room_id
-                 this.props.client.joinRoom(theId)
-             }).then(_ => {
-                 this.props.setId(theId)
-                 const theRoom = this.props.client.getRoom(theId)
-                 const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-                 const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf","").getContent().identifier
-                 const pdfPath = 'http://localhost:8008/_matrix/media/r0/download/localhost/' + pdfIdentifier
-                 this.setState({pdfIdentifier : pdfIdentifier})
-                 if (!PdfView.PDFStore[pdfIdentifier]) {
-                     console.log('fetched ' + title )
-                     PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
-                 }
-             })
+    async fetchPdf (title) {
+        var theId = await this.props.client.getRoomIdForAlias("#" + title + ":localhost")
+        await this.props.client.joinRoom(theId.room_id)
+        this.props.setId(theId.room_id)
+        const theRoom = this.props.client.getRoom(theId.room_id)
+        const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+        const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf","").getContent().identifier
+        const pdfPath = 'http://localhost:8008/_matrix/media/r0/download/localhost/' + pdfIdentifier
+        this.setState({pdfIdentifier : pdfIdentifier})
+        if (!PdfView.PDFStore[pdfIdentifier]) {
+            console.log('fetched ' + title )
+            PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
+        }
     }
 
-    drawPdf () {
+    async drawPdf () {
         const theCanvas = this.canvas.current
         try {this.pendingRender._internalRenderTask.cancel()} catch {}
-        PdfView.PDFStore[this.state.pdfIdentifier].then(pdf => {
-              //Lock navigation
-              this.navLock = true
-              // Fetch the first page
-                pdf.getPage(this.props.pageFocused || 1).then(page => {
-                console.log('Page loaded');
+        const pdf = await PdfView.PDFStore[this.state.pdfIdentifier]
+        //Lock navigation
+        this.navLock = true
+        // Fetch the first page
+        const page = await pdf.getPage(this.props.pageFocused || 1)
+        console.log('Page loaded');
               
-                var scale = 1.5;
-                var viewport = page.getViewport({scale: scale});
+        const scale = 1.5;
+        const viewport = page.getViewport({scale: scale});
 
-                // Prepare canvas using PDF page dimensions
-                var context = theCanvas.getContext('2d');
-                theCanvas.height = viewport.height;
-                theCanvas.width = viewport.width;
+        // Prepare canvas using PDF page dimensions
+        const context = theCanvas.getContext('2d');
+        theCanvas.height = viewport.height;
+        theCanvas.width = viewport.width;
 
-                // Render PDF page into canvas context
-                var renderContext = {
-                  canvasContext: context,
-                  viewport: viewport
-                };
+        // Render PDF page into canvas context
+        const renderContext = {
+          canvasContext: context,
+          viewport: viewport
+        };
 
-                this.pendingRender = page.render(renderContext);
-                this.pendingRender.promise.then(_ => {
-                  console.log('Page rendered');
-                  return page.getTextContent();
-                }).then(text => {
-                   
-                  //resize the text and annotation layers to sit on top of the rendered PDF page
+        this.pendingRender = page.render(renderContext);
+        await this.pendingRender.promise
+        console.log('Page rendered');
+        const text = await page.getTextContent();
+        //resize the text and annotation layers to sit on top of the rendered PDF page
 
-                  Layout.positionAt(theCanvas.getBoundingClientRect(), this.textLayer.current);
-                  Layout.positionAt(theCanvas.getBoundingClientRect(), this.props.annotationLayer.current.base);
+        Layout.positionAt(theCanvas.getBoundingClientRect(), this.textLayer.current);
+        Layout.positionAt(theCanvas.getBoundingClientRect(), this.props.annotationLayer.current.base);
 
-                  //insert the pdf text into the text layer
-                  PDFJS.renderTextLayer({
-                      textContent: text,
-                      container: document.getElementById("text-layer"),
-                      viewport: viewport,
-                      textDivs: []
-                  });
-                }).then(_ => { this.hasRendered = true })
-              });
-        })
+        //insert the pdf text into the text layer
+        PDFJS.renderTextLayer({
+            textContent: text,
+            container: document.getElementById("text-layer"),
+            viewport: viewport,
+            textDivs: []
+        });
+        this.hasRendered = true
     }
 
     shouldComponentUpdate(nextProps) {
