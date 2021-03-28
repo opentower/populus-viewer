@@ -60,7 +60,7 @@ export default class Chat extends Component {
         if (prevProps.focus != this.props.focus) {
             var room = this.props.client.getRoom(this.props.focus.room_id)
             this.setState({ 
-                //fullyScrolled : this.scrolledIdents.has(e.detail),
+                fullyScrolled : this.scrolledIdents.has(this.props.focus.room_id),
                 events : room.getLiveTimeline().getEvents(),
             },this.tryLoad)
         }
