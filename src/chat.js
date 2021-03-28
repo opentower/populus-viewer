@@ -25,9 +25,7 @@ export default class Chat extends Component {
         }
     }
 
-
-    //need arrow functions in order to access setState
-    handleInput = (event) => { this.setState({ value : event.target.value }) }
+    handleInput = (event) => this.setState({ value : event.target.value })
 
     handleKeypress = (event) => { 
         if (event.key == "Enter") {
@@ -50,7 +48,7 @@ export default class Chat extends Component {
             var oldState = room.getLiveTimeline().getState(sdk.EventTimeline.BACKWARDS)
             if (!oldState.paginationToken) { 
                 this.scrolledIdents.add(this.props.focus.room_id)
-                this.setState({fullyScrolled : true }) 
+                this.setState({ fullyScrolled : true }) 
             }
             setTimeout(this.tryLoad,100)
         }
