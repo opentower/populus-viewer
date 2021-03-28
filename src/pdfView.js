@@ -143,8 +143,7 @@ class PdfCanvas extends Component {
         const theCanvas = this.canvas.current
         try {this.pendingRender._internalRenderTask.cancel()} catch {}
         const pdf = await PdfView.PDFStore[this.state.pdfIdentifier]
-        //Lock navigation
-        this.navLock = true
+
         // Fetch the first page
         const page = await pdf.getPage(this.props.pageFocused || 1)
         console.log('Page loaded');
