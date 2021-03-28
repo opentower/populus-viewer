@@ -20,6 +20,7 @@ export default class PdfView extends Component {
             pdfIdentifier : null,
             roomId : null,
             focus: null,
+            totalPages: null,
             hasSelection: false,
         }
         this.checkForSelection = this.checkForSelection.bind(this)
@@ -32,6 +33,8 @@ export default class PdfView extends Component {
     componentWillUnmount() { document.removeEventListener("selectionchange", this.checkForSelection) }
 
     setId = id => this.setState({roomId : id})
+
+    setTotalPages = num => this.setState({totalPages : num})
 
     checkForSelection () {
         if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
@@ -87,6 +90,7 @@ export default class PdfView extends Component {
                                pdfFocused={props.pdfFocused}
                                pageFocused={props.pageFocused}
                                setId={this.setId}
+                               setTotalPages={this.setTotalPages}
                                client={props.client}/>
                     <AnnotationLayer ref={this.annotationLayer} 
                                      page={props.pageFocused} 
@@ -96,8 +100,8 @@ export default class PdfView extends Component {
                                      client={props.client}/>
                 </div>
                 <div>
-                    <button onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>
-                    <button onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>
+                    {props.pageFocused > 1 && <button onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>}
+                    {state.totalPages > props.pageFocused && <button onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>}
                     {state.hasSelection && <button onclick={this.openAnnotation}>Add Annotation</button>}
                     {state.focus && <button onclick={this.closeAnnotation}>Remove Annotation</button>}
                 </div>
@@ -136,6 +140,7 @@ class PdfCanvas extends Component {
         if (!PdfView.PDFStore[pdfIdentifier]) {
             console.log('fetched ' + title )
             PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
+            PdfView.PDFStore[pdfIdentifier].then(pdf => this.props.setTotalPages(pdf.numPages))
         }
     }
 
