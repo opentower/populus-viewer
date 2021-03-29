@@ -115,10 +115,14 @@ class PdfUpload extends Component {
                 topic : "talkin' bout ..." + theName,
             })
             this.props.client.uploadContent(theFile).then(e => {
-                    let parts = e.split('/')
-                    this.props.client.sendStateEvent(id.room_id, pdfStateType, {
-                        "identifier": parts[parts.length - 1] 
+                let parts = e.split('/')
+                this.props.client.sendStateEvent(id.room_id, pdfStateType, {
+                    "identifier": parts[parts.length - 1] 
                 })
+                //XXX: this event doesn't get through before the name is
+                //assigned, so the room isn't detected as a pdf room. Probably
+                //need to include the pdf in the room's creation event to make
+                //this work right.
             }).then(_ => this.mainForm.current.reset())
         }
     } 
