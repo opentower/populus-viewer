@@ -6,14 +6,17 @@ import { eventVersion }  from "./constants.js"
 export default class AnnotationLayer extends Component {
     constructor(props) {
         super(props)
-        props.client.on("RoomState.events", event => {
-            //Important that it be "this.props", so that it tracks the changing props of the component
-            if (event.event.room_id == this.props.roomId && event.event.type == eventVersion) {
-                this.forceUpdate()
-            }
-        }) 
-        window.addEventListener('keydown', e => { if (e.key == "D") this.closeFocus(); })
-        //TODO: remove listeners on unmount
+        this.handleStateChange = this.handleStateChange.bind(this)
+    }
+
+    componentDidMount() { this.props.client.on("RoomState.events",this.handleStateChange) }
+
+    componentWillUnmount() { this.props.client.off("RoomState.events",this.handleStateChange) }
+
+    handleStateChange = event => {
+        if (event.event.room_id == this.props.roomId && event.event.type == eventVersion) {
+            this.forceUpdate()
+        }
     }
 
     filterAnnotations (event) {
