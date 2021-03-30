@@ -39,7 +39,14 @@ class RoomList extends Component {
     render(props,state) {
         //TODO: We're going to want to have different subcategories of rooms,
         //for actual pdfs, and for annotation discussions
-        const rooms = state.rooms.map(room => <RoomListing {...props} room={room}/>)
+        const rooms = state.rooms.sort((a,b) => { 
+                                        const ts1 = a.getLastActiveTimestamp() 
+                                        const ts2 = b.getLastActiveTimestamp()
+                                        if (ts1 < ts2) return 1
+                                        else if (ts2 < ts1) return -1
+                                        else return 0
+                                  }).map(room => { return <RoomListing {...props} room={room}/> })
+
         return (
             <Fragment>
                 <h3>Upload a new PDF</h3>
