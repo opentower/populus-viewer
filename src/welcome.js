@@ -120,6 +120,9 @@ class PdfUpload extends Component {
                 visibility : "public",
                 name : theName,
                 topic : "talkin' bout ..." + theName,
+                creation_content: {
+                    type: "space"
+                }
             })
             this.props.client.uploadContent(theFile).then(e => {
                 let parts = e.split('/')
