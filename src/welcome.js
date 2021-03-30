@@ -29,11 +29,14 @@ class RoomList extends Component {
     componentDidMount () { 
         this.props.client.on("Room", this.roomListener) 
         this.props.client.on("Room.name", this.roomListener) 
+        this.props.client.on("RoomState.events",this.roomListener)
+        //State events might cause excessive rerendering, but we can optimize for that later
     }
 
     componentWillUnmount () { 
         this.props.client.off("Room", this.roomListener) 
         this.props.client.off("Room.name", this.roomListener) 
+        this.props.client.on("RoomState.events",this.roomListener)
     }
 
     render(props,state) {

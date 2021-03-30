@@ -34,7 +34,11 @@ export default class Chat extends Component {
     }
 
     handleTypingNotification = (event,member) => {
+        console.log(event)
         if (member.roomId == this.props.focus.room_id) {
+            //^^^ we have to check the originating room in an odd way because
+            //the room_id for the typing events isn't set for some reason,
+            //maybe a bug in dendrite
             this.setState({ typing : event.event.content.user_ids })
         }
     }
