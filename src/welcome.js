@@ -48,8 +48,7 @@ class RoomList extends Component {
                                         if (ts1 < ts2) return 1
                                         else if (ts2 < ts1) return -1
                                         else return 0
-                                  }).map(room => { return <RoomListing {...props} room={room}/> })
-
+                                  }).map(room => { return <RoomListing client={props.client} room={room}/> })
         return (
             <Fragment>
                 <h3>Upload a new PDF</h3>
@@ -74,7 +73,7 @@ class Logout extends Component {
 class RoomListing extends Component {
     render (props, state) {
         var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents("org.populus.pdf","")
-        if (pdfEvent) return (<PDFRoomEntry {...props} pdfevent={pdfEvent}/>)
+        if (pdfEvent) return (<PDFRoomEntry client={props.client} room={props.room} pdfevent={pdfEvent}/>)
         else return (<AnnotationRoomEntry room={props.room}/>)
     }
 }
@@ -82,13 +81,31 @@ class RoomListing extends Component {
 class PDFRoomEntry extends Component {
     render (props, state) {
         const date = new Date(props.room.getLastActiveTimestamp())
+        const members = props.room.getJoinedMembers()
+        const memberIds = members.map(member => member.userId)
+        const memberPills = members.map(member => <MemberPill member={member}/>)
+        const clientId = props.client.getUserId()
+        var status = "invited"
+        if (memberIds.includes(clientId)) { status = "joined" }
         return (
             <div class="roomListingEntry" id={props.room.roomId}>
                 <div>PDF:
                     <a onclick={_ => props.loadPDF(props.room.name)}>{props.room.name}</a>
                 </div>
+                <div>Members: {memberPills} </div>
+                <div>Status: {status} </div>
                 <div>Last Active: {date.toDateString()}, {date.toTimeString()}</div> 
             </div>
+        )
+    }
+}
+
+class MemberPill extends Component {
+    render (props, state) {
+        return (<Fragment>
+                    <span class="memberPill">{props.member.userId}</span>
+                    <wbr></wbr> 
+                </Fragment>
         )
     }
 }
