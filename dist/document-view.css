@@ -2,3 +2,8 @@
     display: inline-block;
     width: 900px;
 }
+
+#document-view > canvas {
+    position:relative;
+    z-index:-1; /* prevents an apparent stacking bug in chromium */
+}
