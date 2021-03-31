@@ -34,43 +34,52 @@ export default class Chat extends Component {
     }
 
     handleTypingNotification = (event,member) => {
-        console.log(event)
         if (member.roomId == this.props.focus.room_id) {
             //^^^ we have to check the originating room in an odd way because
             //the room_id for the typing events isn't set for some reason,
             //maybe a bug in dendrite
-            this.setState({ typing : event.event.content.user_ids })
+            const myId = this.props.client.getUserId()
+            const typingOtherThanMe = event.getContent().user_ids.filter(x => x != myId)
+            this.setState({ typing : typingOtherThanMe })
         }
     }
 
     handleInput = (event) => this.setState({ value : event.target.value })
 
+
     handleKeypress = (event) => { 
         if (this.props.focus) {
             clearTimeout(this.typingTimeout)
-            this.typingTimeout = setTimeout(_  => {
-                    //send "stopped typing" after a half-second idle, and reset typing state
-                    this.typingLock = false;
-                    clearTimeout(this.resetLockTimeout)
-                    this.props.client.sendTyping(this.props.focus.room_id,false) 
-            },500) 
-            if (!this.typingLock) {
-                //send a "typing" notification with a ten second timeout
-                this.props.client.sendTyping(this.props.focus.room_id,true,10000)
-                //lock sending further typing notifications for five seconds
-                this.typingLock = true
-                this.resetLockTimeout = setTimeout(_  => { this.typingLock = false },5000)
-            }
+            this.typingTimeout = setTimeout(_  => this.stopTyping(),5000)
+            //send "stopped typing" after 5 seconds of inactivity
             if (event.key == "Enter") {
                 event.preventDefault()
                 if (this.props.focus.room_id) {
+                    this.stopTyping()
                     this.props.client.sendMessage(this.props.focus.room_id,{ body : this.state.value ,"type":"m.text"})
                     this.setState({ value : "" })
                 } else {
                     window.alert("you need to focus an annotation to send a message")
                 }
-            }
+            } else if (!this.typingLock) this.startTyping() 
         }
+    }
+
+    startTyping = () => {
+        //send a "typing" notification with a 30 second timeout
+        this.props.client.sendTyping(this.props.focus.room_id,true,30000)
+        //lock sending further typing notifications 
+        this.typingLock = true
+        //Release lock (to allow sending another typing notification) after 10 seconds
+        this.resetLockTimeout = setTimeout(_  => { this.typingLock = false },10000)
+    }
+
+    stopTyping = () => {
+        //return to "waiting for typing" state
+        this.typingLock = false;
+        clearTimeout(this.resetLockTimeout)
+        //send a "not typing" notification
+        this.props.client.sendTyping(this.props.focus.room_id,false) 
     }
 
     tryLoad = (room) => {
@@ -105,14 +114,14 @@ export default class Chat extends Component {
     render(props, state) {
         const messages = state.events.filter(e => e.event.content.type == "m.text")
         const messagedivs = messages.map(event => <Message client={this.props.client} event={event}/>)
-        const typingdivs = state.typing.map(typer => <TypingIndicator client={this.props.client} typer={typer}/>)
+        
 
         return (
             <div id="chat-panel" onscroll={this.tryLoadRoom}>
                 <textarea value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
                 <div id="messages">
                 {messagedivs} 
-                {typingdivs}
+                <TypingIndicator client={this.props.client} typing={this.state.typing}/>
                 </div>
                 <Anchor focus={props.focus} fullyScrolled={state.fullyScrolled}/>
             </div>
@@ -130,22 +139,16 @@ class Anchor extends Component {
 
 class TypingIndicator extends Component {
     render(props,state) {
-        const typer = props.typer
-        const shortid = typer.split(':')[0].slice(1)
-        if (props.client.getUserId() == typer) {
-            return (
-                <div class="message me">
-                <div class="body">{shortid} is typing...</div>
-                <span class="name">{shortid}</span>
-                </div>
-            )
+        const shortids = props.typing.map(typer => typer.split(':')[0].slice(1))
+        const howMany = shortids.length
+        if (howMany == 0) {
+            return <div class="typingIndicator">&nbsp;</div>
+        } else if (howMany == 1) {
+            return <div class="typingIndicator">{shortids[0]} is typing</div>
+        } else if (howMany == 2) {
+            return <div class="typingIndicator">{shortids[0]} and {shortids[1]} are typing</div>
         } else {
-            return (
-                <div class="message">
-                <span class="name">{shortid}</span>
-                <div class="body">{shortid} is typing...</div>
-                </div>
-            )
+            return <div class="typingIndicator">several people are typing</div>
         }
     }
 }
