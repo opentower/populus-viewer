@@ -29,7 +29,7 @@ class RoomList extends Component {
     componentDidMount () { 
         this.props.client.on("Room", this.roomListener) 
         this.props.client.on("Room.name", this.roomListener) 
-        this.props.client.on("RoomState.events",this.roomListener)
+        this.props.client.on("RoomState.events", this.roomListener)
         //State events might cause excessive rerendering, but we can optimize for that later
     }
 
@@ -62,7 +62,6 @@ class RoomList extends Component {
 }
 
 class Logout extends Component {
-
     render (props,state) {
         return (
             <footer>
@@ -81,7 +80,6 @@ class RoomListing extends Component {
 }
 
 class PDFRoomEntry extends Component {
-
     render (props, state) {
         const date = new Date(props.room.getLastActiveTimestamp())
         return (

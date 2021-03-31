@@ -47,11 +47,19 @@ export default class Chat extends Component {
 
     handleKeypress = (event) => { 
         if (this.props.focus) {
+            clearTimeout(this.typingTimeout)
+            this.typingTimeout = setTimeout(_  => {
+                    //send "stopped typing" after a half-second idle, and reset typing state
+                    this.typingLock = false;
+                    clearTimeout(this.resetLockTimeout)
+                    this.props.client.sendTyping(this.props.focus.room_id,false) 
+            },500) 
             if (!this.typingLock) {
-                //Sends a typing notification, with a 1 second timeout.
-                this.props.client.sendTyping(this.props.focus.room_id,true,1000)
+                //send a "typing" notification with a ten second timeout
+                this.props.client.sendTyping(this.props.focus.room_id,true,10000)
+                //lock sending further typing notifications for five seconds
                 this.typingLock = true
-                setTimeout(_  => { this.typingLock = false },500)
+                this.resetLockTimeout = setTimeout(_  => { this.typingLock = false },5000)
             }
             if (event.key == "Enter") {
                 event.preventDefault()
