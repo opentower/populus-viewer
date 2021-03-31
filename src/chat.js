@@ -87,6 +87,11 @@ export default class Chat extends Component {
         }
     }
 
+    tryLoadRoom = async () => {
+        const room = await this.props.client.joinRoom(this.props.focus.room_id)
+        this.tryLoad(room)
+    }
+
     async componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.focus != this.props.focus) {
             const room = await this.props.client.joinRoom(this.props.focus.room_id)
@@ -103,7 +108,7 @@ export default class Chat extends Component {
         const typingdivs = state.typing.map(typer => <TypingIndicator client={this.props.client} typer={typer}/>)
 
         return (
-            <div id="chat-panel" onscroll={this.tryLoad}>
+            <div id="chat-panel" onscroll={this.tryLoadRoom}>
                 <textarea value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
                 <div id="messages">
                 {messagedivs} 
