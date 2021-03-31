@@ -14,15 +14,15 @@ export default class AnnotationLayer extends Component {
     componentWillUnmount() { this.props.client.off("RoomState.events",this.handleStateChange) }
 
     handleStateChange = event => {
-        if (event.event.room_id == this.props.roomId && event.event.type == eventVersion) {
+        if (event.getRoomId() == this.props.roomId && event.getType() == eventVersion) {
             this.forceUpdate()
         }
     }
 
     filterAnnotations (event) {
         return (
-            event.event.content.pageNumber == this.props.page 
-            && event.event.content.activityStatus != "closed"
+            event.getContent().pageNumber == this.props.page 
+            && event.getContent().activityStatus != "closed"
         )
     }
 
@@ -35,7 +35,7 @@ export default class AnnotationLayer extends Component {
             const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
             annotations = theRoomState.getStateEvents(eventVersion)
                                       .filter(event => this.filterAnnotations(event))
-                                      .map(event => <Annotation focused={uuid == event.event.content.uuid}
+                                      .map(event => <Annotation focused={uuid == event.getContent().uuid}
                                                                 setFocus={props.setFocus} 
                                                                 event={event}/>)
         }
@@ -53,11 +53,11 @@ class Annotation extends Component {
         super(props)
     }
 
-    setFocus = _ => { this.props.setFocus(this.props.event.event.content) }
+    setFocus = _ => { this.props.setFocus(this.props.event.getContent()) }
 
     render(props,state) {
-        const uuid = props.event.event.content.uuid
-        const spans = JSON.parse(props.event.event.content.clientRects)
+        const uuid = props.event.getContent().uuid
+        const spans = JSON.parse(props.event.getContent().clientRects)
                           .map(rect => (<RectSpan setFocus={this.setFocus} rect={rect}/>))
         return <div data-focused={props.focused} id={uuid}>{spans}</div>
     }

@@ -26,7 +26,7 @@ export default class Chat extends Component {
     }
 
     handleTimeline = (event, room, toStart) => {
-        if (this.props.focus && this.props.focus.room_id == event.event.room_id) {
+        if (this.props.focus && this.props.focus.room_id == event.getRoomId()) {
             this.setState({ 
                 events : room.getLiveTimeline().getEvents() 
             })
@@ -156,19 +156,19 @@ class TypingIndicator extends Component {
 class Message extends Component {
     render(props,state) {
         const event = props.event
-        const shortid = event.event.sender.split(':')[0].slice(1)
-        if (props.client.getUserId() == event.event.sender) {
+        const shortid = event.getSender().split(':')[0].slice(1)
+        if (props.client.getUserId() == event.getSender()) {
             return (
-                <div id={event.event.event_id} class="message me">
-                <div class="body">{event.event.content.body}</div>
+                <div id={event.getId()} class="message me">
+                <div class="body">{event.getContent().body}</div>
                 <span class="name">{shortid}</span>
                 </div>
             )
         } else {
             return (
-                <div id={event.event.event_id} class="message">
+                <div id={event.getId()} class="message">
                 <span class="name">{shortid}</span>
-                <div class="body">{event.event.content.body}</div>
+                <div class="body">{event.getContent().body}</div>
                 </div>
             )
         }
