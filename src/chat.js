@@ -44,7 +44,11 @@ export default class Chat extends Component {
         }
     }
 
-    handleInput = (event) => this.setState({ value : event.target.value })
+    handleInput = (event) => {
+        console.log(event.target.value)
+        if (event.target.value == "" && this.props.focus) this.stopTyping()
+        this.setState({ value : event.target.value })
+    }
 
 
     handleKeypress = (event) => { 
@@ -78,6 +82,7 @@ export default class Chat extends Component {
         //return to "waiting for typing" state
         this.typingLock = false;
         clearTimeout(this.resetLockTimeout)
+        clearTimeout(this.typingTimeout)
         //send a "not typing" notification
         this.props.client.sendTyping(this.props.focus.room_id,false) 
     }
