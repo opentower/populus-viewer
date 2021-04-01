@@ -48,7 +48,7 @@ class RoomList extends Component {
                                         if (ts1 < ts2) return 1
                                         else if (ts2 < ts1) return -1
                                         else return 0
-                                  }).map(room => { return <RoomListing client={props.client} room={room}/> })
+                                  }).map(room => { return <RoomListing loadPDF={props.loadPDF} client={props.client} room={room}/> })
         return (
             <Fragment>
                 <h3>Upload a new PDF</h3>
@@ -73,7 +73,7 @@ class Logout extends Component {
 class RoomListing extends Component {
     render (props, state) {
         var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents("org.populus.pdf","")
-        if (pdfEvent) return (<PDFRoomEntry client={props.client} room={props.room} pdfevent={pdfEvent}/>)
+        if (pdfEvent) return (<PDFRoomEntry loadPDF={props.loadPDF}client={props.client} room={props.room} pdfevent={pdfEvent}/>)
         else return (<AnnotationRoomEntry room={props.room}/>)
     }
 }
