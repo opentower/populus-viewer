@@ -33,6 +33,14 @@
     vertical-align:top;
 }
 
+#chat-panel .message > .reaction {
+    visibility:hidden;
+}
+
+#chat-panel .message:hover > .reaction {
+    visibility:visible;
+}
+
 #chat-panel .me {
     text-align:right;
 }

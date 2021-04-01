@@ -117,10 +117,14 @@ export default class Chat extends Component {
     }
 
     render(props, state) {
-        const messages = state.events.filter(e => e.event.content.type == "m.text")
-        const messagedivs = messages.map(event => <Message client={this.props.client} event={event}/>)
-        
-
+        var reactions = {}
+        const messages = state.events.filter(e => e.getContent().type == "m.text")
+        const messagedivs = messages.map(event => <Message reactions={reactions} client={this.props.client} event={event}/>)
+        //sort reactions by event reacted-to
+        state.events.forEach(e => { if (e.getType() == "m.reaction") {
+            if (reactions[e.getContent()["m.relates_to"].event_id]) reactions[e.getContent()["m.relates_to"].event_id].push(e) 
+            else reactions[e.getContent()["m.relates_to"].event_id] = [e]
+        }})
         return (
             <div id="chat-panel" onscroll={this.tryLoadRoom}>
                 <textarea value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
@@ -159,21 +163,39 @@ class TypingIndicator extends Component {
 }
 
 class Message extends Component {
+
+    upvote = () => {
+        this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
+            "m.relates_to" : {
+                rel_type : "m.annotation",
+                event_id : this.props.event.getId(),
+                key : "👍"
+            }
+        })
+        console.log("upvoted")
+    }
+
     render(props,state) {
         const event = props.event
         const shortid = event.getSender().split(':')[0].slice(1)
+        const upvotes = props.reactions[event.getId()] 
+                      ? props.reactions[event.getId()].length
+                      : 0
         if (props.client.getUserId() == event.getSender()) {
             return (
                 <div id={event.getId()} class="message me">
                 <div class="body">{event.getContent().body}</div>
                 <span class="name">{shortid}</span>
+                <span class="upvotes">{upvotes}</span>
                 </div>
             )
         } else {
             return (
                 <div id={event.getId()} class="message">
-                <span class="name">{shortid}</span>
-                <div class="body">{event.getContent().body}</div>
+                    <span class="upvotes">{upvotes}</span>
+                    <span class="name">{shortid}</span>
+                    <div class="body">{event.getContent().body}</div>
+                    <button class="reaction" onclick={this.upvote}>+1</button>
                 </div>
             )
         }
