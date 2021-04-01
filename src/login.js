@@ -103,14 +103,10 @@ class UserData extends Component {
     render () {
         return (
             <Fragment>
-                <div>
-                    <label for="username">Username</label>
-                    <input type="text" id="username" name="username"></input>
-                </div>
-                <div>
-                    <label for="password">Password</label>
-                    <input type="password" id="password" name="password"></input>
-                </div>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username"></input>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password"></input>
             </Fragment>
         )
     }

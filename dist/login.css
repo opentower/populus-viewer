@@ -9,6 +9,24 @@
     top: 50%;
 }
 
+#loginModal form, #registrationModal form {
+    display:grid;
+    grid-template-columns: 80px 1fr;
+}
+
+#loginModal label, #registrationModal label {
+    grid-column: 1 / 2 ;
+}
+
+#loginModal input, #registrationModal input {
+    grid-column: 2 / 3 ;
+}
+
+#loginModal div, #registrationModal div {
+    padding-top:.5em;
+    grid-column: 1 / 3 ;
+}
+
 #theRecaptcha {
     padding:1em;
 }
