@@ -165,6 +165,9 @@ class TypingIndicator extends Component {
 class Message extends Component {
 
     upvote = () => {
+        let reactions = this.props.reactions[this.props.event.getId()] || []
+        if (reactions.some(react => react.getSender() == this.props.client.getUserId() )) return
+        //we bail out if there's already a plus one from me.
         this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
             "m.relates_to" : {
                 rel_type : "m.annotation",
@@ -172,7 +175,6 @@ class Message extends Component {
                 key : "👍"
             }
         })
-        console.log("upvoted")
     }
 
     render(props,state) {
