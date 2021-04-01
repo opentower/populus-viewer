@@ -15,6 +15,7 @@
 }
 
 #chat-panel .message {
+    position:relative;
     padding-top:5px;
     padding-bottom:5px;
 }
@@ -34,12 +35,28 @@
 }
 
 #chat-panel .message > .reaction {
+    position:absolute;
     visibility:hidden;
 }
 
 #chat-panel .message:hover > .reaction {
+    position:absolute;
+    bottom:2px;
     visibility:visible;
 }
+
+#chat-panel .message > .upvotes {
+    position:relative;
+    width:0px;
+    bottom:12px;
+    padding:3px;
+    right:14px;
+    font-size:8pt;
+    background-color:white;
+    border-radius:15px;
+    border:2px solid #aadada;
+}
+
 
 #chat-panel .me {
     text-align:right;

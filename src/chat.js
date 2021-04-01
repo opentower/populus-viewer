@@ -54,7 +54,7 @@ export default class Chat extends Component {
     handleKeypress = (event) => { 
         if (this.props.focus) {
             clearTimeout(this.typingTimeout)
-            this.typingTimeout = setTimeout(_  => this.stopTyping(),5000)
+            this.typingTimeout = setTimeout(_  => this.stopTyping(), 5000)
             //send "stopped typing" after 5 seconds of inactivity
             if (event.key == "Enter") {
                 event.preventDefault()
@@ -71,11 +71,11 @@ export default class Chat extends Component {
 
     startTyping = () => {
         //send a "typing" notification with a 30 second timeout
-        this.props.client.sendTyping(this.props.focus.room_id,true,30000)
+        this.props.client.sendTyping(this.props.focus.room_id,true, 30000)
         //lock sending further typing notifications 
         this.typingLock = true
         //Release lock (to allow sending another typing notification) after 10 seconds
-        this.resetLockTimeout = setTimeout(_  => { this.typingLock = false },10000)
+        this.resetLockTimeout = setTimeout(_  => { this.typingLock = false }, 10000)
     }
 
     stopTyping = () => {
@@ -180,20 +180,20 @@ class Message extends Component {
         const shortid = event.getSender().split(':')[0].slice(1)
         const upvotes = props.reactions[event.getId()] 
                       ? props.reactions[event.getId()].length
-                      : 0
+                      : false
         if (props.client.getUserId() == event.getSender()) {
             return (
                 <div id={event.getId()} class="message me">
-                <div class="body">{event.getContent().body}</div>
-                <span class="name">{shortid}</span>
-                <span class="upvotes">{upvotes}</span>
+                    <div class="body">{event.getContent().body}</div>
+                    <span class="name">{shortid}</span>
+                    {upvotes && <span class="upvotes">+{upvotes}</span>}
                 </div>
             )
         } else {
             return (
                 <div id={event.getId()} class="message">
-                    <span class="upvotes">{upvotes}</span>
                     <span class="name">{shortid}</span>
+                    {upvotes && <span class="upvotes">+{upvotes}</span>}
                     <div class="body">{event.getContent().body}</div>
                     <button class="reaction" onclick={this.upvote}>+1</button>
                 </div>
