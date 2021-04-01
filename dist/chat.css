@@ -16,8 +16,8 @@
 
 #chat-panel .message {
     position:relative;
-    padding-top:5px;
-    padding-bottom:5px;
+    padding-top:9px;
+    padding-bottom:9px;
 }
 
 #chat-panel .message > .name {
@@ -56,7 +56,6 @@
     border-radius:15px;
     border:2px solid #aadada;
 }
-
 
 #chat-panel .me {
     text-align:right;
