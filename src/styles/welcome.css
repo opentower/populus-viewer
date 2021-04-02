@@ -1,4 +1,11 @@
-.roomListingEntry {
+.welcomeContainer {
+    max-width: 800px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.roomListingEntry, #pdfUploadForm {
     border: 1px black solid;
     margin: 1em;
     padding: 1em;
@@ -11,7 +18,7 @@
 }
 
 .roomListingEntry > div {
-    line-height:1.8em;
+    line-height:2em;
 }
 
 .memberPill {
@@ -19,4 +26,29 @@
     border-radius:5px;
     margin-right:5px;
     padding:5px;
+}
+
+#pdfUploadForm {
+    display:grid;
+    grid-template-columns: 180px 1fr;
+}
+
+#pdfUploadForm > label {
+    grid-column: 1 / 2 ;
+}
+
+#pdfUploadForm > input, #pdfUploadForm > textarea {
+    grid-column: 2 / 3 ;
+    margin-bottom:.5em;
+    border:none;
+    background:#ededed
+}
+
+#pdfUploadForm > textarea {
+    resize: vertical;
+    min-height:50px;
+}
+
+#pdfUploadForm div {
+    grid-column: 1 / 3 ;
 }

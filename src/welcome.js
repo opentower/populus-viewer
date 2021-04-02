@@ -7,10 +7,10 @@ export default class WelcomeView extends Component {
 
     render(props,state) {
         return (
-            <Fragment>
+            <div class="welcomeContainer">
                 <RoomList {...props}/>
                 <Logout logoutHandler={props.logoutHandler}/>
-            </Fragment>
+            </div>
         )
     }
 }
@@ -89,12 +89,10 @@ class PDFRoomEntry extends Component {
         var status = "invited"
         if (memberIds.includes(clientId)) { status = "joined" }
         return (
-            <div class="roomListingEntry" id={props.room.roomId}>
-                <div>PDF:
-                    <a onclick={_ => props.loadPDF(props.room.name)}>{props.room.name}</a>
+            <div data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
+                <div><a onclick={_ => props.loadPDF(props.room.name)}>{props.room.name}</a>
                 </div>
                 <div>Members: {memberPills} </div>
-                <div>Status: {status} </div>
                 <div>Last Active: {date.toDateString()}, {date.toTimeString()}</div> 
             </div>
         )
@@ -129,18 +127,21 @@ class PdfUpload extends Component {
      
     roomNameInput = createRef()
 
+    roomTopicInput = createRef()
+
     uploadFile = async (e) => { 
         e.preventDefault()
         const theFile = this.fileLoader.current.files[0]
         const theName = this.roomNameInput.current.value
+        const theTopic = this.roomTopicInput.current.value
         if (theFile.type == "application/pdf") {
             const id = await this.props.client.createRoom({
                 room_alias_name : theName,
                 visibility : "public",
                 name : theName,
-                topic : "talkin' bout ..." + theName,
+                topic : theTopic,
                 creation_content: {
-                    type: "space"
+                    "org.matrix.msc1772.type" : "org.matrix.msc1772.space"
                 }
             })
             this.props.client.uploadContent(theFile).then(e => {
@@ -158,18 +159,14 @@ class PdfUpload extends Component {
 
     render (props, state) {
         return (
-            <form ref={this.mainForm} onsubmit={this.uploadFile}>
-                <div>
-                    <label> Pdf to discuss
-                        <input ref={this.fileLoader}  type="file"/>
-                    </label>
-                </div>
-                <div>
-                    <label> Name to give discussion
-                        <input ref={this.roomNameInput} type="text"></input>
-                    </label>
-                </div>
-                <input type="submit">Create</input>
+            <form id="pdfUploadForm" ref={this.mainForm} onsubmit={this.uploadFile}>
+                    <label> Pdf to discuss</label>
+                    <input ref={this.fileLoader}  type="file"/>
+                    <label>Name for Discussion</label>
+                    <input ref={this.roomNameInput} type="text"/>
+                    <label>Topic of Discussion</label>
+                    <textarea ref={this.roomTopicInput} type="text"/>
+                    <div><input value="Create Discussion" type="submit"/></div>
             </form>
         )
     }
