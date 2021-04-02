@@ -1,5 +1,6 @@
 import * as sdk from "matrix-js-sdk"
 import { h, Fragment, Component } from 'preact';
+import './styles/chat.css'
 
 export default class Chat extends Component {
     constructor (props) {

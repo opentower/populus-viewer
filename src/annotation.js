@@ -2,6 +2,11 @@ import { h, render, createRef, Fragment, Component } from 'preact';
 import * as Layout from "./layout.js"
 import * as Matrix from "matrix-js-sdk"
 import { eventVersion }  from "./constants.js"
+import './styles/annotation-layer.css'
+import './styles/content-container.css'
+import './styles/document-view.css'
+import './styles/text-layer.css'
+
 
 export default class AnnotationLayer extends Component {
     constructor(props) {

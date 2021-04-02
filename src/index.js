@@ -3,6 +3,7 @@ import { h, render, Fragment, Component } from 'preact';
 import WelcomeView from './welcome.js';
 import LoginView from './login.js';
 import PdfView from './pdfView.js';
+import './styles/global.css'
 
 // This module is the entrypoint for the viewer. It'll be reponsible for the
 // main container element, for initializing the client object, and for

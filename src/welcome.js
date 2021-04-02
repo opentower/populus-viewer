@@ -1,6 +1,7 @@
 import { h, createRef, render, Fragment, Component } from 'preact';
 import { pdfStateType }  from "./constants.js"
 import * as Matrix from "matrix-js-sdk"
+import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
 

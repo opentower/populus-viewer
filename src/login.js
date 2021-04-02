@@ -1,4 +1,5 @@
 import { h, render, Fragment, Component } from 'preact';
+import './styles/login.css'
 
 export default class LoginView extends Component {
     constructor(props) {
