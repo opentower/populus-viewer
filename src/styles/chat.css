@@ -27,12 +27,16 @@
     padding:5px
 }
 
-#chat-panel .message > .body{
+#chat-panel .message > .body {
     display: inline-block;
     max-width:220px;
     text-align:left;
     vertical-align:top;
 }
+
+#chat-panel .message > .body > *:first-child { margin-top:0px; }
+
+#chat-panel .message > .body > *:last-child { margin-bottom:0px; }
 
 #chat-panel .message > .reaction {
     position:absolute;

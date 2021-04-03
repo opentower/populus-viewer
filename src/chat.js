@@ -1,6 +1,7 @@
 import * as sdk from "matrix-js-sdk"
 import { h, Fragment, Component } from 'preact';
 import './styles/chat.css'
+import * as CommonMark from 'commonmark'
 
 export default class Chat extends Component {
     constructor (props) {
@@ -12,6 +13,8 @@ export default class Chat extends Component {
             fullyScrolled : false,
         }
         this.scrolledIdents = new Set()
+        this.reader = new CommonMark.Parser()
+        this.writer = new CommonMark.HtmlRenderer()
         this.handleTimeline = this.handleTimeline.bind(this)
         this.handleTypingNotifications = this.handleTypingNotification.bind(this)
     }
@@ -46,7 +49,6 @@ export default class Chat extends Component {
     }
 
     handleInput = (event) => {
-        console.log(event.target.value)
         if (event.target.value == "" && this.props.focus) this.stopTyping()
         this.setState({ value : event.target.value })
     }
@@ -57,11 +59,18 @@ export default class Chat extends Component {
             clearTimeout(this.typingTimeout)
             this.typingTimeout = setTimeout(_  => this.stopTyping(), 5000)
             //send "stopped typing" after 5 seconds of inactivity
-            if (event.key == "Enter") {
+            if (event.key == "Enter" && !event.shiftKey) {
                 event.preventDefault()
                 if (this.props.focus.room_id) {
                     this.stopTyping()
-                    this.props.client.sendMessage(this.props.focus.room_id,{ body : this.state.value ,"type":"m.text"})
+                    let parsed = this.reader.parse(this.state.value)
+                    let rendered = this.writer.render(parsed)
+                    this.props.client.sendMessage(this.props.focus.room_id,{ 
+                        body : this.state.value,
+                        type :"m.text",
+                        format: "org.matrix.custom.html",
+                        formatted_body : rendered
+                    })
                     this.setState({ value : "" })
                 } else {
                     window.alert("you need to focus an annotation to send a message")
@@ -184,10 +193,13 @@ class Message extends Component {
         const upvotes = props.reactions[event.getId()] 
                       ? props.reactions[event.getId()].length
                       : false
+        const displayBody = (event.getContent().format == "org.matrix.custom.html")
+            ? <div class="body" dangerouslySetInnerHTML={{__html : event.getContent().formatted_body}}/>
+                          : <div class="body">{event.getContent().body}</div>
         if (props.client.getUserId() == event.getSender()) {
             return (
                 <div id={event.getId()} class="message me">
-                    <div class="body">{event.getContent().body}</div>
+                    {displayBody}
                     <span class="name">{shortid}</span>
                     {upvotes && <span class="upvotes">+{upvotes}</span>}
                 </div>
@@ -197,7 +209,7 @@ class Message extends Component {
                 <div id={event.getId()} class="message">
                     <span class="name">{shortid}</span>
                     {upvotes && <span class="upvotes">+{upvotes}</span>}
-                    <div class="body">{event.getContent().body}</div>
+                    {displayBody}
                     <button class="reaction" onclick={this.upvote}>+1</button>
                 </div>
             )
