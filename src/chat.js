@@ -2,6 +2,7 @@ import * as sdk from "matrix-js-sdk"
 import { h, Fragment, Component } from 'preact';
 import './styles/chat.css'
 import * as CommonMark from 'commonmark'
+import Message from './message.js'
 
 export default class Chat extends Component {
     constructor (props) {
@@ -168,51 +169,6 @@ class TypingIndicator extends Component {
             return <div class="typingIndicator">{shortids[0]} and {shortids[1]} are typing</div>
         } else {
             return <div class="typingIndicator">several people are typing</div>
-        }
-    }
-}
-
-class Message extends Component {
-
-    upvote = () => {
-        let reactions = this.props.reactions[this.props.event.getId()] || []
-        if (reactions.some(react => react.getSender() == this.props.client.getUserId() )) return
-        //we bail out if there's already a plus one from me.
-        this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
-            "m.relates_to" : {
-                rel_type : "m.annotation",
-                event_id : this.props.event.getId(),
-                key : "👍"
-            }
-        })
-    }
-
-    render(props,state) {
-        const event = props.event
-        const shortid = event.getSender().split(':')[0].slice(1)
-        const upvotes = props.reactions[event.getId()] 
-                      ? props.reactions[event.getId()].length
-                      : false
-        const displayBody = (event.getContent().format == "org.matrix.custom.html")
-            ? <div class="body" dangerouslySetInnerHTML={{__html : event.getContent().formatted_body}}/>
-                          : <div class="body">{event.getContent().body}</div>
-        if (props.client.getUserId() == event.getSender()) {
-            return (
-                <div id={event.getId()} class="message me">
-                    {displayBody}
-                    <span class="name">{shortid}</span>
-                    {upvotes && <span class="upvotes">+{upvotes}</span>}
-                </div>
-            )
-        } else {
-            return (
-                <div id={event.getId()} class="message">
-                    <span class="name">{shortid}</span>
-                    {upvotes && <span class="upvotes">+{upvotes}</span>}
-                    {displayBody}
-                    <button class="reaction" onclick={this.upvote}>+1</button>
-                </div>
-            )
         }
     }
 }

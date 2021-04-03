@@ -28,6 +28,7 @@
     "matrix-js-sdk": "^9.7.0",
     "pdfjs-dist": "^2.6.347",
     "preact": "^10.5.12",
+    "sanitize-html": "^2.3.3",
     "worker-loader": "^3.0.8"
   }
 }
