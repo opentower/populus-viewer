@@ -38,8 +38,10 @@ export default class Message extends Component {
         } else {
             return (
                 <div id={event.getId()} class="message">
-                    <span class="name">{shortid}</span>
-                    {upvotes && <span class="upvotes">+{upvotes}</span>}
+                    <div class="ident">
+                        <span class="name"> {shortid}</span>
+                        {upvotes && <span class="upvotes">+{upvotes}</span>}
+                    </div>
                     {displayBody}
                     <button class="reaction" onclick={this.upvote}>+1</button>
                 </div>

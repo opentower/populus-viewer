@@ -1,37 +1,58 @@
 #chat-panel {
     border: 1px dashed black;
+    background:white;
+    position:fixed;
+    right:0px;
+    top:0px;
+    bottom:0px;
+    width:400px;
     display:inline-flex;
     flex-direction: column-reverse;
-    width:300px;
-    margin-top:200px;
     vertical-align:top;
-    height:800px;
+    height:100%;
     overflow-y: scroll;
 }
 
 #chat-panel > textarea {
-    min-height:100px;
+    min-height:350px;
     resize:none;
 }
 
 #chat-panel .message {
     position:relative;
-    padding-top:9px;
-    padding-bottom:9px;
+    display: grid;
+    justify-items: left;
+    grid-template-areas: "name content";
+    grid-template-columns: fit-content(10%) auto ; 
 }
 
-#chat-panel .message > .name {
+
+#chat-panel .me {
+    grid-template-columns: auto fit-content(10%); 
+    grid-template-areas: "content name";
+}
+
+#chat-panel .message > .ident {
+    grid-area: name;
     margin:5px;
+    padding:5px;
+}
+
+#chat-panel .message .name  {
+    height: 1.2em;
     background:#aadada;
     border-radius:5px;
-    padding:5px
+    margin:5px;
+    padding:5px;
 }
 
 #chat-panel .message > .body {
     display: inline-block;
-    max-width:220px;
     text-align:left;
-    vertical-align:top;
+    padding-left:1em;
+    padding-top:5px;
+    margin-top:5px;
+    grid-area: content;
 }
 
 #chat-panel .message > .body > *:first-child { margin-top:0px; }
@@ -45,16 +66,16 @@
 
 #chat-panel .message:hover > .reaction {
     position:absolute;
-    bottom:2px;
+    right:2px;
+    top:5px;
     visibility:visible;
 }
 
-#chat-panel .message > .upvotes {
+#chat-panel .message .upvotes {
     position:relative;
-    width:0px;
-    bottom:12px;
+    bottom:15px;
     padding:3px;
-    right:14px;
+    right:15px;
     font-size:8pt;
     background-color:white;
     border-radius:15px;
