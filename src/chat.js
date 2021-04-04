@@ -10,12 +10,9 @@ export default class Chat extends Component {
         this.state = {
             typing : [],
             events : [],
-            value : "",
             fullyScrolled : false,
         }
         this.scrolledIdents = new Set()
-        this.reader = new CommonMark.Parser()
-        this.writer = new CommonMark.HtmlRenderer()
         this.handleTimeline = this.handleTimeline.bind(this)
         this.handleTypingNotifications = this.handleTypingNotification.bind(this)
     }
@@ -47,55 +44,6 @@ export default class Chat extends Component {
             const typingOtherThanMe = event.getContent().user_ids.filter(x => x != myId)
             this.setState({ typing : typingOtherThanMe })
         }
-    }
-
-    handleInput = (event) => {
-        if (event.target.value == "" && this.props.focus) this.stopTyping()
-        this.setState({ value : event.target.value })
-    }
-
-
-    handleKeypress = (event) => { 
-        if (this.props.focus) {
-            clearTimeout(this.typingTimeout)
-            this.typingTimeout = setTimeout(_  => this.stopTyping(), 5000)
-            //send "stopped typing" after 5 seconds of inactivity
-            if (event.key == "Enter" && !event.shiftKey) {
-                event.preventDefault()
-                if (this.props.focus.room_id) {
-                    this.stopTyping()
-                    let parsed = this.reader.parse(this.state.value)
-                    let rendered = this.writer.render(parsed)
-                    this.props.client.sendMessage(this.props.focus.room_id,{ 
-                        body : this.state.value,
-                        type :"m.text",
-                        format: "org.matrix.custom.html",
-                        formatted_body : rendered
-                    })
-                    this.setState({ value : "" })
-                } else {
-                    window.alert("you need to focus an annotation to send a message")
-                }
-            } else if (!this.typingLock) this.startTyping() 
-        }
-    }
-
-    startTyping = () => {
-        //send a "typing" notification with a 30 second timeout
-        this.props.client.sendTyping(this.props.focus.room_id,true, 30000)
-        //lock sending further typing notifications 
-        this.typingLock = true
-        //Release lock (to allow sending another typing notification) after 10 seconds
-        this.resetLockTimeout = setTimeout(_  => { this.typingLock = false }, 10000)
-    }
-
-    stopTyping = () => {
-        //return to "waiting for typing" state
-        this.typingLock = false;
-        clearTimeout(this.resetLockTimeout)
-        clearTimeout(this.typingTimeout)
-        //send a "not typing" notification
-        this.props.client.sendTyping(this.props.focus.room_id,false) 
     }
 
     tryLoad = (room) => {
@@ -138,10 +86,10 @@ export default class Chat extends Component {
         }})
         return (
             <div id="chat-panel" onscroll={this.tryLoadRoom}>
-                <textarea value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
+                <MessagePanel client={props.client} focus={props.focus} />
                 <div id="messages">
-                {messagedivs} 
-                <TypingIndicator client={this.props.client} typing={this.state.typing}/>
+                    {messagedivs} 
+                    <TypingIndicator client={this.props.client} typing={this.state.typing}/>
                 </div>
                 <Anchor focus={props.focus} fullyScrolled={state.fullyScrolled}/>
             </div>
@@ -170,5 +118,68 @@ class TypingIndicator extends Component {
         } else {
             return <div class="typingIndicator">several people are typing</div>
         }
+    }
+}
+
+class MessagePanel extends Component {
+    constructor (props) {
+        super(props)
+        this.state = {
+            value : "",
+        }
+        this.reader = new CommonMark.Parser()
+        this.writer = new CommonMark.HtmlRenderer()
+    }
+
+    startTyping = () => {
+        //send a "typing" notification with a 30 second timeout
+        this.props.client.sendTyping(this.props.focus.room_id,true, 30000)
+        //lock sending further typing notifications 
+        this.typingLock = true
+        //Release lock (to allow sending another typing notification) after 10 seconds
+        this.resetLockTimeout = setTimeout(_  => { this.typingLock = false }, 10000)
+    }
+
+    stopTyping = () => {
+        //return to "waiting for typing" state
+        this.typingLock = false;
+        clearTimeout(this.resetLockTimeout)
+        clearTimeout(this.typingTimeout)
+        //send a "not typing" notification
+        this.props.client.sendTyping(this.props.focus.room_id,false) 
+    }
+
+    handleInput = (event) => {
+        if (event.target.value == "" && this.props.focus) this.stopTyping()
+        this.setState({ value : event.target.value })
+    }
+
+    handleKeypress = (event) => { 
+        if (this.props.focus) {
+            clearTimeout(this.typingTimeout)
+            this.typingTimeout = setTimeout(_  => this.stopTyping(), 5000)
+            //send "stopped typing" after 5 seconds of inactivity
+            if (event.key == "Enter" && !event.shiftKey) {
+                event.preventDefault()
+                if (this.props.focus.room_id) {
+                    this.stopTyping()
+                    let parsed = this.reader.parse(this.state.value)
+                    let rendered = this.writer.render(parsed)
+                    this.props.client.sendMessage(this.props.focus.room_id,{ 
+                        body : this.state.value,
+                        type :"m.text",
+                        format: "org.matrix.custom.html",
+                        formatted_body : rendered
+                    })
+                    this.setState({ value : "" })
+                } else {
+                    window.alert("you need to focus an annotation to send a message")
+                }
+            } else if (!this.typingLock) this.startTyping() 
+        }
+    }
+
+    render(props,state) {
+        return <textarea value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
     }
 }
