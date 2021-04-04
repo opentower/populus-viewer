@@ -78,7 +78,11 @@ export default class Chat extends Component {
     render(props, state) {
         var reactions = {}
         const messages = state.events.filter(e => e.getContent().type == "m.text")
-        const messagedivs = messages.map(event => <Message reactions={reactions} client={this.props.client} event={event}/>)
+        const messagedivs = messages.map(event => 
+            <Message reactions={reactions} 
+                     client={this.props.client} 
+                     key={event.getId()}
+                     event={event}/>)
         //sort reactions by event reacted-to
         state.events.forEach(e => { if (e.getType() == "m.reaction") {
             if (reactions[e.getContent()["m.relates_to"].event_id]) reactions[e.getContent()["m.relates_to"].event_id].push(e) 

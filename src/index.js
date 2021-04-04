@@ -19,6 +19,7 @@ class PopulusViewer extends Component {
             userId : localStorage.getItem("userId"),
             accessToken : localStorage.getItem("accessToken"),
             timelineSupport : true,
+            unstableClientRelationAggregation: true,
         })
         this.state = { 
             loggedIn : false,

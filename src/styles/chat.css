@@ -26,7 +26,6 @@
     grid-template-columns: fit-content(10%) auto ; 
 }
 
-
 #chat-panel .me {
     grid-template-columns: auto fit-content(10%); 
     grid-template-areas: "content name";
@@ -59,12 +58,12 @@
 
 #chat-panel .message > .body > *:last-child { margin-bottom:0px; }
 
-#chat-panel .message > .reaction {
+#chat-panel .message > .edit, #chat-panel .message > .reaction {
     position:absolute;
     visibility:hidden;
 }
 
-#chat-panel .message:hover > .reaction {
+#chat-panel .message:hover > .edit, #chat-panel .message:hover > .reaction {
     position:absolute;
     right:2px;
     top:5px;
@@ -80,6 +79,10 @@
     background-color:white;
     border-radius:15px;
     border:2px solid #aadada;
+}
+
+#chat-panel .me .upvotes {
+    right:-12px;
 }
 
 #chat-panel .me {

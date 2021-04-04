@@ -1,7 +1,16 @@
 import { h, Fragment, Component } from 'preact';
 import sanitizeHtml from 'sanitize-html'
+import * as CommonMark from 'commonmark'
 
 export default class Message extends Component {
+
+    constructor(props) {
+        super(props)
+        this.state = ({
+            editing : false,
+            edit_value : "",
+        })
+    }
 
     upvote = () => {
         let reactions = this.props.reactions[this.props.event.getId()] || []
@@ -16,31 +25,97 @@ export default class Message extends Component {
         })
     }
 
+    startEdit = () => {
+        this.setState({ 
+            editing : true,
+            edit_value : this.getCurrentEdit().body,
+        })
+    }
+
+    stopEdit = () => {
+        this.setState({ editing : false })
+    }
+
+    getEdits = () => {
+        return this.props.reactions[this.props.event.getId()] 
+        ? this.props.reactions[this.props.event.getId()]
+              .filter(event => event.getContent()["m.relates_to"].rel_type == "m.replace")
+        : []
+    }
+
+    getCurrentEdit = () => {
+        const edits = this.getEdits()
+        //need to be smarter about ordering
+        if (edits.length > 0) { return edits[edits.length - 1].getContent()["m.new_content"] } 
+        else { return this.props.event.getContent() }
+    }
+
+    handleKeypress = (event) => { 
+        if (event.key == "Enter" && !event.shiftKey) {
+            event.preventDefault()
+            const reader = new CommonMark.Parser()
+            const writer = new CommonMark.HtmlRenderer()
+            const parsed = reader.parse(this.state.edit_value)
+            const rendered = writer.render(parsed)
+            this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
+                body : "an edit occurred", //fallback for clients that don't handle edits. we can do something more descriptive
+                msgtype : "m.text",
+                "m.new_content" : {
+                    body : this.state.edit_value,
+                    msgtype : "m.text",
+                    format: "org.matrix.custom.html",
+                    formatted_body : rendered
+                },
+                "m.relates_to" : {
+                    rel_type : "m.replace",
+                    event_id : this.props.event.getId(),
+                }
+            }).then(_ => this.stopEdit())
+        }
+    }
+
+    handleInput = (event) => {
+        this.setState({ edit_value : event.target.value })
+    }
+
     render(props,state) {
+        //there's some cleverness involving involving the unstable clientside
+        //relation aggregation mechanism that we're not taking advantage of
+        //here. Element doesn't seem to use this for replacements yet either.
         const event = props.event
         const shortid = event.getSender().split(':')[0].slice(1)
         const upvotes = props.reactions[event.getId()] 
-                      ? props.reactions[event.getId()].length
-                      : false
-        const displayBody = ((event.getContent().format == "org.matrix.custom.html") && event.getContent().formatted_body)
+                      ? props.reactions[event.getId()].filter(event => event.getContent()["m.relates_to"].rel_type == "m.annotation").length
+                      : 0
+        const content = this.getCurrentEdit()
+        const displayBody = ((content.format == "org.matrix.custom.html") && content.formatted_body)
                           ? <div class="body" 
-                                 dangerouslySetInnerHTML={{__html : sanitizeHtml(event.getContent().formatted_body, sanitizeHtmlParams)}}
+                                 dangerouslySetInnerHTML={{__html : sanitizeHtml(content.formatted_body, sanitizeHtmlParams)}}
                             />
-                          : <div class="body">{event.getContent().body}</div>
+                          : <div class="body">{content.body}</div>
         if (props.client.getUserId() == event.getSender()) {
             return (
-                <div id={event.getId()} class="message me">
-                    {displayBody}
-                    <span class="name">{shortid}</span>
-                    {upvotes && <span class="upvotes">+{upvotes}</span>}
-                </div>
+                <Fragment>
+                    <div id={event.getId()} class="message me">
+                        {!state.editing && <button onclick={this.startEdit} class="edit">edit</button>}
+                        {displayBody}
+                        <div class="ident">
+                            {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
+                            <span class="name">{shortid}</span>
+                        </div>
+                    </div>
+                    {state.editing && <textarea value={state.edit_value} 
+                                                onkeypress={this.handleKeypress} 
+                                                oninput={this.handleInput} 
+                                                style="width:100%"/>}
+                </Fragment>
             )
         } else {
             return (
                 <div id={event.getId()} class="message">
                     <div class="ident">
                         <span class="name"> {shortid}</span>
-                        {upvotes && <span class="upvotes">+{upvotes}</span>}
+                        {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
                     </div>
                     {displayBody}
                     <button class="reaction" onclick={this.upvote}>+1</button>
