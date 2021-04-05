@@ -36,6 +36,10 @@ export default class Message extends Component {
         this.setState({ editing : false })
     }
 
+    redactMessage = () => {
+        this.props.client.redactEvent(this.props.event.getRoomId(),this.props.event.getId())
+    }
+
     getEdits = () => {
         return this.props.reactions[this.props.event.getId()] 
         ? this.props.reactions[this.props.event.getId()]
@@ -97,7 +101,10 @@ export default class Message extends Component {
             return (
                 <Fragment>
                     <div id={event.getId()} class="message me">
-                        {!state.editing && <button onclick={this.startEdit} class="edit">edit</button>}
+                        <div class="edit">
+                            {!state.editing && <button onclick={this.startEdit} >edit</button>}
+                            <button onclick={this.redactMessage} class="redact">delete</button>
+                        </div>
                         {displayBody}
                         <div class="ident">
                             {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}

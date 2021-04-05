@@ -63,11 +63,19 @@
     visibility:hidden;
 }
 
-#chat-panel .message:hover > .edit, #chat-panel .message:hover > .reaction {
+#chat-panel .message:hover > .edit, 
+#chat-panel .message:hover > .reaction {
     position:absolute;
-    right:2px;
     top:5px;
     visibility:visible;
+}
+
+#chat-panel .message:hover > .reaction {
+    right:2px;
+}
+
+#chat-panel .message:hover > .edit {
+    left:2px;
 }
 
 #chat-panel .message .upvotes {

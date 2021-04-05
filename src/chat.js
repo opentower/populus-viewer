@@ -19,15 +19,18 @@ export default class Chat extends Component {
 
     componentDidMount() { 
         this.props.client.on("Room.timeline", this.handleTimeline) 
+        this.props.client.on("Room.redaction", this.handleTimeline) 
         this.props.client.on("RoomMember.typing", this.handleTypingNotification) 
     }
 
     componentWillUnmount() { 
         this.props.client.off("Room.timeline", this.handleTimeline) 
+        this.props.client.off("Room.redaction", this.handleTimeline) 
         this.props.client.off("RoomMember.typing", this.handleTypingNotification) 
     }
 
-    handleTimeline = (event, room, toStart) => {
+    //Room.timeline passes in more params
+    handleTimeline = (event, room) => {
         if (this.props.focus && this.props.focus.room_id == event.getRoomId()) {
             this.setState({ 
                 events : room.getLiveTimeline().getEvents() 
