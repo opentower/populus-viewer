@@ -166,27 +166,34 @@ class MessagePanel extends Component {
             clearTimeout(this.typingTimeout)
             this.typingTimeout = setTimeout(_  => this.stopTyping(), 5000)
             //send "stopped typing" after 5 seconds of inactivity
-            if (event.key == "Enter" && !event.shiftKey) {
+            if (event.key == "Enter" && event.ctrlKey) {
                 event.preventDefault()
-                if (this.props.focus.room_id) {
-                    this.stopTyping()
-                    let parsed = this.reader.parse(this.state.value)
-                    let rendered = this.writer.render(parsed)
-                    this.props.client.sendMessage(this.props.focus.room_id,{ 
-                        body : this.state.value,
-                        type :"m.text",
-                        format: "org.matrix.custom.html",
-                        formatted_body : rendered
-                    })
-                    this.setState({ value : "" })
-                } else {
-                    window.alert("you need to focus an annotation to send a message")
-                }
+                this.sendMessage()
             } else if (!this.typingLock) this.startTyping() 
         }
     }
 
+    sendMessage = () => {
+        if (this.props.focus.room_id) {
+            this.stopTyping()
+            let parsed = this.reader.parse(this.state.value)
+            let rendered = this.writer.render(parsed)
+            this.props.client.sendMessage(this.props.focus.room_id,{ 
+                body : this.state.value,
+                type :"m.text",
+                format: "org.matrix.custom.html",
+                formatted_body : rendered
+            })
+            this.setState({ value : "" })
+        } else {
+            window.alert("you need to focus an annotation to send a message")
+        }
+    }
+
     render(props,state) {
-        return <textarea value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
+        return (<div id="messageComposer">
+            <textarea value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
+            <button onclick={this.sendMessage}>Send</button>
+        </div>)
     }
 }
