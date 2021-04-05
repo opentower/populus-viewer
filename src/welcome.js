@@ -89,7 +89,7 @@ class PDFRoomEntry extends Component {
         var status = "invited"
         if (memberIds.includes(clientId)) { status = "joined" }
         return (
-            <div data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
+            <div key={props.room.roomId} data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
                 <div><a onclick={_ => props.loadPDF(props.room.name)}>{props.room.name}</a>
                 </div>
                 <div>Members: {memberPills} </div>
@@ -111,7 +111,7 @@ class MemberPill extends Component {
 
 class AnnotationRoomEntry extends Component {
     render (props, state) {
-        return (<div class="roomListingEntry" id={props.room.name}>{props.room.name}</div>)
+        return (<div key={props.room.roomId} class="roomListingEntry" id={props.room.name}>{props.room.name}</div>)
     }
 }
 
