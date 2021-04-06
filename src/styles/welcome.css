@@ -8,7 +8,7 @@
 }
 
 .roomListingEntry, #pdfUploadForm {
-    border: 2px #5D267B solid;
+    border: 1px black solid;
     margin: 1em 0 1em 0;
     padding: 1em;
 }

@@ -8,11 +8,9 @@ body a {
   font-family: 'Signika', sans-serif;
   font-size: 1.1em;
   color: black;
-  background: radial-gradient(50% 30%, #ead8f3 100%, white);
   text-transform: uppercase;
-  padding:6px;
-  text-decoration: none;
-  text-decoration-color: ;
+  padding: 0 2px 0 2px;
+  border: 1px #2a8967 solid;
   cursor: pointer;
 }
 
@@ -34,6 +32,8 @@ h3 {
 }
 
 #title a {
+  border: none;
+  text-transform: none;
   background: none;
   font-size: 4em;
   color: black;
@@ -66,7 +66,7 @@ input[type=submit] {
   font-size: 1.1em;
   border: none;
   color: black;
-  background: radial-gradient(50% 30%, #ead8f3 100%, white);
+  background: radial-gradient(50% 30%, #ebf9f4 100%, white);
   text-transform: uppercase;
   margin-right:5px;
   padding:5px;
@@ -79,7 +79,7 @@ button {
   font-size: 1.1em;
   border: none;
   color: black;
-  background: radial-gradient(50% 30%, #ead8f3 100%, white);
+  background: radial-gradient(50% 30%, #ebf9f4 100%, white);
   text-transform: uppercase;
   margin-right:5px;
   padding:5px;

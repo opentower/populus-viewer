@@ -1,6 +1,6 @@
 #loginModal, #registrationModal {
     display: inline-block;
-    border: 2px solid #5D267B;
+    border: 2px solid black;
     padding: 1em;
     padding-bottom: 2em;
     position: absolute;

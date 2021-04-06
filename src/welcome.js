@@ -70,7 +70,7 @@ class Logout extends Component {
     render (props,state) {
         return (
             <footer>
-                <a href='#' onclick={props.logoutHandler}>logout</a>
+                <button href='#' onclick={props.logoutHandler}>logout</button>
             </footer>
         )
     }
