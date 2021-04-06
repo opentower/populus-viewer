@@ -66,14 +66,13 @@ export default class Message extends Component {
             return (
                 <Fragment>
                     <div id={event.getId()} class="message me">
-                        <div class="edit">
-                            {!state.editing && <button onclick={this.startEdit} >edit</button>}
-                            <button onclick={this.redactMessage} class="redact">delete</button>
-                        </div>
                         {displayBody}
                         <div class="ident">
                             {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
-                            <span class="name">{shortid}</span>
+                            <div class="info">
+                                {!state.editing && <button onclick={this.startEdit} >edit</button>}
+                                <button onclick={this.redactMessage} class="redact">delete</button>
+                            </div>
                         </div>
                     </div>
                     {state.editing && <MessageEditor openEditor={this.openEditor}
@@ -88,11 +87,13 @@ export default class Message extends Component {
             return (
                 <div id={event.getId()} class="message">
                     <div class="ident">
-                        <span class="name"> {shortid}</span>
+                        <div class="info">
+                            <span class="name"> {shortid}</span>
+                            <button class="reaction" onclick={this.upvote}>+1</button>
+                        </div>
                         {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
                     </div>
                     {displayBody}
-                    <button class="reaction" onclick={this.upvote}>+1</button>
                 </div>
             )
         }
