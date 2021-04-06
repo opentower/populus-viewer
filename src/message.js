@@ -76,7 +76,7 @@ export default class Message extends Component {
     }
 
     handleKeypress = (event) => { 
-        if (event.key == "Enter" && !event.shiftKey) {
+        if (event.key == "Enter" && event.ctrlKey) {
             event.preventDefault()
             this.sendEdit()
         }
