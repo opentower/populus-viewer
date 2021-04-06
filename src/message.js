@@ -72,7 +72,7 @@ export default class Message extends Component {
                         <div class="ident" style={{borderLeftColor: colorFromId}}>
                             {(upvotes > 0) && <span style={{background: colorFromId}} class="upvotes">+{upvotes}</span>}
                             <div class="info">
-                                {!state.editing && <button style={{borderColor: colorFromId}}  onclick={this.startEdit} >edit</button>}
+                                {!state.editing && <button onclick={this.openEditor} style={{borderColor: colorFromId}}>edit</button>}
                                 <button onclick={this.redactMessage} style={{borderColor: colorFromId}} class="redact">delete</button>
                             </div>
                         </div>
@@ -103,12 +103,10 @@ export default class Message extends Component {
 }
 
 class MessageEditor extends Component {
-
-    startEdit = () => {
-        this.props.openEditor()
-        this.setState({ edit_value : this.props.getCurrentEdit().body, })
+    
+    componentDidMount () { 
+        this.setState({ edit_value : this.props.getCurrentEdit().body })
     }
-
 
     sendEdit = () => {
         const reader = new CommonMark.Parser()
