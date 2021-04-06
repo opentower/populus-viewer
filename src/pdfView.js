@@ -156,18 +156,23 @@ class PdfCanvas extends Component {
         const page = await pdf.getPage(this.props.pageFocused || 1)
         console.log('Page loaded');
               
-        const scale = 1.5;
+        const devicePixelRatio = window.devicePixelRatio
+        const scales = { 1: 3.2, 2: 4 }
+        const scale = scales[devicePixelRatio] || 3
         const viewport = page.getViewport({scale: scale});
 
         // Prepare canvas using PDF page dimensions
-        const context = theCanvas.getContext('2d');
+
+        theCanvas.style.height = `${(viewport.height* 1.5) / scale}px`;
+        theCanvas.style.width = `${(viewport.width * 1.5) / scale}px`;
         theCanvas.height = viewport.height;
         theCanvas.width = viewport.width;
 
         // Render PDF page into canvas context
+        const transform = [ devicePixelRatio, 0 , 0, devicePixelRatio, 0, 0];
         const renderContext = {
-          canvasContext: context,
-          viewport: viewport
+            canvasContext: theCanvas.getContext('2d'),
+            viewport: viewport,
         };
 
         this.pendingRender = page.render(renderContext);
@@ -183,8 +188,8 @@ class PdfCanvas extends Component {
         PDFJS.renderTextLayer({
             textContent: text,
             container: document.getElementById("text-layer"),
-            viewport: viewport,
-            textDivs: []
+            viewport: page.getViewport({scale: 1.5}),
+            textDivs: [],
         });
         this.hasRendered = true
     }
