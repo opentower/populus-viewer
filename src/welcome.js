@@ -9,13 +9,14 @@ export default class WelcomeView extends Component {
         return (
             <div>
             <div id="top"></div>
+            <div id="right"></div>
+            <div id="bottom"></div>
             <div id="left"></div>
+            <div id='title'><a href="/">Populus</a></div>
             <div class="welcomeContainer">
                 <RoomList {...props}/>
                 <Logout logoutHandler={props.logoutHandler}/>
             </div>
-            <div id="right"></div>
-            <div id="bottom"></div>
             </div>
         )
     }
@@ -58,7 +59,6 @@ class RoomList extends Component {
                                   }).map(room => { return <RoomListing loadPDF={props.loadPDF} client={props.client} room={room}/> })
         return (
             <Fragment>
-                <div id='title'><a href="/">Populus</a></div>
                 <h3>Upload a New PDF</h3>
                 <PdfUpload client={props.client}/>
                 <h3>Current Conversations</h3>

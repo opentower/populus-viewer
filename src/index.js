@@ -21,17 +21,17 @@ class PopulusViewer extends Component {
             timelineSupport : true,
             unstableClientRelationAggregation: true,
         })
-        this.state = { 
+        this.state = {
             loggedIn : false,
             pdfFocused : this.queryParams.get("title") || false,
             pageFocused : Number(this.queryParams.get("page")) || 1,
         }
         if (this.client.getUserId()) this.loginHandler()
         //initialize navigation history
-        window.history.pushState({ 
+        window.history.pushState({
             pdfFocused : this.state.pdfFocused,
             pageFocused : this.state.pageFocused,
-        },"", "?" + this.queryParams.toString()) 
+        },"", "?" + this.queryParams.toString())
         //handle navigation events
         window.addEventListener('popstate', e => {
             this.setState({
@@ -42,7 +42,7 @@ class PopulusViewer extends Component {
         })
     }
 
-    logoutHandler = _ => { 
+    logoutHandler = _ => {
         localStorage.clear()
         this.client.stopClient()
         this.client = Matrix.createClient({
@@ -52,11 +52,11 @@ class PopulusViewer extends Component {
         this.setState({loggedIn : false})
     }
 
-    loginHandler = _ => { 
+    loginHandler = _ => {
         localStorage.setItem("accessToken", this.client.getAccessToken())
         localStorage.setItem("userId", this.client.getUserId())
         this.client.startClient({initialSyncLimit:1}).then(_ => {
-            this.setState({loggedIn : true}) 
+            this.setState({loggedIn : true})
         })
     }
 
@@ -69,7 +69,7 @@ class PopulusViewer extends Component {
     loadPage = (pageNo) => {
        this.setState({pageFocused : pageNo})
        this.queryParams.set("page", pageNo)
-       window.history.pushState({ 
+       window.history.pushState({
            pdfFocused : this.state.pdfFocused,
            pageFocused : pageNo,
        },"", "?" + this.queryParams.toString())

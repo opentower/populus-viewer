@@ -17,7 +17,7 @@ export default class LoginView extends Component {
 
     render(props,state) {
         if (state.registering) {
-            return <div><RegistrationModal {...props} switchView={this.switchView}/></div>
+            return <div><RegistrationModal {...props} View={this.switchView}/></div>
         } else {
             return <div><LoginModal {...props} switchView={this.switchView}/></div>
         }
@@ -47,6 +47,8 @@ class LoginModal extends Component {
         return (
             <div>
             <div id="top"></div>
+            <div id="right"></div>
+            <div id="bottom"></div>
             <div id="left"></div>
             <div id='title'><a href="/">Populus</a></div>
             <div id="loginModal">
@@ -59,7 +61,6 @@ class LoginModal extends Component {
                     </div>
                 </form>
             </div>
-            <div id="right"></div>
             </div>
         )
     }

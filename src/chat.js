@@ -17,23 +17,23 @@ export default class Chat extends Component {
         this.handleTypingNotifications = this.handleTypingNotification.bind(this)
     }
 
-    componentDidMount() { 
-        this.props.client.on("Room.timeline", this.handleTimeline) 
-        this.props.client.on("Room.redaction", this.handleTimeline) 
-        this.props.client.on("RoomMember.typing", this.handleTypingNotification) 
+    componentDidMount() {
+        this.props.client.on("Room.timeline", this.handleTimeline)
+        this.props.client.on("Room.redaction", this.handleTimeline)
+        this.props.client.on("RoomMember.typing", this.handleTypingNotification)
     }
 
-    componentWillUnmount() { 
-        this.props.client.off("Room.timeline", this.handleTimeline) 
-        this.props.client.off("Room.redaction", this.handleTimeline) 
-        this.props.client.off("RoomMember.typing", this.handleTypingNotification) 
+    componentWillUnmount() {
+        this.props.client.off("Room.timeline", this.handleTimeline)
+        this.props.client.off("Room.redaction", this.handleTimeline)
+        this.props.client.off("RoomMember.typing", this.handleTypingNotification)
     }
 
     //Room.timeline passes in more params
     handleTimeline = (event, room) => {
         if (this.props.focus && this.props.focus.room_id == event.getRoomId()) {
-            this.setState({ 
-                events : room.getLiveTimeline().getEvents() 
+            this.setState({
+                events : room.getLiveTimeline().getEvents()
             })
         }
     }
@@ -55,9 +55,9 @@ export default class Chat extends Component {
         if (anchor && chatPanel.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
             this.props.client.scrollback(room)
             var oldState = room.getLiveTimeline().getState(sdk.EventTimeline.BACKWARDS)
-            if (!oldState.paginationToken) { 
+            if (!oldState.paginationToken) {
                 this.scrolledIdents.add(this.props.focus.room_id)
-                this.setState({ fullyScrolled : true }) 
+                this.setState({ fullyScrolled : true })
             }
             setTimeout(_ => this.tryLoad(room),100)
         }
@@ -71,7 +71,7 @@ export default class Chat extends Component {
     async componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.focus != this.props.focus) {
             const room = await this.props.client.joinRoom(this.props.focus.room_id)
-            this.setState({ 
+            this.setState({
                 fullyScrolled : this.scrolledIdents.has(this.props.focus.room_id),
                 events : room.getLiveTimeline().getEvents(),
             }, _ => this.tryLoad(room))
@@ -81,21 +81,24 @@ export default class Chat extends Component {
     render(props, state) {
         var reactions = {}
         const messages = state.events.filter(e => e.getContent().type == "m.text")
-        const messagedivs = messages.map(event => 
-            <Message reactions={reactions} 
-                     client={this.props.client} 
+        const messagedivs = messages.map(event =>
+            <Message reactions={reactions}
+                     client={this.props.client}
                      key={event.getId()}
                      event={event}/>)
         //sort reactions by event reacted-to
         state.events.forEach(e => { if (e.getType() == "m.reaction") {
-            if (reactions[e.getContent()["m.relates_to"].event_id]) reactions[e.getContent()["m.relates_to"].event_id].push(e) 
+            if (reactions[e.getContent()["m.relates_to"].event_id]) reactions[e.getContent()["m.relates_to"].event_id].push(e)
             else reactions[e.getContent()["m.relates_to"].event_id] = [e]
         }})
         return (
             <div id="chat-panel" onscroll={this.tryLoadRoom}>
+            <div id="top"></div>
+            <div id="right"></div>
+            <div id="bottom"></div>
                 <MessagePanel client={props.client} focus={props.focus} />
                 <div id="messages">
-                    {messagedivs} 
+                    {messagedivs}
                     <TypingIndicator client={this.props.client} typing={this.state.typing}/>
                 </div>
                 <Anchor focus={props.focus} fullyScrolled={state.fullyScrolled}/>
@@ -141,7 +144,7 @@ class MessagePanel extends Component {
     startTyping = () => {
         //send a "typing" notification with a 30 second timeout
         this.props.client.sendTyping(this.props.focus.room_id,true, 30000)
-        //lock sending further typing notifications 
+        //lock sending further typing notifications
         this.typingLock = true
         //Release lock (to allow sending another typing notification) after 10 seconds
         this.resetLockTimeout = setTimeout(_  => { this.typingLock = false }, 10000)
@@ -153,7 +156,7 @@ class MessagePanel extends Component {
         clearTimeout(this.resetLockTimeout)
         clearTimeout(this.typingTimeout)
         //send a "not typing" notification
-        this.props.client.sendTyping(this.props.focus.room_id,false) 
+        this.props.client.sendTyping(this.props.focus.room_id,false)
     }
 
     handleInput = (event) => {
@@ -161,7 +164,7 @@ class MessagePanel extends Component {
         this.setState({ value : event.target.value })
     }
 
-    handleKeypress = (event) => { 
+    handleKeypress = (event) => {
         if (this.props.focus) {
             clearTimeout(this.typingTimeout)
             this.typingTimeout = setTimeout(_  => this.stopTyping(), 5000)
@@ -169,7 +172,7 @@ class MessagePanel extends Component {
             if (event.key == "Enter" && event.ctrlKey) {
                 event.preventDefault()
                 this.sendMessage()
-            } else if (!this.typingLock) this.startTyping() 
+            } else if (!this.typingLock) this.startTyping()
         }
     }
 
@@ -178,7 +181,7 @@ class MessagePanel extends Component {
             this.stopTyping()
             let parsed = this.reader.parse(this.state.value)
             let rendered = this.writer.render(parsed)
-            this.props.client.sendMessage(this.props.focus.room_id,{ 
+            this.props.client.sendMessage(this.props.focus.room_id,{
                 body : this.state.value,
                 type :"m.text",
                 format: "org.matrix.custom.html",
