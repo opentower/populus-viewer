@@ -53,14 +53,6 @@
     background-color:#5072A7;
 }
 
-#messageComposer > button > svg {
-    width:30px;
-    height:30px;
-    stroke:white;
-    fill:white;
-    vertical-align:text-bottom;
-}
-
 #chat-panel .message {
     position:relative;
     display: grid;
@@ -77,28 +69,67 @@
 #chat-panel .message > .ident {
     position:relative;
     grid-area: name;
+    width:0px;
     padding-top:10px;
     padding-bottom:10px;
-    margin-left:10px;
-    margin-right:10px;
-    border-left: .3em solid #aadada
+    padding-left:12px;
+    margin-right:15px;
+    border-right: 5px solid;
+    background: white;
+}
+
+#chat-panel .me > .ident {
+    padding-top:10px;
+    padding-bottom:10px;
+    padding-left:0px;
+    margin-right:0px;
+    padding-right:12px;
+    margin-left:15px;
+    border-right: none;
+    border-left: 5px solid;
+    background: white;
+}
+
+#chat-panel .message .info {
+    width:300px;
+    visibility:hidden;
+    position:absolute;
+    top:-27px;
+    left: 12px;
+}
+
+#chat-panel .message .info > button {
+    margin:0px;
+    margin-left:5px;
+    margin-right:5px;
+    border:2px solid;
+    padding:4px;
+    background-color:white;
+}
+
+#chat-panel .message .info > button:first-child {
+    margin-right:0px;
+}
+
+#chat-panel .message .info > button:last-child {
+    margin-right:0px;
+}
+
+#chat-panel .me .info {
+    left:unset;
+    right: 12px;
 }
 
 #chat-panel .message .name  {
-    visibility:hidden;
-    position:absolute;
-    top:-1.5em;
-    left: -.2em;
-    height: 1.2em;
-    background:#aadada;
     padding:5px;
+    height:20px;
 }
 
-#chat-panel .message:hover .name  {
+#chat-panel .message:hover .info  {
     visibility:visible;
 }
 
-#chat-panel .me:hover  .name {
+#chat-panel .me .name {
     visibility:hidden;
 }
 
@@ -118,39 +149,15 @@
     padding-left:5px;
 }
 
-#chat-panel .message > .edit, #chat-panel .message > .reaction {
-    position:absolute;
-    visibility:hidden;
-}
-
-#chat-panel .message > .body > *:first-child { margin-top:0px; }
-
-#chat-panel .message > .body > *:last-child { margin-bottom:0px; }
-
-#chat-panel .message:hover > .edit, 
-#chat-panel .message:hover > .reaction {
-    visibility:visible;
-    position:absolute;
-    top:5px;
-}
-
-#chat-panel .message:hover > .reaction {
-    right:2px;
-}
-
-#chat-panel .message:hover > .edit {
-    left:2px;
-}
-
 #chat-panel .message .upvotes {
     position:relative;
-    /* bottom:15px; */
+    width:0px;
+    right:8px;
     padding:3px;
-    left:-13px;
     font-size:8pt;
     background-color:white;
     border-radius:15px;
-    border:2px solid #aadada;
+    border:2px solid;
 }
 
 #chat-panel .me .upvotes {

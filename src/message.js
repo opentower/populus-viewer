@@ -1,6 +1,7 @@
 import { h, Fragment, Component } from 'preact';
 import sanitizeHtml from 'sanitize-html'
 import * as CommonMark from 'commonmark'
+import UserColor from './userColors.js'
 
 export default class Message extends Component {
 
@@ -8,7 +9,6 @@ export default class Message extends Component {
         super(props)
         this.state = ({
             editing : false,
-            edit_value : "",
         })
     }
 
@@ -25,19 +25,15 @@ export default class Message extends Component {
         })
     }
 
-    startEdit = () => {
-        this.setState({ 
-            editing : true,
-            edit_value : this.getCurrentEdit().body,
-        })
-    }
+    openEditor = () => this.setState({ editing : true, })
 
-    stopEdit = () => {
-        this.setState({ editing : false })
-    }
+    closeEditor = () => this.setState({ editing : false, })
 
-    redactMessage = () => {
-        this.props.client.redactEvent(this.props.event.getRoomId(),this.props.event.getId())
+    getCurrentEdit = () => {
+        const edits = this.getEdits()
+        //need to be smarter about ordering
+        if (edits.length > 0) { return edits[edits.length - 1].getContent()["m.new_content"] } 
+        else { return this.props.event.getContent() }
     }
 
     getEdits = () => {
@@ -47,11 +43,69 @@ export default class Message extends Component {
         : []
     }
 
-    getCurrentEdit = () => {
-        const edits = this.getEdits()
-        //need to be smarter about ordering
-        if (edits.length > 0) { return edits[edits.length - 1].getContent()["m.new_content"] } 
-        else { return this.props.event.getContent() }
+    redactMessage = () => {
+        this.props.client.redactEvent(this.props.event.getRoomId(),this.props.event.getId())
+    }
+
+
+    render(props,state) {
+        //there's some cleverness involving involving the unstable clientside
+        //relation aggregation mechanism that we're not taking advantage of
+        //here. Element doesn't seem to use this for replacements yet either.
+        const event = props.event
+        const shortid = event.getSender().split(':')[0].slice(1)
+        const upvotes = props.reactions[event.getId()] 
+                      ? props.reactions[event.getId()].filter(event => event.getContent()["m.relates_to"].rel_type == "m.annotation").length
+                      : 0
+        const content = this.getCurrentEdit()
+        const displayBody = ((content.format == "org.matrix.custom.html") && content.formatted_body)
+                          ? <div class="body" 
+                                 dangerouslySetInnerHTML={{__html : sanitizeHtml(content.formatted_body, sanitizeHtmlParams)}}
+                            />
+                          : <div class="body">{content.body}</div>
+        const colorFromId = 'hsl(' + UserColor(event.getSender()) + ', 100%, 80%)'
+        if (props.client.getUserId() == event.getSender()) {
+            return (
+                <Fragment>
+                    <div id={event.getId()} class="message me">
+                        {displayBody}
+                        <div class="ident" style={{borderLeftColor: colorFromId}}>
+                            {(upvotes > 0) && <span style={{background: colorFromId}} class="upvotes">+{upvotes}</span>}
+                            <div class="info">
+                                {!state.editing && <button onclick={this.openEditor} style={{borderColor: colorFromId}}>edit</button>}
+                                <button onclick={this.redactMessage} style={{borderColor: colorFromId}} class="redact">delete</button>
+                            </div>
+                        </div>
+                    </div>
+                    {state.editing && <MessageEditor openEditor={this.openEditor}
+                                                     closeEditor={this.closeEditor}  
+                                                     getCurrentEdit={this.getCurrentEdit}  
+                                                     client={this.props.client}  
+                                                     event={event}
+                                      />}
+                </Fragment>
+            )
+        } else {
+            return (
+                <div id={event.getId()} class="message">
+                    <div class="ident" style={{borderRightColor: colorFromId}}>
+                        <div class="info">
+                            <span style={{background : colorFromId}} class="name">{shortid}</span>
+                            <button style={{borderColor: colorFromId}} class="reaction" onclick={this.upvote}>+1</button>
+                        </div>
+                        {(upvotes > 0) && <span style={{borderColor: colorFromId}} class="upvotes">+{upvotes}</span>}
+                    </div>
+                    {displayBody}
+                </div>
+            )
+        }
+    }
+}
+
+class MessageEditor extends Component {
+    
+    componentDidMount () { 
+        this.setState({ edit_value : this.props.getCurrentEdit().body })
     }
 
     sendEdit = () => {
@@ -72,11 +126,11 @@ export default class Message extends Component {
                 rel_type : "m.replace",
                 event_id : this.props.event.getId(),
             }
-        }).then(_ => this.stopEdit())
+        }).then(_ => this.props.closeEditor())
     }
 
     handleKeypress = (event) => { 
-        if (event.key == "Enter" && !event.shiftKey) {
+        if (event.key == "Enter" && event.ctrlKey) {
             event.preventDefault()
             this.sendEdit()
         }
@@ -87,55 +141,13 @@ export default class Message extends Component {
     }
 
     render(props,state) {
-        //there's some cleverness involving involving the unstable clientside
-        //relation aggregation mechanism that we're not taking advantage of
-        //here. Element doesn't seem to use this for replacements yet either.
-        const event = props.event
-        const shortid = event.getSender().split(':')[0].slice(1)
-        const upvotes = props.reactions[event.getId()] 
-                      ? props.reactions[event.getId()].filter(event => event.getContent()["m.relates_to"].rel_type == "m.annotation").length
-                      : 0
-        const content = this.getCurrentEdit()
-        const displayBody = ((content.format == "org.matrix.custom.html") && content.formatted_body)
-                          ? <div class="body" 
-                                 dangerouslySetInnerHTML={{__html : sanitizeHtml(content.formatted_body, sanitizeHtmlParams)}}
-                            />
-                          : <div class="body">{content.body}</div>
-        if (props.client.getUserId() == event.getSender()) {
-            return (
-                <Fragment>
-                    <div id={event.getId()} class="message me">
-                        <div class="edit">
-                            {!state.editing && <button onclick={this.startEdit} >edit</button>}
-                            <button onclick={this.redactMessage} class="redact">delete</button>
-                        </div>
-                        {displayBody}
-                        <div class="ident">
-                            {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
-                            <span class="name">{shortid}</span>
-                        </div>
-                    </div>
-                    {state.editing && <div class="messageEditor">
-                             <textarea value={state.edit_value} 
-                                                        onkeypress={this.handleKeypress} 
-                                                        oninput={this.handleInput}/>
-                             <button onclick={this.sendEdit}>Submit</button>
-                             <button onclick={this.stopEdit}>Cancel</button>
-                        </div>}
-                </Fragment>
-            )
-        } else {
-            return (
-                <div id={event.getId()} class="message">
-                    <div class="ident">
-                        <span class="name"> {shortid}</span>
-                        {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
-                    </div>
-                    {displayBody}
-                    <button class="reaction" onclick={this.upvote}>+1</button>
-                </div>
-            )
-        }
+        return <div class="messageEditor">
+                     <textarea value={state.edit_value} 
+                                                onkeypress={this.handleKeypress} 
+                                                oninput={this.handleInput}/>
+                     <button onclick={this.sendEdit}>Submit</button>
+                     <button onclick={this.stopEdit}>Cancel</button>
+               </div>
     }
 }
 

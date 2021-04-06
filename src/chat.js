@@ -80,7 +80,8 @@ export default class Chat extends Component {
 
     render(props, state) {
         var reactions = {}
-        const messages = state.events.filter(e => e.getContent().type == "m.text")
+        //XXX need to be able to handle other message types
+        const messages = state.events.filter(e => e.getType() == "m.room.message" && e.getContent().msgtype == "m.text")
         const messagedivs = messages.map(event =>
             <Message reactions={reactions}
                      client={this.props.client}
@@ -183,7 +184,7 @@ class MessagePanel extends Component {
             let rendered = this.writer.render(parsed)
             this.props.client.sendMessage(this.props.focus.room_id,{
                 body : this.state.value,
-                type :"m.text",
+                msgtype :"m.text",
                 format: "org.matrix.custom.html",
                 formatted_body : rendered
             })

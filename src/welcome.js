@@ -1,6 +1,7 @@
 import { h, createRef, render, Fragment, Component } from 'preact';
 import { pdfStateType }  from "./constants.js"
 import * as Matrix from "matrix-js-sdk"
+import UserColor from './userColors.js'
 import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
@@ -108,8 +109,9 @@ class PDFRoomEntry extends Component {
 
 class MemberPill extends Component {
     render (props, state) {
+        const colorFromId = 'hsl(' + UserColor(props.member.userId) + ', 100%, 80%)'
         return (<Fragment>
-                    <span class="memberPill">{props.member.userId}</span>
+                <span style={{background:colorFromId}} class="memberPill">{props.member.userId}</span>
                     <wbr></wbr>
                 </Fragment>
         )
