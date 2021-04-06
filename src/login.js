@@ -46,6 +46,7 @@ class LoginModal extends Component {
     render(props,state) {
         return (
             <div>
+            <div id="top"></div>
             <div id="left"></div>
             <div id='title'><a href="/">Populus</a></div>
             <div id="loginModal">

@@ -8,12 +8,14 @@ export default class WelcomeView extends Component {
     render(props,state) {
         return (
             <div>
+            <div id="top"></div>
             <div id="left"></div>
             <div class="welcomeContainer">
                 <RoomList {...props}/>
                 <Logout logoutHandler={props.logoutHandler}/>
             </div>
             <div id="right"></div>
+            <div id="bottom"></div>
             </div>
         )
     }

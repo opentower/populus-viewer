@@ -15,8 +15,7 @@ body a {
 }
 
 body {
-  height: 100%;
-  margin: 0;
+  margin: 2% 0 0 0;
   padding: 0;
 }
 
@@ -49,7 +48,7 @@ h3 {
   top: 0;
   bottom: 0;
   left: 0;
-  width: 10%;
+  width: 0.3%;
 }
 
 #right {
@@ -58,7 +57,26 @@ h3 {
   top: 0;
   bottom: 0;
   right: 0;
-  width: 10%;
+  width: 0.3%;
+}
+
+#top {
+  background: #267b5d;
+  left: 0;
+  right: 0;
+  top: 0;
+  position: fixed;
+  height: 0.6%;
+  z-index: 2;
+}
+
+#bottom {
+  background: #267b5d;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  position: fixed;
+  height: 0.6%;
 }
 
 input[type=submit] {
@@ -66,7 +84,7 @@ input[type=submit] {
   font-size: 1.1em;
   border: none;
   color: black;
-  background: radial-gradient(50% 30%, #ebf9f4 100%, white);
+  background: radial-gradient(50% 30%, #d8f3ea 100%, white);
   text-transform: uppercase;
   margin-right:5px;
   padding:5px;
@@ -79,7 +97,7 @@ button {
   font-size: 1.1em;
   border: none;
   color: black;
-  background: radial-gradient(50% 30%, #ebf9f4 100%, white);
+  background: radial-gradient(50% 30%, #d8f3ea 100%, white);
   text-transform: uppercase;
   margin-right:5px;
   padding:5px;
