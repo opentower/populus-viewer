@@ -54,27 +54,31 @@ export default class Message extends Component {
         else { return this.props.event.getContent() }
     }
 
+    sendEdit = () => {
+        const reader = new CommonMark.Parser()
+        const writer = new CommonMark.HtmlRenderer()
+        const parsed = reader.parse(this.state.edit_value)
+        const rendered = writer.render(parsed)
+        this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
+            body : "an edit occurred", //fallback for clients that don't handle edits. we can do something more descriptive
+            msgtype : "m.text",
+            "m.new_content" : {
+                body : this.state.edit_value,
+                msgtype : "m.text",
+                format: "org.matrix.custom.html",
+                formatted_body : rendered
+            },
+            "m.relates_to" : {
+                rel_type : "m.replace",
+                event_id : this.props.event.getId(),
+            }
+        }).then(_ => this.stopEdit())
+    }
+
     handleKeypress = (event) => { 
         if (event.key == "Enter" && !event.shiftKey) {
             event.preventDefault()
-            const reader = new CommonMark.Parser()
-            const writer = new CommonMark.HtmlRenderer()
-            const parsed = reader.parse(this.state.edit_value)
-            const rendered = writer.render(parsed)
-            this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
-                body : "an edit occurred", //fallback for clients that don't handle edits. we can do something more descriptive
-                msgtype : "m.text",
-                "m.new_content" : {
-                    body : this.state.edit_value,
-                    msgtype : "m.text",
-                    format: "org.matrix.custom.html",
-                    formatted_body : rendered
-                },
-                "m.relates_to" : {
-                    rel_type : "m.replace",
-                    event_id : this.props.event.getId(),
-                }
-            }).then(_ => this.stopEdit())
+            this.sendEdit()
         }
     }
 
@@ -111,10 +115,13 @@ export default class Message extends Component {
                             <span class="name">{shortid}</span>
                         </div>
                     </div>
-                    {state.editing && <textarea value={state.edit_value} 
-                                                onkeypress={this.handleKeypress} 
-                                                oninput={this.handleInput} 
-                                                style="width:100%"/>}
+                    {state.editing && <div class="messageEditor">
+                             <textarea value={state.edit_value} 
+                                                        onkeypress={this.handleKeypress} 
+                                                        oninput={this.handleInput}/>
+                             <button onclick={this.sendEdit}>Submit</button>
+                             <button onclick={this.stopEdit}>Cancel</button>
+                        </div>}
                 </Fragment>
             )
         } else {

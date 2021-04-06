@@ -14,26 +14,38 @@
     z-index:5;
 }
 
-#messageComposer > textarea {
+#messageComposer > textarea,
+.messageEditor > textarea {
     display:block;
-    min-height:350px;
+    min-height:100px;
     width:100%;
-    resize:none;
     margin:0px;
+    border: 1px solid #adadad;
+}
+
+#messageComposer > textarea {
+    min-height:350px;
+}
+
+#messageComposer > button,
+.messageEditor > button {
+    width:50%;
+    height:30px;
+    border:none;
+    color:white;
+    font-weight:bold;
+    background-color:#5072A7
 }
 
 
 #messageComposer > button {
     width:50%;
     height:40px;
-    border:none;
-    color:white;
-    font-weight:bold;
     font-size:14pt;
-    background-color:#5072A7
 }
 
-#messageComposer > button:hover {
+#messageComposer > button:hover, 
+.messageEditor > button:hover {
     background-color:#6183B8
 }
 
