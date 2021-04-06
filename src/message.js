@@ -1,6 +1,7 @@
 import { h, Fragment, Component } from 'preact';
 import sanitizeHtml from 'sanitize-html'
 import * as CommonMark from 'commonmark'
+import UserColor from './userColors.js'
 
 export default class Message extends Component {
 
@@ -62,16 +63,17 @@ export default class Message extends Component {
                                  dangerouslySetInnerHTML={{__html : sanitizeHtml(content.formatted_body, sanitizeHtmlParams)}}
                             />
                           : <div class="body">{content.body}</div>
+        const colorFromId = 'hsl(' + UserColor(event.getSender()) + ', 100%, 80%)'
         if (props.client.getUserId() == event.getSender()) {
             return (
                 <Fragment>
                     <div id={event.getId()} class="message me">
                         {displayBody}
-                        <div class="ident">
-                            {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
+                        <div class="ident" style={{borderLeftColor: colorFromId}}>
+                            {(upvotes > 0) && <span style={{background: colorFromId}} class="upvotes">+{upvotes}</span>}
                             <div class="info">
-                                {!state.editing && <button onclick={this.startEdit} >edit</button>}
-                                <button onclick={this.redactMessage} class="redact">delete</button>
+                                {!state.editing && <button style={{borderColor: colorFromId}}  onclick={this.startEdit} >edit</button>}
+                                <button onclick={this.redactMessage} style={{borderColor: colorFromId}} class="redact">delete</button>
                             </div>
                         </div>
                     </div>
@@ -86,12 +88,12 @@ export default class Message extends Component {
         } else {
             return (
                 <div id={event.getId()} class="message">
-                    <div class="ident">
+                    <div class="ident" style={{borderRightColor: colorFromId}}>
                         <div class="info">
-                            <span class="name"> {shortid}</span>
-                            <button class="reaction" onclick={this.upvote}>+1</button>
+                            <span style={{background : colorFromId}} class="name">{shortid}</span>
+                            <button style={{borderColor: colorFromId}} class="reaction" onclick={this.upvote}>+1</button>
                         </div>
-                        {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
+                        {(upvotes > 0) && <span style={{borderColor: colorFromId}} class="upvotes">+{upvotes}</span>}
                     </div>
                     {displayBody}
                 </div>
