@@ -3,18 +3,14 @@
     position: absolute;
     left: 50%;
     transform: translateX(-50%);
+    background-color: white;
+    padding: 0 0 30px 0;
 }
 
 .roomListingEntry, #pdfUploadForm {
-    border: 1px black solid;
-    margin: 1em;
+    border: 2px #5D267B solid;
+    margin: 1em 0 1em 0;
     padding: 1em;
-}
-
-.roomListingEntry a {
-  color: #069;
-  text-decoration: underline;
-  cursor: pointer;
 }
 
 .roomListingEntry > div {
@@ -22,7 +18,7 @@
 }
 
 .memberPill {
-    background:#aadada;
+    background:#8adbbf;
     border-radius:5px;
     margin-right:5px;
     padding:5px;

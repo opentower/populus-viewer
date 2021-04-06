@@ -7,9 +7,13 @@ export default class WelcomeView extends Component {
 
     render(props,state) {
         return (
+            <div>
+            <div id="left"></div>
             <div class="welcomeContainer">
                 <RoomList {...props}/>
                 <Logout logoutHandler={props.logoutHandler}/>
+            </div>
+            <div id="right"></div>
             </div>
         )
     }
@@ -27,24 +31,24 @@ class RoomList extends Component {
 
     roomListener (room) { this.setState({ rooms : this.props.client.getVisibleRooms() }) }
 
-    componentDidMount () { 
-        this.props.client.on("Room", this.roomListener) 
-        this.props.client.on("Room.name", this.roomListener) 
+    componentDidMount () {
+        this.props.client.on("Room", this.roomListener)
+        this.props.client.on("Room.name", this.roomListener)
         this.props.client.on("RoomState.events", this.roomListener)
         //State events might cause excessive rerendering, but we can optimize for that later
     }
 
-    componentWillUnmount () { 
-        this.props.client.off("Room", this.roomListener) 
-        this.props.client.off("Room.name", this.roomListener) 
+    componentWillUnmount () {
+        this.props.client.off("Room", this.roomListener)
+        this.props.client.off("Room.name", this.roomListener)
         this.props.client.on("RoomState.events",this.roomListener)
     }
 
     render(props,state) {
         //TODO: We're going to want to have different subcategories of rooms,
         //for actual pdfs, and for annotation discussions
-        const rooms = state.rooms.sort((a,b) => { 
-                                        const ts1 = a.getLastActiveTimestamp() 
+        const rooms = state.rooms.sort((a,b) => {
+                                        const ts1 = a.getLastActiveTimestamp()
                                         const ts2 = b.getLastActiveTimestamp()
                                         if (ts1 < ts2) return 1
                                         else if (ts2 < ts1) return -1
@@ -52,7 +56,8 @@ class RoomList extends Component {
                                   }).map(room => { return <RoomListing loadPDF={props.loadPDF} client={props.client} room={room}/> })
         return (
             <Fragment>
-                <h3>Upload a new PDF</h3>
+                <div id='title'><a href="/">Populus</a></div>
+                <h3>Upload a New PDF</h3>
                 <PdfUpload client={props.client}/>
                 <h3>Current Conversations</h3>
                 <div>{rooms}</div>
@@ -93,7 +98,7 @@ class PDFRoomEntry extends Component {
                 <div><a onclick={_ => props.loadPDF(props.room.name)}>{props.room.name}</a>
                 </div>
                 <div>Members: {memberPills} </div>
-                <div>Last Active: {date.toDateString()}, {date.toTimeString()}</div> 
+                <div>Last Active: {date.toDateString()}, {date.toTimeString()}</div>
             </div>
         )
     }
@@ -103,7 +108,7 @@ class MemberPill extends Component {
     render (props, state) {
         return (<Fragment>
                     <span class="memberPill">{props.member.userId}</span>
-                    <wbr></wbr> 
+                    <wbr></wbr>
                 </Fragment>
         )
     }
@@ -124,12 +129,12 @@ class PdfUpload extends Component {
     mainForm = createRef()
 
     fileLoader = createRef()
-     
+
     roomNameInput = createRef()
 
     roomTopicInput = createRef()
 
-    uploadFile = async (e) => { 
+    uploadFile = async (e) => {
         e.preventDefault()
         const theFile = this.fileLoader.current.files[0]
         const theName = this.roomNameInput.current.value
@@ -147,7 +152,7 @@ class PdfUpload extends Component {
             this.props.client.uploadContent(theFile).then(e => {
                 let parts = e.split('/')
                 this.props.client.sendStateEvent(id.room_id, pdfStateType, {
-                    "identifier": parts[parts.length - 1] 
+                    "identifier": parts[parts.length - 1]
                 })
                 //XXX: this event doesn't get through before the name is
                 //assigned, so the room isn't detected as a pdf room. Probably
@@ -155,12 +160,12 @@ class PdfUpload extends Component {
                 //this work right.
             }).then(_ => this.mainForm.current.reset())
         }
-    } 
+    }
 
     render (props, state) {
         return (
             <form id="pdfUploadForm" ref={this.mainForm} onsubmit={this.uploadFile}>
-                    <label> Pdf to discuss</label>
+                    <label> PDF to Discuss</label>
                     <input ref={this.fileLoader}  type="file"/>
                     <label>Name for Discussion</label>
                     <input ref={this.roomNameInput} type="text"/>

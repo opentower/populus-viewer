@@ -1,3 +1,88 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Signika:wght@300&display=swap');
 
 * { font-family: 'Inter', sans-serif }
+
+body a {
+  font-family: 'Signika', sans-serif;
+  font-size: 1.1em;
+  color: black;
+  background: radial-gradient(50% 30%, #ead8f3 100%, white);
+  text-transform: uppercase;
+  padding:6px;
+  text-decoration: none;
+  text-decoration-color: ;
+  cursor: pointer;
+}
+
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+h3 {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 1px;
+  padding: 15px 0 0 0;
+}
+
+#title {
+  padding: 20px 0 0 0;
+  text-align: center;
+}
+
+#title a {
+  background: none;
+  font-size: 4em;
+  color: black;
+  letter-spacing: 2px;
+  font-family: 'Cinzel', serif;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#left {
+  background: #267b5d;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 10%;
+}
+
+#right {
+  background: #267b5d;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: 10%;
+}
+
+input[type=submit] {
+  font-family: 'Signika', sans-serif;
+  font-size: 1.1em;
+  border: none;
+  color: black;
+  background: radial-gradient(50% 30%, #ead8f3 100%, white);
+  text-transform: uppercase;
+  margin-right:5px;
+  padding:5px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+button {
+  font-family: 'Signika', sans-serif;
+  font-size: 1.1em;
+  border: none;
+  color: black;
+  background: radial-gradient(50% 30%, #ead8f3 100%, white);
+  text-transform: uppercase;
+  margin-right:5px;
+  padding:5px;
+  text-decoration: none;
+  cursor: pointer;
+}

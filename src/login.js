@@ -10,7 +10,7 @@ export default class LoginView extends Component {
 
     switchView = (e) => {
         e.preventDefault()
-        this.setState(oldstate => { 
+        this.setState(oldstate => {
             return {registering : !oldstate.registering}
         })
     }
@@ -45,6 +45,9 @@ class LoginModal extends Component {
 
     render(props,state) {
         return (
+            <div>
+            <div id="left"></div>
+            <div id='title'><a href="/">Populus</a></div>
             <div id="loginModal">
                 <h3>Login To Populus</h3>
                 <form id="loginForm">
@@ -54,6 +57,8 @@ class LoginModal extends Component {
                         <button onclick={props.switchView} >Register</button>
                     </div>
                 </form>
+            </div>
+            <div id="right"></div>
             </div>
         )
     }
@@ -89,8 +94,8 @@ class RegistrationModal extends Component {
                     <UserData/>
                     <div id="theRecaptcha">
                         Complete this Recaptcha to register
-                        <div class="g-recaptcha" 
-                            data-sitekey="6Lf43YEaAAAAAAeDHR1ozhTXVqq--Wthr_MQlYam" 
+                        <div class="g-recaptcha"
+                            data-sitekey="6Lf43YEaAAAAAAeDHR1ozhTXVqq--Wthr_MQlYam"
                             data-callback="recaptchaHandler"></div></div>
                     <div>OR, <button onclick={props.switchView} >Login With Existing Account</button></div>
                     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
