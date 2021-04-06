@@ -8,7 +8,6 @@ export default class Message extends Component {
         super(props)
         this.state = ({
             editing : false,
-            edit_value : "",
         })
     }
 
@@ -25,19 +24,15 @@ export default class Message extends Component {
         })
     }
 
-    startEdit = () => {
-        this.setState({ 
-            editing : true,
-            edit_value : this.getCurrentEdit().body,
-        })
-    }
+    openEditor = () => this.setState({ editing : true, })
 
-    stopEdit = () => {
-        this.setState({ editing : false })
-    }
+    closeEditor = () => this.setState({ editing : false, })
 
-    redactMessage = () => {
-        this.props.client.redactEvent(this.props.event.getRoomId(),this.props.event.getId())
+    getCurrentEdit = () => {
+        const edits = this.getEdits()
+        //need to be smarter about ordering
+        if (edits.length > 0) { return edits[edits.length - 1].getContent()["m.new_content"] } 
+        else { return this.props.event.getContent() }
     }
 
     getEdits = () => {
@@ -47,44 +42,10 @@ export default class Message extends Component {
         : []
     }
 
-    getCurrentEdit = () => {
-        const edits = this.getEdits()
-        //need to be smarter about ordering
-        if (edits.length > 0) { return edits[edits.length - 1].getContent()["m.new_content"] } 
-        else { return this.props.event.getContent() }
+    redactMessage = () => {
+        this.props.client.redactEvent(this.props.event.getRoomId(),this.props.event.getId())
     }
 
-    sendEdit = () => {
-        const reader = new CommonMark.Parser()
-        const writer = new CommonMark.HtmlRenderer()
-        const parsed = reader.parse(this.state.edit_value)
-        const rendered = writer.render(parsed)
-        this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
-            body : "an edit occurred", //fallback for clients that don't handle edits. we can do something more descriptive
-            msgtype : "m.text",
-            "m.new_content" : {
-                body : this.state.edit_value,
-                msgtype : "m.text",
-                format: "org.matrix.custom.html",
-                formatted_body : rendered
-            },
-            "m.relates_to" : {
-                rel_type : "m.replace",
-                event_id : this.props.event.getId(),
-            }
-        }).then(_ => this.stopEdit())
-    }
-
-    handleKeypress = (event) => { 
-        if (event.key == "Enter" && event.ctrlKey) {
-            event.preventDefault()
-            this.sendEdit()
-        }
-    }
-
-    handleInput = (event) => {
-        this.setState({ edit_value : event.target.value })
-    }
 
     render(props,state) {
         //there's some cleverness involving involving the unstable clientside
@@ -115,13 +76,12 @@ export default class Message extends Component {
                             <span class="name">{shortid}</span>
                         </div>
                     </div>
-                    {state.editing && <div class="messageEditor">
-                             <textarea value={state.edit_value} 
-                                                        onkeypress={this.handleKeypress} 
-                                                        oninput={this.handleInput}/>
-                             <button onclick={this.sendEdit}>Submit</button>
-                             <button onclick={this.stopEdit}>Cancel</button>
-                        </div>}
+                    {state.editing && <MessageEditor openEditor={this.openEditor}
+                                                     closeEditor={this.closeEditor}  
+                                                     getCurrentEdit={this.getCurrentEdit}  
+                                                     client={this.props.client}  
+                                                     event={event}
+                                      />}
                 </Fragment>
             )
         } else {
@@ -136,6 +96,57 @@ export default class Message extends Component {
                 </div>
             )
         }
+    }
+}
+
+class MessageEditor extends Component {
+
+    startEdit = () => {
+        this.props.openEditor()
+        this.setState({ edit_value : this.props.getCurrentEdit().body, })
+    }
+
+
+    sendEdit = () => {
+        const reader = new CommonMark.Parser()
+        const writer = new CommonMark.HtmlRenderer()
+        const parsed = reader.parse(this.state.edit_value)
+        const rendered = writer.render(parsed)
+        this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
+            body : "an edit occurred", //fallback for clients that don't handle edits. we can do something more descriptive
+            msgtype : "m.text",
+            "m.new_content" : {
+                body : this.state.edit_value,
+                msgtype : "m.text",
+                format: "org.matrix.custom.html",
+                formatted_body : rendered
+            },
+            "m.relates_to" : {
+                rel_type : "m.replace",
+                event_id : this.props.event.getId(),
+            }
+        }).then(_ => this.props.closeEditor())
+    }
+
+    handleKeypress = (event) => { 
+        if (event.key == "Enter" && event.ctrlKey) {
+            event.preventDefault()
+            this.sendEdit()
+        }
+    }
+
+    handleInput = (event) => {
+        this.setState({ edit_value : event.target.value })
+    }
+
+    render(props,state) {
+        return <div class="messageEditor">
+                     <textarea value={state.edit_value} 
+                                                onkeypress={this.handleKeypress} 
+                                                oninput={this.handleInput}/>
+                     <button onclick={this.sendEdit}>Submit</button>
+                     <button onclick={this.stopEdit}>Cancel</button>
+               </div>
     }
 }
 
