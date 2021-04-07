@@ -1,13 +1,11 @@
 #chat-panel {
     border: 1px solid #adadad;
-    background:white;
     display:inline-flex;
     flex-direction: column-reverse;
     vertical-align:top;
     height:100%;
     overflow-y: scroll;
     width:400px;
-    z-index:5;
 }
 
 #messageComposer > textarea,

@@ -104,7 +104,7 @@ export default class PdfView extends Component {
                 <div id="sidepanel">
                     <Chat client={props.client} focus={state.focus}/>
                 </div>
-                <nav>
+                <nav id="page-nav">
                     {props.pageFocused > 1 && <button onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>}
                     {state.totalPages > props.pageFocused && <button onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>}
                     {state.hasSelection && <button onclick={this.openAnnotation}>Add Annotation</button>}

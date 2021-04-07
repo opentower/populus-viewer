@@ -8,6 +8,28 @@
     top:0px;
     bottom:0px;
     padding:50px;
-    border-left: 1px solid black;
-    width:600px;
+    width:800px;
+    box-shadow: -2px 0 4px 0 rgba(0,0,0,.2);
+    background:white;
+    z-index:5;
+}
+
+#page-nav {
+    position:fixed;
+    bottom:0px;
+    width:100%;
+    height:75px;
+    background: black;
+}
+
+#document-view {
+    position:relative;
+    display: inline-block;
+    width: 900px;
+    left: 400px;
+}
+
+#document-view > canvas {
+    position:relative;
+    z-index:-1; /* prevents an apparent stacking bug in chromium */
 }
