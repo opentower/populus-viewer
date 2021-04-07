@@ -94,7 +94,6 @@ export default class Chat extends Component {
         }})
         return (
             <div id="chat-panel" onscroll={this.tryLoadRoom}>
-            <div class="right"></div>
                 <MessagePanel client={props.client} focus={props.focus} />
                 <div id="messages">
                     {messagedivs}
