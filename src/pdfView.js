@@ -157,7 +157,7 @@ class PdfCanvas extends Component {
         console.log('Page loaded');
               
         const devicePixelRatio = window.devicePixelRatio
-        const scales = { 1: 3.2, 2: 4 }
+        const scales = { 1: 3, 2: 6 }
         const scale = scales[devicePixelRatio] || 3
         const viewport = page.getViewport({scale: scale});
 
@@ -169,8 +169,10 @@ class PdfCanvas extends Component {
         theCanvas.width = viewport.width;
 
         // Render PDF page into canvas context
+        const canvasContext = theCanvas.getContext('2d')
+        
         const renderContext = {
-            canvasContext: theCanvas.getContext('2d'),
+            canvasContext: canvasContext,
             viewport: viewport,
         };
 
