@@ -60,9 +60,9 @@ class RoomList extends Component {
                                   }).map(room => { return <RoomListing loadPDF={props.loadPDF} client={props.client} room={room}/> })
         return (
             <Fragment>
-                <h3>Upload a New PDF</h3>
+                <h2>Upload a new PDF</h2>
                 <PdfUpload client={props.client}/>
-                <h3>Current Conversations</h3>
+                <h2>Current Conversations</h2>
                 <div>{rooms}</div>
             </Fragment>
         )
@@ -109,10 +109,15 @@ class PDFRoomEntry extends Component {
 
 class MemberPill extends Component {
     render (props, state) {
-        const colorFromId = 'hsl(' + UserColor(props.member.userId) + ', 100%, 80%)'
+        const colorFromId = new UserColor(props.member.userId)
         return (<Fragment>
+<<<<<<< HEAD
                 <span style={{background:colorFromId}} class="memberPill">{props.member.userId}</span>
                     <wbr></wbr>
+=======
+                <span style={{background:colorFromId.light}} class="memberPill">{props.member.userId}</span>
+                    <wbr></wbr>
+>>>>>>> development
                 </Fragment>
         )
     }

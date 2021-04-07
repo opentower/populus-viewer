@@ -1,20 +1,11 @@
 #chat-panel {
-    border-left: 1px outset #267b5d;
-    border-top: 3px solid #267b5d;
-    border-bottom: 3px solid #267b5d;
-    background:white;
-    position:fixed;
-    right:0px;
-    top:0px;
-    bottom:0px;
-    width:25%;
+    border: 1px solid #adadad;
     display:inline-flex;
     flex-direction: column-reverse;
     vertical-align:top;
-    overflow-y: hidden;
-    overflow-x: hidden;
-    box-shadow: -2px 0 4px 0 #123b2c;
-    z-index:5;
+    height:100%;
+    overflow-y: scroll;
+    width:400px;
 }
 
 #messageComposer > textarea,
@@ -23,12 +14,9 @@
     min-height:100px;
     width:100%;
     margin:0px;
-    padding:0;
-    border-top: 1px solid #267b5d;
-    border-bottom: 1px solid #267b5d;
-    border-left: 0;
-    border-right: 0;
-    resize: none;
+    border:none;
+    border-top: 1px solid #adadad;
+    border-bottom: 1px solid #adadad;
 }
 
 #messageComposer > textarea {

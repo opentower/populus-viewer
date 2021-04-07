@@ -1,3 +1,91 @@
 #content-container {
     position: relative;
 }
+
+#sidepanel {
+    visibility:hidden;
+    position:fixed;
+    right:0px;
+    top:0px;
+    bottom:0px;
+    padding:50px;
+    box-shadow: -2px 0 4px 0 rgba(0,0,0,.2);
+    background:white;
+    z-index:5;
+}
+
+#page-nav {
+    position:fixed;
+    bottom:0px;
+    width:100%;
+    height:75px;
+    background: black;
+}
+
+#document-view {
+    position:relative;
+    display: inline-block;
+}
+
+#document-view > canvas {
+    position:relative;
+    z-index:-1; /* prevents an apparent stacking bug in chromium */
+}
+
+/* Extra small devices (phones, 600px and down) */
+@media only screen and (max-width: 600px) {
+
+} 
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+} 
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+} 
+
+/* Large devices (laptops/desktops, 992px and up) */
+@media only screen and (min-width: 992px) {
+    #sidepanel {
+        width:400px;
+    }
+} 
+
+/* standard DPI */
+@media only screen and (min-width: 1280px) {
+    #sidepanel {
+        visibility:visible;
+        padding:0px;
+        width:350px;
+    }
+}
+
+/* high DPI laptop */
+@media only screen and (min-width: 1400px) {
+    #sidepanel {
+        padding:50px;
+        width:400px;
+    }
+}
+
+/* larger monitor */
+@media only screen and (min-width: 1800px) {
+    #sidepanel {
+        width:800px;
+    }
+}
+
+/* ultrawide monitors */
+@media only screen and (min-width: 2000px) {
+    #document-view {
+        left:200px;
+    }
+}
+
+@media only screen and (min-width: 2200px) {
+    #document-view {
+        left:200px;
+    }
+}
+

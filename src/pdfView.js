@@ -105,16 +105,15 @@ export default class PdfView extends Component {
                                      focus={state.focus}
                                      client={props.client}/>
                 </div>
-                <Chat client={props.client} focus={state.focus}/>
-                <div class="navbar">
-                <div class="inner">{state.hasSelection ? <label class="navbutton annact" type="button" onclick={this.openAnnotation}>Add Annotation</label> : <label class="navbutton anninact" type="button">Add Annotation</label>}</div>
-                <div class="inner">{props.pageFocused > 1 ? <label class="navbutton arrowact" type="button" onclick={_ => props.loadPage(props.pageFocused = 1)}>&laquo;</label> : <label class="navbutton arrowinact" type="button">&laquo;</label>}</div>
-                <div class="inner">{props.pageFocused > 1 ? <label class="navbutton arrowact" type="button" onclick={_ => props.loadPage(props.pageFocused - 1)}>&lsaquo;</label> : <label type="button" class="navbutton arrowinact">&lsaquo;</label>}</div>
-                <div class="inner"><input class="page" type="text" value={props.pageFocused}></input></div>
-                <div class="inner">{state.totalPages > props.pageFocused ? <label class="navbutton arrowact" type="button" onclick={_ => props.loadPage(props.pageFocused + 1)}>&rsaquo;</label> : <label type="button" class="navbutton arrowinact">&rsaquo;</label>}</div>
-                <div class="inner">{state.totalPages > props.pageFocused ? <label class="navbutton arrowact" type="button" onclick={_ => props.loadPage(props.pageFocused = state.totalPages)}>&raquo;</label> : <label type="button" class="navbutton arrowinact">&raquo;</label>}</div>
-                <div class="inner">{(state.focus && ! state.hasSelection) ? <label class="navbutton annact" type="button" onclick={this.closeAnnotation}>Remove Annotation</label> : <label class="navbutton anninact" type="button">Remove Annotation</label>}</div>
+                <div id="sidepanel">
+                    <Chat client={props.client} focus={state.focus}/>
                 </div>
+                <nav id="page-nav">
+                    <button disabled={props.pageFocused < 2} onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>
+                    <button disabled={state.totalPages <= props.pageFocused} onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>
+                    <button disabled={!state.hasSelection} onclick={this.openAnnotation}>Add Annotation</button>
+                    <button disabled={state.hasSelection || !state.focus} onclick={this.closeAnnotation}>Remove Annotation</button>
+                </nav>
             </div>
             </div>
         )
@@ -165,7 +164,7 @@ class PdfCanvas extends Component {
         console.log('Page loaded');
 
         const devicePixelRatio = window.devicePixelRatio
-        const scales = { 1: 3.2, 2: 4 }
+        const scales = { 1: 3, 2: 6 }
         const scale = scales[devicePixelRatio] || 3
         const viewport = page.getViewport({scale: scale});
 
@@ -177,9 +176,10 @@ class PdfCanvas extends Component {
         theCanvas.width = viewport.width;
 
         // Render PDF page into canvas context
-        const transform = [ devicePixelRatio, 0 , 0, devicePixelRatio, 0, 0];
+        const canvasContext = theCanvas.getContext('2d')
+
         const renderContext = {
-            canvasContext: theCanvas.getContext('2d'),
+            canvasContext: canvasContext,
             viewport: viewport,
         };
 
