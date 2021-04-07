@@ -102,9 +102,9 @@ class PDFRoomEntry extends Component {
 
 class MemberPill extends Component {
     render (props, state) {
-        const colorFromId = 'hsl(' + UserColor(props.member.userId) + ', 100%, 80%)'
+        const colorFromId = new UserColor(props.member.userId)
         return (<Fragment>
-                <span style={{background:colorFromId}} class="memberPill">{props.member.userId}</span>
+                <span style={{background:colorFromId.light}} class="memberPill">{props.member.userId}</span>
                     <wbr></wbr> 
                 </Fragment>
         )

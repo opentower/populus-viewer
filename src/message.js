@@ -63,17 +63,17 @@ export default class Message extends Component {
                                  dangerouslySetInnerHTML={{__html : sanitizeHtml(content.formatted_body, sanitizeHtmlParams)}}
                             />
                           : <div class="body">{content.body}</div>
-        const colorFromId = 'hsl(' + UserColor(event.getSender()) + ', 100%, 80%)'
+        const colorFromId = new UserColor(event.getSender())
         if (props.client.getUserId() == event.getSender()) {
             return (
                 <Fragment>
                     <div id={event.getId()} class="message me">
                         {displayBody}
-                        <div class="ident" style={{borderLeftColor: colorFromId}}>
-                            {(upvotes > 0) && <span style={{background: colorFromId}} class="upvotes">+{upvotes}</span>}
+                        <div class="ident" style={{borderLeftColor: colorFromId.light}}>
+                            {(upvotes > 0) && <span style={{background: colorFromId.light}} class="upvotes">+{upvotes}</span>}
                             <div class="info">
-                                {!state.editing && <button onclick={this.openEditor} style={{borderColor: colorFromId}}>edit</button>}
-                                <button onclick={this.redactMessage} style={{borderColor: colorFromId}} class="redact">delete</button>
+                                {!state.editing && <button onclick={this.openEditor} style={{borderColor: colorFromId.light}}>edit</button>}
+                                <button onclick={this.redactMessage} style={{borderColor: colorFromId.light}} class="redact">delete</button>
                             </div>
                         </div>
                     </div>
@@ -88,12 +88,12 @@ export default class Message extends Component {
         } else {
             return (
                 <div id={event.getId()} class="message">
-                    <div class="ident" style={{borderRightColor: colorFromId}}>
+                    <div class="ident" style={{borderRightColor: colorFromId.light}}>
                         <div class="info">
-                            <span style={{background : colorFromId}} class="name">{shortid}</span>
-                            <button style={{borderColor: colorFromId}} class="reaction" onclick={this.upvote}>+1</button>
+                            <span style={{background : colorFromId.light}} class="name">{shortid}</span>
+                            <button style={{borderColor: colorFromId.light}} class="reaction" onclick={this.upvote}>+1</button>
                         </div>
-                        {(upvotes > 0) && <span style={{borderColor: colorFromId}} class="upvotes">+{upvotes}</span>}
+                        {(upvotes > 0) && <span style={{borderColor: colorFromId.light}} class="upvotes">+{upvotes}</span>}
                     </div>
                     {displayBody}
                 </div>

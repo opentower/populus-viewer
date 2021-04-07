@@ -1,5 +1,4 @@
-
-export default function UserColor (username) { 
+function generateColor (username) { 
   if (UserColor[username]) return UserColor[username] //memoize
   var hash = 0, i, chr;
   if (username.length === 0) return hash;
@@ -10,4 +9,12 @@ export default function UserColor (username) {
   }
   UserColor[username] = hash % 360
   return UserColor[username] 
+}
+
+export default class UserColor {
+    constructor(username) {
+        this.hue = generateColor(username)
+        this.light = 'hsl(' + this.hue + ',100%, 80%)'
+        this.ultralight = 'hsl(' + this.hue + ',100%, 80%)'
+    }
 }
