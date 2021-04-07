@@ -1,16 +1,12 @@
 #chat-panel {
-    border: 1px solid black;
+    border: 1px solid #adadad;
     background:white;
-    position:fixed;
-    right:0px;
-    top:0px;
-    bottom:0px;
-    width:400px;
     display:inline-flex;
     flex-direction: column-reverse;
     vertical-align:top;
     height:100%;
     overflow-y: scroll;
+    width:400px;
     z-index:5;
 }
 
@@ -20,7 +16,9 @@
     min-height:100px;
     width:100%;
     margin:0px;
-    border: 1px solid #adadad;
+    border:none;
+    border-top: 1px solid #adadad;
+    border-bottom: 1px solid #adadad;
 }
 
 #messageComposer > textarea {

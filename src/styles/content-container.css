@@ -1,3 +1,13 @@
 #content-container {
     position: relative;
 }
+
+#sidepanel {
+    position:fixed;
+    right:0px;
+    top:0px;
+    bottom:0px;
+    padding:50px;
+    border-left: 1px solid black;
+    width:600px;
+}
