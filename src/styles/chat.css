@@ -6,6 +6,13 @@
     height:100%;
     overflow-y: scroll;
     width:400px;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/*chrome, safari, opera*/
+#chat-panel::-webkit-scrollbar {
+  display: none;
 }
 
 #messageComposer > textarea,

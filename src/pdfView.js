@@ -22,6 +22,7 @@ export default class PdfView extends Component {
             roomId : null,
             focus: null,
             totalPages: null,
+            panelVisible: false,
             hasSelection: false,
         }
         this.checkForSelection = this.checkForSelection.bind(this)
@@ -36,6 +37,8 @@ export default class PdfView extends Component {
     setId = id => this.setState({roomId : id})
 
     setTotalPages = num => this.setState({totalPages : num})
+
+    togglePanel = () => this.setState({panelVisible : !this.state.panelVisible})
 
     checkForSelection () {
         if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
@@ -101,7 +104,7 @@ export default class PdfView extends Component {
                                      focus={state.focus}
                                      client={props.client}/>
                 </div>
-                <div id="sidepanel">
+                <div style={state.panelVisible ? {visibility:"visible"} : {}} id="sidepanel">
                     <Chat client={props.client} focus={state.focus}/>
                 </div>
                 <nav id="page-nav">
@@ -110,6 +113,9 @@ export default class PdfView extends Component {
                     <button disabled={!state.hasSelection} onclick={this.openAnnotation}>Add Annotation</button>
                     <button disabled={state.hasSelection || !state.focus} onclick={this.closeAnnotation}>Remove Annotation</button>
                 </nav>
+                <button id="panelToggle" onclick={this.togglePanel}>
+                    {state.panelVisible ? "×" : "☰" }
+                </button>
             </div>
         )
     }

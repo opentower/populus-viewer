@@ -32,6 +32,21 @@
     z-index:-1; /* prevents an apparent stacking bug in chromium */
 }
 
+#panelToggle {
+    position:fixed;
+    z-index:6;
+    top:10px;
+    right:10px;
+    border:none;
+    outline:none;
+    font-size:24px;
+    width:40px;
+    height:40px;
+    text-align:center;
+    vertical-align:middle;
+    background:white;
+}
+
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
 
@@ -58,6 +73,9 @@
         visibility:visible;
         padding:0px;
         width:350px;
+    }
+    #panelToggle {
+        visibility:hidden;
     }
 }
 
