@@ -111,13 +111,10 @@ class MemberPill extends Component {
     render (props, state) {
         const colorFromId = new UserColor(props.member.userId)
         return (<Fragment>
-<<<<<<< HEAD
                 <span style={{background:colorFromId}} class="memberPill">{props.member.userId}</span>
                     <wbr></wbr>
-=======
                 <span style={{background:colorFromId.light}} class="memberPill">{props.member.userId}</span>
                     <wbr></wbr>
->>>>>>> development
                 </Fragment>
         )
     }
