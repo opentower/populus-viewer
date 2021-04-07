@@ -63,7 +63,6 @@ export default class Message extends Component {
         if (this.messageBody.current) {
             const latexArray = Array.from(this.messageBody.current.querySelectorAll("[data-mx-maths]"))
             latexArray.forEach(elt => {
-                console.log(elt.tagName)
                 if (elt.tagName == "DIV") katex.render(elt.dataset.mxMaths,elt,{displayMode:true, throwOnError:false})
                 else katex.render(elt.dataset.mxMaths,elt,{throwOnError:false})
             })
@@ -71,12 +70,12 @@ export default class Message extends Component {
     }
 
     componentDidMount() { 
-        this.processLatex() 
+        this.processLatex()
     }
 
     componentDidUpdate(prevProps) { 
         if (this.props.reactions[this.props.event.getId()] != prevProps.reactions[prevProps.event.getId()]) {
-            this.processLatex() 
+            this.processLatex()
         }
     }
 

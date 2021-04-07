@@ -1,18 +1,23 @@
-#chat-panel {
-    border: 1px solid #adadad;
+/* workaround for chrome bug with resizing the chat panel itself */
+#chat-wrapper {
     display:inline-flex;
     flex-direction: column-reverse;
-    vertical-align:top;
+    border: 1px solid #adadad;
     height:100%;
-    overflow-y: scroll;
-    width:400px;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+    overflow-y: scroll;
 }
 
 /*chrome, safari, opera*/
-#chat-panel::-webkit-scrollbar {
+#chat-wrapper::-webkit-scrollbar {
   display: none;
+}
+
+#chat-panel {
+    display:inline-flex;
+    flex-direction: column-reverse;
+    width:400px;
 }
 
 #messageComposer > textarea,

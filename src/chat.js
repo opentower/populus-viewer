@@ -93,14 +93,18 @@ export default class Chat extends Component {
             if (reactions[e.getContent()["m.relates_to"].event_id]) reactions[e.getContent()["m.relates_to"].event_id].push(e) 
             else reactions[e.getContent()["m.relates_to"].event_id] = [e]
         }})
+        //the chat wrapper works around a nasty positioning bug in chrome - it
+        //has height set, so that we don't need to set height on the flexbox element
         return (
-            <div id="chat-panel" onscroll={this.tryLoadRoom}>
-                <MessagePanel client={props.client} focus={props.focus} />
-                <div id="messages">
-                    {messagedivs} 
-                    <TypingIndicator client={this.props.client} typing={this.state.typing}/>
+            <div id="chat-wrapper">
+                <div id="chat-panel" onscroll={this.tryLoadRoom}>
+                    <MessagePanel textarea={this.messageTextarea} client={props.client} focus={props.focus} />
+                    <div id="messages">
+                        {messagedivs} 
+                        <TypingIndicator client={this.props.client} typing={this.state.typing}/>
+                    </div>
+                    <Anchor focus={props.focus} fullyScrolled={state.fullyScrolled}/>
                 </div>
-                <Anchor focus={props.focus} fullyScrolled={state.fullyScrolled}/>
             </div>
         )
     }
