@@ -53,9 +53,9 @@ class RoomList extends Component {
                                   }).map(room => { return <RoomListing loadPDF={props.loadPDF} client={props.client} room={room}/> })
         return (
             <Fragment>
-                <h3>Upload a new PDF</h3>
+                <h2>Upload a new PDF</h2>
                 <PdfUpload client={props.client}/>
-                <h3>Current Conversations</h3>
+                <h2>Current Conversations</h2>
                 <div>{rooms}</div>
             </Fragment>
         )
