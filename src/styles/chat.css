@@ -153,6 +153,10 @@
     padding-left:5px;
 }
 
+#chat-panel .message div[data-mx-maths] {
+    min-width:350px;
+}
+
 #chat-panel .message .upvotes {
     position:relative;
     width:0px;
@@ -160,7 +164,7 @@
     padding:3px;
     font-size:8pt;
     background-color:white;
-    border-radius:15px;
+    border-radius:25px;
     border:2px solid var(--user_light);
 }
 

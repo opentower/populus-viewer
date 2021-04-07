@@ -1,6 +1,8 @@
-import { h, Fragment, Component } from 'preact';
+import { h, createRef, Fragment, Component } from 'preact';
 import sanitizeHtml from 'sanitize-html'
 import * as CommonMark from 'commonmark'
+import { addLatex } from './latex.js'
+import katex from 'katex'
 import UserColor from './userColors.js'
 
 export default class Message extends Component {
@@ -14,6 +16,8 @@ export default class Message extends Component {
 
 
     userColor = new UserColor(this.props.event.getSender())
+
+    messageBody = createRef()
 
     styleVariables = {
         "--user_ultralight": this.userColor.ultralight,
@@ -55,6 +59,26 @@ export default class Message extends Component {
         this.props.client.redactEvent(this.props.event.getRoomId(),this.props.event.getId())
     }
 
+    processLatex() {
+        if (this.messageBody.current) {
+            const latexArray = Array.from(this.messageBody.current.querySelectorAll("[data-mx-maths]"))
+            latexArray.forEach(elt => {
+                console.log(elt.tagName)
+                if (elt.tagName == "DIV") katex.render(elt.dataset.mxMaths,elt,{displayMode:true, throwOnError:false})
+                else katex.render(elt.dataset.mxMaths,elt,{throwOnError:false})
+            })
+        }
+    }
+
+    componentDidMount() { 
+        this.processLatex() 
+    }
+
+    componentDidUpdate(prevProps) { 
+        if (this.props.reactions[this.props.event.getId()] != prevProps.reactions[prevProps.event.getId()]) {
+            this.processLatex() 
+        }
+    }
 
     render(props,state) {
         //there's some cleverness involving involving the unstable clientside
@@ -67,11 +91,11 @@ export default class Message extends Component {
                       : 0
         const content = this.getCurrentEdit()
         const displayBody = ((content.format == "org.matrix.custom.html") && content.formatted_body)
-                          ? <div class="body" 
+                          ? <div ref={this.messageBody} class="body" 
                                  dangerouslySetInnerHTML={{__html : sanitizeHtml(content.formatted_body, sanitizeHtmlParams)}}
                             />
                           : <div class="body">{content.body}</div>
-        //XXX Really shouldn't regerate these on every render
+
         if (props.client.getUserId() == event.getSender()) {
             return (
                 <Fragment>
@@ -119,7 +143,7 @@ class MessageEditor extends Component {
     sendEdit = () => {
         const reader = new CommonMark.Parser()
         const writer = new CommonMark.HtmlRenderer()
-        const parsed = reader.parse(this.state.edit_value)
+        const parsed = reader.parse(addLatex(this.state.edit_value))
         const rendered = writer.render(parsed)
         this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
             body : "an edit occurred", //fallback for clients that don't handle edits. we can do something more descriptive
@@ -242,4 +266,3 @@ const sanitizeHtmlParams = {
     // 50 levels deep "should be enough for anyone"
     nestingLimit: 50,
 };
-

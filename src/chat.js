@@ -2,6 +2,7 @@ import * as sdk from "matrix-js-sdk"
 import { h, Fragment, Component } from 'preact';
 import './styles/chat.css'
 import * as CommonMark from 'commonmark'
+import { addLatex } from './latex.js'
 import Message from './message.js'
 
 export default class Chat extends Component {
@@ -177,8 +178,8 @@ class MessagePanel extends Component {
     sendMessage = () => {
         if (this.props.focus.room_id) {
             this.stopTyping()
-            let parsed = this.reader.parse(this.state.value)
-            let rendered = this.writer.render(parsed)
+            const parsed = this.reader.parse(addLatex(this.state.value))
+            const rendered = this.writer.render(parsed)
             this.props.client.sendMessage(this.props.focus.room_id,{ 
                 body : this.state.value,
                 msgtype :"m.text",

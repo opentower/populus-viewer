@@ -25,6 +25,7 @@
   "dependencies": {
     "buffer": "^6.0.3",
     "commonmark": "^0.29.3",
+    "katex": "^0.13.2",
     "matrix-js-sdk": "^9.7.0",
     "pdfjs-dist": "^2.6.347",
     "preact": "^10.5.12",
