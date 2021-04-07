@@ -23,8 +23,9 @@
 }
 
 #document-view {
-    position:relative;
+    position:absolute;
     display: inline-block;
+    margin-bottom: 50px;
 }
 
 #document-view > canvas {
@@ -32,25 +33,40 @@
     z-index:-1; /* prevents an apparent stacking bug in chromium */
 }
 
+#panelToggle {
+    position:fixed;
+    z-index:6;
+    top:10px;
+    right:10px;
+    border:none;
+    outline:none;
+    font-size:24px;
+    width:40px;
+    height:40px;
+    text-align:center;
+    vertical-align:middle;
+    background:white;
+}
+
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
 
-} 
+}
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
-} 
+}
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
-} 
+}
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
     #sidepanel {
         width:400px;
     }
-} 
+}
 
 /* standard DPI */
 @media only screen and (min-width: 1280px) {
@@ -58,6 +74,9 @@
         visibility:visible;
         padding:0px;
         width:350px;
+    }
+    #panelToggle {
+        visibility:hidden;
     }
 }
 
@@ -88,4 +107,3 @@
         left:200px;
     }
 }
-

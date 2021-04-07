@@ -4,7 +4,6 @@ import * as Matrix from "matrix-js-sdk"
 import { eventVersion }  from "./constants.js"
 import './styles/annotation-layer.css'
 import './styles/content-container.css'
-import './styles/document-view.css'
 import './styles/text-layer.css'
 
 

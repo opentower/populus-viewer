@@ -23,6 +23,7 @@ export default class PdfView extends Component {
             roomId : null,
             focus: null,
             totalPages: null,
+            panelVisible: false,
             hasSelection: false,
         }
         this.checkForSelection = this.checkForSelection.bind(this)
@@ -37,6 +38,8 @@ export default class PdfView extends Component {
     setId = id => this.setState({roomId : id})
 
     setTotalPages = num => this.setState({totalPages : num})
+
+    togglePanel = () => this.setState({panelVisible : !this.state.panelVisible})
 
     checkForSelection () {
         if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
@@ -88,8 +91,6 @@ export default class PdfView extends Component {
     render(props,state) {
         return (
             <div>
-            <div class="bottom"></div>
-            <div class="left"></div>
             <div id="content-container">
                 <div id="document-view">
                     <PdfCanvas annotationLayer={this.annotationLayer}
@@ -105,7 +106,9 @@ export default class PdfView extends Component {
                                      focus={state.focus}
                                      client={props.client}/>
                 </div>
-                <Chat client={props.client} focus={state.focus}/>
+                <div style={state.panelVisible ? {visibility:"visible"} : {}} id="sidepanel">
+                    <Chat client={props.client} focus={state.focus}/>
+                </div>
                 <div class="navbar">
                 <div class="inner">{state.hasSelection ? <label class="navbutton annact" type="button" onclick={this.openAnnotation}>Add Annotation</label> : <label class="navbutton anninact" type="button">Add Annotation</label>}</div>
                 <div class="inner">{props.pageFocused > 1 ? <label class="navbutton arrowact" type="button" onclick={_ => props.loadPage(props.pageFocused = 1)}>&laquo;</label> : <label class="navbutton arrowinact" type="button">&laquo;</label>}</div>
@@ -115,6 +118,9 @@ export default class PdfView extends Component {
                 <div class="inner">{state.totalPages > props.pageFocused ? <label class="navbutton arrowact" type="button" onclick={_ => props.loadPage(props.pageFocused = state.totalPages)}>&raquo;</label> : <label type="button" class="navbutton arrowinact">&raquo;</label>}</div>
                 <div class="inner">{(state.focus && ! state.hasSelection) ? <label class="navbutton annact" type="button" onclick={this.closeAnnotation}>Remove Annotation</label> : <label class="navbutton anninact" type="button">Remove Annotation</label>}</div>
                 </div>
+                <button id="panelToggle" onclick={this.togglePanel}>
+                    {state.panelVisible ? "×" : "☰" }
+                </button>
             </div>
             </div>
         )

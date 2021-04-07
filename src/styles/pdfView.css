@@ -3,19 +3,13 @@
   background: #267b5d;
   left: 0;
   right: 0;
-  top: 0;
+  bottom: 0;
   position: fixed;
-  line-height: 50px;
+  height: 60px;
+  line-height: 60px;
   width: 75%;
-  box-shadow: 0 2px 4px 0 #123b2c;
+  box-shadow: 0 -1px 2px 0 #123b2c;
   z-index: 2;
-}
-
-.navbar:before {
-  content: "";
-  display: inline-block;
-  vertical-align: middle;
-  height: 100%;
 }
 
 .inner {
@@ -27,7 +21,6 @@
   display: inline-block;
   margin: 0 5px 0 5px;
   min-width: 30px;
-  height: 100%;
   font-family: 'Signika', sans-serif;
   background: none;
   text-transform: uppercase;
