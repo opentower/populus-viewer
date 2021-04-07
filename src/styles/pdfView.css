@@ -1,0 +1,69 @@
+.navbar {
+  text-align: center;
+  background: #267b5d;
+  left: 0;
+  right: 0;
+  top: 0;
+  position: fixed;
+  line-height: 50px;
+  width: 75%;
+  box-shadow: 0 2px 4px 0 #123b2c;
+  z-index: 2;
+}
+
+.navbar:before {
+  content: "";
+  display: inline-block;
+  vertical-align: middle;
+  height: 100%;
+}
+
+.inner {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.navbutton {
+  display: inline-block;
+  margin: 0 5px 0 5px;
+  min-width: 30px;
+  height: 100%;
+  font-family: 'Signika', sans-serif;
+  background: none;
+  text-transform: uppercase;
+  text-decoration: none;
+  border: none;
+}
+
+.arrowact {
+  font-size: 2.5em;
+  color: white;
+  cursor: pointer;
+}
+
+.arrowinact {
+  font-size: 2.5em;
+  color: black;
+  cursor: default;
+}
+
+.annact {
+  font-size: 1.3em;
+  color: white;
+  cursor: pointer;
+  margin: 0 50px 0 50px;
+}
+
+.anninact {
+  font-size: 1.3em;
+  color: black;
+  cursor: default;
+  margin: 0 50px 0 50px;
+}
+
+.page {
+  font-family: 'Signika', sans-serif;
+  font-size: 1.3em;
+  width: 25px;
+  margin: 0 10px 0 10px;
+}

@@ -42,7 +42,7 @@ h3 {
   cursor: pointer;
 }
 
-#left {
+.left {
   background: #267b5d;
   position: fixed;
   top: 0;
@@ -51,7 +51,7 @@ h3 {
   width: 0.3%;
 }
 
-#right {
+.right {
   background: #267b5d;
   position: fixed;
   top: 0;
@@ -60,7 +60,7 @@ h3 {
   width: 0.3%;
 }
 
-#top {
+.top {
   background: #267b5d;
   left: 0;
   right: 0;
@@ -70,13 +70,14 @@ h3 {
   z-index: 2;
 }
 
-#bottom {
+.bottom {
   background: #267b5d;
   left: 0;
   right: 0;
   bottom: 0;
   position: fixed;
   height: 0.6%;
+  z-index: 2;
 }
 
 input[type=submit] {

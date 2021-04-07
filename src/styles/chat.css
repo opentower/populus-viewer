@@ -1,16 +1,19 @@
 #chat-panel {
-    border: 1px solid black;
+    border-left: 1px outset #267b5d;
+    border-top: 3px solid #267b5d;
+    border-bottom: 3px solid #267b5d;
     background:white;
     position:fixed;
     right:0px;
     top:0px;
     bottom:0px;
-    width:400px;
+    width:25%;
     display:inline-flex;
     flex-direction: column-reverse;
     vertical-align:top;
-    height:100%;
-    overflow-y: scroll;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    box-shadow: -2px 0 4px 0 #123b2c;
     z-index:5;
 }
 
@@ -20,37 +23,16 @@
     min-height:100px;
     width:100%;
     margin:0px;
-    border: 1px solid #adadad;
+    padding:0;
+    border-top: 1px solid #267b5d;
+    border-bottom: 1px solid #267b5d;
+    border-left: 0;
+    border-right: 0;
+    resize: none;
 }
 
 #messageComposer > textarea {
     min-height:350px;
-}
-
-#messageComposer > button,
-.messageEditor > button {
-    width:50%;
-    height:30px;
-    border:none;
-    color:white;
-    font-weight:bold;
-    background-color:#5072A7
-}
-
-
-#messageComposer > button {
-    width:50%;
-    height:40px;
-    font-size:14pt;
-}
-
-#messageComposer > button:hover, 
-.messageEditor > button:hover {
-    background-color:#6183B8
-}
-
-#messageComposer > button:active {
-    background-color:#5072A7;
 }
 
 #chat-panel .message {
@@ -58,11 +40,11 @@
     display: grid;
     justify-items: left;
     grid-template-areas: "name content";
-    grid-template-columns: fit-content(10%) auto ; 
+    grid-template-columns: fit-content(10%) auto;
 }
 
 #chat-panel .me {
-    grid-template-columns: auto fit-content(10%); 
+    grid-template-columns: auto fit-content(10%);
     grid-template-areas: "content name";
 }
 

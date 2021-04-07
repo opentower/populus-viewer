@@ -5,6 +5,7 @@ import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
 import { eventVersion }  from "./constants.js"
+import './styles/pdfView.css'
 
 export default class PdfView extends Component {
 
@@ -87,9 +88,8 @@ export default class PdfView extends Component {
     render(props,state) {
         return (
             <div>
-            <div id="top"></div>
-            <div id="bottom"></div>
-            <div id="left"></div>
+            <div class="bottom"></div>
+            <div class="left"></div>
             <div id="content-container">
                 <div id="document-view">
                     <PdfCanvas annotationLayer={this.annotationLayer}
@@ -106,11 +106,14 @@ export default class PdfView extends Component {
                                      client={props.client}/>
                 </div>
                 <Chat client={props.client} focus={state.focus}/>
-                <div>
-                    {props.pageFocused > 1 && <button onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>}
-                    {state.totalPages > props.pageFocused && <button onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>}
-                    {state.hasSelection && <button onclick={this.openAnnotation}>Add Annotation</button>}
-                    {state.focus && <button onclick={this.closeAnnotation}>Remove Annotation</button>}
+                <div class="navbar">
+                <div class="inner">{state.hasSelection ? <label class="navbutton annact" type="button" onclick={this.openAnnotation}>Add Annotation</label> : <label class="navbutton anninact" type="button">Add Annotation</label>}</div>
+                <div class="inner">{props.pageFocused > 1 ? <label class="navbutton arrowact" type="button" onclick={_ => props.loadPage(props.pageFocused = 1)}>&laquo;</label> : <label class="navbutton arrowinact" type="button">&laquo;</label>}</div>
+                <div class="inner">{props.pageFocused > 1 ? <label class="navbutton arrowact" type="button" onclick={_ => props.loadPage(props.pageFocused - 1)}>&lsaquo;</label> : <label type="button" class="navbutton arrowinact">&lsaquo;</label>}</div>
+                <div class="inner"><input class="page" type="text" value={props.pageFocused}></input></div>
+                <div class="inner">{state.totalPages > props.pageFocused ? <label class="navbutton arrowact" type="button" onclick={_ => props.loadPage(props.pageFocused + 1)}>&rsaquo;</label> : <label type="button" class="navbutton arrowinact">&rsaquo;</label>}</div>
+                <div class="inner">{state.totalPages > props.pageFocused ? <label class="navbutton arrowact" type="button" onclick={_ => props.loadPage(props.pageFocused = state.totalPages)}>&raquo;</label> : <label type="button" class="navbutton arrowinact">&raquo;</label>}</div>
+                <div class="inner">{(state.focus && ! state.hasSelection) ? <label class="navbutton annact" type="button" onclick={this.closeAnnotation}>Remove Annotation</label> : <label class="navbutton anninact" type="button">Remove Annotation</label>}</div>
                 </div>
             </div>
             </div>

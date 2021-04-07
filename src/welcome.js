@@ -9,10 +9,10 @@ export default class WelcomeView extends Component {
     render(props,state) {
         return (
             <div>
-            <div id="top"></div>
-            <div id="right"></div>
-            <div id="bottom"></div>
-            <div id="left"></div>
+            <div class="top"></div>
+            <div class="right"></div>
+            <div class="bottom"></div>
+            <div class="left"></div>
             <div id='title'><a href="/">Populus</a></div>
             <div class="welcomeContainer">
                 <RoomList {...props}/>
