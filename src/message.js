@@ -12,6 +12,14 @@ export default class Message extends Component {
         })
     }
 
+
+    userColor = new UserColor(this.props.event.getSender())
+
+    styleVariables = {
+        "--user_ultralight": this.userColor.ultralight,
+        "--user_light": this.userColor.light
+    }
+
     upvote = () => {
         let reactions = this.props.reactions[this.props.event.getId()] || []
         if (reactions.some(react => react.getSender() == this.props.client.getUserId() )) return
@@ -63,17 +71,17 @@ export default class Message extends Component {
                                  dangerouslySetInnerHTML={{__html : sanitizeHtml(content.formatted_body, sanitizeHtmlParams)}}
                             />
                           : <div class="body">{content.body}</div>
-        const colorFromId = new UserColor(event.getSender())
+        //XXX Really shouldn't regerate these on every render
         if (props.client.getUserId() == event.getSender()) {
             return (
                 <Fragment>
-                    <div id={event.getId()} class="message me">
+                    <div id={event.getId()} style={this.styleVariables} class="message me">
                         {displayBody}
-                        <div class="ident" style={{borderLeftColor: colorFromId.light}}>
-                            {(upvotes > 0) && <span style={{background: colorFromId.light}} class="upvotes">+{upvotes}</span>}
+                        <div class="ident">
+                            {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
                             <div class="info">
-                                {!state.editing && <button onclick={this.openEditor} style={{borderColor: colorFromId.light}}>edit</button>}
-                                <button onclick={this.redactMessage} style={{borderColor: colorFromId.light}} class="redact">delete</button>
+                                {!state.editing && <button onclick={this.openEditor}>edit</button>}
+                                <button onclick={this.redactMessage} class="redact">delete</button>
                             </div>
                         </div>
                     </div>
@@ -87,13 +95,13 @@ export default class Message extends Component {
             )
         } else {
             return (
-                <div id={event.getId()} class="message">
-                    <div class="ident" style={{borderRightColor: colorFromId.light}}>
+                <div style={this.styleVariables} id={event.getId()} class="message">
+                    <div class="ident">
                         <div class="info">
-                            <span style={{background : colorFromId.light}} class="name">{shortid}</span>
-                            <button style={{borderColor: colorFromId.light}} class="reaction" onclick={this.upvote}>+1</button>
+                            <span class="name">{shortid}</span>
+                            <button class="reaction" onclick={this.upvote}>+1</button>
                         </div>
-                        {(upvotes > 0) && <span style={{borderColor: colorFromId.light}} class="upvotes">+{upvotes}</span>}
+                        {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
                     </div>
                     {displayBody}
                 </div>
