@@ -169,7 +169,6 @@ class PdfCanvas extends Component {
         theCanvas.width = viewport.width;
 
         // Render PDF page into canvas context
-        const transform = [ devicePixelRatio, 0 , 0, devicePixelRatio, 0, 0];
         const renderContext = {
             canvasContext: theCanvas.getContext('2d'),
             viewport: viewport,
