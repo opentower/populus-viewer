@@ -4,12 +4,13 @@
   left: 0;
   right: 0;
   bottom: 0;
+  padding-bottom: 5px;
   position: fixed;
-  height: 60px;
-  line-height: 60px;
+  height: 50px;
+  line-height: 50px;
   width: 75%;
   box-shadow: 0 -1px 2px 0 #123b2c;
-  z-index: 2;
+  z-index: 11;
 }
 
 .inner {
