@@ -4,9 +4,8 @@ import * as Matrix from "matrix-js-sdk"
 import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
-// import Navbar from "./navbar.js"
+import Navbar from "./navbar.js"
 import { eventVersion }  from "./constants.js"
-import './styles/pdfView.css'
 
 export default class PdfView extends Component {
 
@@ -111,6 +110,12 @@ export default class PdfView extends Component {
                     <Chat client={props.client} focus={state.focus}/>
                 </div>
                 <div class="navbar">
+                    <Navbar selected={state.hasSelection}
+                        addann={this.openAnnotation}
+                        closeann={this.closeAnnotation}
+                        page={props.pageFocused}
+                        total={state.totalPages}
+                        focus={state.focus}/>
                 </div>
                 <button id="panelToggle" onclick={this.togglePanel}>
                     {state.panelVisible ? "×" : "☰" }
