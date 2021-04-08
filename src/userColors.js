@@ -15,6 +15,7 @@ export default class UserColor {
     constructor(username) {
         this.hue = generateColor(username)
         this.light = 'hsl(' + this.hue + ',100%, 80%)'
+        this.dark = 'hsl(' + this.hue + ',100%, 20%)'
         this.ultralight = 'hsl(' + this.hue + ',100%, 95%)'
     }
 }

@@ -70,18 +70,18 @@
     position:relative;
     display: grid;
     justify-items: left;
-    grid-template-areas: "name content";
+    grid-template-areas: "ident content";
     grid-template-columns: fit-content(10%) auto ; 
 }
 
 #chat-panel .me {
     grid-template-columns: auto fit-content(10%); 
-    grid-template-areas: "content name";
+    grid-template-areas: "content ident";
 }
 
 #chat-panel .message > .ident {
     position:relative;
-    grid-area: name;
+    grid-area: ident;
     width:0px;
     padding-top:10px;
     padding-bottom:10px;
@@ -114,14 +114,13 @@
 #chat-panel .message .info > button {
     margin:0px;
     margin-left:5px;
-    margin-right:5px;
     border:2px solid var(--user_light);
     padding:4px;
     background-color:white;
 }
 
 #chat-panel .message .info > button:first-child {
-    margin-right:0px;
+    margin-left:0px;
 }
 
 #chat-panel .message .info > button:last-child {
@@ -133,18 +132,8 @@
     right: 12px;
 }
 
-#chat-panel .message .name  {
-    padding:5px;
-    height:20px;
-    background: var(--user_light);
-}
-
 #chat-panel .message:hover .info  {
     visibility:visible;
-}
-
-#chat-panel .me .name {
-    visibility:hidden;
 }
 
 #chat-panel .message > .body {
@@ -178,8 +167,15 @@
     border:2px solid var(--user_light);
 }
 
+#chat-panel .user-info-message {
+    padding:10px;
+    font-size:10pt;
+    font-weight:bold;
+    color: var(--user_dark);
+}
+
 #chat-panel .me .upvotes {
-    right:-12px;
+    right:12px;
 }
 
 #chat-panel .me {

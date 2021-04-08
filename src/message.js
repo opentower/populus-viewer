@@ -121,7 +121,6 @@ export default class Message extends Component {
                 <div style={this.styleVariables} id={event.getId()} class="message">
                     <div class="ident">
                         <div class="info">
-                            <span class="name">{shortid}</span>
                             <button class="reaction" onclick={this.upvote}>+1</button>
                         </div>
                         {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}

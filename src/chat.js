@@ -4,6 +4,7 @@ import './styles/chat.css'
 import * as CommonMark from 'commonmark'
 import { addLatex } from './latex.js'
 import Message from './message.js'
+import UserColor from './userColors.js'
 
 export default class Chat extends Component {
     constructor (props) {
@@ -83,11 +84,19 @@ export default class Chat extends Component {
         var reactions = {}
         //XXX need to be able to handle other message types
         const messages = state.events.filter(e => e.getType() == "m.room.message" && e.getContent().msgtype == "m.text")
-        const messagedivs = messages.map(event => 
-            <Message reactions={reactions} 
-                     client={this.props.client} 
-                     key={event.getId()}
-                     event={event}/>)
+        var prev = null
+        const messagedivs = messages.reduce((accumulator,event) => {
+            if (!prev || prev.getSender() != event.getSender()) {
+                accumulator.push(<UserInfoMessage username={event.getSender()}
+                                                  isMe={event.getSender() == props.client.getUserId()}/>)
+                prev = event
+            }
+            accumulator.push (<Message reactions={reactions} 
+                                       client={this.props.client} 
+                                       key={event.getId()}
+                                       event={event}/>)
+            return accumulator
+        },[])
         //sort reactions by event reacted-to
         state.events.forEach(e => { if (e.getType() == "m.reaction") {
             if (reactions[e.getContent()["m.relates_to"].event_id]) reactions[e.getContent()["m.relates_to"].event_id].push(e) 
@@ -107,6 +116,22 @@ export default class Chat extends Component {
                 </div>
             </div>
         )
+    }
+}
+
+class UserInfoMessage extends Component {
+
+    userColor = new UserColor(this.props.username)
+
+    styleVariables = {
+        "--user_ultralight": this.userColor.ultralight,
+        "--user_light": this.userColor.light,
+        "--user_dark": this.userColor.dark,
+    }
+
+    render(props) {
+        const theClass = props.isMe ? "user-info-message me" : "user-info-message"
+        return <div class={theClass} style={this.styleVariables}>{props.username}</div>
     }
 }
 
