@@ -112,8 +112,8 @@ export default class Chat extends Component {
 
 class Anchor extends Component {
     render(props) {
-        if (props.fullyScrolled) return <div>All events loaded</div>
-        else if (!props.focus) return <div>Click an annotation to discuss</div>
+        if (props.fullyScrolled) return <div id="scroll-done">All events loaded</div>
+        else if (!props.focus) return <div id="scroll-done">Click an annotation to discuss</div>
         else return <div id="scroll-anchor">loading...</div>
     }
 }

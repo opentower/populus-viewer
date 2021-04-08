@@ -20,6 +20,11 @@
     width:400px;
 }
 
+#scroll-anchor, #scroll-done {
+    padding:10px;
+    font-weight:bold;
+}
+
 #messageComposer > textarea,
 .messageEditor > textarea {
     display:block;
