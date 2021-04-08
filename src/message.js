@@ -19,11 +19,6 @@ export default class Message extends Component {
 
     messageBody = createRef()
 
-    styleVariables = {
-        "--user_ultralight": this.userColor.ultralight,
-        "--user_light": this.userColor.light
-    }
-
     upvote = () => {
         let reactions = this.props.reactions[this.props.event.getId()] || []
         if (reactions.some(react => react.getSender() == this.props.client.getUserId() )) return
@@ -98,7 +93,7 @@ export default class Message extends Component {
         if (props.client.getUserId() == event.getSender()) {
             return (
                 <Fragment>
-                    <div id={event.getId()} style={this.styleVariables} class="message me">
+                    <div id={event.getId()} style={this.userColor.styleVariables} class="message me">
                         {displayBody}
                         <div class="ident">
                             {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
@@ -118,7 +113,7 @@ export default class Message extends Component {
             )
         } else {
             return (
-                <div style={this.styleVariables} id={event.getId()} class="message">
+                <div style={this.userColor.styleVariables} id={event.getId()} class="message">
                     <div class="ident">
                         <div class="info">
                             <button class="reaction" onclick={this.upvote}>+1</button>

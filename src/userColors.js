@@ -17,5 +17,11 @@ export default class UserColor {
         this.light = 'hsl(' + this.hue + ',100%, 80%)'
         this.dark = 'hsl(' + this.hue + ',100%, 20%)'
         this.ultralight = 'hsl(' + this.hue + ',100%, 95%)'
+        this.styleVariables = {
+            "--user_ultralight": this.ultralight,
+            "--user_light": this.light,
+            "--user_dark": this.dark,
+        }
+
     }
 }
