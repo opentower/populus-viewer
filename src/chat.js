@@ -87,7 +87,8 @@ export default class Chat extends Component {
         var prev = null
         const messagedivs = messages.reduce((accumulator,event) => {
             if (!prev || prev.getSender() != event.getSender()) {
-                accumulator.push(<UserInfoMessage username={event.getSender()}
+                accumulator.push(<UserInfoMessage key={event.getId() + "-userinfo"}
+                                                  username={event.getSender()}
                                                   isMe={event.getSender() == props.client.getUserId()}/>)
                 prev = event
             }
@@ -130,6 +131,7 @@ class UserInfoMessage extends Component {
     }
 
     render(props) {
+        console.log(this.userColor)
         const theClass = props.isMe ? "user-info-message me" : "user-info-message"
         return <div class={theClass} style={this.styleVariables}>{props.username}</div>
     }
