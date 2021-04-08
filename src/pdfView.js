@@ -5,6 +5,7 @@ import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
 import { eventVersion }  from "./constants.js"
+import * as Icons from "./icons.js"
 
 export default class PdfView extends Component {
 
@@ -114,7 +115,7 @@ export default class PdfView extends Component {
                     <button disabled={state.hasSelection || !state.focus} onclick={this.closeAnnotation}>Remove Annotation</button>
                 </nav>
                 <button id="panelToggle" onclick={this.togglePanel}>
-                    {state.panelVisible ? "×" : "☰" }
+                    {state.panelVisible ? Icons.close : Icons.menu }
                 </button>
             </div>
         )
