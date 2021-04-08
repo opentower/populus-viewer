@@ -45,7 +45,7 @@
 .messageEditor > button {
     width:50%;
     height:30px;
-    border:1px solid black;
+    border:2px solid black;
     color:black;
     font-weight:bold;
     transition: background-color 0.5s ease;

@@ -173,7 +173,7 @@ class MessageEditor extends Component {
                      <textarea value={state.edit_value} 
                                                 onkeypress={this.handleKeypress} 
                                                 oninput={this.handleInput}/>
-                     <button onclick={this.sendEdit}>Submit</button>
+                     <button onclick={this.sendEdit}>Submit Changes</button>
                      <button onclick={this.props.closeEditor}>Cancel</button>
                </div>
     }

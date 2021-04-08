@@ -222,7 +222,7 @@ class MessagePanel extends Component {
     render(props,state) {
         return (<div style={this.userColor.styleVariables} id="messageComposer">
             <textarea value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
-            <button onclick={this.sendMessage}>Send</button>
+            <button onclick={this.sendMessage}>Submit</button>
         </div>)
     }
 }
