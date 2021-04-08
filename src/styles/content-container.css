@@ -45,6 +45,7 @@
     text-align:center;
     vertical-align:middle;
     background:white;
+    cursor:pointer;
 }
 
 /* Extra small devices (phones, 600px and down) */
@@ -106,4 +107,3 @@
         left:200px;
     }
 }
-
