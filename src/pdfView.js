@@ -88,15 +88,15 @@ export default class PdfView extends Component {
 
     setFocus = content => this.setState({focus : content})
 
-    firstPage = content => props.loadPage(props.pageFocused = 1)
+    firstPage = _ => this.props.loadPage(this.props.pageFocused = 1)
 
-    prevPage = () => props.loadPage(props.pageFocused + 1)
+    prevPage = _ => this.props.loadPage(this.props.pageFocused - 1)
 
     //setPage = content => props.loadPage(props.pageFocused + 1)
 
-    nextPage = content => props.loadPage(props.pageFocused + 1)
+    nextPage = _ => this.props.loadPage(this.props.pageFocused + 1)
 
-    lastPage = content => props.loadPage(props.pageFocused = state.totalPages)
+    lastPage = _ => this.props.loadPage(this.props.pageFocused = this.state.totalPages)
 
     render(props,state) {
         return (
@@ -114,8 +114,7 @@ export default class PdfView extends Component {
                                      roomId={state.roomId}
                                      setFocus={this.setFocus}
                                      focus={state.focus}
-                                     client={props.client}
-                                     nextPage = {this.nextPage}/>
+                                     client={props.client}/>
                 </div>
                 <div style={state.panelVisible ? {visibility:"visible"} : {}} id="sidepanel">
                     <Chat client={props.client} focus={state.focus}/>
@@ -127,7 +126,10 @@ export default class PdfView extends Component {
                         page={props.pageFocused}
                         total={state.totalPages}
                         focus={state.focus}
-                        nextPage={props.nextPage}/>
+                        firstPage={this.firstPage}
+                        prevPage={this.prevPage}
+                        nextPage={this.nextPage}
+                        lastPage={this.lastPage}/>
                 </div>
                 <button id="panelToggle" onclick={this.togglePanel}>
                     {state.panelVisible ? "×" : "☰" }
