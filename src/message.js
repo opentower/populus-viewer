@@ -34,7 +34,10 @@ export default class Message extends Component {
 
     openEditor = () => this.setState({ editing : true, })
 
-    closeEditor = () => this.setState({ editing : false, })
+    closeEditor = () => {
+        console.log("fired")
+        this.setState({ editing : false, })
+    }
 
     getCurrentEdit = () => {
         const edits = this.getEdits()
@@ -171,7 +174,7 @@ class MessageEditor extends Component {
                                                 onkeypress={this.handleKeypress} 
                                                 oninput={this.handleInput}/>
                      <button onclick={this.sendEdit}>Submit</button>
-                     <button onclick={this.stopEdit}>Cancel</button>
+                     <button onclick={this.props.closeEditor}>Cancel</button>
                </div>
     }
 }

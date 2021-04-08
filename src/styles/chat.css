@@ -32,6 +32,7 @@
     width:100%;
     margin:0px;
     border:none;
+    resize:vertical;
     border-top: 1px solid #adadad;
     border-bottom: 1px solid #adadad;
 }
