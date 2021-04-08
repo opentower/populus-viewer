@@ -217,8 +217,10 @@ class MessagePanel extends Component {
         }
     }
 
+    userColor = new UserColor(this.props.client.getUserId())
+
     render(props,state) {
-        return (<div id="messageComposer">
+        return (<div style={this.userColor.styleVariables} id="messageComposer">
             <textarea value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
             <button onclick={this.sendMessage}>Send</button>
         </div>)
