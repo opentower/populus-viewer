@@ -126,7 +126,6 @@ class UserInfoMessage extends Component {
     userColor = new UserColor(this.props.username)
 
     render(props) {
-        console.log(this.userColor)
         const theClass = props.isMe ? "user-info-message me" : "user-info-message"
         return <div class={theClass} style={this.userColor.styleVariables}>{props.username}</div>
     }

@@ -44,9 +44,8 @@ export default class PdfView extends Component {
     focusByUUID = uuid => {
         const theRoom = this.props.client.getRoom(this.state.roomId)
         const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-        const annotations = theRoomState.getStateEvents(eventVersion)
-        const matches = annotations.filter(ev => ev.getContent().uuid == uuid)
-        if (matches.length == 1) this.setState({focus : matches[0].getContent()})
+        const theAnnotation = theRoomState.getStateEvents(eventVersion,uuid)
+        if (theAnnotation) this.setState({focus : theAnnotation.getContent()})
     }
 
 
