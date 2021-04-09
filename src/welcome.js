@@ -2,6 +2,7 @@ import { h, createRef, render, Fragment, Component } from 'preact';
 import { pdfStateType }  from "./constants.js"
 import * as Matrix from "matrix-js-sdk"
 import UserColor from './userColors.js'
+import { eventVersion }  from "./constants.js"
 import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
@@ -142,8 +143,20 @@ class PdfUpload extends Component {
                 visibility : "public",
                 name : theName,
                 topic : theTopic,
+                //We declare the room a space
                 creation_content: {
                     "org.matrix.msc1772.type" : "org.matrix.msc1772.space"
+                },
+                //we allow anyone to join, by default, for now
+                initial_state : [{
+                    type : "m.room.join_rules",
+                    state_key : "",
+                    content : {"join_rule": "public"}
+                }],
+                power_level_content_override : {
+                    events : {
+                        [eventVersion] : 0 //we allow anyone to annotate, by default, for now
+                    }
                 }
             })
             this.props.client.uploadContent(theFile).then(e => {

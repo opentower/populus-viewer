@@ -61,9 +61,9 @@ export default class PdfView extends Component {
             visibility : "public",
             topic : "bloviating",
             initial_state : [{
-                "type": "m.room.join_rules",
-                "state_key":"",
-                "content": {"join_rule": "public"}
+                type : "m.room.join_rules",
+                state_key : "",
+                content : {"join_rule": "public"}
             }]
         }).then(roominfo => {
             this.props.client.sendStateEvent(this.state.roomId, eventVersion, {
