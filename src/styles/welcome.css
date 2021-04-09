@@ -1,9 +1,15 @@
 .welcomeContainer {
     max-width: 800px;
     position: absolute;
-    left: 50%;
-    transform: translateX(-50%);
+    padding:1em;
 }
+
+@media only screen and (min-width: 600px) {
+    .welcomeContainer {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+} 
 
 .roomListingEntry, #pdfUploadForm {
     border: 1px black solid;
@@ -52,3 +58,29 @@
 #pdfUploadForm div {
     grid-column: 1 / 3 ;
 }
+
+@media only screen and (max-width: 600px) {
+    #pdfUploadForm {
+        grid-template-columns: 1fr;
+    }
+
+#pdfUploadForm > label {
+    grid-column: 1 / 2 ;
+}
+
+#pdfUploadForm > input, #pdfUploadForm > textarea {
+    grid-column: 1 / 2 ;
+    margin-bottom:.5em;
+    border:none;
+    background:#ededed
+}
+
+#pdfUploadForm > textarea {
+    resize: vertical;
+    min-height:50px;
+}
+
+#pdfUploadForm div {
+    grid-column: 1 / 2 ;
+}
+} 
