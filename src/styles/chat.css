@@ -32,19 +32,29 @@
     width:100%;
     margin:0px;
     border:none;
+    padding:0px;
     resize:vertical;
     border-top: 1px solid #adadad;
-    border-bottom: 1px solid #adadad;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box; /* Firefox, other Gecko */
+    box-sizing: border-box; /* Opera/IE 8+ */
+}
+
+#messageComposer > textarea:focus,
+.messageEditor > textarea:focus {
+    outline: none;
+    border: 1px solid black;
+    border-bottom: none;
 }
 
 #messageComposer > textarea {
     min-height:350px;
 }
 
-#messageComposer > button,
+#submit-button-wrapper > button,
 .messageEditor > button {
-    width:50%;
-    height:30px;
+    cursor:pointer;
+    outline:none;
     border:2px solid black;
     color:black;
     font-weight:bold;
@@ -52,14 +62,37 @@
     background-color:white;
 }
 
-
-#messageComposer > button {
+.messageEditor > button {
     width:50%;
-    height:40px;
-    font-size:14pt;
+    height:30px;
 }
 
-#messageComposer > button:hover, 
+
+#submit-button-wrapper {
+    display:grid;
+    column-gap: 0px;
+    grid-template-columns: repeat(6,1fr) ;
+}
+
+#submit-button-wrapper > button {
+    height:40px;
+    font-size:14pt;
+    margin:0px;
+}
+
+#submitButton { grid-column:1/4; }
+
+#sendFileButton { grid-column:4/5; }
+
+#sendImageButton { grid-column:5/6; }
+
+#dummyButtom { grid-column:6/7; }
+
+#sendFileButton, #sendImageButton, #dummyButton {
+    border-left:none !important;
+}
+
+#submit-button-wrapper > button:hover, 
 .messageEditor > button:hover {
     transition: background-color 0.5s ease;
     background-color: var(--user_light);

@@ -2,6 +2,7 @@ import * as sdk from "matrix-js-sdk"
 import { h, Fragment, Component } from 'preact';
 import './styles/chat.css'
 import * as CommonMark from 'commonmark'
+import * as Icons from "./icons.js"
 import { addLatex } from './latex.js'
 import Message from './message.js'
 import UserColor from './userColors.js'
@@ -222,7 +223,12 @@ class MessagePanel extends Component {
     render(props,state) {
         return (<div style={this.userColor.styleVariables} id="messageComposer">
             <textarea value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
-            <button onclick={this.sendMessage}>Submit</button>
+            <div id="submit-button-wrapper">
+                <button id="submitButton" onclick={this.sendMessage}>Submit</button>
+                <button id="sendFileButton" onclick={_ => alert("not implemented")}>{Icons.upload}</button>
+                <button id="sendImageButton" onclick={_ => alert("not implemented")}>{Icons.image}</button>
+                <button id="dummyButton" onclick={_ => alert("not implemented")}></button>
+            </div>
         </div>)
     }
 }
