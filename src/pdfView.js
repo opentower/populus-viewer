@@ -179,6 +179,8 @@ class PdfCanvas extends Component {
     }
 
     async drawPdf () {
+        //since we've started rendering, we want to block subsequent render attempts
+        this.hasRendered = true 
         const theCanvas = this.canvas.current
         try {this.pendingRender._internalRenderTask.cancel()} catch {}
         const pdf = await PdfView.PDFStore[this.state.pdfIdentifier]
@@ -223,7 +225,6 @@ class PdfCanvas extends Component {
             viewport: page.getViewport({scale: 1.5}),
             textDivs: [],
         });
-        this.hasRendered = true
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
