@@ -38,7 +38,6 @@ class PopulusViewer extends Component {
                 pdfFocused : e.state.pdfFocused || false,
                 pageFocused : e.state.pageFocused || 1,
             })
-            console.log(this.state)
         })
     }
 
@@ -79,7 +78,11 @@ class PopulusViewer extends Component {
         if (!state.loggedIn) {
             return <LoginView loginHandler={this.loginHandler} client={this.client}/>
         } if (state.pdfFocused) {
-            return <PdfView loadPage={this.loadPage} pageFocused={this.state.pageFocused} pdfFocused={this.state.pdfFocused} client={this.client}/>
+            return <PdfView queryParams={this.queryParams}
+                            loadPage={this.loadPage} 
+                            pageFocused={this.state.pageFocused} 
+                            pdfFocused={this.state.pdfFocused} 
+                            client={this.client}/>
         } else {
             return <WelcomeView loadPDF={this.loadPDF} logoutHandler={this.logoutHandler} client={this.client}/>
         }

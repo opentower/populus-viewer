@@ -19,7 +19,6 @@ export default class PdfView extends Component {
     constructor(props) {
         super(props)
         this.state = { 
-            pdfIdentifier : null,
             roomId : null,
             focus: null,
             totalPages: null,
@@ -35,7 +34,21 @@ export default class PdfView extends Component {
 
     componentWillUnmount() { document.removeEventListener("selectionchange", this.checkForSelection) }
 
-    setId = id => this.setState({roomId : id})
+    setId = id => {
+        //sets the roomId, and also tries to use that information to update the focus.
+        this.setState({roomId : id}, _ => this.props.queryParams.get("focus") 
+                                       ? this.focusByUUID(this.props.queryParams.get("focus")) 
+                                       : null)
+    }
+
+    focusByUUID = uuid => {
+        const theRoom = this.props.client.getRoom(this.state.roomId)
+        const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+        const annotations = theRoomState.getStateEvents(eventVersion)
+        const matches = annotations.filter(ev => ev.getContent().uuid == uuid)
+        if (matches.length == 1) this.setState({focus : matches[0].getContent()})
+    }
+
 
     setTotalPages = num => this.setState({totalPages : num})
 
@@ -86,7 +99,16 @@ export default class PdfView extends Component {
         this.setState({focus : null})
     }
 
-    setFocus = content => this.setState({focus : content})
+    setFocus = content => {
+        this.props.queryParams.set("focus", content.uuid)
+        window.history.replaceState({
+            pdfFocused : this.props.pdfFocused,
+            pageFocused : this.props.pageFocused,
+            annotationFocused : content.uuid,
+        },"", "?" + this.props.queryParams.toString()) 
+        this.setState({focus : content})
+    }
+
 
     render(props,state) {
         return (
@@ -95,6 +117,7 @@ export default class PdfView extends Component {
                     <PdfCanvas annotationLayer={this.annotationLayer}
                                pdfFocused={props.pdfFocused}
                                pageFocused={props.pageFocused}
+                               initFocus={this.initFocus}
                                setId={this.setId}
                                setTotalPages={this.setTotalPages}
                                client={props.client}/>

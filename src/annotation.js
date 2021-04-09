@@ -53,10 +53,6 @@ export default class AnnotationLayer extends Component {
 
 class Annotation extends Component {
 
-    constructor(props) {
-        super(props)
-    }
-
     setFocus = _ => { this.props.setFocus(this.props.event.getContent()) }
 
     render(props,state) {
