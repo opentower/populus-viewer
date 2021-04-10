@@ -10,11 +10,16 @@ export default class WelcomeView extends Component {
 
     constructor(props) {
         super(props)
+        this.state = {
+            uploadVisible : false
+        }
         let userId = props.client.getUserId()
         this.userColor = new UserColor(userId)
         this.initial = userId.slice(1,2)
         console.log(this.initial)
     }
+
+    toggleUploadVisible = _ => this.setState({uploadVisible : !this.state.uploadVisible})
 
     render(props,state) {
         return (
@@ -24,7 +29,7 @@ export default class WelcomeView extends Component {
                         <input id="welcome-search-input"/>
                         {Icons.search}
                     </div>
-                    <div id="welcome-upload">{Icons.newFile}</div>
+                    <div id="welcome-upload" onclick={this.toggleUploadVisible}>{Icons.newFile}</div>
                     <div style={this.userColor.styleVariables} id="welcome-profile">
                         <div id="welcome-initial">
                             {this.initial}
@@ -32,7 +37,16 @@ export default class WelcomeView extends Component {
                     </div>
                 </header>
                 <div id="welcome-container">
-                    <RoomList {...props}/>
+                    {state.uploadVisible 
+                    ? <Fragment>
+                         <h2>Upload a new PDF</h2>
+                         <PdfUpload client={props.client}/>
+                      </Fragment>
+                    : <Fragment>
+                        <h2>Current Conversations</h2>
+                        <RoomList {...props}/>
+                      </Fragment>
+                    }
                     <Logout logoutHandler={props.logoutHandler}/>
                 </div>
             </Fragment>
@@ -77,9 +91,6 @@ class RoomList extends Component {
                                   }).map(room => { return <RoomListing loadPDF={props.loadPDF} client={props.client} room={room}/> })
         return (
             <Fragment>
-                <h2>Upload a new PDF</h2>
-                <PdfUpload client={props.client}/>
-                <h2>Current Conversations</h2>
                 <div>{rooms}</div>
             </Fragment>
         )

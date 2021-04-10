@@ -3,6 +3,7 @@
     width:100%;
     display:flex;
     justify-content:flex-end;
+    align-items:center;
     top:0px;
     background-color: white;
     z-index:2;
@@ -14,20 +15,27 @@
     display: inline-block;
 }
 #welcome-upload {
-    padding:13px;
     padding-right:0px;
+    margin-right:13px; 
+    margin-top:3px; 
+    flex-shrink:0;
+}
+
+#welcome-upload > svg {
+    cursor: pointer;
 }
 
 #welcome-profile {
-    margin:12px;
-    padding:1px;
     width:22px;
-    line-height:18px;
+    height:22px;
+    margin-right:13px; 
+    line-height:22px;
     text-align:center;
     font-weight: bold;
     border:2px solid black;
     border-radius:35px;
     background-color: var(--user_light);
+    flex-shrink:0;
 }
 
 #welcome-container {
@@ -37,18 +45,21 @@
     padding:1em;
 }
 
-#welcome-search {
-    position:relative;
-    top:10px;
+#welcome-search { 
+    position:relative; 
+    flex-shrink:2;
+    margin-right:30px; 
+    margin-left:13px; 
 }
 
 #welcome-search > svg {
     position:absolute;
-    right:8px;
+    right:0px;
     top:3px;
 }
 
 #welcome-search-input {
+    width:100%;
     margin:auto;
     padding:7px;
     border:none;
