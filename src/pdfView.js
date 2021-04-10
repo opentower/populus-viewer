@@ -34,6 +34,8 @@ export default class PdfView extends Component {
 
     componentWillUnmount() { document.removeEventListener("selectionchange", this.checkForSelection) }
 
+    documentView = createRef()
+
     setId = id => {
         //sets the roomId, and also tries to use that information to update the focus.
         this.setState({roomId : id}, _ => this.props.queryParams.get("focus") 
@@ -48,14 +50,17 @@ export default class PdfView extends Component {
         if (theAnnotation) this.setState({focus : theAnnotation.getContent()})
     }
 
-
     setTotalPages = num => this.setState({totalPages : num})
 
     togglePanel = () => this.setState({panelVisible : !this.state.panelVisible})
 
     checkForSelection () {
         if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
-        this.selectionTimeout = setTimeout(200,this.setState({hasSelection : !window.getSelection().isCollapsed}))
+        let theSelection = window.getSelection()
+        let hasSelection = !window.getSelection().isCollapsed 
+                         && this.documentView.current.contains(window.getSelection().getRangeAt(0).endContainer) 
+                         && this.documentView.current.contains(window.getSelection().getRangeAt(0).startContainer)
+        this.selectionTimeout = setTimeout(200,this.setState({hasSelection : hasSelection}))
         //timeout to avoid excessive rerendering
     }
 
@@ -108,11 +113,10 @@ export default class PdfView extends Component {
         this.setState({focus : content})
     }
 
-
     render(props,state) {
         return (
             <div  id="content-container">
-                <div id="document-view">
+                <div ref={this.documentView} id="document-view">
                     <PdfCanvas annotationLayer={this.annotationLayer}
                                pdfFocused={props.pdfFocused}
                                pageFocused={props.pageFocused}
