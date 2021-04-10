@@ -11,13 +11,17 @@
     box-shadow: 0px 2px 4px 0 rgba(0,0,0,.2);
 }
 
-#welcome-header > div {
-    display: inline-block;
+#welcome-header-content {
+    width:100%;
+    display:flex;
+    justify-content:flex-end;
+    align-items:center;
 }
+
 #welcome-upload {
     padding-right:0px;
+    padding-top:3px;
     margin-right:13px; 
-    margin-top:3px; 
     flex-shrink:0;
 }
 
@@ -48,6 +52,7 @@
 #welcome-search { 
     position:relative; 
     flex-shrink:2;
+    flex-grow:1;
     margin-right:30px; 
     margin-left:13px; 
 }
@@ -70,6 +75,10 @@
     #welcome-container {
         left: 50%;
         transform: translateX(-50%);
+    }
+
+    #welcome-header-content {
+        width:400px;
     }
 } 
 

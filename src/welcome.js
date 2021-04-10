@@ -11,7 +11,9 @@ export default class WelcomeView extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            uploadVisible : false
+            uploadVisible : false,
+            inputFocus : false,
+            searchFilter : ""
         }
         let userId = props.client.getUserId()
         this.userColor = new UserColor(userId)
@@ -21,19 +23,31 @@ export default class WelcomeView extends Component {
 
     toggleUploadVisible = _ => this.setState({uploadVisible : !this.state.uploadVisible})
 
+    handleInputFocus = _ => this.setState({inputFocus: true, uploadVisible: false})
+
+    handleInputBlur = _ => this.setState({inputFocus: false})
+
+    handleInput = e => {
+        this.setState({searchFilter : e.target.value})
+    }
+
     render(props,state) {
         return (
             <Fragment>
                 <header id="welcome-header">
-                    <div id="welcome-search">
-                        <input id="welcome-search-input"/>
-                        {Icons.search}
-                    </div>
-                    <div id="welcome-upload" onclick={this.toggleUploadVisible}>{Icons.newFile}</div>
-                    <div style={this.userColor.styleVariables} id="welcome-profile">
-                        <div id="welcome-initial">
-                            {this.initial}
+                    <div id="welcome-header-content">
+                        <div id="welcome-search">
+                            <input value={state.searchFilter} oninput={this.handleInput} onblur={this.handleInputBlur} onfocus={this.handleInputFocus} id="welcome-search-input"/>
+                            {Icons.search}
                         </div>
+                        { !state.inputFocus && <Fragment>
+                                <div id="welcome-upload" onclick={this.toggleUploadVisible}>{Icons.newFile}</div>
+                                <div style={this.userColor.styleVariables} id="welcome-profile">
+                                    <div id="welcome-initial">
+                                        {this.initial}
+                                    </div>
+                                </div>
+                        </Fragment>}
                     </div>
                 </header>
                 <div id="welcome-container">
@@ -43,8 +57,8 @@ export default class WelcomeView extends Component {
                          <PdfUpload client={props.client}/>
                       </Fragment>
                     : <Fragment>
-                        <h2>Current Conversations</h2>
-                        <RoomList {...props}/>
+                        <h2>Conversations</h2>
+                        <RoomList searchFilter={state.searchFilter} {...props}/>
                       </Fragment>
                     }
                     <Logout logoutHandler={props.logoutHandler}/>
@@ -82,7 +96,8 @@ class RoomList extends Component {
     render(props,state) {
         //TODO: We're going to want to have different subcategories of rooms,
         //for actual pdfs, and for annotation discussions
-        const rooms = state.rooms.sort((a,b) => { 
+        const rooms = state.rooms.filter(room => room.name.toLowerCase().includes(props.searchFilter.toLowerCase()))
+                                 .sort((a,b) => { 
                                         const ts1 = a.getLastActiveTimestamp() 
                                         const ts2 = b.getLastActiveTimestamp()
                                         if (ts1 < ts2) return 1
@@ -110,7 +125,7 @@ class Logout extends Component {
 class RoomListing extends Component {
     render (props, state) {
         var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents("org.populus.pdf","")
-        if (pdfEvent) return (<PDFRoomEntry loadPDF={props.loadPDF}client={props.client} room={props.room} pdfevent={pdfEvent}/>)
+        if (pdfEvent) return (<PDFRoomEntry loadPDF={props.loadPDF} client={props.client} room={props.room} pdfevent={pdfEvent}/>)
         else return (<AnnotationRoomEntry room={props.room}/>)
     }
 }
