@@ -1,11 +1,62 @@
-.welcomeContainer {
+#welcome-header {
+    position:fixed;
+    width:100%;
+    display:flex;
+    justify-content:flex-end;
+    top:0px;
+    background-color: white;
+    z-index:2;
+    height:50px;
+    box-shadow: 0px 2px 4px 0 rgba(0,0,0,.2);
+}
+
+#welcome-header > div {
+    display: inline-block;
+}
+#welcome-upload {
+    padding:13px;
+    padding-right:0px;
+}
+
+#welcome-profile {
+    margin:12px;
+    padding:1px;
+    width:22px;
+    line-height:18px;
+    text-align:center;
+    font-weight: bold;
+    border:2px solid black;
+    border-radius:35px;
+    background-color: var(--user_light);
+}
+
+#welcome-container {
+    margin-top:50px;
     max-width: 800px;
     position: absolute;
     padding:1em;
 }
 
+#welcome-search {
+    position:relative;
+    top:10px;
+}
+
+#welcome-search > svg {
+    position:absolute;
+    right:8px;
+    top:3px;
+}
+
+#welcome-search-input {
+    margin:auto;
+    padding:7px;
+    border:none;
+    background:#ededed;
+}
+
 @media only screen and (min-width: 600px) {
-    .welcomeContainer {
+    #welcome-container {
         left: 50%;
         transform: translateX(-50%);
     }

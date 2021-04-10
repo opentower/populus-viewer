@@ -2,17 +2,40 @@ import { h, createRef, render, Fragment, Component } from 'preact';
 import { pdfStateType }  from "./constants.js"
 import * as Matrix from "matrix-js-sdk"
 import UserColor from './userColors.js'
+import * as Icons from './icons.js'
 import { eventVersion }  from "./constants.js"
 import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
 
+    constructor(props) {
+        super(props)
+        let userId = props.client.getUserId()
+        this.userColor = new UserColor(userId)
+        this.initial = userId.slice(1,2)
+        console.log(this.initial)
+    }
+
     render(props,state) {
         return (
-            <div class="welcomeContainer">
-                <RoomList {...props}/>
-                <Logout logoutHandler={props.logoutHandler}/>
-            </div>
+            <Fragment>
+                <header id="welcome-header">
+                    <div id="welcome-search">
+                        <input id="welcome-search-input"/>
+                        {Icons.search}
+                    </div>
+                    <div id="welcome-upload">{Icons.newFile}</div>
+                    <div style={this.userColor.styleVariables} id="welcome-profile">
+                        <div id="welcome-initial">
+                            {this.initial}
+                        </div>
+                    </div>
+                </header>
+                <div id="welcome-container">
+                    <RoomList {...props}/>
+                    <Logout logoutHandler={props.logoutHandler}/>
+                </div>
+            </Fragment>
         )
     }
 }
