@@ -172,6 +172,11 @@
     visibility:visible;
 }
 
+.redacted {
+    font-size:10pt;
+    color:gray;
+}
+
 #chat-panel .message > .body {
     display: inline-block;
     text-align:left;

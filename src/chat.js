@@ -84,7 +84,9 @@ export default class Chat extends Component {
     render(props, state) {
         var reactions = {}
         //XXX need to be able to handle other message types
-        const messages = state.events.filter(e => e.getType() == "m.room.message" && e.getContent().msgtype == "m.text")
+        const messages = state.events.filter(e => e.getType() == "m.room.message" 
+                                                  && e.getContent().msgtype == "m.text"
+                                                  || (Object.keys(e.getContent()).length == 0))
         var prev = null
         const messagedivs = messages.reduce((accumulator,event) => {
             if (!prev || prev.getSender() != event.getSender()) {
@@ -92,11 +94,31 @@ export default class Chat extends Component {
                                                   username={event.getSender()}
                                                   isMe={event.getSender() == props.client.getUserId()}/>)
                 prev = event
+            } else {
+                switch(event.getContent().msgtype) {
+                    case "m.text": {
+                        accumulator.push (<Message reactions={reactions} 
+                                                   client={this.props.client} 
+                                                   key={event.getId()}
+                                                   event={event}/>)
+                        break;
+                    }
+                    case undefined: {
+                        if (prev.getSender() == event.getSender() 
+                            && accumulator.length > 1 
+                            && accumulator[accumulator.length - 1].type == RedactedMessage) {
+                            accumulator[accumulator.length - 1].props.count = accumulator[accumulator.length - 1].props.count + 1
+                        }
+                        else { accumulator.push (<RedactedMessage count={1}
+                                                           key={event.getId()}
+                                                           username={event.getSender()}
+                                                           isMe={event.getSender() == props.client.getUserId()}/>)
+                        }
+                        break;
+                    }
+                }
             }
-            accumulator.push (<Message reactions={reactions} 
-                                       client={this.props.client} 
-                                       key={event.getId()}
-                                       event={event}/>)
+
             return accumulator
         },[])
         //sort reactions by event reacted-to
@@ -128,6 +150,23 @@ class UserInfoMessage extends Component {
     render(props) {
         const theClass = props.isMe ? "user-info-message me" : "user-info-message"
         return <div class={theClass} style={this.userColor.styleVariables}>{props.username}</div>
+    }
+}
+
+class RedactedMessage extends Component {
+
+    userColor = new UserColor(this.props.username)
+
+    render(props) {
+        return props.isMe  
+            ? <div class="redacted message me" style={this.userColor.styleVariables}>
+                        <div class="ident"/>
+                        <div class="body">{props.count > 1 ? props.count + " messages deleted" : "message deleted"}</div>
+              </div>
+            : <div class="redacted message" style={this.userColor.styleVariables}>
+                        <div class="ident"/>
+                        <div class="body">{props.count > 1 ? props.count + " messages deleted" : "message deleted"}</div>
+              </div>
     }
 }
 
