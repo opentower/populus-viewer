@@ -4,6 +4,7 @@ import * as Matrix from "matrix-js-sdk"
 import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
+import Navbar from "./navbar.js"
 import { eventVersion }  from "./constants.js"
 import * as Icons from "./icons.js"
 
@@ -24,6 +25,7 @@ export default class PdfView extends Component {
             totalPages: null,
             panelVisible: false,
             hasSelection: false,
+            pdfWidthPx: null,
         }
         this.checkForSelection = this.checkForSelection.bind(this)
         //need the `bind` here in order to pass a named function into the event
@@ -42,6 +44,8 @@ export default class PdfView extends Component {
                                        ? this.focusByUUID(this.props.queryParams.get("focus")) 
                                        : null)
     }
+
+    setPdfWidthPx = px => this.setState({pdfWidthPx: px})
 
     focusByUUID = uuid => {
         const theRoom = this.props.client.getRoom(this.state.roomId)
@@ -117,7 +121,8 @@ export default class PdfView extends Component {
         return (
             <div  id="content-container">
                 <div ref={this.documentView} id="document-view">
-                    <PdfCanvas annotationLayer={this.annotationLayer}
+                    <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
+                               annotationLayer={this.annotationLayer}
                                pdfFocused={props.pdfFocused}
                                pageFocused={props.pageFocused}
                                initFocus={this.initFocus}
@@ -134,12 +139,14 @@ export default class PdfView extends Component {
                 <div style={state.panelVisible ? {visibility:"visible"} : {}} id="sidepanel">
                     <Chat client={props.client} focus={state.focus}/>
                 </div>
-                <nav id="page-nav">
-                    <button disabled={props.pageFocused < 2} onclick={_ => props.loadPage(props.pageFocused - 1)}>Prev</button>
-                    <button disabled={state.totalPages <= props.pageFocused} onclick={_ => props.loadPage(props.pageFocused + 1)}>Next</button>
-                    <button disabled={!state.hasSelection} onclick={this.openAnnotation}>Add Annotation</button>
-                    <button disabled={state.hasSelection || !state.focus} onclick={this.closeAnnotation}>Remove Annotation</button>
-                </nav>
+                <Navbar selected={state.hasSelection}
+                    addann={this.openAnnotation}
+                    closeann={this.closeAnnotation}
+                    page={props.pageFocused}
+                    total={state.totalPages}
+                    focus={state.focus}
+                    pdfWidthPx={state.pdfWidthPx}
+                    loadPage={props.loadPage}/>
                 <button id="panelToggle" onclick={this.togglePanel}>
                     {state.panelVisible ? Icons.close : Icons.menu }
                 </button>
@@ -200,8 +207,12 @@ class PdfCanvas extends Component {
 
         // Prepare canvas using PDF page dimensions
 
-        theCanvas.style.height = `${(viewport.height* 1.5) / scale}px`;
-        theCanvas.style.width = `${(viewport.width * 1.5) / scale}px`;
+        const pdfWidthPx = (viewport.width* 1.5) / scale
+        const pdfHeightPx = (viewport.height* 1.5) / scale
+
+        this.props.setPdfWidthPx(pdfWidthPx)
+        theCanvas.style.height = `${pdfHeightPx}px`;
+        theCanvas.style.width = `${pdfWidthPx}px`;
         theCanvas.height = viewport.height;
         theCanvas.width = viewport.width;
 
