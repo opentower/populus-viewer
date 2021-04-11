@@ -1,16 +1,32 @@
-.navbar {
-  text-align: center;
-  background: #267b5d;
+#navigation {
   left: 0;
   right: 0;
   bottom: 0;
-  padding-bottom: 5px;
   position: fixed;
+  text-align: center;
+  z-index: 11;
+}
+
+#pages {
+  text-align: center;
+  background: white;
+  left: 0;
+  right: 0;
+  bottom: 50;
+  padding-bottom: 5px;
+  position: relative;
+  height: 20px;
+  line-height: 20px;
+  width: 75%;
+}
+
+#navbar {
+  background: #267b5d;
+  padding-bottom: 5px;
   height: 50px;
   line-height: 50px;
-  width: 75%;
+  width: 70%;
   box-shadow: 0 -1px 2px 0 #123b2c;
-  z-index: 11;
 }
 
 .inner {
@@ -60,4 +76,15 @@
   font-size: 1.3em;
   width: 25px;
   margin: 0 10px 0 10px;
+}
+
+.pglabel {
+  color: white;
+  background: black;
+  text-align: center;
+  font-family: 'Signika', sans-serif;
+  font-size: 1em;
+  width: 30px;
+  margin: 0 10px 0 10px;
+  cursor: pointer;
 }

@@ -88,16 +88,6 @@ export default class PdfView extends Component {
 
     setFocus = content => this.setState({focus : content})
 
-    firstPage = _ => this.props.loadPage(this.props.pageFocused = 1)
-
-    prevPage = _ => this.props.loadPage(this.props.pageFocused - 1)
-
-    //setPage = content => props.loadPage(props.pageFocused + 1)
-
-    nextPage = _ => this.props.loadPage(this.props.pageFocused + 1)
-
-    lastPage = _ => this.props.loadPage(this.props.pageFocused = this.state.totalPages)
-
     render(props,state) {
         return (
             <div>
@@ -119,17 +109,14 @@ export default class PdfView extends Component {
                 <div style={state.panelVisible ? {visibility:"visible"} : {}} id="sidepanel">
                     <Chat client={props.client} focus={state.focus}/>
                 </div>
-                <div class="navbar">
+                <div>
                     <Navbar selected={state.hasSelection}
                         addann={this.openAnnotation}
                         closeann={this.closeAnnotation}
                         page={props.pageFocused}
                         total={state.totalPages}
                         focus={state.focus}
-                        firstPage={this.firstPage}
-                        prevPage={this.prevPage}
-                        nextPage={this.nextPage}
-                        lastPage={this.lastPage}/>
+                        loadPage={props.loadPage}/>
                 </div>
                 <button id="panelToggle" onclick={this.togglePanel}>
                     {state.panelVisible ? "×" : "☰" }
