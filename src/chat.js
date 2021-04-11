@@ -265,7 +265,7 @@ class MessagePanel extends Component {
                 <button id="submitButton" onclick={this.sendMessage}>Submit</button>
                 <button id="sendFileButton" onclick={_ => alert("not implemented")}>{Icons.upload}</button>
                 <button id="sendImageButton" onclick={_ => alert("not implemented")}>{Icons.image}</button>
-                <button id="dummyButton" onclick={_ => alert("not implemented")}></button>
+                <button id="moreButton" onclick={_ => alert("not implemented")}>{Icons.moreHorizontal}</button>
             </div>
         </div>)
     }
