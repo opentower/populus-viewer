@@ -94,28 +94,27 @@ export default class Chat extends Component {
                                                   username={event.getSender()}
                                                   isMe={event.getSender() == props.client.getUserId()}/>)
                 prev = event
-            } else {
-                switch(event.getContent().msgtype) {
-                    case "m.text": {
-                        accumulator.push (<Message reactions={reactions} 
-                                                   client={this.props.client} 
-                                                   key={event.getId()}
-                                                   event={event}/>)
-                        break;
+            } 
+            switch(event.getContent().msgtype) {
+                case "m.text": {
+                    accumulator.push (<Message reactions={reactions} 
+                                               client={this.props.client} 
+                                               key={event.getId()}
+                                               event={event}/>)
+                    break;
+                }
+                case undefined: {
+                    if (prev.getSender() == event.getSender() 
+                        && accumulator.length > 1 
+                        && accumulator[accumulator.length - 1].type == RedactedMessage) {
+                        accumulator[accumulator.length - 1].props.count = accumulator[accumulator.length - 1].props.count + 1
                     }
-                    case undefined: {
-                        if (prev.getSender() == event.getSender() 
-                            && accumulator.length > 1 
-                            && accumulator[accumulator.length - 1].type == RedactedMessage) {
-                            accumulator[accumulator.length - 1].props.count = accumulator[accumulator.length - 1].props.count + 1
-                        }
-                        else { accumulator.push (<RedactedMessage count={1}
-                                                           key={event.getId()}
-                                                           username={event.getSender()}
-                                                           isMe={event.getSender() == props.client.getUserId()}/>)
-                        }
-                        break;
+                    else { accumulator.push (<RedactedMessage count={1}
+                                                       key={event.getId()}
+                                                       username={event.getSender()}
+                                                       isMe={event.getSender() == props.client.getUserId()}/>)
                     }
+                    break;
                 }
             }
 
