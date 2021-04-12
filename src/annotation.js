@@ -30,8 +30,13 @@ export default class AnnotationLayer extends Component {
         )
     }
 
+
     render(props,state) {
         //just to get started
+        const style = { 
+            transformOrigin : "top left",
+            transform : "scale(" + props.zoomFactor + ")",
+        }
         const theRoom = props.client.getRoom(props.roomId)
         const uuid = props.focus ? props.focus.uuid : null
         var annotations = []
@@ -39,13 +44,16 @@ export default class AnnotationLayer extends Component {
             const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
             annotations = theRoomState.getStateEvents(eventVersion)
                                       .filter(event => this.filterAnnotations(event))
-                                      .map(event => <Annotation focused={uuid == event.getContent().uuid}
+                                      .map(event => <Annotation zoomFactor={props.zoomFactor}
+                                                                focused={uuid == event.getContent().uuid}
                                                                 setFocus={props.setFocus} 
                                                                 event={event}/>)
         }
         return (
-            <div id="annotation-layer">
-                {annotations}
+            <div id="annotation-wrapper">
+                <div ref={props.annotationLayerWrapper} style={style} id="annotation-layer">
+                    {annotations}
+                </div>
             </div>
         )
     }
@@ -58,7 +66,7 @@ class Annotation extends Component {
     render(props,state) {
         const uuid = props.event.getContent().uuid
         const spans = JSON.parse(props.event.getContent().clientRects)
-                          .map(rect => (<RectSpan setFocus={this.setFocus} rect={rect}/>))
+                          .map(rect => (<RectSpan zoomFactor={this.props.zoomFactor} setFocus={this.setFocus} rect={rect}/>))
         return <div data-focused={props.focused} id={uuid}>{spans}</div>
     }
 }
@@ -67,9 +75,9 @@ class RectSpan extends Component {
 
     ref = createRef()
 
-    componentDidMount() { Layout.positionRelativeAt(this.props.rect,this.ref.current) }
+    componentDidMount() { Layout.positionRelativeAt(this.props.rect,this.ref.current, this.props.zoomFactor) }
 
-    componentDidUpdate() { Layout.positionRelativeAt(this.props.rect,this.ref.current) }
+    componentDidUpdate() { Layout.positionRelativeAt(this.props.rect,this.ref.current, this.props.zoomFactor) }
 
     render(props,state) {
         return <span onclick={props.setFocus} data-annotation ref={this.ref}></span>

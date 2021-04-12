@@ -17,6 +17,8 @@ export default class PdfView extends Component {
 
     annotationLayer = createRef()
 
+    annotationLayerWrapper = createRef()
+
     constructor(props) {
         super(props)
         this.state = { 
@@ -26,13 +28,22 @@ export default class PdfView extends Component {
             panelVisible: false,
             hasSelection: false,
             pdfWidthPx: null,
+            zoomFactor: 1,
         }
         this.checkForSelection = this.checkForSelection.bind(this)
         //need the `bind` here in order to pass a named function into the event
         //listener with the proper `this` reference
     }
 
-    componentDidMount() { document.addEventListener("selectionchange", this.checkForSelection) }
+    componentDidMount() { 
+        document.addEventListener("selectionchange", this.checkForSelection) 
+        document.addEventListener('keydown', e => { if (e.key == '+') {
+            this.setState({zoomFactor : this.state.zoomFactor + 0.1})
+        }})
+        document.addEventListener('keydown', e => { if (e.key == '-') {
+            this.setState({zoomFactor : this.state.zoomFactor - 0.1})
+        }})
+    }
 
     componentWillUnmount() { document.removeEventListener("selectionchange", this.checkForSelection) }
 
@@ -73,7 +84,7 @@ export default class PdfView extends Component {
         if (theSelection.isCollapsed) return
         var theRange = theSelection.getRangeAt(0)
         var clientRects = Array.from(theRange.getClientRects())
-                               .map(rect => Layout.rectRelativeTo(this.annotationLayer.current.base, rect))
+                               .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.zoomFactor))
         var uuid = Math.random().toString(36).substring(2)
         //room creation is a bit slow, might want to rework this slightly for responsiveness
         this.props.client.createRoom({ 
@@ -127,9 +138,13 @@ export default class PdfView extends Component {
                                pageFocused={props.pageFocused}
                                initFocus={this.initFocus}
                                setId={this.setId}
+                               zoomFactor={this.state.zoomFactor}
                                setTotalPages={this.setTotalPages}
                                client={props.client}/>
                     <AnnotationLayer ref={this.annotationLayer} 
+                                     annotationLayer={this.annotationLayer}
+                                     annotationLayerWrapper={this.annotationLayerWrapper}
+                                     zoomFactor={this.state.zoomFactor}
                                      page={props.pageFocused} 
                                      roomId={state.roomId} 
                                      setFocus={this.setFocus}
@@ -207,8 +222,8 @@ class PdfCanvas extends Component {
 
         // Prepare canvas using PDF page dimensions
 
-        const pdfWidthPx = (viewport.width* 1.5) / scale
-        const pdfHeightPx = (viewport.height* 1.5) / scale
+        const pdfWidthPx = ((viewport.width* 1.5) / scale) * this.props.zoomFactor
+        const pdfHeightPx = ((viewport.height* 1.5) / scale) * this.props.zoomFactor
 
         this.props.setPdfWidthPx(pdfWidthPx)
         theCanvas.style.height = `${pdfHeightPx}px`;
@@ -230,22 +245,27 @@ class PdfCanvas extends Component {
         const text = await page.getTextContent();
         //resize the text and annotation layers to sit on top of the rendered PDF page
 
-        Layout.positionAt(theCanvas.getBoundingClientRect(), this.textLayer.current);
-        Layout.positionAt(theCanvas.getBoundingClientRect(), this.props.annotationLayer.current.base);
+        Layout.matchSize(theCanvas.getBoundingClientRect(), this.textLayer.current);
+        Layout.matchSize(theCanvas.getBoundingClientRect(), this.props.annotationLayer.current.base);
 
         //insert the pdf text into the text layer
         PDFJS.renderTextLayer({
             textContent: text,
             container: document.getElementById("text-layer"),
-            viewport: page.getViewport({scale: 1.5}),
+            viewport: page.getViewport({scale: 1.5 * this.props.zoomFactor}),
             textDivs: [],
         });
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (!this.hasRendered || (prevProps.pageFocused != this.props.pageFocused)) {
+        if (!this.hasRendered 
+            || (prevProps.pageFocused != this.props.pageFocused)
+            || (prevProps.zoomFactor != this.props.zoomFactor)) {
             this.textLayer.current.innerHTML = ""
-            this.drawPdf()
+            this.drawPdf().then(_ => 
+                //need to do this to take into account positioning changes caused by rescaling
+                this.props.annotationLayer.current.forceUpdate()
+            )
         }
     }
 
