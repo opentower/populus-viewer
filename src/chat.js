@@ -72,7 +72,7 @@ export default class Chat extends Component {
     }
 
     async componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevProps.focus != this.props.focus) {
+        if (this.props.focus && (prevProps.focus != this.props.focus)) {
             const room = await this.props.client.joinRoom(this.props.focus.room_id)
             this.setState({ 
                 fullyScrolled : this.scrolledIdents.has(this.props.focus.room_id),
@@ -172,8 +172,8 @@ class RedactedMessage extends Component {
 
 class Anchor extends Component {
     render(props) {
-        if (props.fullyScrolled) return <div id="scroll-done">All events loaded</div>
-        else if (!props.focus) return <div id="scroll-done">Click an annotation to discuss</div>
+        if (!props.focus) return <div id="scroll-done">Click an annotation to discuss</div>
+        else if (props.fullyScrolled) return <div id="scroll-done">All events loaded</div>
         else return <div id="scroll-anchor">loading...</div>
     }
 }

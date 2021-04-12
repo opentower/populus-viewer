@@ -111,9 +111,11 @@ export default class PdfView extends Component {
 
     closeAnnotation = _ => {
         this.props.client.sendStateEvent(this.state.roomId, eventVersion, {
-            "uuid": this.state.focus.uuid, 
-            "clientRects": this.state.focus.clientRects,
-            "activityStatus": "closed"
+            uuid: this.state.focus.uuid, 
+            room_id : this.state.focus.room_id,
+            pageNumber : this.state.focus.pageNumber,
+            clientRects: this.state.focus.clientRects,
+            activityStatus : "closed"
         }, this.state.focus.uuid)
         this.setState({focus : null})
     }
