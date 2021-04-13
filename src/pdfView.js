@@ -5,7 +5,7 @@ import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
 import Navbar from "./navbar.js"
-import { eventVersion }  from "./constants.js"
+import { eventVersion, serverRoot }  from "./constants.js"
 import * as Icons from "./icons.js"
 
 export default class PdfView extends Component {
@@ -202,7 +202,7 @@ class PdfCanvas extends Component {
         const theRoom = this.props.client.getRoom(theId.room_id)
         const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
         const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf","").getContent().identifier
-        const pdfPath = 'http://localhost:8008/_matrix/media/r0/download/localhost/' + pdfIdentifier
+        const pdfPath = serverRoot + '/_matrix/media/r0/download/localhost/' + pdfIdentifier
         this.setState({pdfIdentifier : pdfIdentifier})
         if (!PdfView.PDFStore[pdfIdentifier]) {
             console.log('fetched ' + title )

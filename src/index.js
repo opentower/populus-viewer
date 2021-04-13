@@ -4,6 +4,7 @@ import WelcomeView from './welcome.js';
 import LoginView from './login.js';
 import PdfView from './pdfView.js';
 import './styles/global.css'
+import { serverRoot } from './constants.js'
 
 // This module is the entrypoint for the viewer. It'll be reponsible for the
 // main container element, for initializing the client object, and for
@@ -15,7 +16,7 @@ class PopulusViewer extends Component {
         super()
         this.queryParams = new URLSearchParams(window.location.search)
         this.client = Matrix.createClient({
-            baseUrl : "https://populus.open-tower.com",
+            baseUrl : serverRoot,
             userId : localStorage.getItem("userId"),
             accessToken : localStorage.getItem("accessToken"),
             timelineSupport : true,
@@ -45,7 +46,7 @@ class PopulusViewer extends Component {
         localStorage.clear()
         this.client.stopClient()
         this.client = Matrix.createClient({
-            baseUrl : "http://localhost:8008",
+            baseUrl : serverRoot,
             timelineSupport : true,
         })
         this.setState({loggedIn : false})
