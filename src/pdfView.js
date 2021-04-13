@@ -5,7 +5,7 @@ import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
 import Navbar from "./navbar.js"
-import { eventVersion, serverRoot }  from "./constants.js"
+import { eventVersion, serverRoot, domainName }  from "./constants.js"
 import * as Icons from "./icons.js"
 
 export default class PdfView extends Component {
@@ -196,13 +196,13 @@ class PdfCanvas extends Component {
     canvas = createRef()
 
     async fetchPdf (title) {
-        var theId = await this.props.client.getRoomIdForAlias("#" + title + ":localhost")
+        var theId = await this.props.client.getRoomIdForAlias("#" + title + ":" + domainName)
         await this.props.client.joinRoom(theId.room_id)
         this.props.setId(theId.room_id)
         const theRoom = this.props.client.getRoom(theId.room_id)
         const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
         const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf","").getContent().identifier
-        const pdfPath = serverRoot + '/_matrix/media/r0/download/localhost/' + pdfIdentifier
+        const pdfPath = serverRoot + '/_matrix/media/r0/download/' + domainName + '/' + pdfIdentifier
         this.setState({pdfIdentifier : pdfIdentifier})
         if (!PdfView.PDFStore[pdfIdentifier]) {
             console.log('fetched ' + title )
