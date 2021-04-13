@@ -33,10 +33,6 @@ export default class AnnotationLayer extends Component {
 
     render(props,state) {
         //just to get started
-        const style = { 
-            transformOrigin : "top left",
-            transform : "scale(" + props.zoomFactor + ")",
-        }
         const theRoom = props.client.getRoom(props.roomId)
         const uuid = props.focus ? props.focus.uuid : null
         var annotations = []
@@ -50,10 +46,8 @@ export default class AnnotationLayer extends Component {
                                                                 event={event}/>)
         }
         return (
-            <div id="annotation-wrapper">
-                <div ref={props.annotationLayerWrapper} style={style} id="annotation-layer">
-                    {annotations}
-                </div>
+            <div ref={props.annotationLayerWrapper} id="annotation-layer">
+                {annotations}
             </div>
         )
     }

@@ -131,27 +131,32 @@ export default class PdfView extends Component {
     }
 
     render(props,state) {
+        const cssZoom= { 
+            transformOrigin : "top left",
+            transform : "scale(" + state.zoomFactor + ")",
+        }
         return (
             <div  id="content-container">
                 <div ref={this.documentView} id="document-view">
-                    <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
-                               annotationLayer={this.annotationLayer}
-                               pdfFocused={props.pdfFocused}
-                               pageFocused={props.pageFocused}
-                               initFocus={this.initFocus}
-                               setId={this.setId}
-                               zoomFactor={this.state.zoomFactor}
-                               setTotalPages={this.setTotalPages}
-                               client={props.client}/>
-                    <AnnotationLayer ref={this.annotationLayer} 
-                                     annotationLayer={this.annotationLayer}
-                                     annotationLayerWrapper={this.annotationLayerWrapper}
-                                     zoomFactor={this.state.zoomFactor}
-                                     page={props.pageFocused} 
-                                     roomId={state.roomId} 
-                                     setFocus={this.setFocus}
-                                     focus={state.focus}
-                                     client={props.client}/>
+                    <div style={cssZoom} id="zoom-wrapper">
+                        <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
+                                   annotationLayer={this.annotationLayer}
+                                   pdfFocused={props.pdfFocused}
+                                   pageFocused={props.pageFocused}
+                                   initFocus={this.initFocus}
+                                   setId={this.setId}
+                                   setTotalPages={this.setTotalPages}
+                                   client={props.client}/>
+                        <AnnotationLayer ref={this.annotationLayer} 
+                                         annotationLayer={this.annotationLayer}
+                                         annotationLayerWrapper={this.annotationLayerWrapper}
+                                         zoomFactor={state.zoomFactor}
+                                         page={props.pageFocused} 
+                                         roomId={state.roomId} 
+                                         setFocus={this.setFocus}
+                                         focus={state.focus}
+                                         client={props.client}/>
+                    </div>
                 </div>
                 <div style={state.panelVisible ? {visibility:"visible"} : {}} id="sidepanel">
                     <Chat client={props.client} focus={state.focus}/>
@@ -224,8 +229,8 @@ class PdfCanvas extends Component {
 
         // Prepare canvas using PDF page dimensions
 
-        const pdfWidthPx = ((viewport.width* 1.5) / scale) * this.props.zoomFactor
-        const pdfHeightPx = ((viewport.height* 1.5) / scale) * this.props.zoomFactor
+        const pdfWidthPx = ((viewport.width* 1.5) / scale)
+        const pdfHeightPx = ((viewport.height* 1.5) / scale)
 
         this.props.setPdfWidthPx(pdfWidthPx)
         theCanvas.style.height = `${pdfHeightPx}px`;
@@ -254,15 +259,13 @@ class PdfCanvas extends Component {
         PDFJS.renderTextLayer({
             textContent: text,
             container: document.getElementById("text-layer"),
-            viewport: page.getViewport({scale: 1.5 * this.props.zoomFactor}),
+            viewport: page.getViewport({scale: 1.5}),
             textDivs: [],
         });
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (!this.hasRendered 
-            || (prevProps.pageFocused != this.props.pageFocused)
-            || (prevProps.zoomFactor != this.props.zoomFactor)) {
+        if (!this.hasRendered || (prevProps.pageFocused != this.props.pageFocused)) {
             this.textLayer.current.innerHTML = ""
             this.drawPdf().then(_ => 
                 //need to do this to take into account positioning changes caused by rescaling

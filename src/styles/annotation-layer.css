@@ -1,16 +1,10 @@
-#annotation-wrapper {
-    position: absolute;
-    overflow: hidden;
-    left: 0;
-    top: 0;
-    bottom:0;
-    right:0;
-}
-
 #annotation-layer { 
+    position: absolute;
     line-height:1;
     opacity: 0.2;
     overflow:visible;
+    left: 0;
+    top: 0;
 }
 
 #annotation-layer span {
