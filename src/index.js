@@ -15,7 +15,7 @@ class PopulusViewer extends Component {
         super()
         this.queryParams = new URLSearchParams(window.location.search)
         this.client = Matrix.createClient({
-            baseUrl : "http://localhost:8008",
+            baseUrl : "https://populus.open-tower.com",
             userId : localStorage.getItem("userId"),
             accessToken : localStorage.getItem("accessToken"),
             timelineSupport : true,
