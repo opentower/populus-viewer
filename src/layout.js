@@ -8,9 +8,7 @@ export function matchSize(rect,elt) {
 
 export function positionRelativeAt(rect,elt,zoomFactor) {
 
-      //this is a bit special-case-y and confusing. It's because we want to
-      //target the annotation-wrapper, which scrolls, rather than the annotation layer
-      var parent = elt.offsetParent.offsetParent
+      var parent = elt.offsetParent
 
       elt.style.left = rect.left - (parent.offsetLeft / zoomFactor) + "px"
       elt.style.top = rect.top - (parent.offsetTop / zoomFactor) + "px"
