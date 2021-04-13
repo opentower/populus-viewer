@@ -8,4 +8,5 @@ html * { font-family: 'Inter', sans-serif; }
 
 body { 
     margin:0px; 
+    height:100vh;
 }

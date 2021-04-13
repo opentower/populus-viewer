@@ -1,6 +1,7 @@
 #content-container {
     position: relative;
     overflow:scroll;
+    height:100%;
 }
 
 #sidepanel {
