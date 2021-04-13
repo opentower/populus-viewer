@@ -24,7 +24,7 @@
 }
 
 .nav-hidden {
-    /* display:none !important; */
+    display:none !important;
 }
 
 #nav-pages > button:first-child {
