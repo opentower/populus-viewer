@@ -7,12 +7,6 @@
     z-index:5;
 }
 
-@media only screen and (min-width: 2000px) {
-    #page-nav {
-        padding-left:200px;
-    }
-}
-
 #nav-pages {
     display:flex;
     position:absolute;
@@ -23,8 +17,14 @@
     overflow-y:scroll;
 }
 
+@media only screen and (min-width: 2000px) {
+    #nav-pages{
+        padding-left:200px; /* for alignment with pdf */
+    }
+}
+
 .nav-hidden {
-    display:none !important;
+    /* display:none !important; */
 }
 
 #nav-pages > button:first-child {
@@ -52,6 +52,12 @@
     align-items: center;
     justify-content:center;
     max-width:100%;
+}
+
+@media only screen and (min-width: 2000px) {
+    #nav-button-wrapper{
+        padding-left:200px; /* for alignment with pdf */
+    }
 }
 
 #nav-button-wrapper > button {

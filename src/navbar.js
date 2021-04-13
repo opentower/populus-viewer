@@ -59,9 +59,10 @@ export default class Navbar extends Component {
         if (props.pdfWidthPx) { // don't render until width is set
 
             const style = {width : props.pdfWidthPx + "px"}
+            const stylePageView = {minWidth : props.pdfWidthPx + "px"}
 
             return <nav id="page-nav">
-                <div class={state.pageViewVisible ? null : "nav-hidden"} style={style} id="nav-pages">
+                <div class={state.pageViewVisible ? null : "nav-hidden"} style={stylePageView} id="nav-pages">
                     <Pages total={props.total}
                         handleClick={this.handleClick}/>
                 </div>

@@ -7,6 +7,9 @@
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
     overflow-y: scroll;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box; /* Firefox, other Gecko */
+    box-sizing: border-box; /* Opera/IE 8+ */
 }
 
 /*chrome, safari, opera*/
@@ -17,8 +20,20 @@
 #chat-panel {
     display:inline-flex;
     flex-direction: column-reverse;
-    width:400px;
 }
+
+@media only screen and (max-width: 600px) {
+    #chat-wrapper {
+        width:100%;
+        padding:0px;
+    }
+} 
+
+@media only screen and (min-width: 600px) {
+    #chat-wrapper {
+        width:400px;
+    }
+} 
 
 #scroll-anchor, #scroll-done {
     padding:10px;
