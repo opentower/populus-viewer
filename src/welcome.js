@@ -155,7 +155,7 @@ class MemberPill extends Component {
     render (props, state) {
         const colorFromId = new UserColor(props.member.userId)
         return (<Fragment>
-                <span style={{background:colorFromId.light}} class="memberPill">{props.member.userId}</span>
+                <span style={{background:colorFromId.light}} class="memberPill">{props.member.name}</span>
                     <wbr></wbr> 
                 </Fragment>
         )
@@ -163,9 +163,7 @@ class MemberPill extends Component {
 }
 
 class AnnotationRoomEntry extends Component {
-    render (props, state) {
-        return (<div key={props.room.roomId} class="roomListingEntry" id={props.room.name}>{props.room.name}</div>)
-    }
+    render (props, state) { }
 }
 
 class PdfUpload extends Component {
