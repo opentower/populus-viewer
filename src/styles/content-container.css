@@ -26,7 +26,7 @@
     z-index:-1; /* prevents an apparent stacking bug in chromium */
 }
 
-#document-view canvas, #annotation-layer , #text-layer {
+#document-view canvas {
     width: var(--pdfWidthPx);
     height: var(--pdfHeightPx);
 }
@@ -34,8 +34,9 @@
 #annotation-layer , #text-layer {
     transform-origin : top left;
     transform : scale(var(--pdfFitRatio));
-    width: var(--pdfWidthPx);
-    height: var(--pdfHeightPx);
+    overflow:visible;
+    width: calc(var(--pdfWidthPx) / var(--pdfFitRatio)) ;
+    height: calc(var(--pdfHeightPx) / var(--pdfFitRatio));
 }
 
 #panelToggle {
