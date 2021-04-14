@@ -1,4 +1,4 @@
-import { h, render, Fragment, Component } from 'preact';
+import { h, render, Fragment, createRef, Component } from 'preact';
 import './styles/login.css'
 
 export default class LoginView extends Component {
@@ -9,7 +9,7 @@ export default class LoginView extends Component {
     }
 
     switchView = (e) => {
-        e.preventDefault()
+        if (e) e.preventDefault()
         this.setState(oldstate => { 
             return {registering : !oldstate.registering}
         })
@@ -38,7 +38,7 @@ class LoginModal extends Component {
         const formdata = new FormData(loginForm)
         const entries = Array.from(formdata.entries()).map(i => i[1])
         this.client
-            .loginWithPassword(entries[0],entries[1])
+            .loginWithPassword(entries[0].toLowerCase(),entries[1])
             .then(_ => this.loginHandler())
             .catch(e => window.alert(e))
     }
@@ -73,10 +73,20 @@ class RegistrationModal extends Component {
         const loginForm = document.getElementById("registerForm")
         const formdata = new FormData(loginForm)
         const entries = Array.from(formdata.entries()).map(i => i[1])
-        this.client.register(entries[0], entries[1], undefined, {
+        if (/[^a-zA-Z0-9._=/]/.test(entries[0])) {
+            alert("Usernames must consist of characters which are alphanumeric, or among '.' ,'/' ,'=' , and '_'.")
+            this.props.switchView()
+            return;
+        }
+        if (entries[1].length < 8) {
+            alert("passwords must be at least 8 characters long")
+            this.props.switchView()
+            return;
+        }
+        this.client.register(entries[0].toLowerCase(), entries[1], undefined, {
             type : "m.login.recaptcha",
             response : e.detail
-        }).then(_ => this.client.loginWithPassword(entries[0],entries[1]))
+        }).then(_ => this.client.loginWithPassword(entries[0].toLowerCase(),entries[1]))
         .then(_ => this.loginHandler())
         .catch(e => window.alert(e))
     }
@@ -101,11 +111,19 @@ class RegistrationModal extends Component {
 }
 
 class UserData extends Component {
+
+    usernameInput = createRef()
+
+    validateUsername = (e) => { 
+        if (/[^a-zA-Z0-9._=/]/.test(e.target.value)) this.usernameInput.current.setCustomValidity("Bad Character")
+        else this.usernameInput.current.setCustomValidity("")
+    }
+
     render () {
         return (
             <Fragment>
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username"></input>
+                <input type="text" ref={this.usernameInput} id="username" oninput={this.validate} name="username"></input>
                 <label for="password">Password</label>
                 <input type="password" id="password" name="password"></input>
             </Fragment>

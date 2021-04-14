@@ -22,6 +22,8 @@ export default class WelcomeView extends Component {
 
     toggleUploadVisible = _ => this.setState({uploadVisible : !this.state.uploadVisible})
 
+    hideUploadVisible = _ => this.setState({uploadVisible : false})
+
     handleInputFocus = _ => this.setState({inputFocus: true, uploadVisible: false})
 
     handleInputBlur = _ => this.setState({inputFocus: false})
@@ -53,7 +55,7 @@ export default class WelcomeView extends Component {
                     {state.uploadVisible 
                     ? <Fragment>
                          <h2>Upload a new PDF</h2>
-                         <PdfUpload client={props.client}/>
+                         <PdfUpload hideUploadVisible={this.hideUploadVisible} client={props.client}/>
                       </Fragment>
                     : <Fragment>
                         <h2>Conversations</h2>
@@ -216,7 +218,10 @@ class PdfUpload extends Component {
                 //assigned, so the room isn't detected as a pdf room. Probably
                 //need to include the pdf in the room's creation event to make
                 //this work right.
-            }).then(_ => this.mainForm.current.reset())
+            }).then(_ => {
+                this.mainForm.current.reset()
+                this.props.hideUploadVisible()
+            })
         }
     } 
 
@@ -224,7 +229,7 @@ class PdfUpload extends Component {
         return (
             <form id="pdfUploadForm" ref={this.mainForm} onsubmit={this.uploadFile}>
                     <label> Pdf to discuss</label>
-                    <input ref={this.fileLoader}  type="file"/>
+                    <input ref={this.fileLoader} type="file"/>
                     <label>Name for Discussion</label>
                     <input ref={this.roomNameInput} type="text"/>
                     <label>Topic of Discussion</label>

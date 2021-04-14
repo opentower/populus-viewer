@@ -9,6 +9,10 @@
     top: 50%;
 }
 
+#loginModal input:invalid, #registrationModal input:invalid {
+    background:#ff9394;
+}
+
 #loginModal form, #registrationModal form {
     display:grid;
     grid-template-columns: 80px 1fr;
