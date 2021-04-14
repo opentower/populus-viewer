@@ -18,7 +18,6 @@ export default class WelcomeView extends Component {
         let userId = props.client.getUserId()
         this.userColor = new UserColor(userId)
         this.initial = userId.slice(1,2)
-        console.log(this.initial)
     }
 
     toggleUploadVisible = _ => this.setState({uploadVisible : !this.state.uploadVisible})

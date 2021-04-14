@@ -21,8 +21,6 @@ export function positionRelativeAt(rect,elt,zoomFactor) {
 //a rect in coordinates relative to the given element
 export function rectRelativeTo(elt,rect,zoomFactor) {
     var eltRect = elt.getBoundingClientRect()
-    console.log(elt)
-    console.log(eltRect)
     return new DOMRect(
         (rect.x - eltRect.x) / zoomFactor, 
         (rect.y - eltRect.y) / zoomFactor, 

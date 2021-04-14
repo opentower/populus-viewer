@@ -31,6 +31,13 @@
     height: var(--pdfHeightPx);
 }
 
+#annotation-layer , #text-layer {
+    transform-origin : top left;
+    transform : scale(var(--pdfFitRatio));
+    width: var(--pdfWidthPx);
+    height: var(--pdfHeightPx);
+}
+
 #panelToggle {
     position:fixed;
     z-index:7;

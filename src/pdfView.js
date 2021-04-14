@@ -29,6 +29,7 @@ export default class PdfView extends Component {
             hasSelection: false,
             pdfWidthPx: null,
             pdfHeightPx: null,
+            pdfFitRatio: 1,
             zoomFactor: 1,
         }
         this.checkForSelection = this.checkForSelection.bind(this)
@@ -59,6 +60,8 @@ export default class PdfView extends Component {
 
     setPdfWidthPx = px => this.setState({pdfWidthPx: px})
 
+    setPdfFitRatio = ratio => this.setState({pdfFitRatio: ratio})
+
     setPdfHeightPx = px => this.setState({pdfHeightPx: px})
     
     setTotalPages = num => this.setState({totalPages : num})
@@ -88,7 +91,7 @@ export default class PdfView extends Component {
         if (theSelection.isCollapsed) return
         var theRange = theSelection.getRangeAt(0)
         var clientRects = Array.from(theRange.getClientRects())
-                               .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.zoomFactor))
+                               .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.pdfFitRatio * this.state.zoomFactor))
         var uuid = Math.random().toString(36).substring(2)
         //room creation is a bit slow, might want to rework this slightly for responsiveness
         this.props.client.createRoom({ 
@@ -138,6 +141,7 @@ export default class PdfView extends Component {
         const cssZoom= { 
             transformOrigin : "top left",
             transform : "scale(" + state.zoomFactor + ")",
+            "--pdfFitRatio" : state.pdfFitRatio,
             "--pdfWidthPx" : state.pdfWidthPx + "px",
             "--pdfHeightPx" : state.pdfHeightPx + "px",
         }
@@ -147,6 +151,7 @@ export default class PdfView extends Component {
                     <div style={cssZoom} id="zoom-wrapper">
                         <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
                                    setPdfHeightPx={this.setPdfHeightPx}
+                                   setPdfFitRatio={this.setPdfFitRatio}
                                    annotationLayer={this.annotationLayer}
                                    pdfFocused={props.pdfFocused}
                                    pageFocused={props.pageFocused}
@@ -241,9 +246,10 @@ class PdfCanvas extends Component {
 
         // pass scaled height in px upwards for css variables
 
-        const pdfWidthPx = ((viewport.width* 1.5) / scale)
-        const pdfHeightPx = ((viewport.height* 1.5) / scale)
+        const pdfWidthPx = Math.min((viewport.width* 1.5) / scale, window.innerWidth)
+        const pdfHeightPx = (pdfWidthPx / viewport.width) * viewport.height
         this.props.setPdfWidthPx(pdfWidthPx)
+        this.props.setPdfFitRatio(Math.min(1,window.innerWidth / ((viewport.width* 1.5) / scale)))
         this.props.setPdfHeightPx(pdfHeightPx)
 
         // Render PDF page into canvas context
