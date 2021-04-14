@@ -21,9 +21,14 @@
     display: inline-block;
 }
 
-#document-view > canvas {
+#document-view canvas {
     position:relative;
     z-index:-1; /* prevents an apparent stacking bug in chromium */
+}
+
+#document-view canvas, #annotation-layer , #text-layer {
+    width: var(--pdfWidthPx);
+    height: var(--pdfHeightPx);
 }
 
 #panelToggle {

@@ -28,6 +28,7 @@ export default class PdfView extends Component {
             panelVisible: false,
             hasSelection: false,
             pdfWidthPx: null,
+            pdfHeightPx: null,
             zoomFactor: 1,
         }
         this.checkForSelection = this.checkForSelection.bind(this)
@@ -58,6 +59,10 @@ export default class PdfView extends Component {
 
     setPdfWidthPx = px => this.setState({pdfWidthPx: px})
 
+    setPdfHeightPx = px => this.setState({pdfHeightPx: px})
+    
+    setTotalPages = num => this.setState({totalPages : num})
+
     focusByUUID = uuid => {
         const theRoom = this.props.client.getRoom(this.state.roomId)
         const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
@@ -65,7 +70,6 @@ export default class PdfView extends Component {
         if (theAnnotation) this.setState({focus : theAnnotation.getContent()})
     }
 
-    setTotalPages = num => this.setState({totalPages : num})
 
     togglePanel = () => this.setState({panelVisible : !this.state.panelVisible})
 
@@ -134,12 +138,15 @@ export default class PdfView extends Component {
         const cssZoom= { 
             transformOrigin : "top left",
             transform : "scale(" + state.zoomFactor + ")",
+            "--pdfWidthPx" : state.pdfWidthPx + "px",
+            "--pdfHeightPx" : state.pdfHeightPx + "px",
         }
         return (
             <div  id="content-container">
                 <div ref={this.documentView} id="document-view">
                     <div style={cssZoom} id="zoom-wrapper">
                         <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
+                                   setPdfHeightPx={this.setPdfHeightPx}
                                    annotationLayer={this.annotationLayer}
                                    pdfFocused={props.pdfFocused}
                                    pageFocused={props.pageFocused}
@@ -229,14 +236,15 @@ class PdfCanvas extends Component {
 
         // Prepare canvas using PDF page dimensions
 
-        const pdfWidthPx = ((viewport.width* 1.5) / scale)
-        const pdfHeightPx = ((viewport.height* 1.5) / scale)
-
-        this.props.setPdfWidthPx(pdfWidthPx)
-        theCanvas.style.height = `${pdfHeightPx}px`;
-        theCanvas.style.width = `${pdfWidthPx}px`;
         theCanvas.height = viewport.height;
         theCanvas.width = viewport.width;
+
+        // pass scaled height in px upwards for css variables
+
+        const pdfWidthPx = ((viewport.width* 1.5) / scale)
+        const pdfHeightPx = ((viewport.height* 1.5) / scale)
+        this.props.setPdfWidthPx(pdfWidthPx)
+        this.props.setPdfHeightPx(pdfHeightPx)
 
         // Render PDF page into canvas context
         const canvasContext = theCanvas.getContext('2d')
@@ -250,10 +258,6 @@ class PdfCanvas extends Component {
         await this.pendingRender.promise
         console.log('Page rendered');
         const text = await page.getTextContent();
-        //resize the text and annotation layers to sit on top of the rendered PDF page
-
-        Layout.matchSize(theCanvas.getBoundingClientRect(), this.textLayer.current);
-        Layout.matchSize(theCanvas.getBoundingClientRect(), this.props.annotationLayer.current.base);
 
         //insert the pdf text into the text layer
         PDFJS.renderTextLayer({
