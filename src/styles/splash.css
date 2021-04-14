@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css2?family=Cinzel&display=block');
+
+#splash-logo {
+    font-family: "cinzel";
+    font-size: min(15vw,64pt);
+    font-display:block;
+}
+
+#splash-loader{
+   animation: pulse 2s infinite; 
+   animation-timing-function:ease;
+}
+
+@keyframes pulse {
+    0% {
+        opacity:1
+    }
+    50% {
+        opacity:.2
+    }
+    100% {
+        opacity:1
+    }
+}
+
+#splash-wrapper {
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    height:100%;
+    width:100%;
+}

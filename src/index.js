@@ -3,6 +3,7 @@ import { h, render, Fragment, Component } from 'preact';
 import WelcomeView from './welcome.js';
 import LoginView from './login.js';
 import PdfView from './pdfView.js';
+import SplashView from './splash.js';
 import './styles/global.css'
 import { serverRoot } from './constants.js'
 
@@ -24,6 +25,7 @@ class PopulusViewer extends Component {
         })
         this.state = { 
             loggedIn : false,
+            initialized : false,
             pdfFocused : this.queryParams.get("title") || false,
             pageFocused : Number(this.queryParams.get("page")) || 1,
         }
@@ -41,6 +43,8 @@ class PopulusViewer extends Component {
             })
         })
     }
+
+    setInitialized = _ => this.setState({ initialized : true })
 
     logoutHandler = _ => { 
         localStorage.clear()
@@ -78,7 +82,11 @@ class PopulusViewer extends Component {
     render(props,state) {
         if (!state.loggedIn) {
             return <LoginView loginHandler={this.loginHandler} client={this.client}/>
-        } if (state.pdfFocused) {
+        } 
+        if (!state.initialized) {
+            return <SplashView setInitialized={this.setInitialized} client={this.client}/>
+        }
+        if (state.pdfFocused) {
             return <PdfView queryParams={this.queryParams}
                             loadPage={this.loadPage} 
                             pageFocused={this.state.pageFocused} 
