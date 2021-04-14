@@ -96,7 +96,7 @@ export default class Message extends Component {
         if (props.client.getUserId() == event.getSender()) {
             return (
                 <Fragment>
-                    <div id={event.getId()} style={this.userColor.styleVariables} class="message me">
+                    <div data-event-status={event.getAssociatedStatus()} id={event.getId()} style={this.userColor.styleVariables} class="message me">
                         {displayBody}
                         <div class="ident">
                             {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}

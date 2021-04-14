@@ -194,6 +194,12 @@
     color:gray;
 }
 
+/* status vanishes on sent. We probably want a warning for a "not_sent" status,
+ * whuch means that sending has failed */
+.message[data-event-status] {
+    color:gray;
+}
+
 #chat-panel .message > .body {
     display: inline-block;
     text-align:left;

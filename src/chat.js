@@ -23,12 +23,14 @@ export default class Chat extends Component {
     componentDidMount() { 
         this.props.client.on("Room.timeline", this.handleTimeline) 
         this.props.client.on("Room.redaction", this.handleTimeline) 
+        this.props.client.on("Room.localEchoUpdated", this.handleTimeline) 
         this.props.client.on("RoomMember.typing", this.handleTypingNotification) 
     }
 
     componentWillUnmount() { 
         this.props.client.off("Room.timeline", this.handleTimeline) 
         this.props.client.off("Room.redaction", this.handleTimeline) 
+        this.props.client.off("Room.localEchoUpdated", this.handleTimeline) 
         this.props.client.off("RoomMember.typing", this.handleTypingNotification) 
     }
 
