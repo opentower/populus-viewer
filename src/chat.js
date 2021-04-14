@@ -233,7 +233,7 @@ class MessagePanel extends Component {
             clearTimeout(this.typingTimeout)
             this.typingTimeout = setTimeout(_  => this.stopTyping(), 5000)
             //send "stopped typing" after 5 seconds of inactivity
-            if (event.key == "Enter" && event.ctrlKey) {
+            if (event.code == "Enter" && event.ctrlKey) {
                 event.preventDefault()
                 this.sendMessage()
             } else if (!this.typingLock) this.startTyping() 

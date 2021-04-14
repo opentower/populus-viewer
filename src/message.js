@@ -158,7 +158,7 @@ class MessageEditor extends Component {
     }
 
     handleKeypress = (event) => { 
-        if (event.key == "Enter" && event.ctrlKey) {
+        if (event.code == "Enter" && event.ctrlKey) {
             event.preventDefault()
             this.sendEdit()
         }
