@@ -62,6 +62,7 @@
 
 #nav-button-wrapper > button {
     cursor:pointer;
+    outline:none;
     color:white;
     background:black;
     border:none;
