@@ -239,8 +239,7 @@ class PdfCanvas extends Component {
         console.log('Page loaded');
               
         const devicePixelRatio = window.devicePixelRatio
-        const scales = { 1: 3, 2: 6 }
-        const scale = scales[devicePixelRatio] || 3
+        const scale = 3
         const viewport = page.getViewport({scale: scale});
 
         // Prepare canvas using PDF page dimensions
