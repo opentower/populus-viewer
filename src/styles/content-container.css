@@ -21,9 +21,22 @@
     display: inline-block;
 }
 
+#document-wrapper {
+    transform-origin : "top left",
+}
+
 #document-view canvas {
     position:relative;
     z-index:-1; /* prevents an apparent stacking bug in chromium */
+}
+
+#document-view-loading {
+    height:100%;
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    animation: pulse-opacity 2s infinite; 
+    animation-timing-function:ease;
 }
 
 #document-view canvas {

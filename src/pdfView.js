@@ -138,8 +138,8 @@ export default class PdfView extends Component {
     }
 
     render(props,state) {
-        const cssZoom= { 
-            transformOrigin : "top left",
+        const dynamicDocumentStyle = { 
+            visibility : state.pdfHeightPx ? null : "hidden",
             transform : "scale(" + state.zoomFactor + ")",
             "--pdfFitRatio" : state.pdfFitRatio,
             "--pdfWidthPx" : state.pdfWidthPx + "px",
@@ -147,8 +147,9 @@ export default class PdfView extends Component {
         }
         return (
             <div  id="content-container">
+                {state.pdfHeightPx ? null : <div id="document-view-loading">loading...</div>}
                 <div ref={this.documentView} id="document-view">
-                    <div style={cssZoom} id="zoom-wrapper">
+                    <div style={dynamicDocumentStyle} id="document-wrapper">
                         <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
                                    setPdfHeightPx={this.setPdfHeightPx}
                                    setPdfFitRatio={this.setPdfFitRatio}
@@ -195,12 +196,10 @@ class PdfCanvas extends Component {
         super(props)
         this.pendingRender = null
         this.hasRendered = false //we allow one initial render, but then require a page change for a redraw
-        let syncListener = (state,prevState,data) =>
-                state == "PREPARED" 
-                ? this.fetchPdf(props.pdfFocused)
-                : props.client.off("sync", syncListener)
-        if (props.client.isInitialSyncComplete()) this.fetchPdf(props.pdfFocused) 
-        else props.client.on("sync", syncListener)
+        this.hasFetched = new Promise((resolve,reject) => { 
+            this.resolveFetch = resolve 
+            this.rejectFetch = reject
+        })
     }
 
     textLayer = createRef()
@@ -217,7 +216,8 @@ class PdfCanvas extends Component {
         const pdfPath = serverRoot + '/_matrix/media/r0/download/' + domainName + '/' + pdfIdentifier
         this.setState({pdfIdentifier : pdfIdentifier})
         if (!PdfView.PDFStore[pdfIdentifier]) {
-            console.log('fetched ' + title )
+            console.log('fetching ' + title )
+            this.resolveFetch()
             PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
             PdfView.PDFStore[pdfIdentifier].then(pdf => this.props.setTotalPages(pdf.numPages))
         }
@@ -228,6 +228,7 @@ class PdfCanvas extends Component {
         this.hasRendered = true 
         const theCanvas = this.canvas.current
         try {this.pendingRender._internalRenderTask.cancel()} catch {}
+        await this.hasFetched
         const pdf = await PdfView.PDFStore[this.state.pdfIdentifier]
 
         // Fetch the first page
@@ -285,6 +286,7 @@ class PdfCanvas extends Component {
     }
 
     componentDidMount() {
+        this.fetchPdf(this.props.pdfFocused) //XXX this will fail if the initial sync isn't complete, but that should be handled by the splash page
         this.textLayer.current.addEventListener('click', event => {
             const mouseEvent = new MouseEvent(event.type, event)
             document.elementsFromPoint(event.clientX, event.clientY).forEach(elt => {

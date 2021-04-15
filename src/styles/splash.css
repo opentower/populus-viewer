@@ -7,20 +7,8 @@
 }
 
 #splash-loader{
-   animation: pulse 2s infinite; 
+   animation: pulse-opacity 2s infinite; 
    animation-timing-function:ease;
-}
-
-@keyframes pulse {
-    0% {
-        opacity:1
-    }
-    50% {
-        opacity:.2
-    }
-    100% {
-        opacity:1
-    }
 }
 
 #splash-wrapper {
