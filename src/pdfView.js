@@ -197,6 +197,7 @@ class PdfCanvas extends Component {
 
     constructor(props) {
         super(props)
+        this.canvasRefreshAt = Date.now()
         this.pendingRender = null
         this.hasRendered = false //we allow one initial render, but then require a page change for a redraw
         this.hasFetched = new Promise((resolve,reject) => { 
@@ -234,7 +235,6 @@ class PdfCanvas extends Component {
         this.hasRendered = true 
         const theCanvas = this.canvas.current
         try {this.pendingRender._internalRenderTask.cancel()} catch {}
-        theCanvas.getContext('2d').clearRect(0,0,theCanvas.width,theCanvas.height)
         await this.hasFetched
         const pdf = await PdfView.PDFStore[this.state.pdfIdentifier]
 
@@ -267,17 +267,19 @@ class PdfCanvas extends Component {
         };
 
         this.pendingRender = page.render(renderContext);
-        await this.pendingRender.promise
-        console.log('Page rendered');
-        const text = await page.getTextContent();
-
-        //insert the pdf text into the text layer
-        PDFJS.renderTextLayer({
-            textContent: text,
-            container: document.getElementById("text-layer"),
-            viewport: page.getViewport({scale: 1.5}),
-            textDivs: [],
-        });
+        // We use "then" here instead of await, because for some reason, await performance is bad on webkit
+        this.pendingRender.promise.then(_ => {
+            console.log('Page rendered');
+            page.getTextContent();
+        }).then(text => {
+            //insert the pdf text into the text layer
+            PDFJS.renderTextLayer({
+                textContent: text,
+                container: document.getElementById("text-layer"),
+                viewport: page.getViewport({scale: 1.5}),
+                textDivs: [],
+            });
+        }).catch(e => console.log(e))
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -287,6 +289,12 @@ class PdfCanvas extends Component {
                 //need to do this to take into account positioning changes caused by rescaling
                 this.props.annotationLayer.current.forceUpdate()
             )
+        }
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if (!this.hasRendered || (this.props.pageFocused != nextProps.pageFocused)) {
+            this.canvasRefreshAt = Date.now()
         }
     }
 
@@ -303,7 +311,7 @@ class PdfCanvas extends Component {
     render(props,state) {
         return (
             <Fragment>
-                <canvas ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas"/>
+                <canvas key={this.canvasRefreshAt} ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas"/>
                 <div style="z-index:3" ref={this.textLayer} id="text-layer"/>
             </Fragment>
         )

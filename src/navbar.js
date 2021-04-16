@@ -18,7 +18,7 @@ export default class Navbar extends Component {
 
     handleSubmit = e =>{
         e.preventDefault();
-        (parseInt(this.state.value) > 0 && parseInt(this.state.value) < this.props.total) 
+        (parseInt(this.state.value) > 0 && parseInt(this.state.value) <= this.props.total) 
             ? this.props.loadPage(parseInt(this.state.value)) 
             : alert("Out of range");
     }
@@ -60,7 +60,7 @@ export default class Navbar extends Component {
                     <button title="go to first page" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button> 
                     <button title="go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button> 
                     <form onSubmit={this.handleSubmit}>
-                        <button onclick={this.togglePageNav} class={state.pageViewVisible ? "nav-toggled" : null} title="show page navigation">{Icons.page}</button> 
+                        <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="show page navigation">{Icons.page}</button> 
                         <input type="text" value={this.state.value} onInput={this.handleInput} />
                         <span>/</span>
                         <span id="nav-total-pages">{props.total}</span>
