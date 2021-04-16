@@ -14,14 +14,7 @@ export default class Navbar extends Component {
 
     handleInput = e => this.setState({value: e.target.value});
 
-    handleFocus = _ => this.setState({pageViewVisible: true})
-
-    handleBlur = _ => {
-        setTimeout(_ => this.setState({
-            value: this.props.page,
-            pageViewVisible: false
-        }),500); //very janky, need a better solution
-    }
+    togglePageNav = _ => this.setState({pageViewVisible: !this.state.pageViewVisible})
 
     handleSubmit = e =>{
         e.preventDefault();
@@ -67,7 +60,8 @@ export default class Navbar extends Component {
                     <button title="go to first page" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button> 
                     <button title="go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button> 
                     <form onSubmit={this.handleSubmit}>
-                        <input type="text" value={this.state.value} onfocus={this.handleFocus} onblur={this.handleBlur} onInput={this.handleInput} />
+                        <button onclick={this.togglePageNav} class={state.pageViewVisible ? "nav-toggled" : null} title="show page navigation">{Icons.page}</button> 
+                        <input type="text" value={this.state.value} onInput={this.handleInput} />
                         <span>/</span>
                         <span id="nav-total-pages">{props.total}</span>
                     </form>

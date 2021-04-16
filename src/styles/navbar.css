@@ -70,9 +70,10 @@
     justify-content: center;
     background:white;
     font-size: 1em;
-    padding-left:5px;
+    /* padding-left:5px; */
     padding-right:5px;
     border-radius:50px;
+    height:45px;
 }
 
 #nav-button-wrapper > form > input {
@@ -82,6 +83,30 @@
     border:none;
     text-align:right;
 }
+
+#nav-button-wrapper > form > button {
+    cursor:pointer;
+    outline:none;
+    margin:5px;
+    padding:5px;
+    height:35px;
+    border-radius:50px;
+    border:none;
+    transition: background 0.5s ease;
+}
+
+#nav-button-wrapper > form > button:hover {
+    color:white;
+    background:#dddddd;
+    transition: background 0.5s ease;
+}
+
+#nav-button-wrapper > form > button.nav-toggled {
+    color:white;
+    background:#ababab;
+    transition: background 0.5s ease;
+}
+
 
 #nav-total-pages {
     font-size: 1em;
