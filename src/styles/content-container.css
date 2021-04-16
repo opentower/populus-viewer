@@ -9,6 +9,8 @@
     scrollbar-width: none;  /* Firefox */
 }
 
+#content-container::-webkit-scrollbar { display: none; }
+
 #sidepanel {
     visibility:hidden;
     position:fixed;

@@ -19,6 +19,8 @@
     scrollbar-width: none;  /* Firefox */
 }
 
+#nav-pages::-webkit-scrollbar { display: none; }
+
 .nav-hidden {
     display:none !important;
 }
@@ -70,8 +72,6 @@
     justify-content: center;
     background:white;
     font-size: 1em;
-    /* padding-left:5px; */
-    padding-right:5px;
     border-radius:50px;
     height:45px;
 }
@@ -84,6 +84,15 @@
     text-align:right;
 }
 
+#nav-button-wrapper > form > span:last-child {
+    padding-right:5px;
+}
+
+@media only screen and (max-width: 600px) {
+    #nav-button-wrapper > form > input { display:none }
+    #nav-button-wrapper > form > span { display:none }
+} 
+
 #nav-button-wrapper > form > button {
     cursor:pointer;
     outline:none;
@@ -92,6 +101,7 @@
     height:35px;
     border-radius:50px;
     border:none;
+    background:white;
     transition: background 0.5s ease;
 }
 
