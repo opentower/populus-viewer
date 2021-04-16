@@ -28,6 +28,9 @@
     position:relative;
     display: inline-block;
     left: var(--leftToCenter);
+    /* the below forces chrome to recalculate overflow on zoom 
+     * It's not necessary for Firefox or Webkit */
+    height: calc(var(--pdfHeightPx) * var(--pdfZoomFactor))
 }
 
 #document-wrapper {
