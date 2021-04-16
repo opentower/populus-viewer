@@ -1,7 +1,12 @@
 #content-container {
     position: relative;
     overflow:scroll;
-    height:100%;
+    --navHeight: 75px;
+    height: calc(100% - var(--navHeight));
+    width: var(--contentWidth);
+    --leftToCenter: max(0px, calc(50% - (var(--pdfWidthPx) * var(--pdfZoomFactor)) / 2));
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
 }
 
 #sidepanel {
@@ -10,19 +15,22 @@
     right:0px;
     top:0px;
     bottom:0px;
-    padding:50px;
+    padding: var(--sidepanelPadding);
     box-shadow: -2px 0 4px 0 rgba(0,0,0,.2);
     background:white;
     z-index:6;
+    width: var(--sidepanelWidth)
 }
 
 #document-view {
     position:relative;
     display: inline-block;
+    left: var(--leftToCenter);
 }
 
 #document-wrapper {
-    transform-origin : "top left",
+    transform-origin : top left;
+    transform: scale(var(--pdfZoomFactor));
 }
 
 #document-view canvas {
@@ -70,14 +78,20 @@
 
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
-    #sidepanel {
-        width:100%;
-        padding:0px;
+    #content-container {
+        --sidepanelWidth: 100%;
+        --sidepanelPadding: 0px;
+        --contentWidth: calc(100% - (var(--sidePanelVisible) * (var(--sidepanelWidth) + (2 * var(--sidepanelPadding)))));
     }
 } 
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
+    #content-container {
+        --sidepanelWidth: 400px;
+        --sidepanelPadding: 50px;
+        --contentWidth: calc(100% - (var(--sidePanelVisible) * (var(--sidepanelWidth) + (2 * var(--sidepanelPadding)))));
+    }
 } 
 
 /* Medium devices (landscape tablets, 768px and up) */
@@ -86,17 +100,17 @@
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
-    #sidepanel {
-        width:400px;
-    }
 } 
 
 /* standard DPI */
 @media only screen and (min-width: 1280px) {
+    #content-container {
+        --sidepanelWidth: 350px;
+        --sidepanelPadding: 0px;
+        --contentWidth: calc(100% - (var(--sidepanelWidth) + (2 * var(--sidepanelPadding))));
+    }
     #sidepanel {
         visibility:visible;
-        padding:0px;
-        width:350px;
     }
     #panelToggle {
         visibility:hidden;
@@ -105,28 +119,15 @@
 
 /* high DPI laptop */
 @media only screen and (min-width: 1400px) {
-    #sidepanel {
-        padding:50px;
-        width:400px;
+    #content-container {
+        --sidepanelWidth: 400px;
+        --sidepanelPadding: 50px;
     }
 }
 
 /* larger monitor */
 @media only screen and (min-width: 1800px) {
-    #sidepanel {
-        width:800px;
-    }
-}
-
-/* ultrawide monitors */
-@media only screen and (min-width: 2000px) {
-    #document-view {
-        left:200px;
-    }
-}
-
-@media only screen and (min-width: 2200px) {
-    #document-view {
-        left:200px;
+    #content-container {
+        --sidepanelWidth: 800px;
     }
 }

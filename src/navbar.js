@@ -57,16 +57,12 @@ export default class Navbar extends Component {
 
     render(props,state) {
         if (props.pdfWidthPx) { // don't render until width is set
-
-            const style = {width : props.pdfWidthPx + "px"}
-            const stylePageView = {minWidth : props.pdfWidthPx + "px"}
-
             return <nav id="page-nav">
-                <div class={state.pageViewVisible ? null : "nav-hidden"} style={stylePageView} id="nav-pages">
+                <div class={state.pageViewVisible ? null : "nav-hidden"} id="nav-pages">
                     <Pages total={props.total}
                         handleClick={this.handleClick}/>
                 </div>
-                <div style={style} id="nav-button-wrapper">
+                <div id="nav-button-wrapper">
                     <button title="add annotation" disabled={props.selected ? null : "disabled"} onclick={props.addann}>{Icons.addAnnotation}</button> 
                     <button title="go to first page" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button> 
                     <button title="go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button> 

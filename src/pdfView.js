@@ -139,17 +139,20 @@ export default class PdfView extends Component {
 
     render(props,state) {
         const dynamicDocumentStyle = { 
-            visibility : state.pdfHeightPx ? null : "hidden",
-            transform : "scale(" + state.zoomFactor + ")",
+            "--pdfZoomFactor" : state.zoomFactor,
             "--pdfFitRatio" : state.pdfFitRatio,
             "--pdfWidthPx" : state.pdfWidthPx + "px",
             "--pdfHeightPx" : state.pdfHeightPx + "px",
+            "--sidePanelVisible" : state.panelVisible ? 1 : 0,
+        }
+        const hideUntilWidthAvailable = {
+            visibility : state.pdfHeightPx ? null : "hidden",
         }
         return (
-            <div  id="content-container">
+            <div style={dynamicDocumentStyle} id="content-container">
                 {state.pdfHeightPx ? null : <div id="document-view-loading">loading...</div>}
-                <div ref={this.documentView} id="document-view">
-                    <div style={dynamicDocumentStyle} id="document-wrapper">
+                <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
+                    <div  id="document-wrapper">
                         <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
                                    setPdfHeightPx={this.setPdfHeightPx}
                                    setPdfFitRatio={this.setPdfFitRatio}
