@@ -234,6 +234,7 @@ class PdfCanvas extends Component {
         this.hasRendered = true 
         const theCanvas = this.canvas.current
         try {this.pendingRender._internalRenderTask.cancel()} catch {}
+        theCanvas.getContext('2d').clearRect(0,0,theCanvas.width,theCanvas.height)
         await this.hasFetched
         const pdf = await PdfView.PDFStore[this.state.pdfIdentifier]
 
@@ -241,7 +242,6 @@ class PdfCanvas extends Component {
         const page = await pdf.getPage(this.props.pageFocused || 1)
         console.log('Page loaded');
               
-        const devicePixelRatio = window.devicePixelRatio
         const scale = 3
         const viewport = page.getViewport({scale: scale});
 
