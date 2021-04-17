@@ -14,38 +14,48 @@ export default class Navbar extends Component {
 
     handleInput = e => this.setState({value: e.target.value});
 
-    togglePageNav = _ => this.setState({pageViewVisible: !this.state.pageViewVisible})
+    togglePageNav = _ => {
+        this.setState({pageViewVisible: !this.state.pageViewVisible});
+        document.getElementById("p" + this.props.page).scrollIntoView({inline: "center"});
+        console.log(this.props.page + " should be centered")
+    }
 
-    handleSubmit = e =>{
+    handleSubmit = e => {
         e.preventDefault();
         (parseInt(this.state.value) > 0 && parseInt(this.state.value) <= this.props.total)
             ? this.props.loadPage(parseInt(this.state.value))
             : alert("Out of range");
+        document.getElementById("p" + this.state.value).scrollIntoView({inline: "center"});
     }
 
     firstPage = _ => {
         this.props.loadPage(1);
         this.setState({value: 1});
+        document.getElementById("p1").scrollIntoView();
     }
 
     prevPage = _ => {
         this.props.loadPage(this.state.value - 1);
         this.setState({value: this.state.value - 1});
+        document.getElementById("p" + this.state.value).scrollIntoView({inline: "center"});
     }
 
     nextPage = _ => {
         this.props.loadPage(this.state.value + 1);
         this.setState({value: this.state.value + 1});
+        document.getElementById("p" + this.state.value).scrollIntoView({inline: "center"});
     }
 
     lastPage = _ => {
         this.props.loadPage(this.props.total);
         this.setState({value: this.props.total});
+        document.getElementById("p" + this.props.total).scrollIntoView();
     }
 
     handleClick = p => {
         this.props.loadPage(parseInt(event.target.value));
         this.setState({value: parseInt(event.target.value)});
+        document.getElementById("p" + this.event.target.value).scrollIntoView();
     }
 
     render(props,state) {
@@ -79,9 +89,9 @@ class Pages extends Component {
   render(props,state) {
     var pagenos = Array.from({length: props.total}, (_, index) => index + 1);
     const pages = pagenos.map(page =>
-      <button value={page} onclick={props.handleClick}>{page}</button>
+      <button id={"p" + page} value={page} onclick={props.handleClick}>{page}</button>
     );
-    s
+    pages[props.current - 1] = <button id={"p" + props.current} class="currentpage">{props.current}</button>
     return (
       <Fragment>
         {pages}
