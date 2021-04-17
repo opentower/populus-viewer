@@ -1,4 +1,4 @@
-import { h, render, Fragment, Component } from 'preact';
+import { h, createRef, render, Fragment, Component } from 'preact';
 import * as Icons from './icons.js';
 import './styles/navbar.css';
 
@@ -15,9 +15,7 @@ export default class Navbar extends Component {
     handleInput = e => this.setState({value: e.target.value});
 
     togglePageNav = _ => {
-        this.setState({pageViewVisible: !this.state.pageViewVisible});
-        document.getElementById("p" + this.props.page).scrollIntoView({inline: "center"});
-        console.log(this.props.page + " should be centered")
+        this.setState({pageViewVisible: !this.state.pageViewVisible})
     }
 
     handleSubmit = e => {
@@ -25,37 +23,31 @@ export default class Navbar extends Component {
         (parseInt(this.state.value) > 0 && parseInt(this.state.value) <= this.props.total)
             ? this.props.loadPage(parseInt(this.state.value))
             : alert("Out of range");
-        document.getElementById("p" + this.state.value).scrollIntoView({inline: "center"});
     }
 
     firstPage = _ => {
         this.props.loadPage(1);
-        this.setState({value: 1});
-        document.getElementById("p1").scrollIntoView();
+        this.setState({value: 1})
     }
 
     prevPage = _ => {
         this.props.loadPage(this.state.value - 1);
-        this.setState({value: this.state.value - 1});
-        document.getElementById("p" + this.state.value).scrollIntoView({inline: "center"});
+        this.setState({value: this.state.value - 1})
     }
 
     nextPage = _ => {
         this.props.loadPage(this.state.value + 1);
-        this.setState({value: this.state.value + 1});
-        document.getElementById("p" + this.state.value).scrollIntoView({inline: "center"});
+        this.setState({value: this.state.value + 1})
     }
 
     lastPage = _ => {
         this.props.loadPage(this.props.total);
-        this.setState({value: this.props.total});
-        document.getElementById("p" + this.props.total).scrollIntoView();
+        this.setState({value: this.props.total})
     }
 
     handleClick = p => {
         this.props.loadPage(parseInt(event.target.value));
-        this.setState({value: parseInt(event.target.value)});
-        document.getElementById("p" + this.event.target.value).scrollIntoView();
+        this.setState({value: parseInt(event.target.value)})
     }
 
     render(props,state) {
@@ -64,6 +56,7 @@ export default class Navbar extends Component {
                 <div class={state.pageViewVisible ? null : "nav-hidden"} id="nav-pages">
                     <Pages total={props.total}
                         handleClick={this.handleClick}
+                        currentPageElement={this.currentPageElement}
                         current={props.page}/>
                 </div>
                 <div id="nav-button-wrapper">
@@ -86,16 +79,21 @@ export default class Navbar extends Component {
 }
 
 class Pages extends Component {
-  render(props,state) {
-    var pagenos = Array.from({length: props.total}, (_, index) => index + 1);
-    const pages = pagenos.map(page =>
-      <button id={"p" + page} value={page} onclick={props.handleClick}>{page}</button>
-    );
-    pages[props.current - 1] = <button id={"p" + props.current} class="currentpage">{props.current}</button>
-    return (
-      <Fragment>
-        {pages}
-      </Fragment>
-    )
-  }
+
+    currentPageElement = createRef()
+
+    componentDidUpdate() { this.currentPageElement.current.scrollIntoView({inline : "center"}); }
+
+    render(props,state) {
+        var pagenos = Array.from({length: props.total}, (_, index) => index + 1);
+        const pages = pagenos.map(page =>
+            <button value={page} onclick={props.handleClick}>{page}</button>
+        );
+        pages[props.current - 1] = <button ref={this.currentPageElement} class="currentpage">{props.current}</button>
+            return (
+                <Fragment>
+                    {pages}
+                </Fragment>
+            )
+    }
 }
