@@ -18,8 +18,8 @@ export default class Navbar extends Component {
 
     handleSubmit = e =>{
         e.preventDefault();
-        (parseInt(this.state.value) > 0 && parseInt(this.state.value) <= this.props.total) 
-            ? this.props.loadPage(parseInt(this.state.value)) 
+        (parseInt(this.state.value) > 0 && parseInt(this.state.value) <= this.props.total)
+            ? this.props.loadPage(parseInt(this.state.value))
             : alert("Out of range");
     }
 
@@ -53,21 +53,22 @@ export default class Navbar extends Component {
             return <nav id="page-nav">
                 <div class={state.pageViewVisible ? null : "nav-hidden"} id="nav-pages">
                     <Pages total={props.total}
-                        handleClick={this.handleClick}/>
+                        handleClick={this.handleClick}
+                        current={props.page}/>
                 </div>
                 <div id="nav-button-wrapper">
-                    <button title="add annotation" disabled={props.selected ? null : "disabled"} onclick={props.addann}>{Icons.addAnnotation}</button> 
-                    <button title="go to first page" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button> 
-                    <button title="go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button> 
+                    <button title="add annotation" disabled={props.selected ? null : "disabled"} onclick={props.addann}>{Icons.addAnnotation}</button>
+                    <button title="go to first page" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button>
+                    <button title="go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
                     <form onSubmit={this.handleSubmit}>
-                        <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="show page navigation">{Icons.page}</button> 
+                        <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="show page navigation">{Icons.page}</button>
                         <input type="text" value={this.state.value} onInput={this.handleInput} />
                         <span>/</span>
                         <span id="nav-total-pages">{props.total}</span>
                     </form>
-                    <button title="go to next page" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button> 
-                    <button title="go to last page" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button> 
-                    <button title="remove annotation" disabled={this.props.focus && !this.props.selected ? null : "disabled"} onclick={this.props.closeann}>{Icons.removeAnnotation}</button> 
+                    <button title="go to next page" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
+                    <button title="go to last page" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button>
+                    <button title="remove annotation" disabled={this.props.focus && !this.props.selected ? null : "disabled"} onclick={this.props.closeann}>{Icons.removeAnnotation}</button>
                 </div>
             </nav>
         }
@@ -78,8 +79,9 @@ class Pages extends Component {
   render(props,state) {
     var pagenos = Array.from({length: props.total}, (_, index) => index + 1);
     const pages = pagenos.map(page =>
-      <button class="pglabel" value={page} onclick={props.handleClick}>{page}</button>
+      <button value={page} onclick={props.handleClick}>{page}</button>
     );
+    s
     return (
       <Fragment>
         {pages}
