@@ -12,10 +12,16 @@ export default class Navbar extends Component {
         };
     }
 
+    currentPage() {
+        let val = parseInt(this.state.value)
+        if (!Number.isNaN(val)) return val
+        else return 1
+    }
+
     handleInput = e => {
         let val = parseInt(e.target.value)
-        if (!Number.isNaN(val)) this.setState({value: val})
-        else this.setState({value: this.state.value})
+        if (!Number.isNaN(val)) this.setState({value: e.target.value})
+        else this.setState({ value : "" })
     }
 
     togglePageNav = _ => {
@@ -24,8 +30,8 @@ export default class Navbar extends Component {
 
     handleSubmit = e => {
         e.preventDefault();
-        (this.state.value > 0 && this.state.value <= this.props.total)
-            ? this.props.loadPage(this.state.value)
+        (this.currentPage() > 0 && this.currentPage() <= this.props.total)
+            ? this.props.loadPage(this.currentPage())
             : alert("Out of range");
     }
 
@@ -35,13 +41,18 @@ export default class Navbar extends Component {
     }
 
     prevPage = _ => {
-        this.props.loadPage(this.state.value - 1);
-        this.setState({value: this.state.value - 1})
+        if (this.currentPage() > 1) {
+            this.props.loadPage(this.currentPage() - 1);
+            this.setState({value: this.currentPage() - 1})
+        } else {
+            this.props.loadPage(this.currentPage());
+            this.setState({value: this.currentPage()})
+        }
     }
 
     nextPage = _ => {
-        this.props.loadPage(this.state.value + 1);
-        this.setState({value: this.state.value + 1})
+        this.props.loadPage(this.currentPage() + 1);
+        this.setState({value: this.currentPage() + 1})
     }
 
     lastPage = _ => {
@@ -69,7 +80,7 @@ export default class Navbar extends Component {
                     <button title="go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
                     <form onSubmit={this.handleSubmit}>
                         <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="show page navigation">{Icons.page}</button>
-                        <input type="text" value={this.state.value} onInput={this.handleInput} />
+                        <input type="text" value={this.state.value} oninput={this.handleInput} />
                         <span>/</span>
                         <span id="nav-total-pages">{props.total}</span>
                     </form>

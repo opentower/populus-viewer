@@ -267,24 +267,25 @@ class PdfCanvas extends Component {
         };
 
         this.pendingRender = page.render(renderContext);
-        // We use "then" here instead of await, because for some reason, await performance is bad on webkit
         this.pendingRender.promise.then(_ => {
             console.log('Page rendered');
-            page.getTextContent();
+            return page.getTextContent();
         }).then(text => {
-            //insert the pdf text into the text layer
-            PDFJS.renderTextLayer({
-                textContent: text,
-                container: document.getElementById("text-layer"),
-                viewport: page.getViewport({scale: 1.5}),
-                textDivs: [],
-            });
+            //We set a half-second timeout to prevent hammering the browser with lots of elements on rapid page-flip
+            clearTimeout(this.textRenderTimeout)
+            this.textRenderTimeout = setTimeout(_ =>
+                //insert the pdf text into the text layer
+                PDFJS.renderTextLayer({
+                    textContent: text,
+                    container: document.getElementById("text-layer"),
+                    viewport: page.getViewport({scale: 1.5}),
+                    textDivs: [],
+                }),500);
         }).catch(e => console.log(e))
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (!this.hasRendered || (prevProps.pageFocused != this.props.pageFocused)) {
-            this.textLayer.current.innerHTML = ""
             this.drawPdf().then(_ => 
                 //need to do this to take into account positioning changes caused by rescaling
                 this.props.annotationLayer.current.forceUpdate()
@@ -295,6 +296,7 @@ class PdfCanvas extends Component {
     shouldComponentUpdate(nextProps, nextState) {
         if (!this.hasRendered || (this.props.pageFocused != nextProps.pageFocused)) {
             this.canvasRefreshAt = Date.now()
+            this.textLayer.current.innerHTML = ""
         }
     }
 
