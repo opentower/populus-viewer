@@ -91,7 +91,7 @@
 @media only screen and (max-width: 600px) {
     #nav-button-wrapper > form > input { display:none }
     #nav-button-wrapper > form > span { display:none }
-} 
+}
 
 #nav-button-wrapper > form > button {
     cursor:pointer;
@@ -123,4 +123,9 @@
     text-align:left;
     width:20px;
     margin:3px;
+}
+
+.currentpage {
+  background:black !important;
+  color: white;
 }
