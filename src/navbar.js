@@ -12,7 +12,11 @@ export default class Navbar extends Component {
         };
     }
 
-    handleInput = e => this.setState({value: e.target.value});
+    handleInput = e => {
+        let val = parseInt(e.target.value)
+        if (!Number.isNaN(val)) this.setState({value: val})
+        else this.setState({value: this.state.value})
+    }
 
     togglePageNav = _ => {
         this.setState({pageViewVisible: !this.state.pageViewVisible})
@@ -20,8 +24,8 @@ export default class Navbar extends Component {
 
     handleSubmit = e => {
         e.preventDefault();
-        (parseInt(this.state.value) > 0 && parseInt(this.state.value) <= this.props.total)
-            ? this.props.loadPage(parseInt(this.state.value))
+        (this.state.value > 0 && this.state.value <= this.props.total)
+            ? this.props.loadPage(this.state.value)
             : alert("Out of range");
     }
 
