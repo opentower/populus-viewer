@@ -88,18 +88,43 @@
     padding: 1em;
 }
 
+.roomListingEntry {
+    display: grid;
+    grid-template-columns: 1fr 40px;
+}
+
 .roomListingEntry a {
   color: #069;
   text-decoration: underline;
   cursor: pointer;
 }
 
+.roomListingEntryButtons  {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 / 50 !important;
+    padding:5px;
+    margin-left:5px;
+}
+
 .roomListingEntry > div {
     line-height:2em;
+    grid-column: 1 / 2;
+}
+
+.roomListingEntryButtons[data-room-entry-buttons-visible] {
+    background: #ededed;
+    border-radius: 15px;
+}
+
+.roomListingEntryButtons > button {
+    padding: 0px;
+    margin: 0px;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
 
 .memberPill {
-    background:#aadada;
     border-radius:5px;
     margin-right:5px;
     padding:5px;

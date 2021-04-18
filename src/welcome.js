@@ -91,7 +91,7 @@ class RoomList extends Component {
     componentWillUnmount () { 
         this.props.client.off("Room", this.roomListener) 
         this.props.client.off("Room.name", this.roomListener) 
-        this.props.client.on("RoomState.events",this.roomListener)
+        this.props.client.off("RoomState.events", this.roomListener)
     }
 
     render(props,state) {
@@ -132,6 +132,18 @@ class RoomListing extends Component {
 }
 
 class PDFRoomEntry extends Component {
+
+    constructor(props) {
+        super(props)
+        this.state = { buttonsVisible : false }
+    }
+
+    handleLoad = _ => this.props.loadPDF(this.props.room.name)
+
+    toggleButtons = _ => this.setState({ buttonsVisible : !this.state.buttonsVisible })
+
+    handleClose = _ => this.props.client.leave(this.props.room.roomId)
+
     render (props, state) {
         const date = new Date(props.room.getLastActiveTimestamp())
         const members = props.room.getJoinedMembers()
@@ -142,10 +154,14 @@ class PDFRoomEntry extends Component {
         if (memberIds.includes(clientId)) { status = "joined" }
         return (
             <div key={props.room.roomId} data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
-                <div><a onclick={_ => props.loadPDF(props.room.name)}>{props.room.name}</a>
-                </div>
+                <div><a onclick={this.handleLoad}>{props.room.name}</a></div>
                 <div>Members: {memberPills} </div>
                 <div>Last Active: {date.toDateString()}, {date.toTimeString()}</div> 
+                <div data-room-entry-buttons-visible={state.buttonsVisible} class="roomListingEntryButtons">
+                    { state.buttonsVisible ? null : <button title="Toggle buttons" onclick={this.toggleButtons}>{Icons.moreVertical}</button> }
+                    { state.buttonsVisible ? <button title="Toggle buttons" onclick={this.toggleButtons}>{Icons.close}</button> : null }
+                    { state.buttonsVisible ? <button title="Leave conversation" onclick={this.handleClose}>{Icons.userMinus}</button> : null }
+                </div>
             </div>
         )
     }
