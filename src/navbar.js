@@ -19,14 +19,15 @@ export default class Navbar extends Component {
     }
 
     handleInput = e => {
-        let val = parseInt(e.target.value)
-        if (!Number.isNaN(val)) this.setState({value: e.target.value})
+        if (/^[0-9]*$/.test(e.target.value)) this.setState({value: e.target.value})
         else this.setState({ value : "" })
     }
 
-    togglePageNav = _ => {
-        this.setState({pageViewVisible: !this.state.pageViewVisible})
-    }
+    handleFocus = _ => this.setState({ value : "" })
+
+    handleBlur = _ => this.setState({ value : this.props.page })
+
+    togglePageNav = _ => this.setState({pageViewVisible: !this.state.pageViewVisible})
 
     handleSubmit = e => {
         e.preventDefault();
@@ -80,7 +81,7 @@ export default class Navbar extends Component {
                     <button title="go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
                     <form onSubmit={this.handleSubmit}>
                         <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="show page navigation">{Icons.page}</button>
-                        <input type="text" value={this.state.value} oninput={this.handleInput} />
+                        <input type="text" value={this.state.value} onblur={this.handleBlur} onfocus={this.handleFocus} oninput={this.handleInput} />
                         <span>/</span>
                         <span id="nav-total-pages">{props.total}</span>
                     </form>
