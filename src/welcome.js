@@ -59,7 +59,7 @@ export default class WelcomeView extends Component {
                       </Fragment>
                     : <Fragment>
                         <h2>Conversations</h2>
-                        <RoomList searchFilter={state.searchFilter} {...props}/>
+                        <RoomList queryParams={props.queryParams} searchFilter={state.searchFilter} {...props}/>
                       </Fragment>
                     }
                     <Logout logoutHandler={props.logoutHandler}/>
@@ -104,7 +104,7 @@ class RoomList extends Component {
                                         if (ts1 < ts2) return 1
                                         else if (ts2 < ts1) return -1
                                         else return 0
-                                  }).map(room => { return <RoomListing loadPDF={props.loadPDF} client={props.client} room={room}/> })
+                                  }).map(room => { return <RoomListing queryParams={props.queryParams} loadPDF={props.loadPDF} client={props.client} room={room}/> })
         return (
             <Fragment>
                 <div>{rooms}</div>
@@ -125,9 +125,9 @@ class Logout extends Component {
 
 class RoomListing extends Component {
     render (props, state) {
-        var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents("org.populus.pdf","")
-        if (pdfEvent) return (<PDFRoomEntry loadPDF={props.loadPDF} client={props.client} room={props.room} pdfevent={pdfEvent}/>)
-        else return (<AnnotationRoomEntry room={props.room}/>)
+        var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType,"")
+        var annotations = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(eventVersion)
+        if (pdfEvent) return (<PDFRoomEntry queryParams={props.queryParams} annotations={annotations} loadPDF={props.loadPDF} client={props.client} room={props.room} pdfevent={pdfEvent}/>)
     }
 }
 
@@ -151,12 +151,33 @@ class PDFRoomEntry extends Component {
         const memberPills = members.map(member => <MemberPill member={member}/>)
         const clientId = props.client.getUserId()
         var status = "invited"
+        const annotations = props.annotations.map(ev => ev.getContent())
+                                             .filter(content => content.activityStatus == "open")
+                                             .map(content =><AnnotationRoomEntry queryParams={props.queryParams} handleLoad={this.handleLoad} {... content}/>)
         if (memberIds.includes(clientId)) { status = "joined" }
         return (
             <div key={props.room.roomId} data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
                 <div><a onclick={this.handleLoad}>{props.room.name}</a></div>
                 <div>Members: {memberPills} </div>
-                <div>Last Active: {date.toDateString()}, {date.toTimeString()}</div> 
+                <div>Last Active: {date.toLocaleString('en-US',{
+                    weekday : "short",
+                    day : "numeric",
+                    month : "short",
+                    hour : "numeric",
+                    minute : "numeric",
+                    second : "numeric",
+                })}</div> 
+                {annotations.length > 0 
+                    ?  <div><details>
+                        <summary>{annotations.length} annotations</summary>
+                        <table class="annotationRoomTable">
+                            <thead> <tr><td>UUID</td><td>Page</td></tr></thead>
+                            <tbody>{annotations}</tbody>
+                        </table>
+                    </details>
+                    </div>
+                    : null
+                }
                 <div data-room-entry-buttons-visible={state.buttonsVisible} class="roomListingEntryButtons">
                     { state.buttonsVisible ? null : <button title="Toggle buttons" onclick={this.toggleButtons}>{Icons.moreVertical}</button> }
                     { state.buttonsVisible ? <button title="Toggle buttons" onclick={this.toggleButtons}>{Icons.close}</button> : null }
@@ -179,7 +200,19 @@ class MemberPill extends Component {
 }
 
 class AnnotationRoomEntry extends Component {
-    render (props, state) { }
+
+    handleClick = () => {
+        this.props.queryParams.set("focus", this.props.uuid)
+        this.props.queryParams.set("page", this.props.pageNumber)
+        this.props.handleLoad()
+    }
+
+    render (props, state) { 
+        return <tr class="annotationRoomEntry">
+                <td><a onclick={this.handleClick}>{props.uuid}</a></td>
+                <td>{props.pageNumber}</td>
+            </tr>
+    }
 }
 
 class PdfUpload extends Component {
