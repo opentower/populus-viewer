@@ -126,8 +126,15 @@
     min-height:50px;
 }
 
-#pdfUploadForm div {
-    grid-column: 1 / 3 ;
+#pdfUploadFormSubmit {
+    grid-column: 1 / 2 ;
+}
+
+#pdfUploadFormProgress {
+    text-align:right;
+    grid-column: 2 / 3 ;
+    animation: pulse-opacity 2s infinite; 
+    animation-timing-function:ease;
 }
 
 @media only screen and (max-width: 600px) {

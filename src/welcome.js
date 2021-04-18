@@ -168,10 +168,6 @@ class AnnotationRoomEntry extends Component {
 
 class PdfUpload extends Component {
 
-    constructor(props) {
-        super(props)
-    }
-
     mainForm = createRef()
 
     fileLoader = createRef()
@@ -180,12 +176,20 @@ class PdfUpload extends Component {
 
     roomTopicInput = createRef()
 
+    submitButton = createRef()
+
+    progressHandler = (progress) => {
+        console.log(progress)
+        this.setState({progress : progress})
+    }
+
     uploadFile = async (e) => { 
         e.preventDefault()
         const theFile = this.fileLoader.current.files[0]
         const theName = this.roomNameInput.current.value
         const theTopic = this.roomTopicInput.current.value
         if (theFile.type == "application/pdf") {
+            this.submitButton.current.setAttribute("disabled", true)
             const id = await this.props.client.createRoom({
                 room_alias_name : theName,
                 visibility : "public",
@@ -207,7 +211,7 @@ class PdfUpload extends Component {
                     }
                 }
             })
-            this.props.client.uploadContent(theFile).then(e => {
+            this.props.client.uploadContent(theFile, { progressHandler : this.progressHandler }).then(e => {
                 let parts = e.split('/')
                 this.props.client.sendStateEvent(id.room_id, pdfStateType, {
                     "identifier": parts[parts.length - 1] 
@@ -226,13 +230,23 @@ class PdfUpload extends Component {
     render (props, state) {
         return (
             <form id="pdfUploadForm" ref={this.mainForm} onsubmit={this.uploadFile}>
-                    <label> Pdf to discuss</label>
-                    <input ref={this.fileLoader} type="file"/>
-                    <label>Name for Discussion</label>
-                    <input ref={this.roomNameInput} type="text"/>
-                    <label>Topic of Discussion</label>
-                    <textarea ref={this.roomTopicInput} type="text"/>
-                    <div><input value="Create Discussion" type="submit"/></div>
+                <label> Pdf to discuss</label>
+                <input ref={this.fileLoader} type="file"/>
+                <label>Name for Discussion</label>
+                <input ref={this.roomNameInput} type="text"/>
+                <label>Topic of Discussion</label>
+                <textarea ref={this.roomTopicInput} type="text"/>
+                <div id="pdfUploadFormSubmit">
+                    <input ref={this.submitButton} value="Create Discussion" type="submit"/>
+                </div>
+                {this.state.progress 
+                    ?  <div id="pdfUploadFormProgress">
+                          <span>{this.state.progress.loaded} bytes</span>
+                          <span> out of </span>
+                          <span>{this.state.progress.total} bytes</span>
+                       </div>
+                    : null
+                }
             </form>
         )
     }
