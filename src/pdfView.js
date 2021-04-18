@@ -70,9 +70,13 @@ export default class PdfView extends Component {
         const theRoom = this.props.client.getRoom(this.state.roomId)
         const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
         const theAnnotation = theRoomState.getStateEvents(eventVersion,uuid)
-        if (theAnnotation) this.setState({focus : theAnnotation.getContent()})
+        if (theAnnotation) {
+            this.setState({
+                focus : theAnnotation.getContent(),
+                panelVisible : true,
+            })
+        }
     }
-
 
     togglePanel = () => this.setState({panelVisible : !this.state.panelVisible})
 
@@ -105,14 +109,17 @@ export default class PdfView extends Component {
                 content : {"join_rule": "public"}
             }]
         }).then(roominfo => {
-            this.props.client.sendStateEvent(this.state.roomId, eventVersion, {
+            theSelection.removeAllRanges()
+            const theContent = {
                 room_id : roominfo.room_id,
                 uuid : uuid, 
                 clientRects : JSON.stringify(clientRects),
                 activityStatus: "open",
                 pageNumber : this.props.pageFocused
-            }, uuid).catch(e => alert(e))
-            theSelection.removeAllRanges()
+            }
+            this.props.client.sendStateEvent(this.state.roomId, eventVersion, theContent, uuid).catch(e => alert(e))
+            this.setFocus(theContent)
+            this.setState({ panelVisible : true })
         })
     }
 
