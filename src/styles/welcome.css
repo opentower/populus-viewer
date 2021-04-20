@@ -30,11 +30,12 @@
 }
 
 #welcome-profile {
-    width:26px;
-    height:26px;
-    margin-right:13px; 
-    flex-shrink:0;
-    overflow:hidden;
+    cursor: pointer;
+    width: 26px;
+    height: 26px;
+    margin-right: 13px; 
+    flex-shrink: 0;
+    overflow: hidden;
 }
 
 #welcome-initial {
