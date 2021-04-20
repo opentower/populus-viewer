@@ -81,7 +81,6 @@ export default class Message extends Component {
         //relation aggregation mechanism that we're not taking advantage of
         //here. Element doesn't seem to use this for replacements yet either.
         const event = props.event
-        const shortid = event.getSender().split(':')[0].slice(1)
         const upvotes = props.reactions[event.getId()] 
                       ? props.reactions[event.getId()].filter(event => event.getContent()["m.relates_to"].rel_type == "m.annotation").length
                       : 0

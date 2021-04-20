@@ -232,10 +232,29 @@
 }
 
 #chat-panel .user-info-message {
+    display:flex;
+    align-items: center;
     padding:10px;
     font-size:10pt;
     font-weight:bold;
     color: var(--user_dark);
+}
+
+#chat-panel .user-info-message > img {
+    width:20px;
+    height:20px;
+    border-radius:30px;
+    position:relative;
+    left:-5px;
+    object-fit:cover;
+}
+
+#chat-panel .me {
+    flex-direction:row-reverse;
+}
+
+#chat-panel .me > img {
+   left: 5px;
 }
 
 #chat-panel .me .upvotes {

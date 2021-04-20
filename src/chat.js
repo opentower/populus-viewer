@@ -1,11 +1,13 @@
 import * as sdk from "matrix-js-sdk"
 import { h, Fragment, Component } from 'preact';
 import './styles/chat.css'
+import * as Matrix from "matrix-js-sdk"
 import * as CommonMark from 'commonmark'
 import * as Icons from "./icons.js"
 import { addLatex } from './latex.js'
 import Message from './message.js'
 import UserColor from './userColors.js'
+import { serverRoot }  from "./constants.js"
 
 export default class Chat extends Component {
     constructor (props) {
@@ -94,7 +96,7 @@ export default class Chat extends Component {
             if (!prev || prev.getSender() != event.getSender()) {
                 accumulator.push(<UserInfoMessage key={event.getId() + "-userinfo"}
                                                   username={event.getSender()}
-                                                  displayName={props.client.getUser(event.getSender()).displayName}
+                                                  client={props.client}
                                                   isMe={event.getSender() == props.client.getUserId()}/>)
                 prev = event
             } 
@@ -146,12 +148,21 @@ export default class Chat extends Component {
 }
 
 class UserInfoMessage extends Component {
+    
+    displayName = this.props.client.getUser(this.props.username).displayName
+
+    avatarUrl = this.props.client.getUser(this.props.username).avatarUrl
+
+    avatarHttpURI = Matrix.getHttpUriForMxc(serverRoot, this.avatarUrl, 20, 20, "crop")
 
     userColor = new UserColor(this.props.username)
 
     render(props) {
         const theClass = props.isMe ? "user-info-message me" : "user-info-message"
-        return <div class={theClass} style={this.userColor.styleVariables}>{props.displayName}</div>
+        return <div class={theClass} style={this.userColor.styleVariables}>
+                    {this.avatarHttpURI ? <img src={this.avatarHttpURI}/> : null}
+                    <span>{this.displayName}</span>
+               </div>
     }
 }
 
