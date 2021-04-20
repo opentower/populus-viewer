@@ -202,7 +202,6 @@ div#profileSelector {
     transition: filter 0.5s ease;
 }
 
-
 #profileInformationFormSubmit, #pdfUploadFormSubmit {
     grid-column: 1 / 2 ;
 }

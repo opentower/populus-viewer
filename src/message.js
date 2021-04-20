@@ -14,7 +14,6 @@ export default class Message extends Component {
         })
     }
 
-
     userColor = new UserColor(this.props.event.getSender())
 
     messageBody = createRef()

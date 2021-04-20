@@ -94,6 +94,7 @@ export default class Chat extends Component {
             if (!prev || prev.getSender() != event.getSender()) {
                 accumulator.push(<UserInfoMessage key={event.getId() + "-userinfo"}
                                                   username={event.getSender()}
+                                                  displayName={props.client.getUser(event.getSender()).displayName}
                                                   isMe={event.getSender() == props.client.getUserId()}/>)
                 prev = event
             } 
@@ -150,7 +151,7 @@ class UserInfoMessage extends Component {
 
     render(props) {
         const theClass = props.isMe ? "user-info-message me" : "user-info-message"
-        return <div class={theClass} style={this.userColor.styleVariables}>{props.username}</div>
+        return <div class={theClass} style={this.userColor.styleVariables}>{props.displayName}</div>
     }
 }
 
@@ -181,14 +182,14 @@ class Anchor extends Component {
 
 class TypingIndicator extends Component {
     render(props,state) {
-        const shortids = props.typing.map(typer => typer.split(':')[0].slice(1))
-        const howMany = shortids.length
+        const displayNames = props.typing.map(typer => props.client.getUser(typer).displayName)
+        const howMany = displayNames.length
         if (howMany == 0) {
             return <div class="typingIndicator">&nbsp;</div>
         } else if (howMany == 1) {
-            return <div class="typingIndicator">{shortids[0]} is typing</div>
+            return <div class="typingIndicator">{displayNames[0]} is typing</div>
         } else if (howMany == 2) {
-            return <div class="typingIndicator">{shortids[0]} and {shortids[1]} are typing</div>
+            return <div class="typingIndicator">{displayNames[0]} and {displayNames[1]} are typing</div>
         } else {
             return <div class="typingIndicator">several people are typing</div>
         }
