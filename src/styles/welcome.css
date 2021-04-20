@@ -30,16 +30,29 @@
 }
 
 #welcome-profile {
+    width:26px;
+    height:26px;
+    margin-right:13px; 
+    flex-shrink:0;
+    overflow:hidden;
+}
+
+#welcome-initial {
     width:22px;
     height:22px;
-    margin-right:13px; 
-    line-height:22px;
     text-align:center;
     font-weight: bold;
+    line-height:22px;
     border:2px solid black;
     border-radius:35px;
     background-color: var(--user_light);
-    flex-shrink:0;
+}
+
+#welcome-profile img {
+    height:24px;
+    width:24px;
+    border-radius:35px;
+    object-fit:cover;
 }
 
 #welcome-container {
@@ -80,7 +93,7 @@
     #welcome-header-content { width:400px; }
 } 
 
-.roomListingEntry, #pdfUploadForm {
+.roomListingEntry, #pdfUploadForm, #profileInformationForm {
     border: 1px black solid;
     margin: 1em;
     padding: 1em;
@@ -146,16 +159,16 @@
     padding:5px;
 }
 
-#pdfUploadForm {
+#pdfUploadForm, #profileInformationForm {
     display:grid;
     grid-template-columns: 180px 1fr;
 }
 
-#pdfUploadForm > label {
+#profileInformationForm > label, #pdfUploadForm > label {
     grid-column: 1 / 2 ;
 }
 
-#pdfUploadForm > input, #pdfUploadForm > textarea {
+#profileInformationForm > input, #pdfUploadForm > input, #pdfUploadForm > textarea {
     grid-column: 2 / 3 ;
     margin-bottom:.5em;
     border:none;
@@ -167,39 +180,52 @@
     min-height:50px;
 }
 
-#pdfUploadFormSubmit {
+#profileSelector {
+    cursor: pointer;
+    display:block;
+    height:180px;
+    max-height:180px;
+    width:180px;
+    object-fit:cover;
+    border-radius:90px;
+    grid-column: 2 / 3 ;
+    margin:auto;
+}
+
+div#profileSelector {
+    background : #ababab;
+}
+
+#profileSelector:hover {
+    filter: brightness(80%);
+    transition: filter 0.5s ease;
+}
+
+
+#profileInformationFormSubmit, #pdfUploadFormSubmit {
     grid-column: 1 / 2 ;
 }
 
-#pdfUploadFormProgress {
+#pdfUploadFormProgress, #profileInformationFormProgress{
     text-align:right;
     grid-column: 2 / 3 ;
     animation: pulse-opacity 2s infinite; 
     animation-timing-function:ease;
 }
 
+#profileInformationFormHidden {
+    display:none;
+}
+
 @media only screen and (max-width: 600px) {
-    #pdfUploadForm {
+    #pdfUploadForm, #profileInformationForm {
         grid-template-columns: 1fr;
     }
 
-#pdfUploadForm > label {
-    grid-column: 1 / 2 ;
-}
-
-#pdfUploadForm > input, #pdfUploadForm > textarea {
-    grid-column: 1 / 2 ;
-    margin-bottom:.5em;
-    border:none;
-    background:#ededed
-}
-
-#pdfUploadForm > textarea {
-    resize: vertical;
-    min-height:50px;
-}
-
-#pdfUploadForm div {
-    grid-column: 1 / 2 ;
-}
+    #profileSelector, 
+    #profileInformationForm > input,
+    #pdfUploadForm > input, 
+    #pdfUploadForm > textarea {
+        grid-column: 1 / 2 ;
+    }
 } 

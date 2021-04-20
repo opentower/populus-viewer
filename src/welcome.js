@@ -3,28 +3,56 @@ import { pdfStateType }  from "./constants.js"
 import * as Matrix from "matrix-js-sdk"
 import UserColor from './userColors.js'
 import * as Icons from './icons.js'
-import { eventVersion }  from "./constants.js"
+import { eventVersion, serverRoot }  from "./constants.js"
 import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
 
     constructor(props) {
         super(props)
+        const userId = props.client.getUserId()
+        this.user = props.client.getUser(props.client.getUserId())
+        this.userColor = new UserColor(userId)
+        this.profileListener = this.profileListener.bind(this)
         this.state = {
             uploadVisible : false,
+            profileVisible : false,
             inputFocus : false,
-            searchFilter : ""
+            searchFilter : "",
+            avatarUrl : Matrix.getHttpUriForMxc(serverRoot, this.user.avatarUrl, 30, 30, "crop"),
         }
-        let userId = props.client.getUserId()
-        this.userColor = new UserColor(userId)
-        this.initial = userId.slice(1,2)
     }
 
-    toggleUploadVisible = _ => this.setState({uploadVisible : !this.state.uploadVisible})
+    componentDidMount () { this.user.on("User.avatarUrl", this.profileListener) }
 
-    hideUploadVisible = _ => this.setState({uploadVisible : false})
+    componentWillUnmount () { this.user.off("User.avatarUrl", this.profileListener) }
 
-    handleInputFocus = _ => this.setState({inputFocus: true, uploadVisible: false})
+    profileListener () {
+        this.setState({
+            avatarUrl : Matrix.getHttpUriForMxc(serverRoot, this.user.avatarUrl, 30, 30, "crop"),
+        })
+    }
+
+    toggleUploadVisible = _ => this.setState({
+        uploadVisible : !this.state.uploadVisible,
+        profileVisible : false,
+    })
+
+    toggleProfileVisible = _ => this.setState({
+        uploadVisible : false,
+        profileVisible : !this.state.profileVisible,
+    })
+
+    showMainView = _ => this.setState({
+        uploadVisible : false,
+        profileVisible : false,
+    })
+
+    handleInputFocus = _ => this.setState({
+        inputFocus : true, 
+        uploadVisible : false,
+        profileVisible : false,
+    })
 
     handleInputBlur = _ => this.setState({inputFocus: false})
 
@@ -42,25 +70,31 @@ export default class WelcomeView extends Component {
                             {Icons.search}
                         </div>
                         { !state.inputFocus && <Fragment>
-                                <div id="welcome-upload" onclick={this.toggleUploadVisible}>{Icons.newFile}</div>
-                                <div style={this.userColor.styleVariables} id="welcome-profile">
-                                    <div id="welcome-initial">
-                                        {this.initial}
-                                    </div>
-                                </div>
+                            <div id="welcome-upload" onclick={this.toggleUploadVisible}>{Icons.newFile}</div>
+                            <div id="welcome-profile" onclick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
+                                {state.avatarUrl 
+                                    ? <img id="welcome-img" src={state.avatarUrl}/> 
+                                    : <div id="welcome-initial">{this.user.displayName.slice(0,1)}</div>
+                                }
+                            </div>
                         </Fragment>}
                     </div>
                 </header>
                 <div id="welcome-container">
                     {state.uploadVisible 
-                    ? <Fragment>
-                         <h2>Upload a new PDF</h2>
-                         <PdfUpload hideUploadVisible={this.hideUploadVisible} client={props.client}/>
-                      </Fragment>
-                    : <Fragment>
-                        <h2>Conversations</h2>
-                        <RoomList queryParams={props.queryParams} searchFilter={state.searchFilter} {...props}/>
-                      </Fragment>
+                        ? <Fragment>
+                            <h2>Upload a new PDF</h2>
+                            <PdfUpload showMainView={this.showMainView} client={props.client}/>
+                        </Fragment>
+                        : state.profileVisible 
+                            ? <Fragment>
+                                <h2>Update Your Profile</h2>
+                                <ProfileInfomation showMainView={this.showMainView} client={props.client}/>
+                            </Fragment>
+                            : <Fragment>
+                                <h2>Conversations</h2>
+                                <RoomList queryParams={props.queryParams} searchFilter={state.searchFilter} {...props}/>
+                            </Fragment>
                     }
                     <Logout logoutHandler={props.logoutHandler}/>
                 </div>
@@ -232,10 +266,7 @@ class PdfUpload extends Component {
 
     submitButton = createRef()
 
-    progressHandler = (progress) => {
-        console.log(progress)
-        this.setState({progress : progress})
-    }
+    progressHandler = (progress) => this.setState({progress : progress})
 
     uploadFile = async (e) => { 
         e.preventDefault()
@@ -276,7 +307,7 @@ class PdfUpload extends Component {
                 //this work right.
             }).then(_ => {
                 this.mainForm.current.reset()
-                this.props.hideUploadVisible()
+                this.props.showMainView()
             })
         }
     } 
@@ -295,6 +326,85 @@ class PdfUpload extends Component {
                 </div>
                 {this.state.progress 
                     ?  <div id="pdfUploadFormProgress">
+                          <span>{this.state.progress.loaded} bytes</span>
+                          <span> out of </span>
+                          <span>{this.state.progress.total} bytes</span>
+                       </div>
+                    : null
+                }
+            </form>
+        )
+    }
+}
+
+class ProfileInfomation extends Component {
+
+    constructor(props) {
+        super(props)
+        const me = props.client.getUser(props.client.getUserId())
+        this.state = {
+            previewUrl : Matrix.getHttpUriForMxc(serverRoot, me.avatarUrl, 180, 180, "crop"),
+            displayName : me.displayName,
+        }
+    }
+
+    displayNameInput = createRef()
+
+    avatarImageInput = createRef()
+
+    submitButton = createRef()
+
+    mainForm = createRef()
+
+    progressHandler = (progress) => this.setState({progress : progress})
+
+    uploadAvatar = _ => this.avatarImageInput.current.click()
+
+    removeAvatar = _ => this.setState({ previewUrl : null })
+
+    updatePreview = _ => {
+        const theImage = this.avatarImageInput.current.files[0]
+        if (theImage && /^image/.test(theImage.type)) {
+            this.setState({previewUrl : URL.createObjectURL(this.avatarImageInput.current.files[0]) })
+        }
+    }
+
+    updateProfile = async (e) => { 
+        e.preventDefault()
+        const theImage = this.avatarImageInput.current.files[0]
+        const theDisplayName = this.displayNameInput.current.value
+        this.submitButton.current.setAttribute("disabled", true)
+        if (theDisplayName) await this.props.client.setDisplayName(theDisplayName)
+        if (theImage && /^image/.test(theImage.type)) {
+            await this.props.client.uploadContent(theImage, { progressHandler : this.progressHandler })
+                      .then(e => this.props.client.setAvatarUrl(e))
+        } else if (!this.state.previewUrl) {
+            await this.props.client.setProfileInfo("avatar_url", {avatar_url : "null"})
+            //XXX this is a pretty awful hack. Discussion at https://github.com/matrix-org/matrix-doc/issues/1674
+        }
+        this.mainForm.current.reset()
+        this.props.showMainView()
+    } 
+
+    render (props, state) {
+        return (
+            <form id="profileInformationForm" ref={this.mainForm} onsubmit={this.updateProfile}>
+                <label>My Display Name</label>
+                <input placeholder={state.displayName} ref={this.displayNameInput} type="text"/>
+                <div id="profileInformationAvatarControls">
+                    <label>My Avatar
+                    </label>
+                    {state.previewUrl ? <input onclick={this.removeAvatar} value="Remove Avatar" type="button"/> : null}
+                </div>
+                {state.previewUrl 
+                    ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl}/> 
+                    : <div onclick={this.uploadAvatar} id="profileSelector"/>}
+                <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} type="file"/>
+                <div id="profileInformationFormSubmit">
+                    <input ref={this.submitButton} value="Update Profile" type="submit"/>
+                </div>
+                {this.state.progress 
+                    ?  <div id="profileInformationFormProgress">
                           <span>{this.state.progress.loaded} bytes</span>
                           <span> out of </span>
                           <span>{this.state.progress.total} bytes</span>
