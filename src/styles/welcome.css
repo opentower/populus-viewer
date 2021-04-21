@@ -94,7 +94,7 @@
     #welcome-header-content { width:400px; }
 } 
 
-.roomListingEntry, #pdfUploadForm, #profileInformationForm {
+.roomListingEntry {
     border: 1px black solid;
     margin: 1em;
     padding: 1em;
@@ -153,79 +153,3 @@
 }
 
 .annotationRoomTable thead td { font-weight: bold; }
-
-.memberPill {
-    border-radius:5px;
-    margin-right:5px;
-    padding:5px;
-}
-
-#pdfUploadForm, #profileInformationForm {
-    display:grid;
-    grid-template-columns: 180px 1fr;
-}
-
-#profileInformationForm > label, #pdfUploadForm > label {
-    grid-column: 1 / 2 ;
-}
-
-#profileInformationForm > input, #pdfUploadForm > input, #pdfUploadForm > textarea {
-    grid-column: 2 / 3 ;
-    margin-bottom:.5em;
-    border:none;
-    background:#ededed
-}
-
-#pdfUploadForm > textarea {
-    resize: vertical;
-    min-height:50px;
-}
-
-#profileSelector {
-    cursor: pointer;
-    display:block;
-    height:180px;
-    max-height:180px;
-    width:180px;
-    object-fit:cover;
-    border-radius:90px;
-    grid-column: 2 / 3 ;
-    margin:auto;
-}
-
-div#profileSelector {
-    background : #ababab;
-}
-
-#profileSelector:hover {
-    filter: brightness(80%);
-    transition: filter 0.5s ease;
-}
-
-#profileInformationFormSubmit, #pdfUploadFormSubmit {
-    grid-column: 1 / 2 ;
-}
-
-#pdfUploadFormProgress, #profileInformationFormProgress{
-    text-align:right;
-    grid-column: 2 / 3 ;
-    animation: pulse-opacity 2s infinite; 
-    animation-timing-function:ease;
-}
-
-#profileInformationFormHidden {
-    display:none;
-}
-
-@media only screen and (max-width: 600px) {
-    #pdfUploadForm, #profileInformationForm {
-        grid-template-columns: 1fr;
-    }
-
-    #profileSelector, 
-    #profileInformationForm > input,
-    #pdfUploadForm > input, 
-    #pdfUploadForm > textarea {
-        grid-column: 1 / 2 ;
-    }
-} 

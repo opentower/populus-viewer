@@ -2,6 +2,9 @@ import { h, createRef, render, Fragment, Component } from 'preact';
 import { pdfStateType }  from "./constants.js"
 import * as Matrix from "matrix-js-sdk"
 import UserColor from './userColors.js'
+import PdfUpload from './pdfUpload.js'
+import MemberPill from './memberPill.js'
+import ProfileInformation from './profileInformation.js'
 import * as Icons from './icons.js'
 import { eventVersion, serverRoot }  from "./constants.js"
 import './styles/welcome.css'
@@ -89,7 +92,7 @@ export default class WelcomeView extends Component {
                         : state.profileVisible 
                             ? <Fragment>
                                 <h2>Update Your Profile</h2>
-                                <ProfileInfomation showMainView={this.showMainView} client={props.client}/>
+                                <ProfileInformation showMainView={this.showMainView} client={props.client}/>
                             </Fragment>
                             : <Fragment>
                                 <h2>Conversations</h2>
@@ -192,7 +195,10 @@ class PDFRoomEntry extends Component {
         var status = "invited"
         const annotations = props.annotations.map(ev => ev.getContent())
                                              .filter(content => content.activityStatus == "open")
-                                             .map(content => <AnnotationRoomEntry key={content.uuid} queryParams={props.queryParams} handleLoad={this.handleLoad} {... content}/>)
+                                             .map(content => <AnnotationRoomEntry 
+                                                                key={content.uuid} 
+                                                                queryParams={props.queryParams} 
+                                                                handleLoad={this.handleLoad} {... content}/>)
         if (memberIds.includes(clientId)) { status = "joined" }
         return (
             <div  data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
@@ -227,17 +233,6 @@ class PDFRoomEntry extends Component {
     }
 }
 
-class MemberPill extends Component {
-    render (props, state) {
-        const colorFromId = new UserColor(props.member.userId)
-        return (<Fragment>
-                <span style={{background:colorFromId.light}} class="memberPill">{props.member.name}</span>
-                    <wbr></wbr> 
-                </Fragment>
-        )
-    }
-}
-
 class AnnotationRoomEntry extends Component {
 
     handleClick = () => {
@@ -251,167 +246,5 @@ class AnnotationRoomEntry extends Component {
                 <td><a onclick={this.handleClick}>{props.uuid}</a></td>
                 <td>{props.pageNumber}</td>
             </tr>
-    }
-}
-
-class PdfUpload extends Component {
-
-    mainForm = createRef()
-
-    fileLoader = createRef()
-     
-    roomNameInput = createRef()
-
-    roomTopicInput = createRef()
-
-    submitButton = createRef()
-
-    progressHandler = (progress) => this.setState({progress : progress})
-
-    uploadFile = async (e) => { 
-        e.preventDefault()
-        const theFile = this.fileLoader.current.files[0]
-        const theName = this.roomNameInput.current.value
-        const theTopic = this.roomTopicInput.current.value
-        if (theFile.type == "application/pdf") {
-            this.submitButton.current.setAttribute("disabled", true)
-            const id = await this.props.client.createRoom({
-                room_alias_name : theName,
-                visibility : "public",
-                name : theName,
-                topic : theTopic,
-                //We declare the room a space
-                creation_content: {
-                    "org.matrix.msc1772.type" : "org.matrix.msc1772.space"
-                },
-                //we allow anyone to join, by default, for now
-                initial_state : [{
-                    type : "m.room.join_rules",
-                    state_key : "",
-                    content : {"join_rule": "public"}
-                }],
-                power_level_content_override : {
-                    events : {
-                        [eventVersion] : 0 //we allow anyone to annotate, by default, for now
-                    }
-                }
-            })
-            this.props.client.uploadContent(theFile, { progressHandler : this.progressHandler }).then(e => {
-                let parts = e.split('/')
-                this.props.client.sendStateEvent(id.room_id, pdfStateType, {
-                    "identifier": parts[parts.length - 1] 
-                })
-                //XXX: this event doesn't get through before the name is
-                //assigned, so the room isn't detected as a pdf room. Probably
-                //need to include the pdf in the room's creation event to make
-                //this work right.
-            }).then(_ => {
-                this.mainForm.current.reset()
-                this.props.showMainView()
-            })
-        }
-    } 
-
-    render (props, state) {
-        return (
-            <form id="pdfUploadForm" ref={this.mainForm} onsubmit={this.uploadFile}>
-                <label> Pdf to discuss</label>
-                <input ref={this.fileLoader} type="file"/>
-                <label>Name for Discussion</label>
-                <input ref={this.roomNameInput} type="text"/>
-                <label>Topic of Discussion</label>
-                <textarea ref={this.roomTopicInput} type="text"/>
-                <div id="pdfUploadFormSubmit">
-                    <input ref={this.submitButton} value="Create Discussion" type="submit"/>
-                </div>
-                {this.state.progress 
-                    ?  <div id="pdfUploadFormProgress">
-                          <span>{this.state.progress.loaded} bytes</span>
-                          <span> out of </span>
-                          <span>{this.state.progress.total} bytes</span>
-                       </div>
-                    : null
-                }
-            </form>
-        )
-    }
-}
-
-class ProfileInfomation extends Component {
-
-    constructor(props) {
-        super(props)
-        const me = props.client.getUser(props.client.getUserId())
-        this.state = {
-            previewUrl : Matrix.getHttpUriForMxc(serverRoot, me.avatarUrl, 180, 180, "crop"),
-            displayName : me.displayName,
-        }
-    }
-
-    displayNameInput = createRef()
-
-    avatarImageInput = createRef()
-
-    submitButton = createRef()
-
-    mainForm = createRef()
-
-    progressHandler = (progress) => this.setState({progress : progress})
-
-    uploadAvatar = _ => this.avatarImageInput.current.click()
-
-    removeAvatar = _ => this.setState({ previewUrl : null })
-
-    updatePreview = _ => {
-        const theImage = this.avatarImageInput.current.files[0]
-        if (theImage && /^image/.test(theImage.type)) {
-            this.setState({previewUrl : URL.createObjectURL(this.avatarImageInput.current.files[0]) })
-        }
-    }
-
-    updateProfile = async (e) => { 
-        e.preventDefault()
-        const theImage = this.avatarImageInput.current.files[0]
-        const theDisplayName = this.displayNameInput.current.value
-        this.submitButton.current.setAttribute("disabled", true)
-        if (theDisplayName) await this.props.client.setDisplayName(theDisplayName)
-        if (theImage && /^image/.test(theImage.type)) {
-            await this.props.client.uploadContent(theImage, { progressHandler : this.progressHandler })
-                      .then(e => this.props.client.setAvatarUrl(e))
-        } else if (!this.state.previewUrl) {
-            await this.props.client.setProfileInfo("avatar_url", {avatar_url : "null"})
-            //XXX this is a pretty awful hack. Discussion at https://github.com/matrix-org/matrix-doc/issues/1674
-        }
-        this.mainForm.current.reset()
-        this.props.showMainView()
-    } 
-
-    render (props, state) {
-        return (
-            <form id="profileInformationForm" ref={this.mainForm} onsubmit={this.updateProfile}>
-                <label>My Display Name</label>
-                <input placeholder={state.displayName} ref={this.displayNameInput} type="text"/>
-                <div id="profileInformationAvatarControls">
-                    <label>My Avatar
-                    </label>
-                    {state.previewUrl ? <input onclick={this.removeAvatar} value="Remove Avatar" type="button"/> : null}
-                </div>
-                {state.previewUrl 
-                    ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl}/> 
-                    : <div onclick={this.uploadAvatar} id="profileSelector"/>}
-                <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} type="file"/>
-                <div id="profileInformationFormSubmit">
-                    <input ref={this.submitButton} value="Update Profile" type="submit"/>
-                </div>
-                {this.state.progress 
-                    ?  <div id="profileInformationFormProgress">
-                          <span>{this.state.progress.loaded} bytes</span>
-                          <span> out of </span>
-                          <span>{this.state.progress.total} bytes</span>
-                       </div>
-                    : null
-                }
-            </form>
-        )
     }
 }
