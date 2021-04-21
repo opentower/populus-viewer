@@ -62,6 +62,11 @@
     border-bottom: none;
 }
 
+#messageComposer > textarea {
+    min-height:70px;
+    overflow: hidden;
+}
+
 #submit-button-wrapper > button,
 .messageEditor > button {
     cursor:pointer;
@@ -259,9 +264,4 @@
 
 #chat-panel .me {
     text-align:right;
-}
-
-#currentInput {
-    min-height: 70px;
-    overflow: hidden;
 }

@@ -1,5 +1,5 @@
 import * as sdk from "matrix-js-sdk"
-import { h, Fragment, Component } from 'preact';
+import { h, createRef, Fragment, Component } from 'preact';
 import './styles/chat.css'
 import * as Matrix from "matrix-js-sdk"
 import * as CommonMark from 'commonmark'
@@ -238,9 +238,8 @@ class MessagePanel extends Component {
     handleInput = (event) => {
         if (event.target.value == "" && this.props.focus) this.stopTyping()
         this.setState({ value : event.target.value })
-        var resizable = document.getElementById("currentInput")
-        resizable.style.height = 'auto';
-        resizable.style.height = resizable.scrollHeight+'px';
+        this.currentInput.current.style.height = 'auto';
+        this.currentInput.current.style.height = this.currentInput.current.scrollHeight+'px';
     }
 
     handleKeypress = (event) => {
@@ -274,9 +273,11 @@ class MessagePanel extends Component {
 
     userColor = new UserColor(this.props.client.getUserId())
 
+    currentInput = createRef()
+
     render(props,state) {
         return (<div style={this.userColor.styleVariables} id="messageComposer">
-            <textarea id="currentInput" value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
+            <textarea ref={this.currentInput} value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
             <div id="submit-button-wrapper">
                 <button id="submitButton" onclick={this.sendMessage}>Submit</button>
                 <button id="sendFileButton" onclick={_ => alert("not implemented")}>{Icons.upload}</button>
