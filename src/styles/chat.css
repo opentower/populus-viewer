@@ -44,12 +44,12 @@
 .messageEditor > textarea {
     display:block;
     overflow: hidden;
-    /min-height:100px;
+    min-height:100px;
     width:100%;
     margin:0px;
     border:none;
-    padding:0px;
-    resize:vertical;
+    padding:5px;
+    resize:none;
     border-top: 1px solid #adadad;
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box; /* Firefox, other Gecko */
@@ -61,10 +61,6 @@
     outline: none;
     border: 1px solid black;
     border-bottom: none;
-}
-
-#messageComposer > textarea {
-    min-height:70px;
 }
 
 #submit-button-wrapper > button,
@@ -123,9 +119,10 @@
 #chat-panel .message {
     position:relative;
     display: grid;
+    width:100%;
     justify-items: left;
     grid-template-areas: "ident content";
-    grid-template-columns: fit-content(10%) auto ;
+    grid-template-columns: fit-content(10%) auto;
 }
 
 #chat-panel .me {
@@ -207,13 +204,17 @@
     margin-top:5px;
     margin-bottom:5px;
     grid-area: content;
+    overflow-wrap: anywhere;
+    /* XXX: depreciated, but needed until webkit adds overflow-wrap: anywhere */
+    word-break: break-word;
+    hyphens:auto;
 }
 
 #chat-panel .message:hover {
     background-color: var(--user_ultralight);
 }
 
-#chat-panel .me  {
+#chat-panel .me .body  {
     padding-left:5px;
 }
 

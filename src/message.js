@@ -172,9 +172,10 @@ class MessageEditor extends Component {
 
     render(props,state) {
         return <div class="messageEditor">
-                     <textarea ref={this.editedInput} value={state.edit_value}
-                                                onkeypress={this.handleKeypress}
-                                                oninput={this.handleInput}/>
+                     <textarea ref={this.editedInput} 
+                               value={state.edit_value}
+                               onkeypress={this.handleKeypress}
+                               oninput={this.handleInput}/>
                      <button onclick={this.sendEdit}>Submit Changes</button>
                      <button onclick={this.props.closeEditor}>Cancel</button>
                </div>
