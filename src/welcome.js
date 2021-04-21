@@ -203,15 +203,17 @@ class PDFRoomEntry extends Component {
         return (
             <div  data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
                 <div><a onclick={this.handleLoad}>{props.room.name}</a></div>
-                <div>Members: {memberPills} </div>
-                <div>Last Active: {date.toLocaleString('en-US',{
+                <div class="roomListingData">
+                <span>Members: </span><div>{memberPills}</div>
+                <span>Last Active:</span><div>{date.toLocaleString('en-US',{
                     weekday : "short",
                     day : "numeric",
                     month : "short",
                     hour : "numeric",
                     minute : "numeric",
                     second : "numeric",
-                })}</div> 
+                })}</div>
+                </div>
                 {annotations.length > 0 
                     ?  <div><details>
                         <summary open={state.detailsOpen} ontoggle={this.handleDetailsToggle}>{annotations.length} annotations</summary>

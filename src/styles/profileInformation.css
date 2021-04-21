@@ -4,9 +4,13 @@
     padding: 1em;
 }
 
-#pdfUploadForm {
+#profileInformationForm {
     display:grid;
     grid-template-columns: 180px 1fr;
+}
+
+#profileInformationForm > label {
+    grid-column: 1 / 2 ;
 }
 
 #profileInformationForm > label {
