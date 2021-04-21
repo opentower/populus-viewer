@@ -41,12 +41,12 @@ export default class Message extends Component {
     getCurrentEdit = () => {
         const edits = this.getEdits()
         //need to be smarter about ordering
-        if (edits.length > 0) { return edits[edits.length - 1].getContent()["m.new_content"] } 
+        if (edits.length > 0) { return edits[edits.length - 1].getContent()["m.new_content"] }
         else { return this.props.event.getContent() }
     }
 
     getEdits = () => {
-        return this.props.reactions[this.props.event.getId()] 
+        return this.props.reactions[this.props.event.getId()]
         ? this.props.reactions[this.props.event.getId()]
               .filter(event => event.getContent()["m.relates_to"].rel_type == "m.replace")
         : []
@@ -66,11 +66,11 @@ export default class Message extends Component {
         }
     }
 
-    componentDidMount() { 
+    componentDidMount() {
         this.processLatex()
     }
 
-    componentDidUpdate(prevProps) { 
+    componentDidUpdate(prevProps) {
         if (this.props.reactions[this.props.event.getId()] != prevProps.reactions[prevProps.event.getId()]) {
             this.processLatex()
         }
@@ -81,12 +81,12 @@ export default class Message extends Component {
         //relation aggregation mechanism that we're not taking advantage of
         //here. Element doesn't seem to use this for replacements yet either.
         const event = props.event
-        const upvotes = props.reactions[event.getId()] 
+        const upvotes = props.reactions[event.getId()]
                       ? props.reactions[event.getId()].filter(event => event.getContent()["m.relates_to"].rel_type == "m.annotation").length
                       : 0
         const content = this.getCurrentEdit()
         const displayBody = ((content.format == "org.matrix.custom.html") && content.formatted_body)
-                          ? <div ref={this.messageBody} class="body" 
+                          ? <div ref={this.messageBody} class="body"
                                  dangerouslySetInnerHTML={{__html : sanitizeHtml(content.formatted_body, sanitizeHtmlParams)}}
                             />
                           : <div class="body">{content.body}</div>
@@ -105,9 +105,9 @@ export default class Message extends Component {
                         </div>
                     </div>
                     {state.editing && <MessageEditor openEditor={this.openEditor}
-                                                     closeEditor={this.closeEditor}  
-                                                     getCurrentEdit={this.getCurrentEdit}  
-                                                     client={this.props.client}  
+                                                     closeEditor={this.closeEditor}
+                                                     getCurrentEdit={this.getCurrentEdit}
+                                                     client={this.props.client}
                                                      event={event}
                                       />}
                 </Fragment>
@@ -129,8 +129,8 @@ export default class Message extends Component {
 }
 
 class MessageEditor extends Component {
-    
-    componentDidMount () { 
+
+    componentDidMount () {
         this.setState({ edit_value : this.props.getCurrentEdit().body })
     }
 
@@ -155,7 +155,7 @@ class MessageEditor extends Component {
         }).then(_ => this.props.closeEditor())
     }
 
-    handleKeypress = (event) => { 
+    handleKeypress = (event) => {
         if (event.code == "Enter" && event.ctrlKey) {
             event.preventDefault()
             this.sendEdit()
@@ -164,13 +164,18 @@ class MessageEditor extends Component {
 
     handleInput = (event) => {
         this.setState({ edit_value : event.target.value })
+        this.editedInput.current.style.height = 'auto';
+        this.editedInput.current.style.height = this.editedInput.current.scrollHeight+'px';
     }
+
+    editedInput = createRef()
 
     render(props,state) {
         return <div class="messageEditor">
-                     <textarea value={state.edit_value} 
-                                                onkeypress={this.handleKeypress} 
-                                                oninput={this.handleInput}/>
+                     <textarea ref={this.editedInput} 
+                               value={state.edit_value}
+                               onkeypress={this.handleKeypress}
+                               oninput={this.handleInput}/>
                      <button onclick={this.sendEdit}>Submit Changes</button>
                      <button onclick={this.props.closeEditor}>Cancel</button>
                </div>
@@ -179,7 +184,7 @@ class MessageEditor extends Component {
 
 const COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
 
-const transformTags = { 
+const transformTags = {
     // add blank targets to all hyperlinks except vector URLs
     'a': function(tagName, attribs) {
         if (attribs.href) { attribs.target = '_blank'; }
@@ -188,7 +193,7 @@ const transformTags = {
     },
     'img': function(tagName, attribs) {
         //security for images is complicated, and they're not important for markdown right now.
-        return { tagName, attribs: {}}; 
+        return { tagName, attribs: {}};
     },
     'code': function(tagName, attribs) {
         if (typeof attribs.class !== 'undefined') {

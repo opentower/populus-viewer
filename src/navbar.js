@@ -27,7 +27,9 @@ export default class Navbar extends Component {
 
     handleBlur = _ => this.setState({ value : this.props.page })
 
-    togglePageNav = _ => this.setState({pageViewVisible: !this.state.pageViewVisible})
+    togglePageNav = _ => {
+        this.setState({pageViewVisible: !this.state.pageViewVisible})
+    }
 
     handleSubmit = e => {
         e.preventDefault();
