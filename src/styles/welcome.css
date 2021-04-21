@@ -30,16 +30,30 @@
 }
 
 #welcome-profile {
+    cursor: pointer;
+    width: 26px;
+    height: 26px;
+    margin-right: 13px; 
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+#welcome-initial {
     width:22px;
     height:22px;
-    margin-right:13px; 
-    line-height:22px;
     text-align:center;
     font-weight: bold;
+    line-height:22px;
     border:2px solid black;
     border-radius:35px;
     background-color: var(--user_light);
-    flex-shrink:0;
+}
+
+#welcome-profile img {
+    height:24px;
+    width:24px;
+    border-radius:35px;
+    object-fit:cover;
 }
 
 #welcome-container {
@@ -77,16 +91,29 @@
         transform: translateX(-50%);
     }
 
-    #welcome-header-content {
-        width:400px;
-    }
+    #welcome-header-content { width:400px; }
 } 
 
-.roomListingEntry, #pdfUploadForm {
+.roomListingEntry, #pdfUploadForm, #profileInformationForm {
     border: 1px black solid;
     margin: 1em;
     padding: 1em;
 }
+
+.roomListingEntry {
+    display: grid;
+    grid-template-columns: 1fr 40px;
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+    .roomListingEntry { min-width:400px; }
+} 
+
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+    .roomListingEntry { min-width:600px; }
+} 
 
 .roomListingEntry a {
   color: #069;
@@ -94,27 +121,55 @@
   cursor: pointer;
 }
 
-.roomListingEntry > div {
-    line-height:2em;
+.roomListingEntryButtons  {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 / 50 !important;
+    padding:5px;
+    margin-left:5px;
 }
 
+.roomListingEntry > div {
+    line-height:2em;
+    grid-column: 1 / 2;
+}
+
+.roomListingEntryButtons[data-room-entry-buttons-visible] {
+    background: #ededed;
+    border-radius: 15px;
+}
+
+.roomListingEntryButtons > button {
+    padding: 0px;
+    margin: 0px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.annotationRoomTable {
+    background: #ededed;
+    width:100%;
+    padding:5px;
+}
+
+.annotationRoomTable thead td { font-weight: bold; }
+
 .memberPill {
-    background:#aadada;
     border-radius:5px;
     margin-right:5px;
     padding:5px;
 }
 
-#pdfUploadForm {
+#pdfUploadForm, #profileInformationForm {
     display:grid;
     grid-template-columns: 180px 1fr;
 }
 
-#pdfUploadForm > label {
+#profileInformationForm > label, #pdfUploadForm > label {
     grid-column: 1 / 2 ;
 }
 
-#pdfUploadForm > input, #pdfUploadForm > textarea {
+#profileInformationForm > input, #pdfUploadForm > input, #pdfUploadForm > textarea {
     grid-column: 2 / 3 ;
     margin-bottom:.5em;
     border:none;
@@ -126,32 +181,51 @@
     min-height:50px;
 }
 
-#pdfUploadForm div {
-    grid-column: 1 / 3 ;
+#profileSelector {
+    cursor: pointer;
+    display:block;
+    height:180px;
+    max-height:180px;
+    width:180px;
+    object-fit:cover;
+    border-radius:90px;
+    grid-column: 2 / 3 ;
+    margin:auto;
+}
+
+div#profileSelector {
+    background : #ababab;
+}
+
+#profileSelector:hover {
+    filter: brightness(80%);
+    transition: filter 0.5s ease;
+}
+
+#profileInformationFormSubmit, #pdfUploadFormSubmit {
+    grid-column: 1 / 2 ;
+}
+
+#pdfUploadFormProgress, #profileInformationFormProgress{
+    text-align:right;
+    grid-column: 2 / 3 ;
+    animation: pulse-opacity 2s infinite; 
+    animation-timing-function:ease;
+}
+
+#profileInformationFormHidden {
+    display:none;
 }
 
 @media only screen and (max-width: 600px) {
-    #pdfUploadForm {
+    #pdfUploadForm, #profileInformationForm {
         grid-template-columns: 1fr;
     }
 
-#pdfUploadForm > label {
-    grid-column: 1 / 2 ;
-}
-
-#pdfUploadForm > input, #pdfUploadForm > textarea {
-    grid-column: 1 / 2 ;
-    margin-bottom:.5em;
-    border:none;
-    background:#ededed
-}
-
-#pdfUploadForm > textarea {
-    resize: vertical;
-    min-height:50px;
-}
-
-#pdfUploadForm div {
-    grid-column: 1 / 2 ;
-}
+    #profileSelector, 
+    #profileInformationForm > input,
+    #pdfUploadForm > input, 
+    #pdfUploadForm > textarea {
+        grid-column: 1 / 2 ;
+    }
 } 

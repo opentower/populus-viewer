@@ -3,28 +3,56 @@ import { pdfStateType }  from "./constants.js"
 import * as Matrix from "matrix-js-sdk"
 import UserColor from './userColors.js'
 import * as Icons from './icons.js'
-import { eventVersion }  from "./constants.js"
+import { eventVersion, serverRoot }  from "./constants.js"
 import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
 
     constructor(props) {
         super(props)
+        const userId = props.client.getUserId()
+        this.user = props.client.getUser(props.client.getUserId())
+        this.userColor = new UserColor(userId)
+        this.profileListener = this.profileListener.bind(this)
         this.state = {
             uploadVisible : false,
+            profileVisible : false,
             inputFocus : false,
-            searchFilter : ""
+            searchFilter : "",
+            avatarUrl : Matrix.getHttpUriForMxc(serverRoot, this.user.avatarUrl, 30, 30, "crop"),
         }
-        let userId = props.client.getUserId()
-        this.userColor = new UserColor(userId)
-        this.initial = userId.slice(1,2)
     }
 
-    toggleUploadVisible = _ => this.setState({uploadVisible : !this.state.uploadVisible})
+    componentDidMount () { this.user.on("User.avatarUrl", this.profileListener) }
 
-    hideUploadVisible = _ => this.setState({uploadVisible : false})
+    componentWillUnmount () { this.user.off("User.avatarUrl", this.profileListener) }
 
-    handleInputFocus = _ => this.setState({inputFocus: true, uploadVisible: false})
+    profileListener () {
+        this.setState({
+            avatarUrl : Matrix.getHttpUriForMxc(serverRoot, this.user.avatarUrl, 30, 30, "crop"),
+        })
+    }
+
+    toggleUploadVisible = _ => this.setState({
+        uploadVisible : !this.state.uploadVisible,
+        profileVisible : false,
+    })
+
+    toggleProfileVisible = _ => this.setState({
+        uploadVisible : false,
+        profileVisible : !this.state.profileVisible,
+    })
+
+    showMainView = _ => this.setState({
+        uploadVisible : false,
+        profileVisible : false,
+    })
+
+    handleInputFocus = _ => this.setState({
+        inputFocus : true, 
+        uploadVisible : false,
+        profileVisible : false,
+    })
 
     handleInputBlur = _ => this.setState({inputFocus: false})
 
@@ -42,25 +70,31 @@ export default class WelcomeView extends Component {
                             {Icons.search}
                         </div>
                         { !state.inputFocus && <Fragment>
-                                <div id="welcome-upload" onclick={this.toggleUploadVisible}>{Icons.newFile}</div>
-                                <div style={this.userColor.styleVariables} id="welcome-profile">
-                                    <div id="welcome-initial">
-                                        {this.initial}
-                                    </div>
-                                </div>
+                            <div id="welcome-upload" onclick={this.toggleUploadVisible}>{Icons.newFile}</div>
+                            <div id="welcome-profile" onclick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
+                                {state.avatarUrl 
+                                    ? <img id="welcome-img" src={state.avatarUrl}/> 
+                                    : <div id="welcome-initial">{this.user.displayName.slice(0,1)}</div>
+                                }
+                            </div>
                         </Fragment>}
                     </div>
                 </header>
                 <div id="welcome-container">
                     {state.uploadVisible 
-                    ? <Fragment>
-                         <h2>Upload a new PDF</h2>
-                         <PdfUpload hideUploadVisible={this.hideUploadVisible} client={props.client}/>
-                      </Fragment>
-                    : <Fragment>
-                        <h2>Conversations</h2>
-                        <RoomList searchFilter={state.searchFilter} {...props}/>
-                      </Fragment>
+                        ? <Fragment>
+                            <h2>Upload a new PDF</h2>
+                            <PdfUpload showMainView={this.showMainView} client={props.client}/>
+                        </Fragment>
+                        : state.profileVisible 
+                            ? <Fragment>
+                                <h2>Update Your Profile</h2>
+                                <ProfileInfomation showMainView={this.showMainView} client={props.client}/>
+                            </Fragment>
+                            : <Fragment>
+                                <h2>Conversations</h2>
+                                <RoomList queryParams={props.queryParams} searchFilter={state.searchFilter} {...props}/>
+                            </Fragment>
                     }
                     <Logout logoutHandler={props.logoutHandler}/>
                 </div>
@@ -91,7 +125,7 @@ class RoomList extends Component {
     componentWillUnmount () { 
         this.props.client.off("Room", this.roomListener) 
         this.props.client.off("Room.name", this.roomListener) 
-        this.props.client.on("RoomState.events",this.roomListener)
+        this.props.client.off("RoomState.events", this.roomListener)
     }
 
     render(props,state) {
@@ -104,7 +138,7 @@ class RoomList extends Component {
                                         if (ts1 < ts2) return 1
                                         else if (ts2 < ts1) return -1
                                         else return 0
-                                  }).map(room => { return <RoomListing loadPDF={props.loadPDF} client={props.client} room={room}/> })
+                                  }).map(room => { return <RoomListing key={room.roomId} queryParams={props.queryParams} loadPDF={props.loadPDF} client={props.client} room={room}/> })
         return (
             <Fragment>
                 <div>{rooms}</div>
@@ -125,13 +159,30 @@ class Logout extends Component {
 
 class RoomListing extends Component {
     render (props, state) {
-        var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents("org.populus.pdf","")
-        if (pdfEvent) return (<PDFRoomEntry loadPDF={props.loadPDF} client={props.client} room={props.room} pdfevent={pdfEvent}/>)
-        else return (<AnnotationRoomEntry room={props.room}/>)
+        var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType,"")
+        var annotations = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(eventVersion)
+        if (pdfEvent) return (<PDFRoomEntry  queryParams={props.queryParams} annotations={annotations} loadPDF={props.loadPDF} client={props.client} room={props.room} pdfevent={pdfEvent}/>)
     }
 }
 
 class PDFRoomEntry extends Component {
+
+    constructor(props) {
+        super(props)
+        this.state = { 
+            buttonsVisible : false,
+            detailsOpen : false,
+        }
+    }
+
+    handleLoad = _ => this.props.loadPDF(this.props.room.name)
+
+    toggleButtons = _ => this.setState({ buttonsVisible : !this.state.buttonsVisible })
+
+    handleClose = _ => this.props.client.leave(this.props.room.roomId)
+
+    handleDetailsToggle = _ => this.setState({ detailsOpen : !this.state.detailsOpen })
+
     render (props, state) {
         const date = new Date(props.room.getLastActiveTimestamp())
         const members = props.room.getJoinedMembers()
@@ -139,13 +190,38 @@ class PDFRoomEntry extends Component {
         const memberPills = members.map(member => <MemberPill member={member}/>)
         const clientId = props.client.getUserId()
         var status = "invited"
+        const annotations = props.annotations.map(ev => ev.getContent())
+                                             .filter(content => content.activityStatus == "open")
+                                             .map(content => <AnnotationRoomEntry key={content.uuid} queryParams={props.queryParams} handleLoad={this.handleLoad} {... content}/>)
         if (memberIds.includes(clientId)) { status = "joined" }
         return (
-            <div key={props.room.roomId} data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
-                <div><a onclick={_ => props.loadPDF(props.room.name)}>{props.room.name}</a>
-                </div>
+            <div  data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
+                <div><a onclick={this.handleLoad}>{props.room.name}</a></div>
                 <div>Members: {memberPills} </div>
-                <div>Last Active: {date.toDateString()}, {date.toTimeString()}</div> 
+                <div>Last Active: {date.toLocaleString('en-US',{
+                    weekday : "short",
+                    day : "numeric",
+                    month : "short",
+                    hour : "numeric",
+                    minute : "numeric",
+                    second : "numeric",
+                })}</div> 
+                {annotations.length > 0 
+                    ?  <div><details>
+                        <summary open={state.detailsOpen} ontoggle={this.handleDetailsToggle}>{annotations.length} annotations</summary>
+                        <table class="annotationRoomTable">
+                            <thead> <tr><td>UUID</td><td>Page</td></tr></thead>
+                            <tbody>{annotations}</tbody>
+                        </table>
+                    </details>
+                    </div>
+                    : null
+                }
+                <div data-room-entry-buttons-visible={state.buttonsVisible} class="roomListingEntryButtons">
+                    { state.buttonsVisible ? null : <button title="Toggle buttons" onclick={this.toggleButtons}>{Icons.moreVertical}</button> }
+                    { state.buttonsVisible ? <button title="Toggle buttons" onclick={this.toggleButtons}>{Icons.close}</button> : null }
+                    { state.buttonsVisible ? <button title="Leave conversation" onclick={this.handleClose}>{Icons.userMinus}</button> : null }
+                </div>
             </div>
         )
     }
@@ -163,14 +239,22 @@ class MemberPill extends Component {
 }
 
 class AnnotationRoomEntry extends Component {
-    render (props, state) { }
+
+    handleClick = () => {
+        this.props.queryParams.set("focus", this.props.uuid)
+        this.props.queryParams.set("page", this.props.pageNumber)
+        this.props.handleLoad()
+    }
+
+    render (props, state) { 
+        return <tr class="annotationRoomEntry">
+                <td><a onclick={this.handleClick}>{props.uuid}</a></td>
+                <td>{props.pageNumber}</td>
+            </tr>
+    }
 }
 
 class PdfUpload extends Component {
-
-    constructor(props) {
-        super(props)
-    }
 
     mainForm = createRef()
 
@@ -180,12 +264,17 @@ class PdfUpload extends Component {
 
     roomTopicInput = createRef()
 
+    submitButton = createRef()
+
+    progressHandler = (progress) => this.setState({progress : progress})
+
     uploadFile = async (e) => { 
         e.preventDefault()
         const theFile = this.fileLoader.current.files[0]
         const theName = this.roomNameInput.current.value
         const theTopic = this.roomTopicInput.current.value
         if (theFile.type == "application/pdf") {
+            this.submitButton.current.setAttribute("disabled", true)
             const id = await this.props.client.createRoom({
                 room_alias_name : theName,
                 visibility : "public",
@@ -207,7 +296,7 @@ class PdfUpload extends Component {
                     }
                 }
             })
-            this.props.client.uploadContent(theFile).then(e => {
+            this.props.client.uploadContent(theFile, { progressHandler : this.progressHandler }).then(e => {
                 let parts = e.split('/')
                 this.props.client.sendStateEvent(id.room_id, pdfStateType, {
                     "identifier": parts[parts.length - 1] 
@@ -218,7 +307,7 @@ class PdfUpload extends Component {
                 //this work right.
             }).then(_ => {
                 this.mainForm.current.reset()
-                this.props.hideUploadVisible()
+                this.props.showMainView()
             })
         }
     } 
@@ -226,13 +315,102 @@ class PdfUpload extends Component {
     render (props, state) {
         return (
             <form id="pdfUploadForm" ref={this.mainForm} onsubmit={this.uploadFile}>
-                    <label> Pdf to discuss</label>
-                    <input ref={this.fileLoader} type="file"/>
-                    <label>Name for Discussion</label>
-                    <input ref={this.roomNameInput} type="text"/>
-                    <label>Topic of Discussion</label>
-                    <textarea ref={this.roomTopicInput} type="text"/>
-                    <div><input value="Create Discussion" type="submit"/></div>
+                <label> Pdf to discuss</label>
+                <input ref={this.fileLoader} type="file"/>
+                <label>Name for Discussion</label>
+                <input ref={this.roomNameInput} type="text"/>
+                <label>Topic of Discussion</label>
+                <textarea ref={this.roomTopicInput} type="text"/>
+                <div id="pdfUploadFormSubmit">
+                    <input ref={this.submitButton} value="Create Discussion" type="submit"/>
+                </div>
+                {this.state.progress 
+                    ?  <div id="pdfUploadFormProgress">
+                          <span>{this.state.progress.loaded} bytes</span>
+                          <span> out of </span>
+                          <span>{this.state.progress.total} bytes</span>
+                       </div>
+                    : null
+                }
+            </form>
+        )
+    }
+}
+
+class ProfileInfomation extends Component {
+
+    constructor(props) {
+        super(props)
+        const me = props.client.getUser(props.client.getUserId())
+        this.state = {
+            previewUrl : Matrix.getHttpUriForMxc(serverRoot, me.avatarUrl, 180, 180, "crop"),
+            displayName : me.displayName,
+        }
+    }
+
+    displayNameInput = createRef()
+
+    avatarImageInput = createRef()
+
+    submitButton = createRef()
+
+    mainForm = createRef()
+
+    progressHandler = (progress) => this.setState({progress : progress})
+
+    uploadAvatar = _ => this.avatarImageInput.current.click()
+
+    removeAvatar = _ => this.setState({ previewUrl : null })
+
+    updatePreview = _ => {
+        const theImage = this.avatarImageInput.current.files[0]
+        if (theImage && /^image/.test(theImage.type)) {
+            this.setState({previewUrl : URL.createObjectURL(this.avatarImageInput.current.files[0]) })
+        }
+    }
+
+    updateProfile = async (e) => { 
+        e.preventDefault()
+        const theImage = this.avatarImageInput.current.files[0]
+        const theDisplayName = this.displayNameInput.current.value
+        this.submitButton.current.setAttribute("disabled", true)
+        if (theDisplayName) await this.props.client.setDisplayName(theDisplayName)
+        if (theImage && /^image/.test(theImage.type)) {
+            await this.props.client.uploadContent(theImage, { progressHandler : this.progressHandler })
+                      .then(e => this.props.client.setAvatarUrl(e))
+        } else if (!this.state.previewUrl) {
+            await this.props.client.setProfileInfo("avatar_url", {avatar_url : "null"})
+            //XXX this is a pretty awful hack. Discussion at https://github.com/matrix-org/matrix-doc/issues/1674
+        }
+        this.mainForm.current.reset()
+        this.props.showMainView()
+    } 
+
+    render (props, state) {
+        return (
+            <form id="profileInformationForm" ref={this.mainForm} onsubmit={this.updateProfile}>
+                <label>My Display Name</label>
+                <input placeholder={state.displayName} ref={this.displayNameInput} type="text"/>
+                <div id="profileInformationAvatarControls">
+                    <label>My Avatar
+                    </label>
+                    {state.previewUrl ? <input onclick={this.removeAvatar} value="Remove Avatar" type="button"/> : null}
+                </div>
+                {state.previewUrl 
+                    ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl}/> 
+                    : <div onclick={this.uploadAvatar} id="profileSelector"/>}
+                <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} type="file"/>
+                <div id="profileInformationFormSubmit">
+                    <input ref={this.submitButton} value="Update Profile" type="submit"/>
+                </div>
+                {this.state.progress 
+                    ?  <div id="profileInformationFormProgress">
+                          <span>{this.state.progress.loaded} bytes</span>
+                          <span> out of </span>
+                          <span>{this.state.progress.total} bytes</span>
+                       </div>
+                    : null
+                }
             </form>
         )
     }

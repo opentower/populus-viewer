@@ -70,9 +70,13 @@ export default class PdfView extends Component {
         const theRoom = this.props.client.getRoom(this.state.roomId)
         const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
         const theAnnotation = theRoomState.getStateEvents(eventVersion,uuid)
-        if (theAnnotation) this.setState({focus : theAnnotation.getContent()})
+        if (theAnnotation) {
+            this.setState({
+                focus : theAnnotation.getContent(),
+                panelVisible : true,
+            })
+        }
     }
-
 
     togglePanel = () => this.setState({panelVisible : !this.state.panelVisible})
 
@@ -105,14 +109,17 @@ export default class PdfView extends Component {
                 content : {"join_rule": "public"}
             }]
         }).then(roominfo => {
-            this.props.client.sendStateEvent(this.state.roomId, eventVersion, {
+            theSelection.removeAllRanges()
+            const theContent = {
                 room_id : roominfo.room_id,
                 uuid : uuid, 
                 clientRects : JSON.stringify(clientRects),
                 activityStatus: "open",
                 pageNumber : this.props.pageFocused
-            }, uuid).catch(e => alert(e))
-            theSelection.removeAllRanges()
+            }
+            this.props.client.sendStateEvent(this.state.roomId, eventVersion, theContent, uuid).catch(e => alert(e))
+            this.setFocus(theContent)
+            this.setState({ panelVisible : true })
         })
     }
 
@@ -199,6 +206,7 @@ class PdfCanvas extends Component {
         super(props)
         this.canvasRefreshAt = Date.now()
         this.pendingRender = null
+        this.pendingTextRender = null
         this.hasRendered = false //we allow one initial render, but then require a page change for a redraw
         this.hasFetched = new Promise((resolve,reject) => { 
             this.resolveFetch = resolve 
@@ -221,23 +229,40 @@ class PdfCanvas extends Component {
         this.setState({pdfIdentifier : pdfIdentifier})
         if (!PdfView.PDFStore[pdfIdentifier]) {
             console.log('fetching ' + title )
-            this.resolveFetch()
             PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
-            PdfView.PDFStore[pdfIdentifier].then(pdf => this.props.setTotalPages(pdf.numPages))
-        } else {
-            console.log('found ' + title + ' in store' )
-            this.resolveFetch()
-        }
+        } else { console.log('found ' + title + ' in store' ) }
+        PdfView.PDFStore[pdfIdentifier]
+            .then(pdf => this.props.setTotalPages(pdf.numPages))
+            .then(this.resolveFetch)
     }
 
-    async drawPdf () {
+    //because rendering is async, we need a way to cancel pending render tasks and
+    //to make sure that pending drawPdf calls don't proceed. That's what this function does.
+    grabControl() {
+        const controlToken = {} 
+        this.controlToken = controlToken
+        //we spawn a new control token - this is just an empty object, the
+        //important thing is that it's a *new* empty object, since previous
+        //drawPdf calls will check to see if the control token is the same as
+        //the one that they were spawned with
+        try { this.pendingRender.cancel() } catch (err) { console.log(err) }
+        try { this.pendingTextRender.cancel() } catch (err) { console.log(err) }
+        //now that we're sure we won't spawn any unintended renders, we cancel
+        //any pending renders
+        this.textLayer.current.innerHTML = ''
+        //and we clear the textlayer.
+        return controlToken
+    }
+
+    async drawPdf (control) {
         //since we've started rendering, we want to block subsequent render attempts
         this.hasRendered = true 
         const theCanvas = this.canvas.current
-        try {this.pendingRender._internalRenderTask.cancel()} catch {}
         await this.hasFetched
         const pdf = await PdfView.PDFStore[this.state.pdfIdentifier]
 
+        //exit early if someone else has grabbed control
+        if (control != this.controlToken) return
         // Fetch the first page
         const page = await pdf.getPage(this.props.pageFocused || 1)
         console.log('Page loaded');
@@ -246,7 +271,6 @@ class PdfCanvas extends Component {
         const viewport = page.getViewport({scale: scale});
 
         // Prepare canvas using PDF page dimensions
-
         theCanvas.height = viewport.height;
         theCanvas.width = viewport.width;
 
@@ -266,26 +290,27 @@ class PdfCanvas extends Component {
             viewport: viewport,
         };
 
+        if (control != this.controlToken) return
         this.pendingRender = page.render(renderContext);
-        // We use "then" here instead of await, because for some reason, await performance is bad on webkit
-        this.pendingRender.promise.then(_ => {
-            console.log('Page rendered');
-            page.getTextContent();
-        }).then(text => {
-            //insert the pdf text into the text layer
-            PDFJS.renderTextLayer({
-                textContent: text,
-                container: document.getElementById("text-layer"),
-                viewport: page.getViewport({scale: 1.5}),
-                textDivs: [],
-            });
-        }).catch(e => console.log(e))
+
+        await this.pendingRender.promise
+        console.log('Page rendered');
+        const text = await page.getTextContent();
+
+        if (control != this.controlToken) return
+        //insert the pdf text into the text layer
+        this.pendingTextRender = PDFJS.renderTextLayer({
+            textContent: text,
+            container: this.textLayer.current,
+            viewport: page.getViewport({scale: 1.5}),
+            textDivs: [],
+        })
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (!this.hasRendered || (prevProps.pageFocused != this.props.pageFocused)) {
-            this.textLayer.current.innerHTML = ""
-            this.drawPdf().then(_ => 
+            const control = this.grabControl()
+            this.drawPdf(control).then(_ => 
                 //need to do this to take into account positioning changes caused by rescaling
                 this.props.annotationLayer.current.forceUpdate()
             )

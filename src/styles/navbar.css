@@ -13,7 +13,7 @@
     bottom: var(--navHeight);
     align-items: center;
     height:50px;
-    max-width: var(--contentWidth);
+    width: var(--contentWidth);
     overflow-y:scroll;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */

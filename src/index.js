@@ -93,7 +93,10 @@ class PopulusViewer extends Component {
                             pdfFocused={this.state.pdfFocused} 
                             client={this.client}/>
         } else {
-            return <WelcomeView loadPDF={this.loadPDF} logoutHandler={this.logoutHandler} client={this.client}/>
+            return <WelcomeView loadPDF={this.loadPDF} 
+                                queryParams={this.queryParams}
+                                logoutHandler={this.logoutHandler} 
+                                client={this.client}/>
         }
     }
 }
