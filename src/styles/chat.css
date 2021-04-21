@@ -27,13 +27,13 @@
         width:100%;
         padding:0px;
     }
-} 
+}
 
 @media only screen and (min-width: 600px) {
     #chat-wrapper {
         width:400px;
     }
-} 
+}
 
 #scroll-anchor, #scroll-done {
     padding:10px;
@@ -43,7 +43,7 @@
 #messageComposer > textarea,
 .messageEditor > textarea {
     display:block;
-    min-height:100px;
+    /min-height:100px;
     width:100%;
     margin:0px;
     border:none;
@@ -60,10 +60,6 @@
     outline: none;
     border: 1px solid black;
     border-bottom: none;
-}
-
-#messageComposer > textarea {
-    min-height:350px;
 }
 
 #submit-button-wrapper > button,
@@ -109,7 +105,7 @@
     border-left:none !important;
 }
 
-#submit-button-wrapper > button:hover, 
+#submit-button-wrapper > button:hover,
 .messageEditor > button:hover {
     transition: background-color 0.5s ease;
     background-color: var(--user_light);
@@ -124,11 +120,11 @@
     display: grid;
     justify-items: left;
     grid-template-areas: "ident content";
-    grid-template-columns: fit-content(10%) auto ; 
+    grid-template-columns: fit-content(10%) auto ;
 }
 
 #chat-panel .me {
-    grid-template-columns: auto fit-content(10%); 
+    grid-template-columns: auto fit-content(10%);
     grid-template-areas: "content ident";
 }
 
@@ -263,4 +259,9 @@
 
 #chat-panel .me {
     text-align:right;
+}
+
+#currentInput {
+    min-height: 70px;
+    overflow: hidden;
 }
