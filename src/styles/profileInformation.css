@@ -43,10 +43,10 @@ div#profileSelector {
 
 #profileInformationFormSubmit {
     grid-column: 1 / 3 ;
-    padding-top:10px;
 }
 
 #profileInformationFormSubmit > button {
+    margin-top:10px;
     margin-right:10px;
 }
 
@@ -62,7 +62,12 @@ div#profileSelector {
 }
 
 @media only screen and (max-width: 600px) {
+
     #profileInformationForm { grid-template-columns: 1fr }
 
-    #profileSelector, #profileInformationForm > input { grid-column: 1 / 2 }
+    #profileInformationFormProgress,
+    #profileSelector, 
+    #profileInformationForm > input { 
+        grid-column: 1 / 2 
+    }
 } 

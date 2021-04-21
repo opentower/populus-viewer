@@ -1,5 +1,6 @@
 import { h, createRef, render, Component } from 'preact';
 import './styles/pdfUpload.css'
+import { pdfStateType, eventVersion }  from "./constants.js"
 
 export default class PdfUpload extends Component {
 
