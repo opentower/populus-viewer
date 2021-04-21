@@ -57,10 +57,7 @@ export default class ProfileInfomation extends Component {
             <form id="profileInformationForm" ref={this.mainForm} onsubmit={this.updateProfile}>
                 <label>My Display Name</label>
                 <input placeholder={state.displayName} ref={this.displayNameInput} type="text"/>
-                <div id="profileInformationAvatarControls">
-                    <label>My Avatar
-                    </label>
-                </div>
+                <label>My Avatar</label>
                 {state.previewUrl 
                     ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl}/> 
                     : <div onclick={this.uploadAvatar} id="profileSelector"/>}
