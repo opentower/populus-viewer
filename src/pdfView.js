@@ -330,6 +330,7 @@ class PdfCanvas extends Component {
     componentDidMount() {
         this.fetchPdf(this.props.pdfFocused) //XXX this will fail if the initial sync isn't complete, but that should be handled by the splash page
         this.textLayer.current.addEventListener('click', event => {
+            event.preventDefault() //this should prevent touch-to-search on mobile chrome
             const mouseEvent = new MouseEvent(event.type, event)
             document.elementsFromPoint(event.clientX, event.clientY).forEach(elt => {
                 if (elt.hasAttribute("data-annotation")) elt.dispatchEvent(mouseEvent)
