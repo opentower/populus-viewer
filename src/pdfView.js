@@ -10,8 +10,8 @@ import * as Icons from "./icons.js"
 
 export default class PdfView extends Component {
 
-    static PDFStore = {} 
-    //we store downloaded PDFs here in order to avoid excessive downloads. 
+    static PDFStore = {}
+    //we store downloaded PDFs here in order to avoid excessive downloads.
     //Could alternatively use localstorage or some such eventually. We don't
     //use preact state since changes here aren't relevent to UI.
 
@@ -21,7 +21,7 @@ export default class PdfView extends Component {
 
     constructor(props) {
         super(props)
-        this.state = { 
+        this.state = {
             roomId : null,
             focus: null,
             totalPages: null,
@@ -37,8 +37,8 @@ export default class PdfView extends Component {
         //listener with the proper `this` reference
     }
 
-    componentDidMount() { 
-        document.addEventListener("selectionchange", this.checkForSelection) 
+    componentDidMount() {
+        document.addEventListener("selectionchange", this.checkForSelection)
         document.addEventListener('keydown', e => { if (e.key == '+') {
             this.setState({zoomFactor : this.state.zoomFactor + 0.1})
         }})
@@ -53,8 +53,8 @@ export default class PdfView extends Component {
 
     setId = id => {
         //sets the roomId, and also tries to use that information to update the focus.
-        this.setState({roomId : id}, _ => this.props.queryParams.get("focus") 
-                                       ? this.focusByUUID(this.props.queryParams.get("focus")) 
+        this.setState({roomId : id}, _ => this.props.queryParams.get("focus")
+                                       ? this.focusByUUID(this.props.queryParams.get("focus"))
                                        : null)
     }
 
@@ -63,7 +63,7 @@ export default class PdfView extends Component {
     setPdfFitRatio = ratio => this.setState({pdfFitRatio: ratio})
 
     setPdfHeightPx = px => this.setState({pdfHeightPx: px})
-    
+
     setTotalPages = num => this.setState({totalPages : num})
 
     focusByUUID = uuid => {
@@ -83,8 +83,8 @@ export default class PdfView extends Component {
     checkForSelection () {
         if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
         let theSelection = window.getSelection()
-        let hasSelection = !window.getSelection().isCollapsed 
-                         && this.documentView.current.contains(window.getSelection().getRangeAt(0).endContainer) 
+        let hasSelection = !window.getSelection().isCollapsed
+                         && this.documentView.current.contains(window.getSelection().getRangeAt(0).endContainer)
                          && this.documentView.current.contains(window.getSelection().getRangeAt(0).startContainer)
         this.selectionTimeout = setTimeout(200,this.setState({hasSelection : hasSelection}))
         //timeout to avoid excessive rerendering
@@ -98,7 +98,7 @@ export default class PdfView extends Component {
                                .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.pdfFitRatio * this.state.zoomFactor))
         var uuid = Math.random().toString(36).substring(2)
         //room creation is a bit slow, might want to rework this slightly for responsiveness
-        this.props.client.createRoom({ 
+        this.props.client.createRoom({
             room_alias_name : "room" + uuid,
             name : "room" + uuid,
             visibility : "public",
@@ -112,7 +112,7 @@ export default class PdfView extends Component {
             theSelection.removeAllRanges()
             const theContent = {
                 room_id : roominfo.room_id,
-                uuid : uuid, 
+                uuid : uuid,
                 clientRects : JSON.stringify(clientRects),
                 activityStatus: "open",
                 pageNumber : this.props.pageFocused
@@ -124,14 +124,18 @@ export default class PdfView extends Component {
     }
 
     closeAnnotation = _ => {
-        this.props.client.sendStateEvent(this.state.roomId, eventVersion, {
-            uuid: this.state.focus.uuid, 
-            room_id : this.state.focus.room_id,
-            pageNumber : this.state.focus.pageNumber,
-            clientRects: this.state.focus.clientRects,
-            activityStatus : "closed"
-        }, this.state.focus.uuid)
-        this.setState({focus : null})
+        if (confirm('Are you sure you want to close this annotation?')) {
+            this.props.client.sendStateEvent(this.state.roomId, eventVersion, {
+                uuid: this.state.focus.uuid,
+                room_id : this.state.focus.room_id,
+                pageNumber : this.state.focus.pageNumber,
+                clientRects: this.state.focus.clientRects,
+                activityStatus : "closed"
+            }, this.state.focus.uuid)
+            this.setState({focus : null})
+        } else {
+            return false;
+        }
     }
 
     setFocus = content => {
@@ -140,12 +144,12 @@ export default class PdfView extends Component {
             pdfFocused : this.props.pdfFocused,
             pageFocused : this.props.pageFocused,
             annotationFocused : content.uuid,
-        },"", "?" + this.props.queryParams.toString()) 
+        },"", "?" + this.props.queryParams.toString())
         this.setState({focus : content})
     }
 
     render(props,state) {
-        const dynamicDocumentStyle = { 
+        const dynamicDocumentStyle = {
             "--pdfZoomFactor" : state.zoomFactor,
             "--pdfFitRatio" : state.pdfFitRatio,
             "--pdfWidthPx" : state.pdfWidthPx + "px",
@@ -170,12 +174,12 @@ export default class PdfView extends Component {
                                    setId={this.setId}
                                    setTotalPages={this.setTotalPages}
                                    client={props.client}/>
-                        <AnnotationLayer ref={this.annotationLayer} 
+                        <AnnotationLayer ref={this.annotationLayer}
                                          annotationLayer={this.annotationLayer}
                                          annotationLayerWrapper={this.annotationLayerWrapper}
                                          zoomFactor={state.zoomFactor}
-                                         page={props.pageFocused} 
-                                         roomId={state.roomId} 
+                                         page={props.pageFocused}
+                                         roomId={state.roomId}
                                          setFocus={this.setFocus}
                                          focus={state.focus}
                                          client={props.client}/>
@@ -208,8 +212,8 @@ class PdfCanvas extends Component {
         this.pendingRender = null
         this.pendingTextRender = null
         this.hasRendered = false //we allow one initial render, but then require a page change for a redraw
-        this.hasFetched = new Promise((resolve,reject) => { 
-            this.resolveFetch = resolve 
+        this.hasFetched = new Promise((resolve,reject) => {
+            this.resolveFetch = resolve
             this.rejectFetch = reject
         })
     }
@@ -239,7 +243,7 @@ class PdfCanvas extends Component {
     //because rendering is async, we need a way to cancel pending render tasks and
     //to make sure that pending drawPdf calls don't proceed. That's what this function does.
     grabControl() {
-        const controlToken = {} 
+        const controlToken = {}
         this.controlToken = controlToken
         //we spawn a new control token - this is just an empty object, the
         //important thing is that it's a *new* empty object, since previous
@@ -256,7 +260,7 @@ class PdfCanvas extends Component {
 
     async drawPdf (control) {
         //since we've started rendering, we want to block subsequent render attempts
-        this.hasRendered = true 
+        this.hasRendered = true
         const theCanvas = this.canvas.current
         await this.hasFetched
         const pdf = await PdfView.PDFStore[this.state.pdfIdentifier]
@@ -266,7 +270,7 @@ class PdfCanvas extends Component {
         // Fetch the first page
         const page = await pdf.getPage(this.props.pageFocused || 1)
         console.log('Page loaded');
-              
+
         const scale = 3
         const viewport = page.getViewport({scale: scale});
 
@@ -284,7 +288,7 @@ class PdfCanvas extends Component {
 
         // Render PDF page into canvas context
         const canvasContext = theCanvas.getContext('2d')
-        
+
         const renderContext = {
             canvasContext: canvasContext,
             viewport: viewport,
@@ -310,7 +314,7 @@ class PdfCanvas extends Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (!this.hasRendered || (prevProps.pageFocused != this.props.pageFocused)) {
             const control = this.grabControl()
-            this.drawPdf(control).then(_ => 
+            this.drawPdf(control).then(_ =>
                 //need to do this to take into account positioning changes caused by rescaling
                 this.props.annotationLayer.current.forceUpdate()
             )
