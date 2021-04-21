@@ -60,14 +60,14 @@ export default class ProfileInfomation extends Component {
                 <div id="profileInformationAvatarControls">
                     <label>My Avatar
                     </label>
-                    {state.previewUrl ? <input onclick={this.removeAvatar} value="Remove Avatar" type="button"/> : null}
                 </div>
                 {state.previewUrl 
                     ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl}/> 
                     : <div onclick={this.uploadAvatar} id="profileSelector"/>}
                 <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} type="file"/>
                 <div id="profileInformationFormSubmit">
-                    <input ref={this.submitButton} value="Update Profile" type="submit"/>
+                    <button class="styled-button" ref={this.submitButton} type="submit">Update Profile</button>
+                    {state.previewUrl ? <button class="styled-button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
                 </div>
                 {this.state.progress 
                     ?  <div id="profileInformationFormProgress">

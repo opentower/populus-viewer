@@ -50,8 +50,8 @@ class LoginModal extends Component {
                 <form id="loginForm">
                     <UserData/>
                     <div>
-                        <button onclick={this.handleSubmit} >Login</button>
-                        <button onclick={props.switchView} >Register</button>
+                        <button class="styled-button" onclick={this.handleSubmit} >Login</button>
+                        <button class="styled-button" onclick={props.switchView} >Register</button>
                     </div>
                 </form>
             </div>
@@ -102,7 +102,7 @@ class RegistrationModal extends Component {
                         <div class="g-recaptcha" 
                             data-sitekey="6Lf43YEaAAAAAAeDHR1ozhTXVqq--Wthr_MQlYam" 
                             data-callback="recaptchaHandler"></div></div>
-                    <div>OR, <button onclick={props.switchView} >Login With Existing Account</button></div>
+                    <div>OR, <button class="styled-button" onclick={props.switchView} >Login With Existing Account</button></div>
                     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
                 </form>
             </div>

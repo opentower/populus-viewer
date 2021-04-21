@@ -23,3 +23,11 @@ body {
     }
 }
 
+.styled-button {
+    cursor:pointer;
+    outline:none;
+    border:2px solid black;
+    color:black;
+    font-weight:bold;
+    background-color:white;
+}
