@@ -66,7 +66,9 @@ class PopulusViewer extends Component {
 
     pushHistory = newState => {
        if (newState.pdfFocused) this.queryParams.set("title", newState.pdfFocused)
+       if (newState.pdfFocused === null) this.queryParams.delete("title")
        if (newState.pageFocused) this.queryParams.set("page", newState.pageFocused)
+       if (newState.pageFocused === null) this.queryParams.delete("page")
        this.setState(newState, _ => window.history.pushState({ 
                pdfFocused : this.state.pdfFocused,
                pageFocused : this.state.pageFocused,

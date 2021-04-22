@@ -39,7 +39,10 @@ export default class Navbar extends Component {
     }
 
     mainMenu = _ => {
-        this.props.pushHistory({ pdfFocused : false });
+        this.props.pushHistory({ 
+            pdfFocused : null,
+            pageFocused: null,
+        });
     }
 
     firstPage = _ => {
@@ -95,7 +98,7 @@ export default class Navbar extends Component {
                     <button title="go to next page" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
                     <button title="go to last page" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button>
                     <button title="remove annotation" disabled={this.props.focus && !this.props.selected ? null : "disabled"} onclick={this.props.closeann}>{Icons.removeAnnotation}</button>
-                    <button title="inactive" disabled>{Icons.menu}</button>
+                    <button title="more options (inactive)" disabled>{Icons.moreVertical}</button>
                 </div>
             </nav>
         }
