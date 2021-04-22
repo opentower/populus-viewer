@@ -197,7 +197,8 @@ class PDFRoomEntry extends Component {
                                              .filter(content => content[eventVersion].activityStatus == "open")
                                              .map(content => <AnnotationRoomEntry 
                                                                 key={content.[eventVersion].roomId} 
-                                                                roomId={content.[eventVersion].roomId} 
+                                                                annotationContent={content.[eventVersion]} 
+                                                                parentRoom={props.room}
                                                                 queryParams={props.queryParams} 
                                                                 handleLoad={this.handleLoad} {... content[eventVersion]}/>)
         if (memberIds.includes(clientId)) { status = "joined" }
@@ -219,7 +220,7 @@ class PDFRoomEntry extends Component {
                     ?  <div><details>
                         <summary open={state.detailsOpen} ontoggle={this.handleDetailsToggle}>{annotations.length} annotations</summary>
                         <table class="annotationRoomTable">
-                            <thead> <tr><td>UUID</td><td>Page</td></tr></thead>
+                            <thead> <tr><td>Text</td><td>Page</td><td>Creator</td></tr></thead>
                             <tbody>{annotations}</tbody>
                         </table>
                     </details>
@@ -239,15 +240,19 @@ class PDFRoomEntry extends Component {
 class AnnotationRoomEntry extends Component {
 
     handleClick = () => {
-        this.props.queryParams.set("focus", this.props.roomId)
-        this.props.queryParams.set("page", this.props.pageNumber)
+        this.props.queryParams.set("focus", this.props.annotationContent.roomId)
+        this.props.queryParams.set("page", this.props.annotationContent.pageNumber)
         this.props.handleLoad()
     }
+    
+    creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
 
     render (props, state) { 
+        console.log(props.annotationContent)
         return <tr class="annotationRoomEntry">
-                <td><a onclick={this.handleClick}>{props.roomId}</a></td>
-                <td>{props.pageNumber}</td>
+                <td>…&nbsp;<a onclick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</td>
+                <td>{props.annotationContent.pageNumber}</td>
+                <td><MemberPill member={this.creator}/></td>
             </tr>
     }
 }

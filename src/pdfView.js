@@ -91,11 +91,12 @@ export default class PdfView extends Component {
     }
 
     openAnnotation = _ => {
-        var theSelection = window.getSelection()
+        const theSelection = window.getSelection()
         if (theSelection.isCollapsed) return
-        var theRange = theSelection.getRangeAt(0)
-        var clientRects = Array.from(theRange.getClientRects())
-                               .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.pdfFitRatio * this.state.zoomFactor))
+        const theRange = theSelection.getRangeAt(0)
+        const theSelectedText = theSelection.toString()
+        const clientRects = Array.from(theRange.getClientRects())
+                                  .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.pdfFitRatio * this.state.zoomFactor))
         //TODO: room creation is a bit slow, might want to rework this slightly for responsiveness
         //
         //TODO: we should set room_alias_name, name, and topic in the options
@@ -115,10 +116,13 @@ export default class PdfView extends Component {
                     pageNumber : this.props.pageFocused,
                     activityStatus: "open",
                     clientRects : JSON.stringify(clientRects),
-                    roomId : roominfo.room_id
+                    roomId : roominfo.room_id,
+                    creator : this.props.client.getUserId(),
+                    selectedText : theSelectedText,
                 }
             }
-            this.props.client.sendStateEvent(this.state.roomId, spaceChild, theContent, roominfo.room_id).catch(e => alert(e))
+            this.props.client.sendStateEvent(this.state.roomId, spaceChild, theContent, roominfo.room_id)
+                             .catch(e => alert(e))
             this.setFocus(theContent[eventVersion])
             this.setState({ panelVisible : true })
         })
@@ -132,6 +136,7 @@ export default class PdfView extends Component {
                     pageNumber : this.state.focus.pageNumber,
                     activityStatus: "closed",
                     clientRects : this.state.focus.clientRects,
+                    creator : this.state.focus.creator,
                 }
             }
             this.props.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.roomId)

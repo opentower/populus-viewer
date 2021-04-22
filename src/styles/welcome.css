@@ -152,4 +152,7 @@
     padding:5px;
 }
 
-.annotationRoomTable thead td { font-weight: bold; }
+.annotationRoomTable thead td { 
+    font-weight: bold; 
+    padding-right:10px;
+}
