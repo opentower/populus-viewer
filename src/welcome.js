@@ -141,7 +141,7 @@ class RoomList extends Component {
                                         if (ts1 < ts2) return 1
                                         else if (ts2 < ts1) return -1
                                         else return 0
-                                  }).map(room => { return <RoomListing key={room.roomId} queryParams={props.queryParams} loadPDF={props.loadPDF} client={props.client} room={room}/> })
+                                  }).map(room => { return <RoomListing key={room.roomId} queryParams={props.queryParams} pushHistory={props.pushHistory} client={props.client} room={room}/> })
         return (
             <Fragment>
                 <div>{rooms}</div>
@@ -164,7 +164,7 @@ class RoomListing extends Component {
     render (props, state) {
         var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType,"")
         var annotations = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
-        if (pdfEvent) return (<PDFRoomEntry  queryParams={props.queryParams} annotations={annotations} loadPDF={props.loadPDF} client={props.client} room={props.room} pdfevent={pdfEvent}/>)
+        if (pdfEvent) return (<PDFRoomEntry  queryParams={props.queryParams} annotations={annotations} pushHistory={props.pushHistory} client={props.client} room={props.room} pdfevent={pdfEvent}/>)
     }
 }
 
@@ -178,7 +178,10 @@ class PDFRoomEntry extends Component {
         }
     }
 
-    handleLoad = _ => this.props.loadPDF(this.props.room.name)
+    handleLoad = _ => this.props.pushHistory({
+        pdfFocused : this.props.room.name,
+        pageFocused : 1,
+    })
 
     toggleButtons = _ => this.setState({ buttonsVisible : !this.state.buttonsVisible })
 
@@ -196,11 +199,12 @@ class PDFRoomEntry extends Component {
         const annotations = props.annotations.map(ev => ev.getContent())
                                              .filter(content => content[eventVersion].activityStatus == "open")
                                              .map(content => <AnnotationRoomEntry 
-                                                                key={content.[eventVersion].roomId} 
+                                                                key={content.[eventVersion].roomId}
+                                                                pushHistory={props.pushHistory}
                                                                 annotationContent={content.[eventVersion]} 
                                                                 parentRoom={props.room}
                                                                 queryParams={props.queryParams} 
-                                                                handleLoad={this.handleLoad} {... content[eventVersion]}/>)
+                                                                {... content[eventVersion]}/>)
         if (memberIds.includes(clientId)) { status = "joined" }
         return (
             <div  data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
@@ -241,14 +245,15 @@ class AnnotationRoomEntry extends Component {
 
     handleClick = () => {
         this.props.queryParams.set("focus", this.props.annotationContent.roomId)
-        this.props.queryParams.set("page", this.props.annotationContent.pageNumber)
-        this.props.handleLoad()
+        this.props.pushHistory({
+            pageFocused : this.props.annotationContent.pageNumber,
+            pdfFocused : this.props.parentRoom.name,
+        })
     }
     
     creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
 
     render (props, state) { 
-        console.log(props.annotationContent)
         return <tr class="annotationRoomEntry">
                 <td>…&nbsp;<a onclick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</td>
                 <td>{props.annotationContent.pageNumber}</td>

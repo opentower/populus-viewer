@@ -64,19 +64,14 @@ class PopulusViewer extends Component {
         })
     }
 
-    loadPDF = (title) => {
-       this.setState({pdfFocused : title})
-       this.queryParams.set("title", title)
-       window.history.pushState({ pdfFocused : title},"", "?" + this.queryParams.toString())
-    }
-
-    loadPage = (pageNo) => {
-       this.setState({pageFocused : pageNo})
-       this.queryParams.set("page", pageNo)
-       window.history.pushState({ 
-           pdfFocused : this.state.pdfFocused,
-           pageFocused : pageNo,
-       },"", "?" + this.queryParams.toString())
+    pushHistory = newState => {
+       if (newState.pdfFocused) this.queryParams.set("title", newState.pdfFocused)
+       if (newState.pageFocused) this.queryParams.set("page", newState.pageFocused)
+       this.setState(newState, _ => window.history.pushState({ 
+               pdfFocused : this.state.pdfFocused,
+               pageFocused : this.state.pageFocused,
+           },"", "?" + this.queryParams.toString())
+       )
     }
 
     render(props,state) {
@@ -88,12 +83,12 @@ class PopulusViewer extends Component {
         }
         if (state.pdfFocused) {
             return <PdfView queryParams={this.queryParams}
-                            loadPage={this.loadPage} 
+                            pushHistory={this.pushHistory} 
                             pageFocused={this.state.pageFocused} 
                             pdfFocused={this.state.pdfFocused} 
                             client={this.client}/>
         } else {
-            return <WelcomeView loadPDF={this.loadPDF} 
+            return <WelcomeView pushHistory={this.pushHistory} 
                                 queryParams={this.queryParams}
                                 logoutHandler={this.logoutHandler} 
                                 client={this.client}/>

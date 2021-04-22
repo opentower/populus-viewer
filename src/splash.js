@@ -7,11 +7,10 @@ export default class SplashView extends Component {
         if (this.props.client.isInitialSyncComplete()) {
             this.props.setInitialized()
         } else {
-            console.log("poll!")
+            console.log("polling initialization...")
             setTimeout(this.pollInitialized,1000)
         }
     }
-
 
     componentDidMount() { 
         setTimeout(this.pollInitialized,3000)
