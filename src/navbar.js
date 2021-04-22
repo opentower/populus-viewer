@@ -38,8 +38,12 @@ export default class Navbar extends Component {
             : alert("Out of range");
     }
 
+    mainMenu = _ => {
+        this.props.pushHistory({ pdfFocused : false });
+    }
+
     firstPage = _ => {
-        this.props.pushHistory({pageFocused : 1});
+        this.props.pushHistory({pageFocused : 1 });
         this.setState({value: 1})
     }
 
@@ -68,10 +72,6 @@ export default class Navbar extends Component {
         this.setState({value: parseInt(event.target.value)})
     }
 
-    mainmenu = _ => {
-        this.setState()
-    }
-
     render(props,state) {
         if (props.pdfWidthPx) { // don't render until width is set
             return <nav id="page-nav">
@@ -82,7 +82,7 @@ export default class Navbar extends Component {
                         current={props.page}/>
                 </div>
                 <div id="nav-button-wrapper">
-                    <button title="go to main menu" onclick={props.mainmenu}>{Icons.home}</button>
+                    <button title="go to main menu" onclick={this.mainMenu}>{Icons.home}</button>
                     <button title="add annotation" disabled={props.selected ? null : "disabled"} onclick={props.addann}>{Icons.addAnnotation}</button>
                     <button title="go to first page" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button>
                     <button title="go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
