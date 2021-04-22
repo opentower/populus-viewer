@@ -13,10 +13,6 @@
     grid-column: 1 / 2 ;
 }
 
-#profileInformationForm > label {
-    grid-column: 1 / 2 ;
-}
-
 #profileInformationForm > input {
     grid-column: 2 / 3 ;
     margin-bottom:.5em;
@@ -50,6 +46,7 @@ div#profileSelector {
 }
 
 #profileInformationFormSubmit > button {
+    margin-top:10px;
     margin-right:10px;
 }
 
@@ -65,7 +62,12 @@ div#profileSelector {
 }
 
 @media only screen and (max-width: 600px) {
+
     #profileInformationForm { grid-template-columns: 1fr }
 
-    #profileSelector, #profileInformationForm > input { grid-column: 1 / 2 }
+    #profileInformationFormProgress,
+    #profileSelector, 
+    #profileInformationForm > input { 
+        grid-column: 1 / 2 
+    }
 } 

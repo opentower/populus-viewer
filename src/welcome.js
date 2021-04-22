@@ -6,7 +6,7 @@ import PdfUpload from './pdfUpload.js'
 import MemberPill from './memberPill.js'
 import ProfileInformation from './profileInformation.js'
 import * as Icons from './icons.js'
-import { eventVersion, serverRoot }  from "./constants.js"
+import { eventVersion, serverRoot, spaceChild }  from "./constants.js"
 import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
@@ -141,7 +141,7 @@ class RoomList extends Component {
                                         if (ts1 < ts2) return 1
                                         else if (ts2 < ts1) return -1
                                         else return 0
-                                  }).map(room => { return <RoomListing key={room.roomId} queryParams={props.queryParams} loadPDF={props.loadPDF} client={props.client} room={room}/> })
+                                  }).map(room => { return <RoomListing key={room.roomId} queryParams={props.queryParams} pushHistory={props.pushHistory} client={props.client} room={room}/> })
         return (
             <Fragment>
                 <div>{rooms}</div>
@@ -163,8 +163,8 @@ class Logout extends Component {
 class RoomListing extends Component {
     render (props, state) {
         var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType,"")
-        var annotations = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(eventVersion)
-        if (pdfEvent) return (<PDFRoomEntry  queryParams={props.queryParams} annotations={annotations} loadPDF={props.loadPDF} client={props.client} room={props.room} pdfevent={pdfEvent}/>)
+        var annotations = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
+        if (pdfEvent) return (<PDFRoomEntry  queryParams={props.queryParams} annotations={annotations} pushHistory={props.pushHistory} client={props.client} room={props.room} pdfevent={pdfEvent}/>)
     }
 }
 
@@ -178,7 +178,10 @@ class PDFRoomEntry extends Component {
         }
     }
 
-    handleLoad = _ => this.props.loadPDF(this.props.room.name)
+    handleLoad = _ => this.props.pushHistory({
+        pdfFocused : this.props.room.name,
+        pageFocused : 1,
+    })
 
     toggleButtons = _ => this.setState({ buttonsVisible : !this.state.buttonsVisible })
 
@@ -194,11 +197,14 @@ class PDFRoomEntry extends Component {
         const clientId = props.client.getUserId()
         var status = "invited"
         const annotations = props.annotations.map(ev => ev.getContent())
-                                             .filter(content => content.activityStatus == "open")
+                                             .filter(content => content[eventVersion].activityStatus == "open")
                                              .map(content => <AnnotationRoomEntry 
-                                                                key={content.uuid} 
+                                                                key={content.[eventVersion].roomId}
+                                                                pushHistory={props.pushHistory}
+                                                                annotationContent={content.[eventVersion]} 
+                                                                parentRoom={props.room}
                                                                 queryParams={props.queryParams} 
-                                                                handleLoad={this.handleLoad} {... content}/>)
+                                                                {... content[eventVersion]}/>)
         if (memberIds.includes(clientId)) { status = "joined" }
         return (
             <div  data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
@@ -218,7 +224,7 @@ class PDFRoomEntry extends Component {
                     ?  <div><details>
                         <summary open={state.detailsOpen} ontoggle={this.handleDetailsToggle}>{annotations.length} annotations</summary>
                         <table class="annotationRoomTable">
-                            <thead> <tr><td>UUID</td><td>Page</td></tr></thead>
+                            <thead> <tr><td>Text</td><td>Page</td><td>Creator</td></tr></thead>
                             <tbody>{annotations}</tbody>
                         </table>
                     </details>
@@ -238,15 +244,20 @@ class PDFRoomEntry extends Component {
 class AnnotationRoomEntry extends Component {
 
     handleClick = () => {
-        this.props.queryParams.set("focus", this.props.uuid)
-        this.props.queryParams.set("page", this.props.pageNumber)
-        this.props.handleLoad()
+        this.props.queryParams.set("focus", this.props.annotationContent.roomId)
+        this.props.pushHistory({
+            pageFocused : this.props.annotationContent.pageNumber,
+            pdfFocused : this.props.parentRoom.name,
+        })
     }
+    
+    creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
 
     render (props, state) { 
         return <tr class="annotationRoomEntry">
-                <td><a onclick={this.handleClick}>{props.uuid}</a></td>
-                <td>{props.pageNumber}</td>
+                <td>…&nbsp;<a onclick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</td>
+                <td>{props.annotationContent.pageNumber}</td>
+                <td><MemberPill member={this.creator}/></td>
             </tr>
     }
 }

@@ -26,7 +26,7 @@ export default class ProfileInfomation extends Component {
 
     uploadAvatar = _ => this.avatarImageInput.current.click()
 
-    removeAvatar = _ => this.setState({ previewUrl : null })
+    removeAvatar = e => this.setState({ previewUrl : null })
 
     updatePreview = _ => {
         const theImage = this.avatarImageInput.current.files[0]
@@ -45,7 +45,7 @@ export default class ProfileInfomation extends Component {
             await this.props.client.uploadContent(theImage, { progressHandler : this.progressHandler })
                       .then(e => this.props.client.setAvatarUrl(e))
         } else if (!this.state.previewUrl) {
-            await this.props.client.setProfileInfo("avatar_url", {avatar_url : "null"})
+            await this.props.client.setAvatarUrl("null")
             //XXX this is a pretty awful hack. Discussion at https://github.com/matrix-org/matrix-doc/issues/1674
         }
         this.mainForm.current.reset()
@@ -53,21 +53,21 @@ export default class ProfileInfomation extends Component {
     } 
 
     render (props, state) {
+        //We include some key attributes here, because the removal and
+        //insertion of divs causes click events to get handled by the wrong
+        //elements as they bubble up through the DOM otherwise
         return (
             <form id="profileInformationForm" ref={this.mainForm} onsubmit={this.updateProfile}>
                 <label>My Display Name</label>
                 <input placeholder={state.displayName} ref={this.displayNameInput} type="text"/>
-                <div id="profileInformationAvatarControls">
-                    <label>My Avatar
-                    </label>
-                </div>
+                <label>My Avatar</label>
                 {state.previewUrl 
                     ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl}/> 
-                    : <div onclick={this.uploadAvatar} id="profileSelector"/>}
+                    : <div key="profileSelector" onclick={this.uploadAvatar} id="profileSelector"/>}
                 <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} type="file"/>
-                <div id="profileInformationFormSubmit">
+                <div key="profileInformationFormSubmit" id="profileInformationFormSubmit">
                     <button class="styled-button" ref={this.submitButton} type="submit">Update Profile</button>
-                    {state.previewUrl ? <button class="styled-button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
+                    {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
                 </div>
                 {this.state.progress 
                     ?  <div id="profileInformationFormProgress">

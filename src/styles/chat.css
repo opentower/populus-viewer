@@ -2,7 +2,6 @@
 #chat-wrapper {
     display:inline-flex;
     flex-direction: column-reverse;
-    border: 1px solid #adadad;
     height:100%;
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
@@ -29,9 +28,28 @@
     }
 }
 
+/* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
     #chat-wrapper {
         width:400px;
+        border: 1px solid #adadad;
+    }
+}
+
+/* standard DPI */
+@media only screen and (min-width: 1280px) {
+    #chat-wrapper {
+        width:100%;
+        padding:0px;
+        border: none;
+    }
+}
+
+/* high DPI laptop */
+@media only screen and (min-width: 1400px) {
+    #chat-wrapper {
+        width:400px;
+        border: 1px solid #adadad;
     }
 }
 

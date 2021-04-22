@@ -38,7 +38,7 @@ export default class Chat extends Component {
 
     //Room.timeline passes in more params
     handleTimeline = (event, room) => {
-        if (this.props.focus && this.props.focus.room_id == event.getRoomId()) {
+        if (this.props.focus && this.props.focus.roomId == event.getRoomId()) {
             this.setState({
                 events : room.getLiveTimeline().getEvents()
             })
@@ -46,9 +46,9 @@ export default class Chat extends Component {
     }
 
     handleTypingNotification = (event,member) => {
-        if (member.roomId == this.props.focus.room_id) {
+        if (member.roomId == this.props.focus.roomId) {
             //^^^ we have to check the originating room in an odd way because
-            //the room_id for the typing events isn't set for some reason,
+            //the roomId for the typing events isn't set for some reason,
             //maybe a bug in dendrite
             const myId = this.props.client.getUserId()
             const typingOtherThanMe = event.getContent().user_ids.filter(x => x != myId)
@@ -63,7 +63,7 @@ export default class Chat extends Component {
             this.props.client.scrollback(room)
             var oldState = room.getLiveTimeline().getState(sdk.EventTimeline.BACKWARDS)
             if (!oldState.paginationToken) {
-                this.scrolledIdents.add(this.props.focus.room_id)
+                this.scrolledIdents.add(this.props.focus.roomId)
                 this.setState({ fullyScrolled : true })
             }
             setTimeout(_ => this.tryLoad(room),100)
@@ -71,15 +71,16 @@ export default class Chat extends Component {
     }
 
     tryLoadRoom = async () => {
-        const room = await this.props.client.joinRoom(this.props.focus.room_id)
+        const room = await this.props.client.joinRoom(this.props.focus.roomId)
         this.tryLoad(room)
     }
 
     async componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.focus && (prevProps.focus != this.props.focus)) {
-            const room = await this.props.client.joinRoom(this.props.focus.room_id)
+            console.log(this.props.focus)
+            const room = await this.props.client.joinRoom(this.props.focus.roomId)
             this.setState({
-                fullyScrolled : this.scrolledIdents.has(this.props.focus.room_id),
+                fullyScrolled : this.scrolledIdents.has(this.props.focus.roomId),
                 events : room.getLiveTimeline().getEvents(),
             }, _ => this.tryLoad(room))
         }
@@ -219,7 +220,7 @@ class MessagePanel extends Component {
 
     startTyping = () => {
         //send a "typing" notification with a 30 second timeout
-        this.props.client.sendTyping(this.props.focus.room_id,true, 30000)
+        this.props.client.sendTyping(this.props.focus.roomId,true, 30000)
         //lock sending further typing notifications
         this.typingLock = true
         //Release lock (to allow sending another typing notification) after 10 seconds
@@ -232,7 +233,7 @@ class MessagePanel extends Component {
         clearTimeout(this.resetLockTimeout)
         clearTimeout(this.typingTimeout)
         //send a "not typing" notification
-        this.props.client.sendTyping(this.props.focus.room_id,false)
+        this.props.client.sendTyping(this.props.focus.roomId,false)
     }
 
     handleInput = (event) => {
@@ -255,11 +256,11 @@ class MessagePanel extends Component {
     }
 
     sendMessage = () => {
-        if (this.props.focus.room_id) {
+        if (this.props.focus.roomId) {
             this.stopTyping()
             const parsed = this.reader.parse(addLatex(this.state.value))
             const rendered = this.writer.render(parsed)
-            this.props.client.sendMessage(this.props.focus.room_id,{
+            this.props.client.sendMessage(this.props.focus.roomId,{
                 body : this.state.value,
                 msgtype :"m.text",
                 format: "org.matrix.custom.html",

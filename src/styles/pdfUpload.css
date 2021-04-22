@@ -36,9 +36,12 @@
     animation-timing-function:ease;
 }
 
-
 @media only screen and (max-width: 600px) {
     #pdfUploadForm { grid-template-columns: 1fr; }
 
-    #pdfUploadForm > input, #pdfUploadForm > textarea { grid-column: 1 / 2 }
+    #pdfUploadFormProgress, 
+    #pdfUploadForm > input, 
+    #pdfUploadForm > textarea { 
+        grid-column: 1 / 2 
+    }
 } 

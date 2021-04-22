@@ -1,7 +1,7 @@
 import { h, render, createRef, Fragment, Component } from 'preact';
 import * as Layout from "./layout.js"
 import * as Matrix from "matrix-js-sdk"
-import { eventVersion }  from "./constants.js"
+import { eventVersion, spaceChild }  from "./constants.js"
 import './styles/annotation-layer.css'
 import './styles/content-container.css'
 import './styles/text-layer.css'
@@ -18,15 +18,15 @@ export default class AnnotationLayer extends Component {
     componentWillUnmount() { this.props.client.off("RoomState.events",this.handleStateChange) }
 
     handleStateChange = event => {
-        if (event.getRoomId() == this.props.roomId && event.getType() == eventVersion) {
+        if (event.getRoomId() == this.props.roomId && event.getType() == spaceChild) {
             this.forceUpdate()
         }
     }
 
     filterAnnotations (event) {
         return (
-            event.getContent().pageNumber == this.props.page 
-            && event.getContent().activityStatus != "closed"
+            event.getContent()[eventVersion].pageNumber == this.props.page 
+            && event.getContent()[eventVersion].activityStatus != "closed"
         )
     }
 
@@ -34,14 +34,14 @@ export default class AnnotationLayer extends Component {
     render(props,state) {
         //just to get started
         const theRoom = props.client.getRoom(props.roomId)
-        const uuid = props.focus ? props.focus.uuid : null
+        const roomId = props.focus ? props.focus.roomId: null
         var annotations = []
         if (theRoom) { 
             const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-            annotations = theRoomState.getStateEvents(eventVersion)
+            annotations = theRoomState.getStateEvents(spaceChild)
                                       .filter(event => this.filterAnnotations(event))
                                       .map(event => <Annotation zoomFactor={props.zoomFactor}
-                                                                focused={uuid == event.getContent().uuid}
+                                                                focused={roomId == event.getContent()[eventVersion].roomId}
                                                                 setFocus={props.setFocus} 
                                                                 event={event}/>)
         }
@@ -55,13 +55,13 @@ export default class AnnotationLayer extends Component {
 
 class Annotation extends Component {
 
-    setFocus = _ => { this.props.setFocus(this.props.event.getContent()) }
+    setFocus = _ => { this.props.setFocus(this.props.event.getContent()[eventVersion]) }
 
     render(props,state) {
-        const uuid = props.event.getContent().uuid
-        const spans = JSON.parse(props.event.getContent().clientRects)
+        const roomId = props.event.getContent()[eventVersion].roomId
+        const spans = JSON.parse(props.event.getContent()[eventVersion].clientRects)
                           .map(rect => (<RectSpan zoomFactor={this.props.zoomFactor} setFocus={this.setFocus} rect={rect}/>))
-        return <div data-focused={props.focused} id={uuid}>{spans}</div>
+        return <div data-focused={props.focused} id={roomId}>{spans}</div>
     }
 }
 

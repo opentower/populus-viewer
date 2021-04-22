@@ -34,37 +34,37 @@ export default class Navbar extends Component {
     handleSubmit = e => {
         e.preventDefault();
         (this.currentPage() > 0 && this.currentPage() <= this.props.total)
-            ? this.props.loadPage(this.currentPage())
+            ? this.props.pushHistory({ pageFocused : this.currentPage() })
             : alert("Out of range");
     }
 
     firstPage = _ => {
-        this.props.loadPage(1);
+        this.props.pushHistory({pageFocused : 1});
         this.setState({value: 1})
     }
 
     prevPage = _ => {
         if (this.currentPage() > 1) {
-            this.props.loadPage(this.currentPage() - 1);
+            this.props.pushHistory({pageFocused : this.currentPage() - 1});
             this.setState({value: this.currentPage() - 1})
         } else {
-            this.props.loadPage(this.currentPage());
+            this.props.pushHistory({pageFocued : this.currentPage()});
             this.setState({value: this.currentPage()})
         }
     }
 
     nextPage = _ => {
-        this.props.loadPage(this.currentPage() + 1);
+        this.props.pushHistory({ pageFocused : this.currentPage() + 1 });
         this.setState({value: this.currentPage() + 1})
     }
 
     lastPage = _ => {
-        this.props.loadPage(this.props.total);
+        this.props.pushHistory({ pageFocused : this.props.total});
         this.setState({value: this.props.total})
     }
 
     handleClick = p => {
-        this.props.loadPage(parseInt(event.target.value));
+        this.props.pushHistory({ pageFocused : parseInt(event.target.value) });
         this.setState({value: parseInt(event.target.value)})
     }
 
