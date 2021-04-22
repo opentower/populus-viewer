@@ -68,6 +68,10 @@ export default class Navbar extends Component {
         this.setState({value: parseInt(event.target.value)})
     }
 
+    mainmenu = _ => {
+        this.setState()
+    }
+
     render(props,state) {
         if (props.pdfWidthPx) { // don't render until width is set
             return <nav id="page-nav">
@@ -78,6 +82,7 @@ export default class Navbar extends Component {
                         current={props.page}/>
                 </div>
                 <div id="nav-button-wrapper">
+                    <button title="go to main menu" onclick={props.mainmenu}>{Icons.home}</button>
                     <button title="add annotation" disabled={props.selected ? null : "disabled"} onclick={props.addann}>{Icons.addAnnotation}</button>
                     <button title="go to first page" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button>
                     <button title="go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
@@ -90,6 +95,7 @@ export default class Navbar extends Component {
                     <button title="go to next page" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
                     <button title="go to last page" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button>
                     <button title="remove annotation" disabled={this.props.focus && !this.props.selected ? null : "disabled"} onclick={this.props.closeann}>{Icons.removeAnnotation}</button>
+                    <button title="inactive" disabled>{Icons.menu}</button>
                 </div>
             </nav>
         }

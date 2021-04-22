@@ -53,6 +53,14 @@
     max-width: var(--contentWidth);
 }
 
+#nav-button-wrapper > button:first-child {
+    padding-right: 30%;
+}
+
+#nav-button-wrapper > button:last-child {
+    padding-left: 30%;
+}
+
 #nav-button-wrapper > button {
     cursor:pointer;
     outline:none;
@@ -116,7 +124,6 @@
     background:#ababab;
     transition: background 0.5s ease;
 }
-
 
 #nav-total-pages {
     font-size: 1em;
