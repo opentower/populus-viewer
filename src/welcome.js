@@ -6,7 +6,7 @@ import PdfUpload from './pdfUpload.js'
 import MemberPill from './memberPill.js'
 import ProfileInformation from './profileInformation.js'
 import * as Icons from './icons.js'
-import { eventVersion, serverRoot }  from "./constants.js"
+import { eventVersion, serverRoot, spaceChild }  from "./constants.js"
 import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
@@ -163,7 +163,7 @@ class Logout extends Component {
 class RoomListing extends Component {
     render (props, state) {
         var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType,"")
-        var annotations = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(eventVersion)
+        var annotations = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
         if (pdfEvent) return (<PDFRoomEntry  queryParams={props.queryParams} annotations={annotations} loadPDF={props.loadPDF} client={props.client} room={props.room} pdfevent={pdfEvent}/>)
     }
 }
@@ -194,11 +194,12 @@ class PDFRoomEntry extends Component {
         const clientId = props.client.getUserId()
         var status = "invited"
         const annotations = props.annotations.map(ev => ev.getContent())
-                                             .filter(content => content.activityStatus == "open")
+                                             .filter(content => content[eventVersion].activityStatus == "open")
                                              .map(content => <AnnotationRoomEntry 
-                                                                key={content.uuid} 
+                                                                key={content.[eventVersion].roomId} 
+                                                                roomId={content.[eventVersion].roomId} 
                                                                 queryParams={props.queryParams} 
-                                                                handleLoad={this.handleLoad} {... content}/>)
+                                                                handleLoad={this.handleLoad} {... content[eventVersion]}/>)
         if (memberIds.includes(clientId)) { status = "joined" }
         return (
             <div  data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
@@ -238,14 +239,14 @@ class PDFRoomEntry extends Component {
 class AnnotationRoomEntry extends Component {
 
     handleClick = () => {
-        this.props.queryParams.set("focus", this.props.uuid)
+        this.props.queryParams.set("focus", this.props.roomId)
         this.props.queryParams.set("page", this.props.pageNumber)
         this.props.handleLoad()
     }
 
     render (props, state) { 
         return <tr class="annotationRoomEntry">
-                <td><a onclick={this.handleClick}>{props.uuid}</a></td>
+                <td><a onclick={this.handleClick}>{props.roomId}</a></td>
                 <td>{props.pageNumber}</td>
             </tr>
     }

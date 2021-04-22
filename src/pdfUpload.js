@@ -1,6 +1,6 @@
 import { h, createRef, render, Component } from 'preact';
 import './styles/pdfUpload.css'
-import { pdfStateType, eventVersion }  from "./constants.js"
+import { eventVersion, serverRoot, domainName, pdfStateType, roomType, spaceType, spaceChild }  from "./constants.js"
 
 export default class PdfUpload extends Component {
 
@@ -24,13 +24,13 @@ export default class PdfUpload extends Component {
         if (theFile.type == "application/pdf") {
             this.submitButton.current.setAttribute("disabled", true)
             const id = await this.props.client.createRoom({
-                room_alias_name : theName,
+                room_alias_name : theName, //should sanatize, check for clashes
                 visibility : "public",
                 name : theName,
                 topic : theTopic,
                 //We declare the room a space
                 creation_content: {
-                    "org.matrix.msc1772.type" : "org.matrix.msc1772.space"
+                    [roomType] : spaceType
                 },
                 //we allow anyone to join, by default, for now
                 initial_state : [{
@@ -40,10 +40,10 @@ export default class PdfUpload extends Component {
                 }],
                 power_level_content_override : {
                     events : {
-                        [eventVersion] : 0 //we allow anyone to annotate, by default, for now
+                        [spaceChild] : 0 //we allow anyone to annotate, by default, for now
                     }
                 }
-            })
+            }).catch(e => {alert(e); return})
             this.props.client.uploadContent(theFile, { progressHandler : this.progressHandler }).then(e => {
                 let parts = e.split('/')
                 this.props.client.sendStateEvent(id.room_id, pdfStateType, {
@@ -56,7 +56,7 @@ export default class PdfUpload extends Component {
             }).then(_ => {
                 this.mainForm.current.reset()
                 this.props.showMainView()
-            })
+            }).catch(e => alert(e))
         }
     } 
 

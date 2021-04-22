@@ -5,7 +5,7 @@ import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
 import Navbar from "./navbar.js"
-import { eventVersion, serverRoot, domainName }  from "./constants.js"
+import { eventVersion, serverRoot, domainName, spaceChild }  from "./constants.js"
 import * as Icons from "./icons.js"
 
 export default class PdfView extends Component {
@@ -54,7 +54,7 @@ export default class PdfView extends Component {
     setId = id => {
         //sets the roomId, and also tries to use that information to update the focus.
         this.setState({roomId : id}, _ => this.props.queryParams.get("focus")
-                                       ? this.focusByUUID(this.props.queryParams.get("focus"))
+                                       ? this.focusByRoomId(this.props.queryParams.get("focus"))
                                        : null)
     }
 
@@ -66,13 +66,13 @@ export default class PdfView extends Component {
 
     setTotalPages = num => this.setState({totalPages : num})
 
-    focusByUUID = uuid => {
+    focusByRoomId = roomId => {
         const theRoom = this.props.client.getRoom(this.state.roomId)
         const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-        const theAnnotation = theRoomState.getStateEvents(eventVersion,uuid)
+        const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
         if (theAnnotation) {
             this.setState({
-                focus : theAnnotation.getContent(),
+                focus : theAnnotation.getContent()[eventVersion],
                 panelVisible : true,
             })
         }
@@ -96,13 +96,12 @@ export default class PdfView extends Component {
         var theRange = theSelection.getRangeAt(0)
         var clientRects = Array.from(theRange.getClientRects())
                                .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.pdfFitRatio * this.state.zoomFactor))
-        var uuid = Math.random().toString(36).substring(2)
-        //room creation is a bit slow, might want to rework this slightly for responsiveness
+        //TODO: room creation is a bit slow, might want to rework this slightly for responsiveness
+        //
+        //TODO: we should set room_alias_name, name, and topic in the options
+        //object, in a useful way based on the selection
         this.props.client.createRoom({
-            room_alias_name : "room" + uuid,
-            name : "room" + uuid,
             visibility : "public",
-            topic : "bloviating",
             initial_state : [{
                 type : "m.room.join_rules",
                 state_key : "",
@@ -111,39 +110,43 @@ export default class PdfView extends Component {
         }).then(roominfo => {
             theSelection.removeAllRanges()
             const theContent = {
-                room_id : roominfo.room_id,
-                uuid : uuid,
-                clientRects : JSON.stringify(clientRects),
-                activityStatus: "open",
-                pageNumber : this.props.pageFocused
+                via : [domainName],
+                [eventVersion] : {
+                    pageNumber : this.props.pageFocused,
+                    activityStatus: "open",
+                    clientRects : JSON.stringify(clientRects),
+                    roomId : roominfo.room_id
+                }
             }
-            this.props.client.sendStateEvent(this.state.roomId, eventVersion, theContent, uuid).catch(e => alert(e))
-            this.setFocus(theContent)
+            this.props.client.sendStateEvent(this.state.roomId, spaceChild, theContent, roominfo.room_id).catch(e => alert(e))
+            this.setFocus(theContent[eventVersion])
             this.setState({ panelVisible : true })
         })
     }
 
     closeAnnotation = _ => {
         if (confirm('Are you sure you want to close this annotation?')) {
-            this.props.client.sendStateEvent(this.state.roomId, eventVersion, {
-                uuid: this.state.focus.uuid,
-                room_id : this.state.focus.room_id,
-                pageNumber : this.state.focus.pageNumber,
-                clientRects: this.state.focus.clientRects,
-                activityStatus : "closed"
-            }, this.state.focus.uuid)
+            const theContent = {
+                via : [domainName],
+                [eventVersion] : {
+                    pageNumber : this.state.focus.pageNumber,
+                    activityStatus: "closed",
+                    clientRects : this.state.focus.clientRects,
+                }
+            }
+            this.props.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.roomId)
             this.setState({focus : null})
         } else {
             return false;
         }
     }
 
-    setFocus = content => {
-        this.props.queryParams.set("focus", content.uuid)
+    setFocus = (content) => {
+        this.props.queryParams.set("focus", content)
         window.history.replaceState({
             pdfFocused : this.props.pdfFocused,
             pageFocused : this.props.pageFocused,
-            annotationFocused : content.uuid,
+            annotationFocused : content.roomId,
         },"", "?" + this.props.queryParams.toString())
         this.setState({focus : content})
     }
