@@ -1,6 +1,8 @@
 import { h, createRef, render, Fragment, Component } from 'preact';
 import * as Icons from './icons.js';
+import * as Matrix from "matrix-js-sdk"
 import './styles/navbar.css';
+import { spaceChild, eventVersion }  from "./constants.js"
 
 export default class Navbar extends Component {
 
@@ -10,12 +12,28 @@ export default class Navbar extends Component {
             value : props.page,
             pageViewVisible : false,
         };
+        this.handleTypingNotifications = this.handleTypingNotification.bind(this)
     }
 
     currentPage() {
         let val = parseInt(this.state.value)
         if (!Number.isNaN(val)) return val
         else return 1
+    }
+
+    componentDidMount() {
+        this.props.client.on("RoomMember.typing", this.handleTypingNotification)
+    }
+
+    componentWillUnmount() {
+        this.props.client.off("RoomMember.typing", this.handleTypingNotification)
+    }
+
+    handleTypingNotification = (event,member) => {
+        const theRoomState = this.props.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+        const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
+        const typingKey = "typing-page-" + theChildRelation.getContent()[eventVersion].pageNumber
+        if (theChildRelation) this.setState({ [typingKey]: event.getContent().user_ids })
     }
 
     handleInput = e => {
@@ -27,15 +45,20 @@ export default class Navbar extends Component {
 
     handleBlur = _ => this.setState({ value : this.props.page })
 
-    togglePageNav = _ => {
-        this.setState({pageViewVisible: !this.state.pageViewVisible})
-    }
-
     handleSubmit = e => {
         e.preventDefault();
         (this.currentPage() > 0 && this.currentPage() <= this.props.total)
             ? this.props.pushHistory({ pageFocused : this.currentPage() })
             : alert("Out of range");
+    }
+
+    handleClick = p => {
+        this.props.pushHistory({ pageFocused : parseInt(event.target.value) });
+        this.setState({value: parseInt(event.target.value)})
+    }
+
+    togglePageNav = _ => {
+        this.setState({pageViewVisible: !this.state.pageViewVisible})
     }
 
     mainMenu = _ => {
@@ -68,11 +91,6 @@ export default class Navbar extends Component {
     lastPage = _ => {
         this.props.pushHistory({ pageFocused : this.props.total});
         this.setState({value: this.props.total})
-    }
-
-    handleClick = p => {
-        this.props.pushHistory({ pageFocused : parseInt(event.target.value) });
-        this.setState({value: parseInt(event.target.value)})
     }
 
     render(props,state) {

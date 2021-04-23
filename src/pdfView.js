@@ -208,6 +208,8 @@ export default class PdfView extends Component {
                     page={props.pageFocused}
                     total={state.totalPages}
                     focus={state.focus}
+                    roomId={state.roomId}
+                    client={props.client}
                     pdfWidthPx={state.pdfWidthPx}
                     pushHistory={props.pushHistory}/>
                 <button id="panelToggle" onclick={this.togglePanel}>
