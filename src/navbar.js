@@ -11,6 +11,7 @@ export default class Navbar extends Component {
         this.state = {
             value : props.page,
             pageViewVisible : false,
+            typing : {}
         };
         this.handleTypingNotifications = this.handleTypingNotification.bind(this)
     }
@@ -32,8 +33,11 @@ export default class Navbar extends Component {
     handleTypingNotification = (event,member) => {
         const theRoomState = this.props.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
         const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
-        const typingKey = "typing-page-" + theChildRelation.getContent()[eventVersion].pageNumber
-        if (theChildRelation) this.setState({ [typingKey]: event.getContent().user_ids })
+        const typingKey = theChildRelation.getContent()[eventVersion].pageNumber
+        //We use nested state here because we want to pass this part of the state to a child
+        if (theChildRelation) this.setState(prevState => ({ 
+            typing : { ...prevState.typing, [typingKey] : event.getContent().user_ids}
+        }))
     }
 
     handleInput = e => {
@@ -98,9 +102,10 @@ export default class Navbar extends Component {
             return <nav id="page-nav">
                 <div class={state.pageViewVisible ? null : "nav-hidden"} id="nav-pages">
                     <Pages total={props.total}
-                        handleClick={this.handleClick}
-                        currentPageElement={this.currentPageElement}
-                        current={props.page}/>
+                           handleClick={this.handleClick}
+                           currentPageElement={this.currentPageElement}
+                           typing={state.typing}
+                           current={props.page}/>
                 </div>
                 <div id="nav-button-wrapper">
                     <button title="go to main menu" onclick={this.mainMenu}>{Icons.home}</button>
@@ -131,8 +136,9 @@ class Pages extends Component {
 
     render(props,state) {
         var pagenos = Array.from({length: props.total}, (_, index) => index + 1);
+        console.log(props.typing)
         const pages = pagenos.map(page =>
-            <button value={page} onclick={props.handleClick}>{page}</button>
+            <button value={page} data-typing={props.typing[page]} onclick={props.handleClick}>{page}</button>
         );
         pages[props.current - 1] = <button ref={this.currentPageElement} class="currentpage">{props.current}</button>
             return (
