@@ -77,7 +77,6 @@ export default class Chat extends Component {
 
     async componentDidUpdate(prevProps, prevState, snapshot) {
         if (this.props.focus && (prevProps.focus != this.props.focus)) {
-            console.log(this.props.focus)
             const room = await this.props.client.joinRoom(this.props.focus.roomId)
             this.setState({
                 fullyScrolled : this.scrolledIdents.has(this.props.focus.roomId),

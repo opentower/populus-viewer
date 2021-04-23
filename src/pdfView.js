@@ -5,7 +5,7 @@ import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
 import Navbar from "./navbar.js"
-import { eventVersion, serverRoot, domainName, spaceChild }  from "./constants.js"
+import { eventVersion, serverRoot, domainName, spaceChild, spaceParent }  from "./constants.js"
 import * as Icons from "./icons.js"
 
 export default class PdfView extends Component {
@@ -109,6 +109,7 @@ export default class PdfView extends Component {
                 content : {"join_rule": "public"}
             }]
         }).then(roominfo => {
+            //set child event in pdfRoom State
             theSelection.removeAllRanges()
             const theContent = {
                 via : [domainName],
@@ -123,9 +124,14 @@ export default class PdfView extends Component {
             }
             this.props.client.sendStateEvent(this.state.roomId, spaceChild, theContent, roominfo.room_id)
                              .catch(e => alert(e))
+            //set parent event in child room state
+            this.props.client.sendStateEvent(roominfo.room_id, spaceParent, { via : [domainName] }, this.state.roomId)
+                             .catch(e => alert(e))
             this.setFocus(theContent[eventVersion])
             this.setState({ panelVisible : true })
+        }).then(_ => {
         })
+
     }
 
     closeAnnotation = _ => {
