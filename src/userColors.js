@@ -22,6 +22,5 @@ export default class UserColor {
             "--user_light": this.light,
             "--user_dark": this.dark,
         }
-
     }
 }

@@ -1,6 +1,7 @@
 import { h, createRef, render, Fragment, Component } from 'preact';
 import * as Icons from './icons.js';
 import * as Matrix from "matrix-js-sdk"
+import UserColor from "./userColors.js"
 import './styles/navbar.css';
 import { spaceChild, eventVersion }  from "./constants.js"
 
@@ -136,10 +137,17 @@ class Pages extends Component {
 
     render(props,state) {
         var pagenos = Array.from({length: props.total}, (_, index) => index + 1);
-        console.log(props.typing)
-        const pages = pagenos.map(page =>
-            <button value={page} data-typing={props.typing[page]} onclick={props.handleClick}>{page}</button>
-        );
+        const pages = pagenos.map(page => {
+            let theClass, theUserColor
+            if (props.typing[page] && props.typing[page][0]) {
+                theClass = "typing" 
+                theUserColor = new UserColor(props.typing[page][0])
+            }
+            return <button value={page} 
+                           class={theClass}
+                           style={theUserColor?.styleVariables}
+                           onclick={props.handleClick}>{page}</button>
+        });
         pages[props.current - 1] = <button ref={this.currentPageElement} class="currentpage">{props.current}</button>
             return (
                 <Fragment>

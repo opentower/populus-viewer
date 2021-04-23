@@ -111,7 +111,7 @@ export default class PdfView extends Component {
         }).then(roominfo => {
             //set child event in pdfRoom State
             theSelection.removeAllRanges()
-            const theContent = {
+            const childContent = {
                 via : [domainName],
                 [eventVersion] : {
                     pageNumber : this.props.pageFocused,
@@ -122,16 +122,14 @@ export default class PdfView extends Component {
                     selectedText : theSelectedText,
                 }
             }
-            this.props.client.sendStateEvent(this.state.roomId, spaceChild, theContent, roominfo.room_id)
+            this.props.client.sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
                              .catch(e => alert(e))
             //set parent event in child room state
             this.props.client.sendStateEvent(roominfo.room_id, spaceParent, { via : [domainName] }, this.state.roomId)
                              .catch(e => alert(e))
             this.setFocus(theContent[eventVersion])
             this.setState({ panelVisible : true })
-        }).then(_ => {
         })
-
     }
 
     closeAnnotation = _ => {
