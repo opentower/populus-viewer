@@ -67,7 +67,7 @@ export default class PdfView extends Component {
     setTotalPages = num => this.setState({totalPages : num})
 
     focusByRoomId = roomId => {
-        const theRoom = this.props.client.getRoom(this.state.roomId)
+        const theRoom = this.props.client.getRoom(this.state.roomId) //the roomId here is for the PDF
         const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
         const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
         if (theAnnotation) {
@@ -151,7 +151,7 @@ export default class PdfView extends Component {
     }
 
     setFocus = (content) => {
-        this.props.queryParams.set("focus", content)
+        this.props.queryParams.set("focus", content.roomId)
         window.history.replaceState({
             pdfFocused : this.props.pdfFocused,
             pageFocused : this.props.pageFocused,
