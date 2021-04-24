@@ -59,14 +59,19 @@ export default class Chat extends Component {
     tryLoad = (room) => {
         var anchor = document.getElementById("scroll-anchor")
         var chatPanel = document.getElementById("chat-panel")
-        if (anchor && chatPanel.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
+        var newroom = this.props.client.getRoom(room.roomId) //we refresh the room to ensure that some state is loaded
+        if (!newroom) setTimeout(_ => this.tryLoad(room),100) //if not, we try again momentarily
+        else if (anchor && chatPanel.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
+            room = newroom //the initial empty room needs to be replaced by the room that has some loaded state
             this.props.client.scrollback(room)
-            var oldState = room.getLiveTimeline().getState(sdk.EventTimeline.BACKWARDS)
-            if (!oldState.paginationToken) {
-                this.scrolledIdents.add(this.props.focus.roomId)
+            var prevState = room.getLiveTimeline().getState(sdk.EventTimeline.BACKWARDS)
+            if (!prevState.paginationToken && this.props.client.getRoom(room.roomId)) {
+                this.scrolledIdents.add(room.roomId)
                 this.setState({ fullyScrolled : true })
             }
-            setTimeout(_ => this.tryLoad(room),100)
+            this.props.client.joinRoom(room.roomId).then(
+                newroom => setTimeout(_ => this.tryLoad(newroom),100)
+            )
         }
     }
 
