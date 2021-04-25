@@ -6,7 +6,7 @@ import PdfUpload from './pdfUpload.js'
 import MemberPill from './memberPill.js'
 import ProfileInformation from './profileInformation.js'
 import * as Icons from './icons.js'
-import { eventVersion, serverRoot, spaceChild }  from "./constants.js"
+import { eventVersion, serverRoot, spaceChild, lastViewed }  from "./constants.js"
 import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
@@ -141,7 +141,11 @@ class RoomList extends Component {
                                         if (ts1 < ts2) return 1
                                         else if (ts2 < ts1) return -1
                                         else return 0
-                                  }).map(room => { return <RoomListing key={room.roomId} queryParams={props.queryParams} pushHistory={props.pushHistory} client={props.client} room={room}/> })
+                                  }).map(room => { return <RoomListing key={room.roomId} 
+                                                                       queryParams={props.queryParams} 
+                                                                       pushHistory={props.pushHistory} 
+                                                                       client={props.client} 
+                                                                       room={room}/> })
         return (
             <Fragment>
                 <div>{rooms}</div>
@@ -164,7 +168,12 @@ class RoomListing extends Component {
     render (props, state) {
         var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType,"")
         var annotations = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
-        if (pdfEvent) return (<PDFRoomEntry  queryParams={props.queryParams} annotations={annotations} pushHistory={props.pushHistory} client={props.client} room={props.room} pdfevent={pdfEvent}/>)
+        if (pdfEvent) return (<PDFRoomEntry queryParams={props.queryParams} 
+                                            annotations={annotations} 
+                                            pushHistory={props.pushHistory} 
+                                            client={props.client} 
+                                            room={props.room}
+                                            pdfevent={pdfEvent}/>)
     }
 }
 
@@ -178,10 +187,13 @@ class PDFRoomEntry extends Component {
         }
     }
 
-    handleLoad = _ => this.props.pushHistory({
-        pdfFocused : this.props.room.name,
-        pageFocused : 1,
-    })
+    handleLoad = _ => {
+        const lastViewedPage = this.props.room.getAccountData(lastViewed).getContent().page
+        this.props.pushHistory({
+            pdfFocused : this.props.room.name,
+            pageFocused : lastViewedPage || 1,
+        })
+    }
 
     toggleButtons = _ => this.setState({ buttonsVisible : !this.state.buttonsVisible })
 

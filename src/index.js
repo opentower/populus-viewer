@@ -5,7 +5,7 @@ import LoginView from './login.js';
 import PdfView from './pdfView.js';
 import SplashView from './splash.js';
 import './styles/global.css'
-import { serverRoot } from './constants.js'
+import { serverRoot, domainName, lastViewed } from './constants.js'
 
 // This module is the entrypoint for the viewer. It'll be reponsible for the
 // main container element, for initializing the client object, and for
@@ -42,6 +42,7 @@ class PopulusViewer extends Component {
                 pageFocused : e.state.pageFocused || 1,
             })
         })
+        this.setLastPage = this.setLastPage.bind(this)
     }
 
     setInitialized = _ => this.setState({ initialized : true })
@@ -64,6 +65,12 @@ class PopulusViewer extends Component {
         })
     }
 
+    setLastPage = async _ => {
+        if (!this.state.pdfFocused || !this.state.pageFocused) return
+        var theId = await this.client.getRoomIdForAlias("#" + this.state.pdfFocused + ":" + domainName)
+        await this.client.setRoomAccountData(theId.room_id, lastViewed, { page : this.state.pageFocused })
+    }
+
     pushHistory = newState => {
        if (newState.pdfFocused) this.queryParams.set("title", newState.pdfFocused)
        if (newState.pdfFocused === null) {
@@ -72,10 +79,14 @@ class PopulusViewer extends Component {
        }
        if (newState.pageFocused) this.queryParams.set("page", newState.pageFocused)
        if (newState.pageFocused === null) this.queryParams.delete("page")
-       this.setState(newState, _ => window.history.pushState({ 
-               pdfFocused : this.state.pdfFocused,
-               pageFocused : this.state.pageFocused,
-           },"", "?" + this.queryParams.toString())
+       this.setState(newState, _ => {
+               window.history.pushState({ 
+                   pdfFocused : this.state.pdfFocused,
+                   pageFocused : this.state.pageFocused,
+               },"", "?" + this.queryParams.toString())
+               clearTimeout(this.setLastPageTimeout)
+               this.setLastPageTimeout = setTimeout(this.setLastPage,1000)
+           }
        )
     }
 
