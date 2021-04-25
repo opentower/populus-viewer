@@ -49,7 +49,35 @@ export default class PdfView extends Component {
 
     componentWillUnmount() { document.removeEventListener("selectionchange", this.checkForSelection) }
 
+    pointerDownHandler = e => { 
+        this.pointerCache.push(e)
+        if (this.pointerCache.length == 2) {
+            this.initialDistance = Math.abs(this.pointerCache[0].clientX - this.pointerCache[1].clientX)
+            this.initialZoom = this.state.zoomFactor
+            this.setState({pinching : true})
+        }
+    }
+
+    pointerUpHandler = e => { 
+        this.pointerCache = this.pointerCache.filter(pointerEv => pointerEv.pointerId != e.pointerId)
+        if (this.pointerCache.length != 2) this.setState({pinching : false})
+    }
+
+    pointerMoveHandler = e => { 
+        //update cache
+        this.pointerCache.forEach((pointerEvent,index) => {
+            if (e.pointerId == pointerEvent.pointerId) this.pointerCache[index] = e
+        })
+        //if two fingers are down, see if we're pinching
+        if (this.pointerCache.length == 2) {
+            const touchDistance = Math.abs(this.pointerCache[0].clientX - this.pointerCache[1].clientX)
+            this.setState({zoomFactor : this.initialZoom * (touchDistance/this.initialDistance) })
+        }
+    }
+
     documentView = createRef()
+
+    pointerCache = []
 
     setId = id => {
         //sets the roomId, and also tries to use that information to update the focus.
@@ -167,15 +195,21 @@ export default class PdfView extends Component {
             "--pdfWidthPx" : state.pdfWidthPx + "px",
             "--pdfHeightPx" : state.pdfHeightPx + "px",
             "--sidePanelVisible" : state.panelVisible ? 1 : 0,
+            "touch-action" : this.state.pinching ? "none" : null
         }
         const hideUntilWidthAvailable = {
             visibility : state.pdfHeightPx ? null : "hidden",
         }
         return (
-            <div style={dynamicDocumentStyle} id="content-container">
+            <div style={dynamicDocumentStyle} id="content-container"
+                 onPointerDown={this.pointerDownHandler}
+                 onPointerUp={this.pointerUpHandler}
+                 onPointerCancel={this.pointerUpHandler}
+                 onPointerLeave={this.pointerUpHandler}
+                 onPointerMove={this.pointerMoveHandler}>
                 {state.pdfHeightPx ? null : <div id="document-view-loading">loading...</div>}
                 <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
-                    <div  id="document-wrapper">
+                    <div id="document-wrapper">
                         <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
                                    setPdfHeightPx={this.setPdfHeightPx}
                                    setPdfFitRatio={this.setPdfFitRatio}
