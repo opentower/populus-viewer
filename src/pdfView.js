@@ -39,10 +39,10 @@ export default class PdfView extends Component {
 
     componentDidMount() {
         document.addEventListener("selectionchange", this.checkForSelection)
-        document.addEventListener('keydown', e => { if (e.key == '+') {
+        document.addEventListener('keypress', e => { if (e.key == '+') {
             this.setState({zoomFactor : this.state.zoomFactor + 0.1})
         }})
-        document.addEventListener('keydown', e => { if (e.key == '-') {
+        document.addEventListener('keypress', e => { if (e.key == '-') {
             this.setState({zoomFactor : this.state.zoomFactor - 0.1})
         }})
     }

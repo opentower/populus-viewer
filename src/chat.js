@@ -248,6 +248,7 @@ class MessagePanel extends Component {
     }
 
     handleKeypress = (event) => {
+        event.stopPropagation() //don't propagate to global keypress handlers
         if (this.props.focus) {
             clearTimeout(this.typingTimeout)
             this.typingTimeout = setTimeout(_  => this.stopTyping(), 5000)
@@ -282,7 +283,10 @@ class MessagePanel extends Component {
 
     render(props,state) {
         return (<div style={this.userColor.styleVariables} id="messageComposer">
-            <textarea ref={this.currentInput} value={state.value} onkeypress={this.handleKeypress} oninput={this.handleInput}/>
+            <textarea ref={this.currentInput} 
+                      value={state.value} 
+                      onkeypress={this.handleKeypress} 
+                      oninput={this.handleInput}/>
             <div id="submit-button-wrapper">
                 <button id="submitButton" onclick={this.sendMessage}>Submit</button>
                 <button id="sendFileButton" onclick={_ => alert("not implemented")}>{Icons.upload}</button>
