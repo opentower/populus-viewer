@@ -15,10 +15,6 @@ export default class PdfView extends Component {
     //Could alternatively use localstorage or some such eventually. We don't
     //use preact state since changes here aren't relevent to UI.
 
-    annotationLayer = createRef()
-
-    annotationLayerWrapper = createRef()
-
     constructor(props) {
         super(props)
         this.state = {
@@ -74,16 +70,20 @@ export default class PdfView extends Component {
         }
     }
 
-    documentView = createRef()
-
-    pointerCache = []
-
     setId = id => {
         //sets the roomId, and also tries to use that information to update the focus.
         this.setState({roomId : id}, _ => this.props.queryParams.get("focus")
                                        ? this.focusByRoomId(this.props.queryParams.get("focus"))
                                        : null)
     }
+
+    annotationLayer = createRef()
+
+    annotationLayerWrapper = createRef()
+
+    documentView = createRef()
+
+    pointerCache = []
 
     setPdfWidthPx = px => this.setState({pdfWidthPx: px})
 
@@ -276,6 +276,34 @@ class PdfCanvas extends Component {
         })
     }
 
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if (!this.hasRendered || (prevProps.pageFocused != this.props.pageFocused)) {
+            const control = this.grabControl()
+            this.drawPdf(control).then(_ =>
+                //need to do this to take into account positioning changes caused by rescaling
+                this.props.annotationLayer.current.forceUpdate()
+            )
+        }
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        if (!this.hasRendered || (this.props.pageFocused != nextProps.pageFocused)) {
+            this.canvasRefreshAt = Date.now()
+        }
+    }
+
+    componentDidMount() {
+        this.fetchPdf(this.props.pdfFocused) 
+        //fetch will fail if the initial sync isn't complete, but that should be handled by the splash page
+        this.textLayer.current.addEventListener('click', event => {
+            event.preventDefault() //this should prevent touch-to-search on mobile chrome
+            const mouseEvent = new MouseEvent(event.type, event)
+            document.elementsFromPoint(event.clientX, event.clientY).forEach(elt => {
+                if (elt.hasAttribute("data-annotation")) elt.dispatchEvent(mouseEvent)
+            })
+        })
+    }
+
     textLayer = createRef()
 
     canvas = createRef()
@@ -366,33 +394,6 @@ class PdfCanvas extends Component {
             container: this.textLayer.current,
             viewport: page.getViewport({scale: 1.5}),
             textDivs: [],
-        })
-    }
-
-    componentDidUpdate(prevProps, prevState, snapshot) {
-        if (!this.hasRendered || (prevProps.pageFocused != this.props.pageFocused)) {
-            const control = this.grabControl()
-            this.drawPdf(control).then(_ =>
-                //need to do this to take into account positioning changes caused by rescaling
-                this.props.annotationLayer.current.forceUpdate()
-            )
-        }
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        if (!this.hasRendered || (this.props.pageFocused != nextProps.pageFocused)) {
-            this.canvasRefreshAt = Date.now()
-        }
-    }
-
-    componentDidMount() {
-        this.fetchPdf(this.props.pdfFocused) //XXX this will fail if the initial sync isn't complete, but that should be handled by the splash page
-        this.textLayer.current.addEventListener('click', event => {
-            event.preventDefault() //this should prevent touch-to-search on mobile chrome
-            const mouseEvent = new MouseEvent(event.type, event)
-            document.elementsFromPoint(event.clientX, event.clientY).forEach(elt => {
-                if (elt.hasAttribute("data-annotation")) elt.dispatchEvent(mouseEvent)
-            })
         })
     }
 
