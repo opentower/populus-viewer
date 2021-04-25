@@ -33,23 +33,22 @@ export default class PdfView extends Component {
             zoomFactor: 1,
         }
         this.checkForSelection = this.checkForSelection.bind(this)
+        this.keyboardZoom = this.keyboardZoom.bind(this)
         //need the `bind` here in order to pass a named function into the event
         //listener with the proper `this` reference
     }
 
     componentDidMount() {
         document.addEventListener("selectionchange", this.checkForSelection)
-        document.addEventListener('keypress', e => { if (e.key == '+') {
-            this.setZoom(this.state.zoomFactor + 0.1)
-        }})
-        document.addEventListener('keypress', e => { if (e.key == '-') {
-            this.setZoom(this.state.zoomFactor - 0.1)
-        }})
+        document.addEventListener('keypress', this.keyboardZoom)
     }
 
-    componentWillUnmount() { document.removeEventListener("selectionchange", this.checkForSelection) }
+    componentWillUnmount() { 
+        document.removeEventListener("selectionchange", this.checkForSelection) 
+        document.removeEventListener('keypress', this.keyboardZoom)
+    }
 
-    pointerDownHandler = e => { 
+    handlePointerDown = e => { 
         this.pointerCache.push(e)
         if (this.pointerCache.length == 2) {
             this.initialDistance = Math.abs(this.pointerCache[0].clientX - this.pointerCache[1].clientX)
@@ -58,12 +57,12 @@ export default class PdfView extends Component {
         }
     }
 
-    pointerUpHandler = e => { 
+    handlePointerUp = e => { 
         this.pointerCache = this.pointerCache.filter(pointerEv => pointerEv.pointerId != e.pointerId)
         if (this.pointerCache.length != 2) this.setState({pinching : false})
     }
 
-    pointerMoveHandler = e => { 
+    handlePointerMove = e => { 
         //update cache
         this.pointerCache.forEach((pointerEvent,index) => {
             if (e.pointerId == pointerEvent.pointerId) this.pointerCache[index] = e
@@ -122,6 +121,11 @@ export default class PdfView extends Component {
                          && this.documentView.current.contains(window.getSelection().getRangeAt(0).startContainer)
         this.selectionTimeout = setTimeout(200,this.setState({hasSelection : hasSelection}))
         //timeout to avoid excessive rerendering
+    }
+
+    keyboardZoom = e => { 
+        if (e.key == '+') this.setZoom(this.state.zoomFactor + 0.1)
+        if (e.key == '-') this.setZoom(this.state.zoomFactor - 0.1)
     }
 
     openAnnotation = _ => {
@@ -208,11 +212,11 @@ export default class PdfView extends Component {
         }
         return (
             <div style={dynamicDocumentStyle} id="content-container"
-                 onPointerDown={this.pointerDownHandler}
-                 onPointerUp={this.pointerUpHandler}
-                 onPointerCancel={this.pointerUpHandler}
-                 onPointerLeave={this.pointerUpHandler}
-                 onPointerMove={this.pointerMoveHandler}>
+                 onPointerDown={this.handlePointerDown}
+                 onPointerUp={this.handlePointerUp}
+                 onPointerCancel={this.handlePointerUp}
+                 onPointerLeave={this.handlePointerUp}
+                 onPointerMove={this.handlePointerMove}>
                 {state.pdfHeightPx ? null : <div id="document-view-loading">loading...</div>}
                 <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
                     <div id="document-wrapper">
