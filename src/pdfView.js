@@ -40,10 +40,10 @@ export default class PdfView extends Component {
     componentDidMount() {
         document.addEventListener("selectionchange", this.checkForSelection)
         document.addEventListener('keypress', e => { if (e.key == '+') {
-            this.setState({zoomFactor : this.state.zoomFactor + 0.1})
+            this.setZoom(this.state.zoomFactor + 0.1)
         }})
         document.addEventListener('keypress', e => { if (e.key == '-') {
-            this.setState({zoomFactor : this.state.zoomFactor - 0.1})
+            this.setZoom(this.state.zoomFactor - 0.1)
         }})
     }
 
@@ -71,7 +71,7 @@ export default class PdfView extends Component {
         //if two fingers are down, see if we're pinching
         if (this.pointerCache.length == 2) {
             const touchDistance = Math.abs(this.pointerCache[0].clientX - this.pointerCache[1].clientX)
-            this.setState({zoomFactor : this.initialZoom * (touchDistance/this.initialDistance) })
+            this.setZoom(this.initialZoom * (touchDistance/this.initialDistance))
         }
     }
 
@@ -93,6 +93,12 @@ export default class PdfView extends Component {
     setPdfHeightPx = px => this.setState({pdfHeightPx: px})
 
     setTotalPages = num => this.setState({totalPages : num})
+
+    setZoom = zoomFactor => {
+        if (zoomFactor < 1) this.setState({zoomFactor : 1})
+        else if (zoomFactor > 5) this.setState({zoomFactor : 5})
+        else this.setState({zoomFactor : zoomFactor})
+    }
 
     focusByRoomId = roomId => {
         const theRoom = this.props.client.getRoom(this.state.roomId) //the roomId here is for the PDF
