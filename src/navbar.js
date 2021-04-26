@@ -131,9 +131,13 @@ export default class Navbar extends Component {
 
 class Pages extends Component {
 
-    currentPageElement = createRef()
+    componentDidUpdate(prevProps,prevState,snapshot) { 
+        if (prevProps.current != this.props.current) {
+            this.currentPageElement.current.scrollIntoView({inline : "center"})
+        }
+    }
 
-    componentDidUpdate() { this.currentPageElement.current.scrollIntoView({inline : "center"}); }
+    currentPageElement = createRef()
 
     render(props,state) {
         var pagenos = Array.from({length: props.total}, (_, index) => index + 1);

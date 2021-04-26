@@ -55,7 +55,7 @@ export default class PdfView extends Component {
 
     handlePointerUp = e => { 
         this.pointerCache = this.pointerCache.filter(pointerEv => pointerEv.pointerId != e.pointerId)
-        if (this.pointerCache.length != 2) this.setState({pinching : false})
+        if (this.state.pinching && this.pointerCache.length != 2) this.setState({pinching : false})
     }
 
     handlePointerMove = e => { 
