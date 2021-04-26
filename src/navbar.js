@@ -133,9 +133,7 @@ export default class Navbar extends Component {
 class Pages extends Component {
 
     componentDidUpdate(prevProps,prevState,snapshot) { 
-        if (prevProps.current != this.props.current || prevProps.visibility != this.props.visibility ) {
-            this.currentPageElement.current.scrollIntoView({inline : "center"})
-        }
+        this.currentPageElement.current.scrollIntoView({inline : "center"})
     }
 
     currentPageElement = createRef()
