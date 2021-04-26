@@ -105,6 +105,7 @@ export default class Navbar extends Component {
                     <Pages total={props.total}
                            handleClick={this.handleClick}
                            currentPageElement={this.currentPageElement}
+                           visibility={state.pageViewVisible}
                            typing={state.typing}
                            current={props.page}/>
                 </div>
@@ -132,7 +133,7 @@ export default class Navbar extends Component {
 class Pages extends Component {
 
     componentDidUpdate(prevProps,prevState,snapshot) { 
-        if (prevProps.current != this.props.current) {
+        if (prevProps.current != this.props.current || prevProps.visibility != this.props.visibility ) {
             this.currentPageElement.current.scrollIntoView({inline : "center"})
         }
     }
