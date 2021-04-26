@@ -15,6 +15,8 @@ import { serverRoot, domainName, lastViewed } from './constants.js'
 class PopulusViewer extends Component {
     constructor () {
         super()
+        //Probably both client and params should be globals rather than props, since
+        //they're incidental to rendering
         this.queryParams = new URLSearchParams(window.location.search)
         this.client = Matrix.createClient({
             baseUrl : serverRoot,
@@ -26,15 +28,8 @@ class PopulusViewer extends Component {
         this.state = { 
             loggedIn : false,
             initialized : false,
-            pdfFocused : this.queryParams.get("title") || false,
-            pageFocused : Number(this.queryParams.get("page")) || 1,
         }
         if (this.client.getUserId()) this.loginHandler()
-        //initialize navigation history
-        window.history.pushState({ 
-            pdfFocused : this.state.pdfFocused,
-            pageFocused : this.state.pageFocused,
-        },"", "?" + this.queryParams.toString()) 
         //handle navigation events
         window.addEventListener('popstate', e => {
             this.setState({
@@ -95,7 +90,10 @@ class PopulusViewer extends Component {
             return <LoginView loginHandler={this.loginHandler} client={this.client}/>
         } 
         if (!state.initialized) {
-            return <SplashView setInitialized={this.setInitialized} client={this.client}/>
+            return <SplashView setInitialized={this.setInitialized} 
+                               pushHistory={this.pushHistory}
+                               queryParams={this.queryParams}
+                               client={this.client}/>
         }
         if (state.pdfFocused) {
             return <PdfView queryParams={this.queryParams}
