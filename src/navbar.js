@@ -81,16 +81,21 @@ export default class Navbar extends Component {
     prevPage = _ => {
         if (this.currentPage() > 1) {
             this.props.pushHistory({pageFocused : this.currentPage() - 1});
-            this.setState({value: this.currentPage() - 1})
-        } else {
-            this.props.pushHistory({pageFocued : this.currentPage()});
-            this.setState({value: this.currentPage()})
+            this.setState({value: this.currentPage() - 1}, _ => {
+                this.props.container.current.scrollTop = this.props.container.current.scrollHeight
+                //this works imperfectly when the page size changes, because
+                //the change in sizes takes place after the PDF render, which
+                //takes place after the page change
+            })
         }
     }
 
     nextPage = _ => {
         this.props.pushHistory({ pageFocused : this.currentPage() + 1 });
-        this.setState({value: this.currentPage() + 1})
+        this.setState({value: this.currentPage() + 1}, _ => {
+            console.log(this.props.container.current.scrollHeight)
+            this.props.container.current.scrollTop = 0
+        })
     }
 
     lastPage = _ => {

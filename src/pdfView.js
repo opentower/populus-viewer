@@ -265,6 +265,7 @@ export default class PdfView extends Component {
                     total={state.totalPages}
                     focus={state.focus}
                     roomId={state.roomId}
+                    container={this.contentContainer}
                     client={props.client}
                     pdfWidthPx={state.pdfWidthPx}
                     pushHistory={props.pushHistory}/>
