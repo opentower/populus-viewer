@@ -66,7 +66,7 @@ class PopulusViewer extends Component {
         await this.client.setRoomAccountData(theId.room_id, lastViewed, { page : this.state.pageFocused })
     }
 
-    pushHistory = newState => {
+    pushHistory = (newState, callback) => {
        if (newState.pdfFocused) this.queryParams.set("title", newState.pdfFocused)
        if (newState.pdfFocused === null) {
            this.queryParams.delete("title")
@@ -81,6 +81,7 @@ class PopulusViewer extends Component {
                },"", "?" + this.queryParams.toString())
                clearTimeout(this.setLastPageTimeout)
                this.setLastPageTimeout = setTimeout(this.setLastPage,1000)
+               if (callback) callback()
            }
        )
     }

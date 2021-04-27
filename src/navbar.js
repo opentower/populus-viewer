@@ -12,7 +12,8 @@ export default class Navbar extends Component {
         this.state = {
             value : props.page,
             pageViewVisible : false,
-            typing : {}
+            typing : {},
+            focused : false,
         };
         this.handleTypingNotifications = this.handleTypingNotification.bind(this)
     }
@@ -46,9 +47,9 @@ export default class Navbar extends Component {
         else this.setState({ value : "" })
     }
 
-    handleFocus = _ => this.setState({ value : "" })
+    handleFocus = _ => this.setState({ focused: true, value : "" })
 
-    handleBlur = _ => this.setState({ value : this.props.page })
+    handleBlur = _ => this.setState({ focused: false, value : this.props.page })
 
     handleSubmit = e => {
         e.preventDefault();
@@ -57,14 +58,9 @@ export default class Navbar extends Component {
             : alert("Out of range");
     }
 
-    handleClick = p => {
-        this.props.pushHistory({ pageFocused : parseInt(event.target.value) });
-        this.setState({value: parseInt(event.target.value)})
-    }
+    handleClick = p => this.props.pushHistory({ pageFocused : parseInt(event.target.value) })
 
-    togglePageNav = _ => {
-        this.setState({pageViewVisible: !this.state.pageViewVisible})
-    }
+    togglePageNav = _ => this.setState({pageViewVisible: !this.state.pageViewVisible})
 
     mainMenu = _ => {
         this.props.pushHistory({ 
@@ -73,15 +69,11 @@ export default class Navbar extends Component {
         });
     }
 
-    firstPage = _ => {
-        this.props.pushHistory({pageFocused : 1 });
-        this.setState({value: 1})
-    }
+    firstPage = _ => this.props.pushHistory({pageFocused : 1 })
 
     prevPage = _ => {
-        if (this.currentPage() > 1) {
-            this.props.pushHistory({pageFocused : this.currentPage() - 1});
-            this.setState({value: this.currentPage() - 1}, _ => {
+        if (this.props.page > 1) {
+            this.props.pushHistory({pageFocused : this.props.page - 1}, _ => {
                 this.props.container.current.scrollTop = this.props.container.current.scrollHeight
                 //this works imperfectly when the page size changes, because
                 //the change in sizes takes place after the PDF render, which
@@ -91,17 +83,12 @@ export default class Navbar extends Component {
     }
 
     nextPage = _ => {
-        this.props.pushHistory({ pageFocused : this.currentPage() + 1 });
-        this.setState({value: this.currentPage() + 1}, _ => {
-            console.log(this.props.container.current.scrollHeight)
+        this.props.pushHistory({ pageFocused : this.props.page + 1 }, _ => {
             this.props.container.current.scrollTop = 0
         })
     }
 
-    lastPage = _ => {
-        this.props.pushHistory({ pageFocused : this.props.total});
-        this.setState({value: this.props.total})
-    }
+    lastPage = _ => this.props.pushHistory({ pageFocused : this.props.total})
 
     render(props,state) {
         if (props.pdfWidthPx) { // don't render until width is set
@@ -121,13 +108,13 @@ export default class Navbar extends Component {
                     <button title="go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
                     <form onSubmit={this.handleSubmit}>
                         <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="show page navigation">{Icons.page}</button>
-                        <input type="text" value={this.state.value} onblur={this.handleBlur} onfocus={this.handleFocus} oninput={this.handleInput} />
+                        <input type="text" value={state.focused ? state.value : props.page} onblur={this.handleBlur} onfocus={this.handleFocus} oninput={this.handleInput} />
                         <span>/</span>
                         <span id="nav-total-pages">{props.total}</span>
                     </form>
                     <button title="go to next page" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
                     <button title="go to last page" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button>
-                    <button title="remove annotation" disabled={this.props.focus && !this.props.selected ? null : "disabled"} onclick={this.props.closeann}>{Icons.removeAnnotation}</button>
+                    <button title="remove annotation" disabled={props.focus && !props.selected ? null : "disabled"} onclick={props.closeann}>{Icons.removeAnnotation}</button>
                     <button title="more options (inactive)" disabled>{Icons.moreVertical}</button>
                 </div>
             </nav>
