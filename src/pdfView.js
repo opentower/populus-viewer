@@ -1,9 +1,11 @@
 import { h, render, createRef, Fragment, Component } from 'preact';
+import './styles/pdfView.css'
 import * as PDFJS from "pdfjs-dist/webpack"
 import * as Matrix from "matrix-js-sdk"
 import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
+import AnnotationListing from "./annotationListing.js"
 import Navbar from "./navbar.js"
 import { eventVersion, serverRoot, domainName, spaceChild, spaceParent }  from "./constants.js"
 import * as Icons from "./icons.js"
@@ -71,7 +73,7 @@ export default class PdfView extends Component {
     }
 
     setId = id => {
-        //sets the roomId, and also tries to use that information to update the focus.
+        //sets the roomId after loading a PDF, and also tries to use that information to update the focus.
         this.setState({roomId : id}, _ => this.props.queryParams.get("focus")
                                        ? this.focusByRoomId(this.props.queryParams.get("focus"))
                                        : null)
@@ -117,6 +119,7 @@ export default class PdfView extends Component {
         const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
         const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
         if (theAnnotation) {
+            this.props.queryParams.set("focus", roomId)
             this.setState({
                 focus : theAnnotation.getContent()[eventVersion],
                 panelVisible : true,
@@ -211,7 +214,7 @@ export default class PdfView extends Component {
         this.setState({focus : content})
     }
 
-    render(props,state) {
+    render(props, state) {
         const dynamicDocumentStyle = {
             "--pdfZoomFactor" : state.zoomFactor,
             "--pdfFitRatio" : state.pdfFitRatio,
@@ -223,6 +226,7 @@ export default class PdfView extends Component {
         const hideUntilWidthAvailable = {
             visibility : state.pdfHeightPx ? null : "hidden",
         }
+        const theRoom = props.client.getRoom(state.roomId)
         return (
             <div style={dynamicDocumentStyle} id="content-container"
                  ref={this.contentContainer}
@@ -256,7 +260,10 @@ export default class PdfView extends Component {
                     </div>
                 </div>
                 <div style={state.panelVisible ? {visibility:"visible"} : {}} id="sidepanel">
-                    <Chat client={props.client} focus={state.focus}/>
+                    {state.focus 
+                        ? <Chat client={props.client} focus={state.focus}/>
+                        : <AnnotationListing focusByRoomId={this.focusByRoomId} pushHistory={props.pushHistory} room={theRoom}/>
+                    }
                 </div>
                 <Navbar selected={state.hasSelection}
                     addann={this.openAnnotation}

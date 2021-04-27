@@ -1,0 +1,48 @@
+/* workaround for chrome bug with resizing the chat panel itself */
+.panel-widget-1 {
+    display:inline-flex;
+    height:100%;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    overflow-y: scroll;
+    -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+    -moz-box-sizing: border-box; /* Firefox, other Gecko */
+    box-sizing: border-box; /* Opera/IE 8+ */
+}
+
+/*chrome, safari, opera*/
+.panel-widget-1::-webkit-scrollbar {
+  display: none;
+}
+
+@media only screen and (max-width: 600px) {
+    .panel-widget-1 {
+        width:100%;
+        padding:0px;
+    }
+}
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (min-width: 600px) {
+    .panel-widget-1 {
+        width:400px;
+        border: 1px solid #adadad;
+    }
+}
+
+/* standard DPI */
+@media only screen and (min-width: 1280px) {
+    .panel-widget-1 {
+        width:100%;
+        padding:0px;
+        border: none;
+    }
+}
+
+/* high DPI laptop */
+@media only screen and (min-width: 1400px) {
+    .panel-widget-1 {
+        width:400px;
+        border: 1px solid #adadad;
+    }
+}

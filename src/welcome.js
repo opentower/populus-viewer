@@ -215,8 +215,7 @@ class PDFRoomEntry extends Component {
                                                                 pushHistory={props.pushHistory}
                                                                 annotationContent={content.[eventVersion]} 
                                                                 parentRoom={props.room}
-                                                                queryParams={props.queryParams} 
-                                                                {... content[eventVersion]}/>)
+                                                                queryParams={props.queryParams}/>)
         if (memberIds.includes(clientId)) { status = "joined" }
         return (
             <div  data-room-status={status} class="roomListingEntry" id={props.room.roomId}>

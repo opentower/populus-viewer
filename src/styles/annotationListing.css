@@ -1,0 +1,37 @@
+#annotation-panel {
+    flex-direction: column;
+}
+
+#annotation-panel .annotation-listing-entry {
+    cursor: pointer;
+    position:relative;
+    width:100%;
+    padding:10px;
+    border-bottom: 1px solid #ababab;
+    display: flex;
+    align-items:center;
+    flex-wrap:wrap;
+    transition: background-color 0.5s ease;
+}
+
+#annotation-panel .annotation-listing-entry:hover {
+    background: var(--user_ultralight);
+    transition: background-color 0.5s ease;
+}
+
+.annotation-listing-text {
+    width:100%;
+    padding-bottom:15px;
+}
+
+.annotation-listing-page {
+    font-size:10pt;
+    color:#565656;
+    padding-right:10px;
+}
+
+.annotation-listing-creator {
+    font-size:10pt;
+    color:#565656;
+    padding-right:10px;
+}

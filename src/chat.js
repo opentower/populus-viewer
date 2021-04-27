@@ -1,4 +1,3 @@
-import * as sdk from "matrix-js-sdk"
 import { h, createRef, Fragment, Component } from 'preact';
 import './styles/chat.css'
 import * as Matrix from "matrix-js-sdk"
@@ -27,6 +26,7 @@ export default class Chat extends Component {
         this.props.client.on("Room.redaction", this.handleTimeline)
         this.props.client.on("Room.localEchoUpdated", this.handleTimeline)
         this.props.client.on("RoomMember.typing", this.handleTypingNotification)
+        this.tryLoadRoom()
     }
 
     componentWillUnmount() {
@@ -64,7 +64,7 @@ export default class Chat extends Component {
         else if (anchor && chatPanel.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
             room = newroom //the initial empty room needs to be replaced by the room that has some loaded state
             this.props.client.scrollback(room)
-            var prevState = room.getLiveTimeline().getState(sdk.EventTimeline.BACKWARDS)
+            var prevState = room.getLiveTimeline().getState(Matrix.EventTimeline.BACKWARDS)
             if (!prevState.paginationToken && this.props.client.getRoom(room.roomId)) {
                 this.scrolledIdents.add(room.roomId)
                 this.setState({ fullyScrolled : true })
@@ -138,7 +138,7 @@ export default class Chat extends Component {
         //the chat wrapper works around a nasty positioning bug in chrome - it
         //has height set, so that we don't need to set height on the flexbox element
         return (
-            <div id="chat-wrapper">
+            <div class="panel-widget-1" id="chat-wrapper">
                 <div id="chat-panel" onscroll={this.tryLoadRoom}>
                     <MessagePanel textarea={this.messageTextarea} client={props.client} focus={props.focus} />
                     <div id="messages">
