@@ -83,6 +83,8 @@ export default class PdfView extends Component {
 
     documentView = createRef()
 
+    contentContainer = createRef()
+
     pointerCache = []
 
     setPdfWidthPx = px => this.setState({pdfWidthPx: px})
@@ -95,8 +97,19 @@ export default class PdfView extends Component {
 
     setZoom = zoomFactor => {
         if (zoomFactor < 1) this.setState({zoomFactor : 1})
-        else if (zoomFactor > 5) this.setState({zoomFactor : 5})
-        else this.setState({zoomFactor : zoomFactor})
+        else {
+            zoomFactor = Math.min(zoomFactor, 5)
+            const unscaledInternalOffsetX = (this.contentContainer.current.clientWidth / 2)
+            const scaledInternalOffsetX = ((this.contentContainer.current.clientWidth / 2) / this.state.zoomFactor) * zoomFactor 
+            const scaledLeft = (this.contentContainer.current.scrollLeft / this.state.zoomFactor) * zoomFactor
+            const unscaledInternalOffsetY = (this.contentContainer.current.clientHeight / 2)
+            const scaledInternalOffsetY = ((this.contentContainer.current.clientHeight / 2) / this.state.zoomFactor) * zoomFactor 
+            const scaledTop = (this.contentContainer.current.scrollTop / this.state.zoomFactor) * zoomFactor
+            const newX = scaledLeft + scaledInternalOffsetX - unscaledInternalOffsetX
+            const newY = scaledTop + scaledInternalOffsetY - unscaledInternalOffsetY
+            this.contentContainer.current.scrollTo(newX, newY)
+            this.setState({zoomFactor : zoomFactor})
+        }
     }
 
     focusByRoomId = roomId => {
@@ -212,6 +225,7 @@ export default class PdfView extends Component {
         }
         return (
             <div style={dynamicDocumentStyle} id="content-container"
+                 ref={this.contentContainer}
                  onPointerDown={this.handlePointerDown}
                  onPointerUp={this.handlePointerUp}
                  onPointerCancel={this.handlePointerUp}
