@@ -18,12 +18,6 @@ export default class Navbar extends Component {
         this.handleTypingNotifications = this.handleTypingNotification.bind(this)
     }
 
-    currentPage() {
-        let val = parseInt(this.state.value)
-        if (!Number.isNaN(val)) return val
-        else return 1
-    }
-
     componentDidMount() {
         this.props.client.on("RoomMember.typing", this.handleTypingNotification)
     }
@@ -53,8 +47,9 @@ export default class Navbar extends Component {
 
     handleSubmit = e => {
         e.preventDefault();
-        (this.currentPage() > 0 && this.currentPage() <= this.props.total)
-            ? this.props.pushHistory({ pageFocused : this.currentPage() })
+        const currentPage = Number.isNaN(parseInt(this.state.value)) ? 1 : val
+        (currentPage > 0 && currentPage <= this.props.total)
+            ? this.props.pushHistory({ pageFocused : currentPage })
             : alert("Out of range");
     }
 

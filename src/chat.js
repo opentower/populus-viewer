@@ -138,7 +138,7 @@ export default class Chat extends Component {
         //the chat wrapper works around a nasty positioning bug in chrome - it
         //has height set, so that we don't need to set height on the flexbox element
         return (
-            <div class="panel-widget-1" id="chat-wrapper">
+            <div class={props.class} id="chat-wrapper">
                 <div id="chat-panel" onscroll={this.tryLoadRoom}>
                     <MessagePanel textarea={this.messageTextarea} client={props.client} focus={props.focus} />
                     <div id="messages">

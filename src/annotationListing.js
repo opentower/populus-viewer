@@ -20,7 +20,7 @@ export default class AnnotationListing extends Component {
                                                                     parentRoom={props.room}
                                                                     />)
         } 
-        return <div id="annotation-panel" class="panel-widget-1">{annotationEntries}</div>
+        return <div id="annotation-panel" class={props.class} >{annotationEntries}</div>
     }
 }
 

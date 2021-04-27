@@ -261,8 +261,11 @@ export default class PdfView extends Component {
                 </div>
                 <div style={state.panelVisible ? {visibility:"visible"} : {}} id="sidepanel">
                     {state.focus 
-                        ? <Chat client={props.client} focus={state.focus}/>
-                        : <AnnotationListing focusByRoomId={this.focusByRoomId} pushHistory={props.pushHistory} room={theRoom}/>
+                        ? <Fragment>
+                            <Chat class="panel-widget-1" client={props.client} focus={state.focus}/>
+                            <AnnotationListing class="panel-widget-2" focusByRoomId={this.focusByRoomId} pushHistory={props.pushHistory} room={theRoom}/>
+                          </Fragment>
+                        : <AnnotationListing class="panel-widget-1" focusByRoomId={this.focusByRoomId} pushHistory={props.pushHistory} room={theRoom}/>
                     }
                 </div>
                 <Navbar selected={state.hasSelection}

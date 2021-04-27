@@ -10,6 +10,10 @@
     box-sizing: border-box; /* Opera/IE 8+ */
 }
 
+.panel-widget-2 {
+    display:none;
+}
+
 /*chrome, safari, opera*/
 .panel-widget-1::-webkit-scrollbar {
   display: none;
@@ -44,5 +48,21 @@
     .panel-widget-1 {
         width:400px;
         border: 1px solid #adadad;
+    }
+}
+    
+@media only screen and (min-width: 1800px) {
+    .panel-widget-2 {
+        margin-left:50px;
+        width:400px;
+        border: 1px solid #adadad;
+        display:inline-flex;
+        height:100%;
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+        overflow-y: scroll;
+        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box; /* Firefox, other Gecko */
+        box-sizing: border-box; /* Opera/IE 8+ */
     }
 }
