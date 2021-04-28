@@ -188,7 +188,9 @@ class PDFRoomEntry extends Component {
     }
 
     handleLoad = _ => {
-        const lastViewedPage = this.props.room.getAccountData(lastViewed).getContent().page
+        const lastViewedPage = this.props.room.getAccountData(lastViewed)
+                               ? this.props.room.getAccountData(lastViewed).getContent().page 
+                               : 1
         this.props.pushHistory({
             pdfFocused : this.props.room.name,
             pageFocused : lastViewedPage || 1,
