@@ -116,7 +116,6 @@
 #nav-button-wrapper > form > input {
     width:20px; /*this is going to need to be adjusted in JS*/
     font-size: 1em;
-    margin:3px;
     border:none;
     text-align:right;
 }

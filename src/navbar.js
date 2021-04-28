@@ -26,6 +26,10 @@ export default class Navbar extends Component {
         this.props.client.off("RoomMember.typing", this.handleTypingNotification)
     }
 
+    pageTotal = createRef()
+
+    pageInput = createRef()
+
     handleTypingNotification = (event,member) => {
         const theRoomState = this.props.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
         const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
@@ -84,6 +88,10 @@ export default class Navbar extends Component {
 
     lastPage = _ => this.props.pushHistory({ pageFocused : this.props.total})
 
+    componentDidUpdate(prevProps,prevState,snapshot) { 
+        if (this.pageInput.current) this.pageInput.current.style.width = this.pageTotal.current.scrollWidth+'px'
+    }
+
     render(props,state) {
         if (props.pdfWidthPx) { // don't render until width is set
             return <nav id="page-nav">
@@ -102,9 +110,14 @@ export default class Navbar extends Component {
                     <button title="go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
                     <form onSubmit={this.handleSubmit}>
                         <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="show page navigation">{Icons.page}</button>
-                        <input type="text" value={state.focused ? state.value : props.page} onblur={this.handleBlur} onfocus={this.handleFocus} oninput={this.handleInput} />
+                        <input type="text" 
+                               ref={this.pageInput}
+                               value={state.focused ? state.value : props.page}
+                               onblur={this.handleBlur}
+                               onfocus={this.handleFocus}
+                               oninput={this.handleInput} />
                         <span>/</span>
-                        <span id="nav-total-pages">{props.total}</span>
+                        <span ref={this.pageTotal} id="nav-total-pages">{props.total}</span>
                     </form>
                     <button title="go to next page" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
                     <button title="go to last page" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button>
