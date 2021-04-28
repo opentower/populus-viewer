@@ -69,8 +69,11 @@
 #pdf-panel-button-wrapper {
     position:fixed;
     z-index:7;
-    top:10px;
-    right:10px;
+    top:0px;
+    transition: top 0.5s ease;
+    right:0px;
+    width: calc(var(--sidepanelWidth) + var(--sidepanelPadding));
+    margin-top:10px;
     font-size:24px;
 }
 
@@ -84,6 +87,11 @@
     cursor:pointer;
 }
 
+#pdf-panel-button-wrapper > button:last-child {
+    float:right
+}
+
+
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
     #content-container {
@@ -91,6 +99,11 @@
         --sidepanelWidth: 100%;
         --sidepanelPadding: 0px;
         --contentWidth: calc(100% - (var(--sidePanelVisible) * (var(--sidepanelWidth) + (2 * var(--sidepanelPadding)))));
+    }
+
+    #pdf-panel-button-wrapper[data-hide-buttons] {
+        top:-50px;
+        transition: top 0.5s ease;
     }
 } 
 
@@ -100,6 +113,10 @@
         --sidepanelWidth: 400px;
         --sidepanelPadding: 50px;
         --contentWidth: calc(100% - (var(--sidePanelVisible) * (var(--sidepanelWidth) + (2 * var(--sidepanelPadding)))));
+    }
+
+    #pdf-panel-button-wrapper {
+        margin-right:10px;
     }
 } 
 
@@ -124,6 +141,15 @@
     #panel-toggle {
         visibility:hidden;
     }
+
+    #pdf-panel-button-wrapper {
+        margin-right:0px;
+    }
+
+    #pdf-panel-button-wrapper[data-hide-buttons] {
+        top:-50px;
+        transition: top 0.5s ease;
+    }
 }
 
 /* high DPI laptop */
@@ -131,6 +157,14 @@
     #content-container {
         --sidepanelWidth: 400px;
         --sidepanelPadding: 50px;
+    }
+
+    #pdf-panel-button-wrapper {
+        margin-right:10px;
+    }
+
+    #pdf-panel-button-wrapper[data-hide-buttons] {
+        top:0px;
     }
 }
 

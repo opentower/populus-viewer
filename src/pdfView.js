@@ -29,7 +29,9 @@ export default class PdfView extends Component {
             pdfHeightPx: null,
             pdfFitRatio: 1,
             zoomFactor: 1,
+            hideButtons: false, //this is for hiding the buttons, but only applies if the buttons overlap the chatbox
         }
+        this.prevScrollTop = 0
         this.checkForSelection = this.checkForSelection.bind(this)
         this.keyboardZoom = this.keyboardZoom.bind(this)
         //need the `bind` here in order to pass a named function into the event
@@ -70,6 +72,12 @@ export default class PdfView extends Component {
             const touchDistance = Math.abs(this.pointerCache[0].clientX - this.pointerCache[1].clientX)
             this.setZoom(this.initialZoom * (touchDistance/this.initialDistance))
         }
+    }
+
+    handleWidgetScroll = e => {
+        if (this.prevScrollTop > e.target.scrollTop) this.setState({hideButtons : true})
+        if (this.prevScrollTop < e.target.scrollTop) this.setState({hideButtons : false})
+        this.prevScrollTop = e.target.scrollTop
     }
 
     setId = id => {
@@ -264,10 +272,10 @@ export default class PdfView extends Component {
                 <div style={state.panelVisible ? {visibility:"visible"} : {}} id="sidepanel">
                     {state.focus 
                         ? <Fragment>
-                            <Chat class="panel-widget-1" client={props.client} focus={state.focus}/>
+                            <Chat class="panel-widget-1" handleWidgetScroll={this.handleWidgetScroll} client={props.client} focus={state.focus}/>
                             <AnnotationListing class="panel-widget-2" focusByRoomId={this.focusByRoomId} pushHistory={props.pushHistory} room={theRoom}/>
                           </Fragment>
-                        : <AnnotationListing class="panel-widget-1" focusByRoomId={this.focusByRoomId} pushHistory={props.pushHistory} room={theRoom}/>
+                        : <AnnotationListing class="panel-widget-1" handleWidgetScroll={this.handleWidgetScroll} focusByRoomId={this.focusByRoomId} pushHistory={props.pushHistory} room={theRoom}/>
                     }
                 </div>
                 <Navbar selected={state.hasSelection}
@@ -281,7 +289,7 @@ export default class PdfView extends Component {
                     client={props.client}
                     pdfWidthPx={state.pdfWidthPx}
                     pushHistory={props.pushHistory}/>
-                <div id="pdf-panel-button-wrapper">
+                <div data-hide-buttons={state.hideButtons} id="pdf-panel-button-wrapper">
                     {(state.panelVisible && state.focus)
                         ? <button title="focus annotation list" id="show-annotations" onclick={this.clearFocus}>
                             {Icons.list}
