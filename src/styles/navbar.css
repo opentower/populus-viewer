@@ -157,7 +157,7 @@
 #nav-total-pages {
     font-size: 1em;
     text-align:left;
-    width:20px;
+    min-width:20px;
     margin:3px;
 }
 
