@@ -26,7 +26,12 @@ export default class Chat extends Component {
         this.props.client.on("Room.redaction", this.handleTimeline)
         this.props.client.on("Room.localEchoUpdated", this.handleTimeline)
         this.props.client.on("RoomMember.typing", this.handleTypingNotification)
-        this.tryLoadRoom()
+        this.props.client.joinRoom(this.props.focus.roomId).then(room =>
+            this.setState({
+                fullyScrolled : this.scrolledIdents.has(this.props.focus.roomId),
+                events : room.getLiveTimeline().getEvents(),
+            }, _ => this.tryLoad(room))
+        )
     }
 
     componentWillUnmount() {
@@ -81,7 +86,7 @@ export default class Chat extends Component {
     }
 
     async componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.props.focus && (prevProps.focus != this.props.focus)) {
+        if (prevProps.focus != this.props.focus) {
             const room = await this.props.client.joinRoom(this.props.focus.roomId)
             this.setState({
                 fullyScrolled : this.scrolledIdents.has(this.props.focus.roomId),
@@ -190,8 +195,7 @@ class RedactedMessage extends Component {
 
 class Anchor extends Component {
     render(props) {
-        if (!props.focus) return <div id="scroll-done">Click an annotation to discuss</div>
-        else if (props.fullyScrolled) return <div id="scroll-done">All events loaded</div>
+        if (props.fullyScrolled) return <div id="scroll-done">All events loaded</div>
         else return <div id="scroll-anchor">loading...</div>
     }
 }
@@ -215,9 +219,7 @@ class TypingIndicator extends Component {
 class MessagePanel extends Component {
     constructor (props) {
         super(props)
-        this.state = {
-            value : "",
-        }
+        this.state = { value : "" }
         this.reader = new CommonMark.Parser()
         this.writer = new CommonMark.HtmlRenderer()
     }
@@ -241,7 +243,7 @@ class MessagePanel extends Component {
     }
 
     handleInput = (event) => {
-        if (event.target.value == "" && this.props.focus) this.stopTyping()
+        if (event.target.value == "") this.stopTyping()
         this.setState({ value : event.target.value })
         this.currentInput.current.style.height = 'auto';
         this.currentInput.current.style.height = this.currentInput.current.scrollHeight+'px';
@@ -249,15 +251,13 @@ class MessagePanel extends Component {
 
     handleKeypress = (event) => {
         event.stopPropagation() //don't propagate to global keypress handlers
-        if (this.props.focus) {
-            clearTimeout(this.typingTimeout)
-            this.typingTimeout = setTimeout(_  => this.stopTyping(), 5000)
-            //send "stopped typing" after 5 seconds of inactivity
-            if (event.code == "Enter" && event.ctrlKey) {
-                event.preventDefault()
-                this.sendMessage()
-            } else if (!this.typingLock) this.startTyping()
-        }
+        clearTimeout(this.typingTimeout)
+        this.typingTimeout = setTimeout(_  => this.stopTyping(), 5000)
+        //send "stopped typing" after 5 seconds of inactivity
+        if (event.code == "Enter" && event.ctrlKey) {
+            event.preventDefault()
+            this.sendMessage()
+        } else if (!this.typingLock) this.startTyping()
     }
 
     sendMessage = () => {
@@ -272,9 +272,7 @@ class MessagePanel extends Component {
                 formatted_body : rendered
             })
             this.setState({ value : "" })
-        } else {
-            window.alert("you need to focus an annotation to send a message")
-        }
+        } 
     }
 
     userColor = new UserColor(this.props.client.getUserId())
