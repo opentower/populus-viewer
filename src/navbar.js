@@ -47,10 +47,9 @@ export default class Navbar extends Component {
 
     handleSubmit = e => {
         e.preventDefault();
-        const currentPage = Number.isNaN(parseInt(this.state.value)) ? 1 : val
-        (currentPage > 0 && currentPage <= this.props.total)
-            ? this.props.pushHistory({ pageFocused : currentPage })
-            : alert("Out of range");
+        const currentPage = Number.isNaN(parseInt(this.state.value)) ? 1 : parseInt(this.state.value)
+        if (currentPage > 0 && currentPage <= this.props.total) this.props.pushHistory({ pageFocused : currentPage })
+        else alert("Out of range");
     }
 
     handleClick = p => this.props.pushHistory({ pageFocused : parseInt(event.target.value) })
