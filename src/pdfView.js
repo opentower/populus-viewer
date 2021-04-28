@@ -97,6 +97,8 @@ export default class PdfView extends Component {
 
     setTotalPages = num => this.setState({totalPages : num})
 
+    clearFocus = _ => this.setState({focus : null})
+
     setZoom = zoomFactor => {
         if (zoomFactor < 1) this.setState({zoomFactor : 1})
         else {
@@ -279,9 +281,17 @@ export default class PdfView extends Component {
                     client={props.client}
                     pdfWidthPx={state.pdfWidthPx}
                     pushHistory={props.pushHistory}/>
-                <button id="panelToggle" onclick={this.togglePanel}>
-                    {state.panelVisible ? Icons.close : Icons.menu }
-                </button>
+                <div id="pdf-panel-button-wrapper">
+                    {(state.panelVisible && state.focus)
+                        ? <button title="focus annotation list" id="show-annotations" onclick={this.clearFocus}>
+                            {Icons.list}
+                          </button>
+                        : null 
+                    }
+                    <button title="toggle sidebar" id="panel-toggle" onclick={this.togglePanel}>
+                        {state.panelVisible ? Icons.close : Icons.menu }
+                    </button>
+                </div>
             </div>
         )
     }
