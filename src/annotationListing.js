@@ -26,10 +26,7 @@ export default class AnnotationListing extends Component {
         if (this.props.room) {
             const annotations = this.props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
             const annotationEntries = annotations.map(ev => ev.getContent())
-                                                 .filter(content => {
-                                                     content[eventVersion] && //ignore old versions
-                                                     content[eventVersion].activityStatus == "open"
-                                                 })
+                                                 .filter(content => content[eventVersion] && content[eventVersion].activityStatus == "open")
                                                  .map(content => <AnnotationListingEntry 
                                                                     key={content.[eventVersion].roomId}
                                                                     annotationContent={content.[eventVersion]} 
