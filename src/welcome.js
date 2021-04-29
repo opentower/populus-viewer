@@ -211,6 +211,7 @@ class PDFRoomEntry extends Component {
         const clientId = props.client.getUserId()
         var status = "invited"
         const annotations = props.annotations.map(ev => ev.getContent())
+                                             .filter(content => !!content[eventVersion]) //so that we can bump eventversion
                                              .filter(content => content[eventVersion].activityStatus == "open")
                                              .map(content => <AnnotationRoomEntry 
                                                                 key={content.[eventVersion].roomId}

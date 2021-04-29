@@ -159,6 +159,11 @@ export default class PdfView extends Component {
         if (theSelection.isCollapsed) return
         const theRange = theSelection.getRangeAt(0)
         const theSelectedText = theSelection.toString()
+
+        const boundingClientRect = Layout.rectRelativeTo( this.annotationLayerWrapper.current
+                                                        , theRange.getBoundingClientRect()
+                                                        , this.state.pdfFitRatio * this.state.zoomFactor
+                                                        )
         const clientRects = Array.from(theRange.getClientRects())
                                   .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.pdfFitRatio * this.state.zoomFactor))
         //TODO: room creation is a bit slow, might want to rework this slightly for responsiveness
@@ -180,6 +185,7 @@ export default class PdfView extends Component {
                 [eventVersion] : {
                     pageNumber : this.props.pageFocused,
                     activityStatus: "open",
+                    boundingClientRect : JSON.stringify(boundingClientRect),
                     clientRects : JSON.stringify(clientRects),
                     roomId : roominfo.room_id,
                     creator : this.props.client.getUserId(),
@@ -191,7 +197,7 @@ export default class PdfView extends Component {
             //set parent event in child room state
             this.props.client.sendStateEvent(roominfo.room_id, spaceParent, { via : [domainName] }, this.state.roomId)
                              .catch(e => alert(e))
-            this.setFocus(theContent[eventVersion])
+            this.setFocus(childContent[eventVersion])
             this.setState({ panelVisible : true })
         })
     }

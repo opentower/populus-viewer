@@ -15,7 +15,7 @@
 }
 
 /*chrome, safari, opera*/
-.panel-widget-1::-webkit-scrollbar {
+.panel-widget-2::-webkit-scrollbar, .panel-widget-1::-webkit-scrollbar {
   display: none;
 }
 

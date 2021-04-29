@@ -1,20 +1,35 @@
 #annotation-layer { 
     position: absolute;
     line-height:1;
-    opacity: 0.2;
     overflow:visible;
     left: 0;
     top: 0;
 }
 
 #annotation-layer span {
-    background-color:blue;
+    background-color:var(--user_solid);
     position: absolute;
     white-space: pre;
     cursor: text;
     transform-origin: 0% 0%;
 }
 
-#annotation-layer > div[data-focused] > span {
-    background-color:red;
+#annotation-layer .inline-annotations {
+    opacity:0.2;
+}
+
+#annotation-layer > div[data-focused] > .inline-annotations {
+    opacity:0.5;
+}
+
+#annotation-layer .annotation-bartab {
+    opacity:0.5;
+}
+
+#annotation-layer .annotation-bartab:hover {
+    opacity:1;
+}
+
+#annotation-layer .annotation-bartab:hover + .inline-annotations {
+    opacity:0.5;
 }

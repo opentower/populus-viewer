@@ -5,7 +5,7 @@
 #annotation-panel .annotation-listing-entry {
     cursor: pointer;
     position:relative;
-    width:100%;
+    width:calc(100% - 20px);
     padding:10px;
     border-bottom: 1px solid #ababab;
     display: flex;
