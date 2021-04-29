@@ -35,7 +35,7 @@ export default class AnnotationListing extends Component {
                                                                     parentRoom={this.props.room}
                                                                     />)
             this.setState({ annotationEntries : annotationEntries })
-        } 
+        } else setTimeout(this.stateListener,500) //keep polling until the room is available
     }
 
     render (props, state) {
