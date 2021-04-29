@@ -6,21 +6,40 @@ import MemberPill from './memberPill.js'
 import UserColor from './userColors.js'
 
 export default class AnnotationListing extends Component {
-    render (props, state) {
-        var annotationEntries = []
-        if (props.room) {
-            const annotations = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
-            annotationEntries = annotations.map(ev => ev.getContent())
-                                                  .filter(content => content[eventVersion].activityStatus == "open")
-                                                  .map(content => <AnnotationListingEntry 
+
+    constructor(props) {
+        super(props)
+        this.stateListener = this.stateListener.bind(this)
+        this.state = {
+            annotationEntries : []
+        }
+    }
+
+    componentDidMount () { 
+        this.stateListener()
+        this.props.client.on("RoomState.events", this.stateListener) 
+    }
+
+    componentDidUnmount () { this.props.client.off("RoomState.events", this.stateListener) }
+
+    stateListener = _ => {
+        if (this.props.room) {
+            const annotations = this.props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
+            const annotationEntries = annotations.map(ev => ev.getContent())
+                                                 .filter(content => content[eventVersion].activityStatus == "open")
+                                                 .map(content => <AnnotationListingEntry 
                                                                     key={content.[eventVersion].roomId}
                                                                     annotationContent={content.[eventVersion]} 
-                                                                    focusByRoomId={props.focusByRoomId} 
-                                                                    pushHistory={props.pushHistory}
-                                                                    parentRoom={props.room}
+                                                                    focusByRoomId={this.props.focusByRoomId} 
+                                                                    pushHistory={this.props.pushHistory}
+                                                                    parentRoom={this.props.room}
                                                                     />)
+            this.setState({ annotationEntries : annotationEntries })
         } 
-        return <div id="annotation-panel" class={props.class} >{annotationEntries}</div>
+    }
+
+    render (props, state) {
+        return <div id="annotation-panel" class={props.class} >{state.annotationEntries}</div>
     }
 }
 
