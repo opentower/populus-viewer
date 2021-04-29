@@ -26,7 +26,8 @@ export default class AnnotationLayer extends Component {
 
     filterAnnotations (event) {
         return (
-            event.getContent()[eventVersion].pageNumber == this.props.page 
+            !! event.getContent()[eventVersion] //filter out old eventVersions
+            && event.getContent()[eventVersion].pageNumber == this.props.page 
             && event.getContent()[eventVersion].activityStatus != "closed"
         )
     }

@@ -2,6 +2,8 @@
     flex-direction: column;
 }
 
+#annotation-panel .empty-marker { padding:10px }
+
 #annotation-panel .annotation-listing-entry {
     cursor: pointer;
     position:relative;

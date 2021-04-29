@@ -39,7 +39,12 @@ export default class AnnotationListing extends Component {
     }
 
     render (props, state) {
-        return <div id="annotation-panel" class={props.class} >{state.annotationEntries}</div>
+        return <div id="annotation-panel" class={props.class} >
+                    {state.annotationEntries.length > 0 
+                        ? state.annotationEntries
+                        : <div class="empty-marker"><b>No annotations yet available </b></div>
+                    }
+              </div>
     }
 }
 
