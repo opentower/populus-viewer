@@ -10,7 +10,7 @@ export default class AnnotationListing extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            annotations : [],
+            annotationContents : [],
             typing : {},
         }
         this.handleStateUpdate = this.handleStateUpdate.bind(this)
@@ -41,15 +41,16 @@ export default class AnnotationListing extends Component {
 
     handleStateUpdate = _ => {
         if (this.props.room) {
-            const annotations = this.props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
-            this.setState({ annotations : annotations})
+            const annotationContents = this.props.room.getLiveTimeline()
+                                                      .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
+                                                      .map(ev => ev.getContent())
+                                                      .filter(content => content[eventVersion] && content[eventVersion].activityStatus == "open")
+            this.setState({ annotationContents : annotationContents})
         } else setTimeout(this.handleStateUpdate,500) //keep polling until the room is available
     }
 
     render (props, state) {
-        const annotationEntries = state.annotations.map(ev => ev.getContent())
-                                                   .filter(content => content[eventVersion] && content[eventVersion].activityStatus == "open")
-                                                   .map(content => <AnnotationListingEntry 
+        const annotationEntries = state.annotationContents.map(content => <AnnotationListingEntry 
                                                                 key={content.[eventVersion].roomId}
                                                                 typing={state.typing[content.[eventVersion].roomId]}
                                                                 annotationContent={content.[eventVersion]} 
@@ -58,7 +59,7 @@ export default class AnnotationListing extends Component {
                                                                 parentRoom={props.room}
                                                                 />)
         return <div id="annotation-panel" class={props.class} >
-                    {state.annotations.length > 0 
+                    {state.annotationContents.length > 0 
                         ? annotationEntries
                         : <div class="empty-marker"><b>No annotations yet available </b></div>
                     }
