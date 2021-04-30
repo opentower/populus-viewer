@@ -215,6 +215,11 @@ export default class PdfView extends Component {
             }
             this.props.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.roomId)
             this.setState({focus : null})
+            this.props.queryParams.delete("focus")
+            window.history.replaceState({
+                pdfFocused : this.props.pdfFocused,
+                pageFocused : this.props.pageFocused,
+            },"", "?" + this.props.queryParams.toString())
         } else {
             return false;
         }
