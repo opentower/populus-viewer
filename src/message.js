@@ -127,23 +127,52 @@ export default class Message extends Component {
         }
     }
 }
-
-class MessageEditor extends Component {
+class ResponseInput extends Component {
 
     componentDidMount () {
-        this.setState({ edit_value : this.props.getCurrentEdit().body })
+        this.setState({ value : this.props.getCurrentEdit().body })
     }
 
-    sendEdit = () => {
+    sendResponse = () => { }
+
+    handleKeypress = (event) => {
+        if (event.code == "Enter" && event.ctrlKey) {
+            event.preventDefault()
+            this.sendResponse()
+        }
+    }
+
+    handleInput = (event) => {
+        this.setState({ value : event.target.value })
+        this.input.current.style.height = 'auto';
+        this.input.current.style.height = this.input.current.scrollHeight+'px';
+    }
+
+    input = createRef()
+
+    render(props,state) {
+        return <div class="messageEditor">
+                     <textarea ref={this.input} 
+                               value={state.value}
+                               onkeypress={this.handleKeypress}
+                               oninput={this.handleInput}/>
+                     <button onclick={this.sendResponse}>Submit Changes</button>
+                     <button onclick={this.props.closeEditor}>Cancel</button>
+               </div>
+    }
+}
+
+class MessageEditor extends ResponseInput {
+    sendResponse = () => {
         const reader = new CommonMark.Parser()
         const writer = new CommonMark.HtmlRenderer()
-        const parsed = reader.parse(addLatex(this.state.edit_value))
+        const parsed = reader.parse(addLatex(this.state.value))
         const rendered = writer.render(parsed)
         this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
             body : "an edit occurred", //fallback for clients that don't handle edits. we can do something more descriptive
             msgtype : "m.text",
             "m.new_content" : {
-                body : this.state.edit_value,
+                body : this.state.value,
                 msgtype : "m.text",
                 format: "org.matrix.custom.html",
                 formatted_body : rendered
@@ -154,33 +183,8 @@ class MessageEditor extends Component {
             }
         }).then(_ => this.props.closeEditor())
     }
-
-    handleKeypress = (event) => {
-        if (event.code == "Enter" && event.ctrlKey) {
-            event.preventDefault()
-            this.sendEdit()
-        }
-    }
-
-    handleInput = (event) => {
-        this.setState({ edit_value : event.target.value })
-        this.editedInput.current.style.height = 'auto';
-        this.editedInput.current.style.height = this.editedInput.current.scrollHeight+'px';
-    }
-
-    editedInput = createRef()
-
-    render(props,state) {
-        return <div class="messageEditor">
-                     <textarea ref={this.editedInput} 
-                               value={state.edit_value}
-                               onkeypress={this.handleKeypress}
-                               oninput={this.handleInput}/>
-                     <button onclick={this.sendEdit}>Submit Changes</button>
-                     <button onclick={this.props.closeEditor}>Cancel</button>
-               </div>
-    }
 }
+
 
 const COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
 
