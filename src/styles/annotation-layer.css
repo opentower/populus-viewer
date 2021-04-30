@@ -22,6 +22,11 @@
     opacity:0.5;
 }
 
+#annotation-layer > div[data-annotation-typing] > .inline-annotations {
+    animation: pulse-half-opacity 2s infinite; 
+    animation-timing-function:ease;
+}
+
 #annotation-layer .annotation-bartab {
     opacity:0.5;
 }

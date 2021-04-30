@@ -11,14 +11,33 @@ import './styles/text-layer.css'
 export default class AnnotationLayer extends Component {
     constructor(props) {
         super(props)
-        this.handleStateChange = this.handleStateChange.bind(this)
+        this.state = {typing : {}}
+        this.handleStateUpdate = this.handleStateUpdate.bind(this)
+        this.handleTypingNotification = this.handleTypingNotification.bind(this)
     }
 
-    componentDidMount() { this.props.client.on("RoomState.events",this.handleStateChange) }
+    componentDidMount() { 
+        this.props.client.on("RoomState.events", this.handleStateUpdate) 
+        this.props.client.on("RoomMember.typing", this.handleTypingNotification)
+    }
 
-    componentWillUnmount() { this.props.client.off("RoomState.events",this.handleStateChange) }
+    componentDidUnmount () { 
+        this.props.client.off("RoomState.events", this.handleStateUpdate) 
+        this.props.client.off("RoomMember.typing", this.handleTypingNotification)
+    }
 
-    handleStateChange = event => {
+    handleTypingNotification = (event, member) => {
+        const theRoomState = this.props.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+        const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
+        //We use nested state here because we want to pass this part of the state to a child
+        if (theChildRelation) this.setState(prevState => {
+            const myId = this.props.client.getUserId()
+            const typingOtherThanMe = event.getContent().user_ids.filter(x => x != myId)
+            return {typing : { ...prevState.typing, [member.roomId] : typingOtherThanMe}}
+        })
+    }
+
+    handleStateUpdate = event => {
         if (event.getRoomId() == this.props.roomId && event.getType() == spaceChild) {
             this.forceUpdate()
         }
@@ -43,6 +62,7 @@ export default class AnnotationLayer extends Component {
                                       .filter(event => this.filterAnnotations(event))
                                       .map(event => <Annotation zoomFactor={props.zoomFactor}
                                                                 focused={roomId == event.getContent()[eventVersion].roomId}
+                                                                typing={state.typing[event.getContent()[eventVersion].roomId]}
                                                                 setFocus={props.setFocus} 
                                                                 event={event}/>)
         }
@@ -72,7 +92,8 @@ class Annotation extends Component {
     userColor = new UserColor(this.eventContent.creator)
 
     render(props,state) {
-        return <div style={this.userColor.styleVariables} data-focused={props.focused} id={this.roomId}>
+        const typing = typeof(props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
+        return <div style={this.userColor.styleVariables} data-annotation-typing={typing} data-focused={props.focused} id={this.roomId}>
                     <BarTab rect={this.boundingRect} zoomFactor={props.zoomFactor} setFocus={this.setFocus}/>
                     <InlineAnnotations rect={this.boundingRect}>
                         {this.spans}

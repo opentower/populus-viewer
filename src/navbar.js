@@ -33,11 +33,11 @@ export default class Navbar extends Component {
     handleTypingNotification = (event,member) => {
         const theRoomState = this.props.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
         const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
-        const typingKey = theChildRelation.getContent()[eventVersion].pageNumber
         //We use nested state here because we want to pass this part of the state to a child
-        if (theChildRelation) this.setState(prevState => ({ 
-            typing : { ...prevState.typing, [typingKey] : event.getContent().user_ids}
-        }))
+        if (theChildRelation) this.setState(prevState => {
+            const typingKey = theChildRelation.getContent()[eventVersion].pageNumber
+            return {typing : { ...prevState.typing, [typingKey] : event.getContent().user_ids}}
+        })
     }
 
     handleInput = e => {

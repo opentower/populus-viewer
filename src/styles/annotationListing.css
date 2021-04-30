@@ -16,6 +16,12 @@
     transition: background-color 0.5s ease;
 }
 
+
+#annotation-panel .annotation-listing-entry[data-annotation-entry-typing] {
+    animation: pulse-color 2s infinite; 
+    animation-timing-function:ease;
+}
+
 #annotation-panel .annotation-listing-entry:hover {
     background: var(--user_ultralight);
     transition: background-color 0.5s ease;

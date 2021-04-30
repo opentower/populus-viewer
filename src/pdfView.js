@@ -279,9 +279,23 @@ export default class PdfView extends Component {
                     {state.focus 
                         ? <Fragment>
                             <Chat class="panel-widget-1" handleWidgetScroll={this.handleWidgetScroll} client={props.client} focus={state.focus}/>
-                            <AnnotationListing client={props.client} class="panel-widget-2" focusByRoomId={this.focusByRoomId} pushHistory={props.pushHistory} room={theRoom}/>
+                            <AnnotationListing
+                                client={props.client} 
+                                roomId={state.roomId} 
+                                class="panel-widget-2" 
+                                handleWidgetScroll={this.handleWidgetScroll} 
+                                focusByRoomId={this.focusByRoomId} 
+                                pushHistory={props.pushHistory} 
+                                room={theRoom}/>
                           </Fragment>
-                        : <AnnotationListing client={props.client} class="panel-widget-1" handleWidgetScroll={this.handleWidgetScroll} focusByRoomId={this.focusByRoomId} pushHistory={props.pushHistory} room={theRoom}/>
+                        : <AnnotationListing 
+                                client={props.client} 
+                                roomId={state.roomId} 
+                                class="panel-widget-1" 
+                                handleWidgetScroll={this.handleWidgetScroll} 
+                                focusByRoomId={this.focusByRoomId} 
+                                pushHistory={props.pushHistory} 
+                                room={theRoom}/>
                     }
                 </div>
                 <Navbar selected={state.hasSelection}

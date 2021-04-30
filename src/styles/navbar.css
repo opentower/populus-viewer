@@ -34,8 +34,6 @@
     margin-right:auto
 }
 
-
-
 #nav-pages > button {
     cursor:pointer;
     background:white;
@@ -49,14 +47,8 @@
 }
 
 #nav-pages > button.typing {
-    animation: nav-color-pulse 2s infinite; 
+    animation: pulse-color 2s infinite; 
     animation-timing-function:ease;
-}
-
-@keyframes nav-color-pulse {
-    0% { background-color: white; }
-    50% { background-color: var(--user_light); }
-    100% { background-color: white; }
 }
 
 #nav-button-wrapper {
