@@ -13,6 +13,7 @@
 }
 
 #messageComposer > textarea,
+.replyComposer > textarea,
 .messageEditor > textarea {
     display:block;
     overflow: hidden;
@@ -29,6 +30,7 @@
 }
 
 #messageComposer > textarea:focus,
+.replyComposer > textarea:focus,
 .messageEditor > textarea:focus {
     outline: none;
     border: 1px solid black;
@@ -36,6 +38,7 @@
 }
 
 #submit-button-wrapper > button,
+.replyComposer > button,
 .messageEditor > button {
     cursor:pointer;
     outline:none;
@@ -46,6 +49,7 @@
     background-color:white;
 }
 
+.replyComposer > button,
 .messageEditor > button {
     width:50%;
     height:30px;
@@ -79,6 +83,7 @@
 }
 
 #submit-button-wrapper > button:hover,
+.replyComposer > button:hover,
 .messageEditor > button:hover {
     transition: background-color 0.5s ease;
     background-color: var(--user_light);

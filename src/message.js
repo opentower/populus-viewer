@@ -10,7 +10,7 @@ export default class Message extends Component {
     constructor(props) {
         super(props)
         this.state = ({
-            editing : false,
+            responding: false,
         })
     }
 
@@ -31,11 +31,11 @@ export default class Message extends Component {
         })
     }
 
-    openEditor = () => this.setState({ editing : true, })
+    openEditor = () => this.setState({ responding: true, })
 
     closeEditor = () => {
         console.log("fired")
-        this.setState({ editing : false, })
+        this.setState({ responding: false, })
     }
 
     getCurrentEdit = () => {
@@ -99,13 +99,12 @@ export default class Message extends Component {
                         <div class="ident">
                             {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
                             <div class="info">
-                                {!state.editing && <button onclick={this.openEditor}>edit</button>}
+                                {!state.responding && <button onclick={this.openEditor}>edit</button>}
                                 <button onclick={this.redactMessage} class="redact">delete</button>
                             </div>
                         </div>
                     </div>
-                    {state.editing && <MessageEditor openEditor={this.openEditor}
-                                                     closeEditor={this.closeEditor}
+                    {state.responding && <MessageEditor closeEditor={this.closeEditor}
                                                      getCurrentEdit={this.getCurrentEdit}
                                                      client={this.props.client}
                                                      event={event}
@@ -114,26 +113,36 @@ export default class Message extends Component {
             )
         } else {
             return (
-                <div style={this.userColor.styleVariables} id={event.getId()} class="message">
-                    <div class="ident">
-                        <div class="info">
-                            <button class="reaction" onclick={this.upvote}>+1</button>
+                <Fragment>
+                    <div style={this.userColor.styleVariables} id={event.getId()} class="message">
+                        <div class="ident">
+                            <div class="info">
+                                {!state.replying && <button onclick={this.openEditor}>reply</button>}
+                                <button class="reaction" onclick={this.upvote}>+1</button>
+                            </div>
+                            {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
                         </div>
-                        {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
+                        {displayBody}
                     </div>
-                    {displayBody}
-                </div>
+                    {state.responding && <ReplyComposer closeEditor={this.closeEditor}
+                                                        getCurrentEdit={this.getCurrentEdit}
+                                                        client={this.props.client}
+                                                        event={event}
+                                      />}
+                </Fragment>
             )
         }
     }
 }
-class ResponseInput extends Component {
+
+//TODO Handle case of editing a reply
+class MessageEditor extends Component {
 
     componentDidMount () {
         this.setState({ value : this.props.getCurrentEdit().body })
     }
 
-    sendResponse = () => { }
+    input = createRef()
 
     handleKeypress = (event) => {
         if (event.code == "Enter" && event.ctrlKey) {
@@ -148,21 +157,6 @@ class ResponseInput extends Component {
         this.input.current.style.height = this.input.current.scrollHeight+'px';
     }
 
-    input = createRef()
-
-    render(props,state) {
-        return <div class="messageEditor">
-                     <textarea ref={this.input} 
-                               value={state.value}
-                               onkeypress={this.handleKeypress}
-                               oninput={this.handleInput}/>
-                     <button onclick={this.sendResponse}>Submit Changes</button>
-                     <button onclick={this.props.closeEditor}>Cancel</button>
-               </div>
-    }
-}
-
-class MessageEditor extends ResponseInput {
     sendResponse = () => {
         const reader = new CommonMark.Parser()
         const writer = new CommonMark.HtmlRenderer()
@@ -175,6 +169,7 @@ class MessageEditor extends ResponseInput {
                 body : this.state.value,
                 msgtype : "m.text",
                 format: "org.matrix.custom.html",
+                //TODO sanitize formattedBody before use
                 formatted_body : rendered
             },
             "m.relates_to" : {
@@ -183,10 +178,103 @@ class MessageEditor extends ResponseInput {
             }
         }).then(_ => this.props.closeEditor())
     }
+
+    render(props,state) {
+        return <div class="replyComposer">
+                     <textarea ref={this.input} 
+                               value={state.value}
+                               onkeypress={this.handleKeypress}
+                               oninput={this.handleInput}/>
+                     <button onclick={this.sendResponse}>Submit Changes</button>
+                     <button onclick={this.props.closeEditor}>Cancel</button>
+               </div>
+    }
+}
+
+class ReplyComposer extends Component {
+
+    input = createRef()
+
+    handleKeypress = (event) => {
+        if (event.code == "Enter" && event.ctrlKey) {
+            event.preventDefault()
+            this.sendResponse()
+        }
+    }
+
+    handleInput = (event) => {
+        this.setState({ value : event.target.value })
+        this.input.current.style.height = 'auto';
+        this.input.current.style.height = this.input.current.scrollHeight+'px';
+    }
+
+    sendResponse = () => {
+        const reader = new CommonMark.Parser()
+        const writer = new CommonMark.HtmlRenderer()
+        const parsed = reader.parse(addLatex(this.state.value))
+        const rendered = writer.render(parsed)
+        this.props.client.sendMessage(this.props.event.getRoomId(), {
+            body : this.generateFallbackPlain() + this.state.value,
+            formatted_body : this.generateFallbackHTML() + rendered,
+            format: "org.matrix.custom.html",
+            msgtype : "m.text",
+            "m.relates_to" : {
+                "m.in_reply_to" : {
+                    event_id : this.props.event.getId(),
+                }
+            }
+        }).then(_ => this.props.closeEditor())
+    }
+
+    generateFallbackPlain() {
+        const targetBody = this.props.event.getContent().body
+        const targetSender = this.props.event.getSender()
+        const lines = targetBody.trim().split('\n');
+        //strip previous fallback, if replying to a reply
+        if (this.props.event.getContent()["m.relates_to"] 
+            && this.props.event.getContent()["m.relates_to"]["m.in_reply_to"]) {
+            // Removes lines beginning with `> ` until you reach one that doesn't.
+            while (lines.length && lines[0].startsWith('> ')) lines.shift();
+            // Reply fallback has a blank line after it, so remove it to prevent leading newline
+            if (lines[0] === '') lines.shift();
+        }
+        if (lines.length > 0) { lines[0] = `<${targetSender}> ${lines[0]}` }
+        return lines.map((line) => `> ${line}`).join('\n') + '\n\n';
+        //TODO eventually want to handle replying to images and so on, once these are displayable
+    }
+
+    generateFallbackHTML() {
+        const targetHTML = this.props.event.getContent().formatted_body || this.props.event.getContent().body.replace(/\n/g, '<br>')
+        const targetSender = this.props.event.getSender()
+        const sanitizedHTML = sanitizeHtml(targetHTML, stripReply)
+        return (`<mx-reply><blockquote><a href="https://matrix.to/#/${this.props.event.getRoomId()}/${this.props.event.getId()}">In reply to</a>`
+               + ` <a href="https://matrix.to/#/${targetSender}">${targetSender}</a>` 
+               + `<br>${sanitizedHTML}</blockquote></mx-reply>`)
+    }
+
+    render(props,state) {
+        return <div class="replyComposer">
+                     <textarea ref={this.input} 
+                               value={state.value}
+                               onkeypress={this.handleKeypress}
+                               oninput={this.handleInput}/>
+                     <button onclick={this.sendResponse}>Send Reply</button>
+                     <button onclick={this.props.closeEditor}>Cancel</button>
+               </div>
+    }
 }
 
 
 const COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
+
+const stripReply = {
+    allowedTags: false, // false means allow everything
+    allowedAttributes: false,
+    // we somehow can't allow all schemes, so we allow all that we
+    // know of and mxc (for img tags)
+    allowedSchemes: ['http', 'https', 'ftp', 'mailto', 'magnet', 'mxc'],
+    exclusiveFilter: (frame) => frame.tag === "mx-reply",
+}
 
 const transformTags = {
     // add blank targets to all hyperlinks except vector URLs
