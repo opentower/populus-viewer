@@ -4,6 +4,55 @@ import * as CommonMark from 'commonmark'
 import { addLatex } from './latex.js'
 import katex from 'katex'
 import UserColor from './userColors.js'
+import { sanitizeHtmlParams } from './constants.js'
+
+function isReply(content) {
+    return !!(content["m.relates_to"] && content["m.relates_to"]["m.in_reply_to"])
+}
+
+function stripFallbackPlain(lines) {
+    // Removes lines beginning with `> ` until you reach one that doesn't.
+    while (lines.length && lines[0].startsWith('> ')) lines.shift();
+    // Reply fallback has a blank line after it, so remove it to prevent leading newline
+    if (lines[0] === '') lines.shift();
+}
+
+function generateFallbackPlain(event) {
+    const targetBody = event.getContent().body
+    const targetSender = event.getSender()
+    const lines = targetBody.trim().split('\n');
+    //strip previous fallback, if replying to a reply
+    if (isReply(event.getContent())) stripFallbackPlain(lines)
+    if (lines.length > 0) { lines[0] = `<${targetSender}> ${lines[0]}` }
+    return lines.map((line) => `> ${line}`).join('\n') + '\n\n';
+    //TODO eventually want to handle replying to images and so on, once these are displayable
+}
+
+function generateFallbackHtml(event) {
+    const targetHTML = event.getContent().formatted_body || event.getContent().body.replace(/\n/g, '<br>')
+    const targetSender = event.getSender()
+    const sanitizedHTML = sanitizeHtml(targetHTML, stripReply)
+    return (`<mx-reply><blockquote><a href="https://matrix.to/#/${event.getRoomId()}/${event.getId()}">In reply to</a>`
+        + ` <a href="https://matrix.to/#/${targetSender}">${targetSender}</a>` 
+        + `<br>${sanitizedHTML}</blockquote></mx-reply>`)
+}
+
+//based on https://github.com/matrix-org/matrix-react-sdk/blob/33e8edb3d508d6eefb354819ca693b7accc695e7/src/components/views/rooms/EditMessageComposer.js
+function getFallbackHtml(content) {
+    const html = content.formatted_body
+    if (!html) return ""
+    const rootNode = new DOMParser().parseFromString(html, "text/html").body
+    const mxReply = rootNode.querySelector("mx-reply")
+    return mxReply ? mxReply.outerHTML : ""
+}
+
+function getFallbackPlain(content) {
+    const body = content.body
+    const lines = body.split("\n").map(l => l.trim())
+    if (lines.length > 2 && lines[0].startsWith("> ") && lines[1].length === 0) {
+        return `${lines[0]}\n\n`
+    } else return ""
+}
 
 export default class Message extends Component {
 
@@ -47,9 +96,9 @@ export default class Message extends Component {
 
     getEdits = () => {
         return this.props.reactions[this.props.event.getId()]
-        ? this.props.reactions[this.props.event.getId()]
-              .filter(event => event.getContent()["m.relates_to"].rel_type == "m.replace")
-        : []
+            ? this.props.reactions[this.props.event.getId()]
+            .filter(event => event.getContent()["m.relates_to"].rel_type == "m.replace")
+            : []
     }
 
     redactMessage = () => {
@@ -135,11 +184,15 @@ export default class Message extends Component {
     }
 }
 
-//TODO Handle case of editing a reply
 class MessageEditor extends Component {
 
     componentDidMount () {
-        this.setState({ value : this.props.getCurrentEdit().body })
+        this.currentContent = this.props.getCurrentEdit()
+        if (isReply(this.currentContent)) {
+            const lines = this.currentContent.body.trim().split('\n');
+            stripFallbackPlain(lines)
+            this.setState({ value : lines.join('\n') })
+        } else this.setState({ value : this.currentContent.body })
     }
 
     input = createRef()
@@ -162,21 +215,28 @@ class MessageEditor extends Component {
         const writer = new CommonMark.HtmlRenderer()
         const parsed = reader.parse(addLatex(this.state.value))
         const rendered = writer.render(parsed)
-        this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
+        const theReplacementContent = {
+            body : this.state.value,
+            msgtype : "m.text",
+            format: "org.matrix.custom.html",
+            //TODO sanitize formattedBody before use
+            formatted_body : rendered
+        }
+        if (isReply(this.currentContent)) {
+            theReplacementContent["m.relates_to"] = this.currentContent["m.relates_to"]
+            theReplacementContent.body = getFallbackPlain(this.currentContent) + theReplacementContent.body
+            theReplacementContent.formatted_body = getFallbackHtml(this.currentContent) + theReplacementContent.formatted_body
+        }
+        const theReactionContent = {
             body : "an edit occurred", //fallback for clients that don't handle edits. we can do something more descriptive
             msgtype : "m.text",
-            "m.new_content" : {
-                body : this.state.value,
-                msgtype : "m.text",
-                format: "org.matrix.custom.html",
-                //TODO sanitize formattedBody before use
-                formatted_body : rendered
-            },
+            "m.new_content" : theReplacementContent,
             "m.relates_to" : {
                 rel_type : "m.replace",
                 event_id : this.props.event.getId(),
             }
-        }).then(_ => this.props.closeEditor())
+        }
+        this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", theReactionContent).then(_ => this.props.closeEditor())
     }
 
     render(props,state) {
@@ -214,8 +274,8 @@ class ReplyComposer extends Component {
         const parsed = reader.parse(addLatex(this.state.value))
         const rendered = writer.render(parsed)
         this.props.client.sendMessage(this.props.event.getRoomId(), {
-            body : this.generateFallbackPlain() + this.state.value,
-            formatted_body : this.generateFallbackHTML() + rendered,
+            body : generateFallbackPlain(this.props.event) + this.state.value,
+            formatted_body : generateFallbackHtml(this.props.event) + rendered,
             format: "org.matrix.custom.html",
             msgtype : "m.text",
             "m.relates_to" : {
@@ -224,32 +284,6 @@ class ReplyComposer extends Component {
                 }
             }
         }).then(_ => this.props.closeEditor())
-    }
-
-    generateFallbackPlain() {
-        const targetBody = this.props.event.getContent().body
-        const targetSender = this.props.event.getSender()
-        const lines = targetBody.trim().split('\n');
-        //strip previous fallback, if replying to a reply
-        if (this.props.event.getContent()["m.relates_to"] 
-            && this.props.event.getContent()["m.relates_to"]["m.in_reply_to"]) {
-            // Removes lines beginning with `> ` until you reach one that doesn't.
-            while (lines.length && lines[0].startsWith('> ')) lines.shift();
-            // Reply fallback has a blank line after it, so remove it to prevent leading newline
-            if (lines[0] === '') lines.shift();
-        }
-        if (lines.length > 0) { lines[0] = `<${targetSender}> ${lines[0]}` }
-        return lines.map((line) => `> ${line}`).join('\n') + '\n\n';
-        //TODO eventually want to handle replying to images and so on, once these are displayable
-    }
-
-    generateFallbackHTML() {
-        const targetHTML = this.props.event.getContent().formatted_body || this.props.event.getContent().body.replace(/\n/g, '<br>')
-        const targetSender = this.props.event.getSender()
-        const sanitizedHTML = sanitizeHtml(targetHTML, stripReply)
-        return (`<mx-reply><blockquote><a href="https://matrix.to/#/${this.props.event.getRoomId()}/${this.props.event.getId()}">In reply to</a>`
-               + ` <a href="https://matrix.to/#/${targetSender}">${targetSender}</a>` 
-               + `<br>${sanitizedHTML}</blockquote></mx-reply>`)
     }
 
     render(props,state) {
@@ -264,9 +298,6 @@ class ReplyComposer extends Component {
     }
 }
 
-
-const COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
-
 const stripReply = {
     allowedTags: false, // false means allow everything
     allowedAttributes: false,
@@ -275,85 +306,3 @@ const stripReply = {
     allowedSchemes: ['http', 'https', 'ftp', 'mailto', 'magnet', 'mxc'],
     exclusiveFilter: (frame) => frame.tag === "mx-reply",
 }
-
-const transformTags = {
-    // add blank targets to all hyperlinks except vector URLs
-    'a': function(tagName, attribs) {
-        if (attribs.href) { attribs.target = '_blank'; }
-        attribs.rel = 'noreferrer noopener'; // https://mathiasbynens.github.io/rel-noopener/
-        return { tagName, attribs };
-    },
-    'img': function(tagName, attribs) {
-        //security for images is complicated, and they're not important for markdown right now.
-        return { tagName, attribs: {}};
-    },
-    'code': function(tagName, attribs) {
-        if (typeof attribs.class !== 'undefined') {
-            // Filter out all classes other than ones starting with language- for syntax highlighting.
-            const classes = attribs.class.split(/\s/).filter(function(cl) {
-                return cl.startsWith('language-') && !cl.startsWith('language-_');
-            });
-            attribs.class = classes.join(' ');
-        }
-        return { tagName, attribs };
-    },
-    '*': function(tagName, attribs) {
-        // Delete any style previously assigned, style is an allowedTag for font and span
-        // because attributes are stripped after transforming
-        delete attribs.style;
-
-        // Sanitise and transform data-mx-color and data-mx-bg-color to their CSS
-        // equivalents
-        const customCSSMapper = {
-            'data-mx-color': 'color',
-            'data-mx-bg-color': 'background-color',
-        };
-
-        let style = "";
-        Object.keys(customCSSMapper).forEach((customAttributeKey) => {
-            const cssAttributeKey = customCSSMapper[customAttributeKey];
-            const customAttributeValue = attribs[customAttributeKey];
-            if (customAttributeValue &&
-                typeof customAttributeValue === 'string' &&
-                COLOR_REGEX.test(customAttributeValue)
-            ) {
-                style += cssAttributeKey + ":" + customAttributeValue + ";";
-                delete attribs[customAttributeKey];
-            }
-        });
-
-        if (style) { attribs.style = style; }
-
-        return { tagName, attribs };
-    },
-};
-
-// based on https://github.com/matrix-org/matrix-react-sdk/blob/78b1f6c0b13efd57031a329a1ac62baba948dad3/src/HtmlUtils.tsx
-const sanitizeHtmlParams = {
-    allowedTags: [
-        'font', // custom to matrix for IRC-style font coloring
-        'del', // for markdown
-        'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'p', 'a', 'ul', 'ol', 'sup', 'sub',
-        'nl', 'li', 'b', 'i', 'u', 'strong', 'em', 'strike', 'code', 'hr', 'br', 'div',
-        'table', 'thead', 'caption', 'tbody', 'tr', 'th', 'td', 'pre', 'span', 'img',
-        'details', 'summary',
-    ],
-    allowedAttributes: {
-        // custom ones first:
-        font: ['color', 'data-mx-bg-color', 'data-mx-color', 'style'], // custom to matrix
-        span: ['data-mx-maths', 'data-mx-bg-color', 'data-mx-color', 'data-mx-spoiler', 'style'], // custom to matrix
-        div: ['data-mx-maths'],
-        a: ['href', 'name', 'target', 'rel'], // remote target: custom to matrix
-        img: ['src', 'width', 'height', 'alt', 'title'],
-        ol: ['start'],
-        code: ['class'], // We don't actually allow all classes, we filter them in transformTags
-    },
-    // Lots of these won't come up by default because we don't allow them
-    selfClosing: ['img', 'br', 'hr', 'area', 'base', 'basefont', 'input', 'link', 'meta'],
-    // URL schemes we permit
-    allowedSchemes: ['http', 'https', 'ftp', 'mailto', 'magnet'],
-    allowProtocolRelative: false,
-    transformTags,
-    // 50 levels deep "should be enough for anyone"
-    nestingLimit: 50,
-};
