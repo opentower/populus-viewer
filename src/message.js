@@ -61,6 +61,7 @@ export default class Message extends Component {
     }
 
     redactMessage = () => {
+        //XXX also need to redact all subsequent edits that replace the original
         this.props.client.redactEvent(this.props.event.getRoomId(),this.props.event.getId())
     }
 
@@ -193,6 +194,7 @@ class ReplyPreview extends Component {
     }
 
     fromLiveEvent = _ => {
+        const hasMsgType = !!this.state.liveEvent.getContent().msgtype
         const content = this.getCurrentEdit()
         const hasHtml = (content.format == "org.matrix.custom.html") && content.formatted_body
         const isReply = Replies.isReply(content)
@@ -215,9 +217,11 @@ class ReplyPreview extends Component {
                 {avatarHttpURI ? <img src={avatarHttpURI}/> : null}
                 <span>{sender.displayName}</span>
             </div>
-            {hasHtml 
+            {hasHtml && hasMsgType
                 ? <div dangerouslySetInnerHTML={{__html : displayBody}}/>
-                : <div>{displayBody}</div>
+                : hasMsgType 
+                ? <div>{displayBody}</div>
+                : <div class="redacted-preview">Original Message Deleted</div>
             }
         </div>
     }

@@ -247,6 +247,12 @@
     padding-left:15px;
 }
 
+#chat-panel .redacted-preview {
+    padding-top:5px;
+    font-size:10pt;
+    color: gray;
+}
+
 #chat-panel .reply-fallback blockquote{
     margin:0px
 }
