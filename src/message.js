@@ -5,54 +5,7 @@ import { addLatex } from './latex.js'
 import katex from 'katex'
 import UserColor from './userColors.js'
 import { sanitizeHtmlParams } from './constants.js'
-
-function isReply(content) {
-    return !!(content["m.relates_to"] && content["m.relates_to"]["m.in_reply_to"])
-}
-
-function stripFallbackPlain(lines) {
-    // Removes lines beginning with `> ` until you reach one that doesn't.
-    while (lines.length && lines[0].startsWith('> ')) lines.shift();
-    // Reply fallback has a blank line after it, so remove it to prevent leading newline
-    if (lines[0] === '') lines.shift();
-}
-
-function generateFallbackPlain(event) {
-    const targetBody = event.getContent().body
-    const targetSender = event.getSender()
-    const lines = targetBody.trim().split('\n');
-    //strip previous fallback, if replying to a reply
-    if (isReply(event.getContent())) stripFallbackPlain(lines)
-    if (lines.length > 0) { lines[0] = `<${targetSender}> ${lines[0]}` }
-    return lines.map((line) => `> ${line}`).join('\n') + '\n\n';
-    //TODO eventually want to handle replying to images and so on, once these are displayable
-}
-
-function generateFallbackHtml(event) {
-    const targetHTML = event.getContent().formatted_body || event.getContent().body.replace(/\n/g, '<br>')
-    const targetSender = event.getSender()
-    const sanitizedHTML = sanitizeHtml(targetHTML, stripReply)
-    return (`<mx-reply><blockquote><a href="https://matrix.to/#/${event.getRoomId()}/${event.getId()}">In reply to</a>`
-        + ` <a href="https://matrix.to/#/${targetSender}">${targetSender}</a>` 
-        + `<br>${sanitizedHTML}</blockquote></mx-reply>`)
-}
-
-//based on https://github.com/matrix-org/matrix-react-sdk/blob/33e8edb3d508d6eefb354819ca693b7accc695e7/src/components/views/rooms/EditMessageComposer.js
-function getFallbackHtml(content) {
-    const html = content.formatted_body
-    if (!html) return ""
-    const rootNode = new DOMParser().parseFromString(html, "text/html").body
-    const mxReply = rootNode.querySelector("mx-reply")
-    return mxReply ? mxReply.outerHTML : ""
-}
-
-function getFallbackPlain(content) {
-    const body = content.body
-    const lines = body.split("\n").map(l => l.trim())
-    if (lines.length > 2 && lines[0].startsWith("> ") && lines[1].length === 0) {
-        return `${lines[0]}\n\n`
-    } else return ""
-}
+import * as Replies from './utils/replies.js'
 
 export default class Message extends Component {
 
@@ -188,9 +141,9 @@ class MessageEditor extends Component {
 
     componentDidMount () {
         this.currentContent = this.props.getCurrentEdit()
-        if (isReply(this.currentContent)) {
+        if (Replies.isReply(this.currentContent)) {
             const lines = this.currentContent.body.trim().split('\n');
-            stripFallbackPlain(lines)
+            Replies.stripFallbackPlain(lines)
             this.setState({ value : lines.join('\n') })
         } else this.setState({ value : this.currentContent.body })
     }
@@ -222,10 +175,10 @@ class MessageEditor extends Component {
             //TODO sanitize formattedBody before use
             formatted_body : rendered
         }
-        if (isReply(this.currentContent)) {
+        if (Replies.isReply(this.currentContent)) {
             theReplacementContent["m.relates_to"] = this.currentContent["m.relates_to"]
-            theReplacementContent.body = getFallbackPlain(this.currentContent) + theReplacementContent.body
-            theReplacementContent.formatted_body = getFallbackHtml(this.currentContent) + theReplacementContent.formatted_body
+            theReplacementContent.body = Replies.getFallbackPlain(this.currentContent) + theReplacementContent.body
+            theReplacementContent.formatted_body = Replies.getFallbackHtml(this.currentContent) + theReplacementContent.formatted_body
         }
         const theReactionContent = {
             body : "an edit occurred", //fallback for clients that don't handle edits. we can do something more descriptive
@@ -274,8 +227,8 @@ class ReplyComposer extends Component {
         const parsed = reader.parse(addLatex(this.state.value))
         const rendered = writer.render(parsed)
         this.props.client.sendMessage(this.props.event.getRoomId(), {
-            body : generateFallbackPlain(this.props.event) + this.state.value,
-            formatted_body : generateFallbackHtml(this.props.event) + rendered,
+            body : Replies.generateFallbackPlain(this.props.event) + this.state.value,
+            formatted_body : Replies.generateFallbackHtml(this.props.event) + rendered,
             format: "org.matrix.custom.html",
             msgtype : "m.text",
             "m.relates_to" : {
@@ -298,11 +251,3 @@ class ReplyComposer extends Component {
     }
 }
 
-const stripReply = {
-    allowedTags: false, // false means allow everything
-    allowedAttributes: false,
-    // we somehow can't allow all schemes, so we allow all that we
-    // know of and mxc (for img tags)
-    allowedSchemes: ['http', 'https', 'ftp', 'mailto', 'magnet', 'mxc'],
-    exclusiveFilter: (frame) => frame.tag === "mx-reply",
-}
