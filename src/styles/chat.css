@@ -210,15 +210,21 @@
     border:2px solid var(--user_light);
 }
 
+#chat-panel .reply-sender-info,
 #chat-panel .user-info-message {
     display:flex;
     align-items: center;
-    padding:10px;
     font-size:10pt;
     font-weight:bold;
     color: var(--user_dark);
 }
 
+
+#chat-panel .user-info-message {
+    padding:10px;
+}
+
+#chat-panel .reply-sender-info > img,
 #chat-panel .user-info-message > img {
     width:20px;
     height:20px;
@@ -226,6 +232,23 @@
     position:relative;
     left:-5px;
     object-fit:cover;
+}
+
+#chat-panel .reply-preface {
+    position:relative;
+    left:-5px;
+    color:#ababab;
+    font-size:10pt;
+    padding-bottom:5px;
+}
+
+#chat-panel .reply-preview {
+    border-left:5px solid var(--user_light);
+    padding-left:15px;
+}
+
+#chat-panel .reply-fallback blockquote{
+    margin:0px
 }
 
 #chat-panel .me {

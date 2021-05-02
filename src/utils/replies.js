@@ -11,6 +11,16 @@ export function stripFallbackPlain(lines) {
     if (lines[0] === '') lines.shift();
 }
 
+export function stripFallbackPlainString(string) {
+    const lines = string.trim().split('\n');
+    // Removes lines beginning with `> ` until you reach one that doesn't.
+    while (lines.length && lines[0].startsWith('> ')) lines.shift();
+    // Reply fallback has a blank line after it, so remove it to prevent leading newline
+    if (lines[0] === '') lines.shift();
+    return lines.join('\n')
+}
+
+
 export function generateFallbackPlain(event) {
     const targetBody = event.getContent().body
     const targetSender = event.getSender()
@@ -48,7 +58,7 @@ export function getFallbackPlain(content) {
     } else return ""
 }
 
-const stripReply = {
+export const stripReply = {
     allowedTags: false, // false means allow everything
     allowedAttributes: false,
     // we somehow can't allow all schemes, so we allow all that we

@@ -1,19 +1,28 @@
 import { h, createRef, Fragment, Component } from 'preact';
+import * as Matrix from "matrix-js-sdk"
 import sanitizeHtml from 'sanitize-html'
 import * as CommonMark from 'commonmark'
 import { addLatex } from './latex.js'
 import katex from 'katex'
 import UserColor from './userColors.js'
-import { sanitizeHtmlParams } from './constants.js'
+import { sanitizeHtmlParams, serverRoot } from './constants.js'
 import * as Replies from './utils/replies.js'
 
 export default class Message extends Component {
 
     constructor(props) {
         super(props)
-        this.state = ({
-            responding: false,
-        })
+        this.state = ({ responding: false })
+    }
+
+    componentDidMount() {
+        this.processLatex()
+    }
+
+    componentDidUpdate(prevProps) {
+        if (this.props.reactions[this.props.event.getId()] != prevProps.reactions[prevProps.event.getId()]) {
+            this.processLatex()
+        }
     }
 
     userColor = new UserColor(this.props.event.getSender())
@@ -35,10 +44,7 @@ export default class Message extends Component {
 
     openEditor = () => this.setState({ responding: true, })
 
-    closeEditor = () => {
-        console.log("fired")
-        this.setState({ responding: false, })
-    }
+    closeEditor = () => this.setState({ responding: false, })
 
     getCurrentEdit = () => {
         const edits = this.getEdits()
@@ -68,16 +74,6 @@ export default class Message extends Component {
         }
     }
 
-    componentDidMount() {
-        this.processLatex()
-    }
-
-    componentDidUpdate(prevProps) {
-        if (this.props.reactions[this.props.event.getId()] != prevProps.reactions[prevProps.event.getId()]) {
-            this.processLatex()
-        }
-    }
-
     render(props,state) {
         //there's some cleverness involving involving the unstable clientside
         //relation aggregation mechanism that we're not taking advantage of
@@ -87,11 +83,17 @@ export default class Message extends Component {
                       ? props.reactions[event.getId()].filter(event => event.getContent()["m.relates_to"].rel_type == "m.annotation").length
                       : 0
         const content = this.getCurrentEdit()
-        const displayBody = ((content.format == "org.matrix.custom.html") && content.formatted_body)
-                          ? <div ref={this.messageBody} class="body"
-                                 dangerouslySetInnerHTML={{__html : sanitizeHtml(content.formatted_body, sanitizeHtmlParams)}}
-                            />
-                          : <div class="body">{content.body}</div>
+        const isReply = Replies.isReply(content)
+        const replyPreview = isReply ? <ReplyPreview client={props.client} event={event}/> : null
+        const displayBody = <div ref={this.messageBody} class="body">
+                               {replyPreview}
+                               {((content.format == "org.matrix.custom.html") && content.formatted_body)
+                                   ?  <div dangerouslySetInnerHTML={{__html : 
+                                            sanitizeHtml(isReply ? sanitizeHtml(content.formatted_body,Replies.stripReply) : content.formatted_body, sanitizeHtmlParams)
+                                      }}/>
+                                   : <div class="body">{isReply ? Replies.stripFallbackPlain(content.body): content.body}</div>
+                               }
+                            </div>
 
         if (props.client.getUserId() == event.getSender()) {
             return (
@@ -137,14 +139,96 @@ export default class Message extends Component {
     }
 }
 
+class ReplyPreview extends Component {
+
+    //eventually will want a mechanism for refreshing on receipt of edits
+    componentDidMount() {
+        this.getLiveEvent()
+    }
+
+    componentDidUpdate() {
+        this.getLiveEvent()
+    }
+
+    async getLiveEvent() {
+        if (!this.state.liveEvent) {
+            const inReplyToId = this.props.event.getContent()["m.relates_to"]["m.in_reply_to"].event_id
+            const roomId = this.props.event.getRoomId()
+            const theRoom = this.props.client.getRoom(roomId)
+            if (!theRoom) return //room state not ready
+            const inReplyTo = theRoom.findEventById(inReplyToId)
+            if (inReplyTo) {
+                this.setState({ liveEvent : inReplyTo })
+                return
+            }
+            try { 
+                console.log("trying to retrive")
+                // this uses the event-context route, which isn't implemented yet in Dendrite:
+                //
+                // https://github.com/matrix-org/dendrite/issues/670
+                //
+                // Hence, 404s right now.
+                await this.props.client.getEventTimeline(theRoom.getUnfilteredTimelineSet(),inReplyToId) 
+                console.log("retrived")
+            } catch (e) { 
+                console.log("couldn't retrieve")
+                return
+            }
+            this.setState({ liveEvent : theRoom.findEventById(inReplyToId) })
+        }
+    }
+
+    fromLiveEvent = _ => {
+        const content = this.state.liveEvent.getContent()
+        const hasHtml = (content.format == "org.matrix.custom.html") && content.formatted_body
+        const isReply = Replies.isReply(content)
+        const senderId = this.state.liveEvent.getSender()
+        const sender = this.props.client.getUser(senderId)
+        const senderName = this.props.client.getUser(senderId).displayName
+        const senderColors = new UserColor(this.state.liveEvent.getSender())
+        const avatarHttpURI = Matrix.getHttpUriForMxc(serverRoot, sender.avatarUrl, 20, 20, "crop")
+        var displayBody 
+        if (isReply && hasHtml) {
+            displayBody = sanitizeHtml(content.formatted_body, Replies.stripReply)
+        } else if (hasHtml) {
+            displayBody = content.formatted_body
+        } else if (isReply) {
+            displayBody = stripFallbackPlainString(content.body)
+        } else { displayBody = content.body }
+        return <div style={senderColors.styleVariables} class="reply-preview">
+            <div class="reply-preface">In reply to:</div>
+            <div class="reply-sender-info">
+                {avatarHttpURI ? <img src={avatarHttpURI}/> : null}
+                <span>{sender.displayName}</span>
+            </div>
+            {hasHtml 
+                ? <div dangerouslySetInnerHTML={{__html : displayBody}}/>
+                : <div>{displayBody}</div>
+            }
+        </div>
+    }
+
+    fallbackPreview = _ => { 
+        const content = this.props.event.getContent()
+        const hasHtml = (content.format == "org.matrix.custom.html") && content.formatted_body
+        const style = {'--user_light' : 'lightgray'}
+        return hasHtml 
+            ?  <div style={style} class="reply-preview reply-fallback" dangerouslySetInnerHTML={{__html : Replies.getFallbackHtml(content)}}/>
+            :  <div style={style} class="reply-preview reply-fallback">{Replies.getFallbackPlain(content)}</div>
+    }
+
+    render(props,state) {
+        if (state.liveEvent) return this.fromLiveEvent()
+        else return this.fallbackPreview()
+    }
+}
+
 class MessageEditor extends Component {
 
     componentDidMount () {
         this.currentContent = this.props.getCurrentEdit()
-        if (Replies.isReply(this.currentContent)) {
-            const lines = this.currentContent.body.trim().split('\n');
-            Replies.stripFallbackPlain(lines)
-            this.setState({ value : lines.join('\n') })
+        if (Replies.isReply(this.currentContent)) { 
+            this.setState({ value : Replies.stripFallbackPlainString(this.currentContent.body) })
         } else this.setState({ value : this.currentContent.body })
     }
 
@@ -250,4 +334,3 @@ class ReplyComposer extends Component {
                </div>
     }
 }
-
