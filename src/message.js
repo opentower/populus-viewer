@@ -84,7 +84,7 @@ export default class Message extends Component {
                       : 0
         const content = this.getCurrentEdit()
         const isReply = Replies.isReply(content)
-        const replyPreview = isReply ? <ReplyPreview client={props.client} event={event}/> : null
+        const replyPreview = isReply ? <ReplyPreview client={props.client} reactions={this.props.reactions} event={event}/> : null
         const displayBody = <div ref={this.messageBody} class="body">
                                {replyPreview}
                                {((content.format == "org.matrix.custom.html") && content.formatted_body)
@@ -178,8 +178,22 @@ class ReplyPreview extends Component {
         }
     }
 
+    getCurrentEdit = () => {
+        const edits = this.getEdits()
+        //need to be smarter about ordering
+        if (edits.length > 0) { return edits[edits.length - 1].getContent()["m.new_content"] }
+        else { return this.state.liveEvent.getContent() }
+    }
+
+    getEdits = () => {
+        return this.props.reactions[this.state.liveEvent.getId()]
+            ? this.props.reactions[this.state.liveEvent.getId()]
+            .filter(event => event.getContent()["m.relates_to"].rel_type == "m.replace")
+            : []
+    }
+
     fromLiveEvent = _ => {
-        const content = this.state.liveEvent.getContent()
+        const content = this.getCurrentEdit()
         const hasHtml = (content.format == "org.matrix.custom.html") && content.formatted_body
         const isReply = Replies.isReply(content)
         const senderId = this.state.liveEvent.getSender()
