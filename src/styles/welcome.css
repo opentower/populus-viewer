@@ -1,4 +1,5 @@
 #welcome-header {
+    user-select:none;
     position:fixed;
     width:100%;
     display:flex;
@@ -92,6 +93,27 @@
     #welcome-header-content { width:400px; }
 } 
 
+#select-sort-icon {
+    height:1.5em;
+    content: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTYiIGhlaWdodD0iMjgiIHZpZXdCb3g9IjAgMCAxNiAyOCI+PGcgaWQ9Imljb21vb24taWdub3JlIj48L2c+PHBhdGggZD0iTTE2IDE3cTAgMC40MDYtMC4yOTcgMC43MDNsLTcgN3EtMC4yOTcgMC4yOTctMC43MDMgMC4yOTd0LTAuNzAzLTAuMjk3bC03LTdxLTAuMjk3LTAuMjk3LTAuMjk3LTAuNzAzdDAuMjk3LTAuNzAzIDAuNzAzLTAuMjk3aDE0cTAuNDA2IDAgMC43MDMgMC4yOTd0MC4yOTcgMC43MDN6TTE2IDExcTAgMC40MDYtMC4yOTcgMC43MDN0LTAuNzAzIDAuMjk3aC0xNHEtMC40MDYgMC0wLjcwMy0wLjI5N3QtMC4yOTctMC43MDMgMC4yOTctMC43MDNsNy03cTAuMjk3LTAuMjk3IDAuNzAzLTAuMjk3dDAuNzAzIDAuMjk3bDcgN3EwLjI5NyAwLjI5NyAwLjI5NyAwLjcwM3oiIGZpbGw9IiMwMDAwMDAiPjwvcGF0aD48L3N2Zz4=);
+}
+
+#select-sort {
+    user-select:none;
+    display:flex;
+    align-items:center;
+    margin-left: 1em;
+}
+
+#select-sort > button {
+    margin-left: 1em;
+}
+
+#select-sort > button[data-current-button]{
+    color:white;
+    background:black;
+}
+
 .roomListingEntry {
     border: 1px black solid;
     margin: 1em;
@@ -115,9 +137,12 @@
     .roomListingData { grid-template-columns: 100px 1fr; }
 } 
 
-.roomListingEntry a {
-  color: var(--user_dark);
-  font-size:14pt;
+.room-listing-heading {
+    margin-bottom:1em;
+}
+
+.room-listing-heading > a {
+  font-size:16pt;
   font-weight:bold;
   text-decoration: underline;
   text-decoration-thickness: 2px;
@@ -167,6 +192,10 @@
     background: #ededed;
     width:100%;
     padding:5px;
+}
+
+.annotationRoomTable a {
+    cursor: pointer;
 }
 
 .annotationRoomTable thead td { 

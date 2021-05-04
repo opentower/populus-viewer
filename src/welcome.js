@@ -95,7 +95,6 @@ export default class WelcomeView extends Component {
                                 <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} client={props.client}/>
                             </Fragment>
                             : <Fragment>
-                                <h2>Conversations</h2>
                                 <RoomList queryParams={props.queryParams} searchFilter={state.searchFilter} {...props}/>
                             </Fragment>
                     }
@@ -109,7 +108,8 @@ class RoomList extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            rooms : props.client.getVisibleRooms()
+            rooms : props.client.getVisibleRooms(),
+            sort : "Activity"
         }
         //need to do this to bind "this" as refering to the RoomList component in the listener
         this.roomListener = this.roomListener.bind(this)
@@ -132,23 +132,65 @@ class RoomList extends Component {
         this.props.client.off("Room.accountData", this.roomListener)
     }
 
+    byActivity(a,b) {
+        const ts1 = a.getLastActiveTimestamp() 
+        const ts2 = b.getLastActiveTimestamp()
+        if (ts1 < ts2) return 1
+        else if (ts2 < ts1) return -1
+        else return 0
+    }
+
+    byName(a,b) {
+        const ts1 = a.name 
+        const ts2 = b.name
+        if (ts1 < ts2) return 1
+        else if (ts2 < ts1) return -1
+        else return 0
+    }
+
+    byFavorite(a,b) { return 0 }
+
+    sortByActivity = _ => this.setState({ sort: "Activity" })
+
+    sortByName = _ => this.setState({ sort: "Name" })
+
+    sortByFavorite = _ => this.setState({ sort: "Favorite" })
+
+    getSortFunc() {
+        switch (this.state.sort) {
+            case 'Activity': return this.byActivity
+            case 'Activity': return this.byName
+            case 'Activity': return this.byFavorite
+        }
+    }
+
     render(props,state) {
         //TODO: We're going to want to have different subcategories of rooms,
         //for actual pdfs, and for annotation discussions
-        const rooms = state.rooms.filter(room => room.name.toLowerCase().includes(props.searchFilter.toLowerCase()))
-                                 .sort((a,b) => { 
-                                        const ts1 = a.getLastActiveTimestamp() 
-                                        const ts2 = b.getLastActiveTimestamp()
-                                        if (ts1 < ts2) return 1
-                                        else if (ts2 < ts1) return -1
-                                        else return 0
-                                  }).map(room => { return <RoomListing key={room.roomId} 
-                                                                       queryParams={props.queryParams} 
-                                                                       pushHistory={props.pushHistory} 
-                                                                       client={props.client} 
-                                                                       room={room}/> })
+        const rooms = state.rooms.filter(room => {
+                                    var search = room.name.toLowerCase().includes(props.searchFilter.toLowerCase())
+                                    var favorite = state.sort != "Favorite" || room.tags["m.favourite"]
+                                    return search && favorite
+                                 }).sort(this.getSortFunc())
+                                 .map(room => { return <RoomListing key={room.roomId} 
+                                                                    queryParams={props.queryParams} 
+                                                                    pushHistory={props.pushHistory} 
+                                                                    client={props.client} 
+                                                                    room={room}/> })
         return (
             <Fragment>
+                <div id="select-sort">
+                    <span id="select-sort-icon"/>
+                    <button data-current-button={state.sort == "Activity"} 
+                            onclick={this.sortByActivity} 
+                            class="styled-button">Activity</button>
+                    <button data-current-button={state.sort == "Name"} 
+                            onclick={this.sortByName} 
+                            class="styled-button">Name</button>
+                    <button data-current-button={state.sort == "Favorite"} 
+                            onclick={this.sortByFavorite} 
+                            class="styled-button">Favorite</button>
+                </div>
                 <div>{rooms}</div>
             </Fragment>
         )

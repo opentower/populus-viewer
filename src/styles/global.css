@@ -36,4 +36,5 @@ body {
     color:black;
     font-weight:bold;
     background-color:white;
+    user-select:none;
 }
