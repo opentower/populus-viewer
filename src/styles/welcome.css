@@ -121,6 +121,20 @@
   cursor: pointer;
 }
 
+.roomListingEntry .room-listing-heading {
+    display:flex;
+    align-items:center;
+}
+
+.roomListingEntry .fav-star {
+    height:24px;
+    padding-right:5px;
+}
+
+.roomListingEntry .fav-star svg {
+    transform: scale(1);
+}
+
 .roomListingEntryButtons  {
     grid-column: 2 / 3 !important;
     grid-row: 1 / 50 !important;
