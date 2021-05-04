@@ -92,14 +92,13 @@ export default class WelcomeView extends Component {
                         : state.profileVisible 
                             ? <Fragment>
                                 <h2>Update Your Profile</h2>
-                                <ProfileInformation showMainView={this.showMainView} client={props.client}/>
+                                <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} client={props.client}/>
                             </Fragment>
                             : <Fragment>
                                 <h2>Conversations</h2>
                                 <RoomList queryParams={props.queryParams} searchFilter={state.searchFilter} {...props}/>
                             </Fragment>
                     }
-                    <Logout logoutHandler={props.logoutHandler}/>
                 </div>
             </Fragment>
         )
@@ -156,16 +155,6 @@ class RoomList extends Component {
     }
 }
 
-class Logout extends Component {
-    render (props,state) {
-        return (
-            <footer>
-                <a href='#' onclick={props.logoutHandler}>logout</a>
-            </footer>
-        )
-    }
-}
-
 class RoomListing extends Component {
     render (props, state) {
         var pdfEvent = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType,"")
@@ -215,8 +204,9 @@ class PDFRoomEntry extends Component {
         const members = props.room.getJoinedMembers()
         const memberIds = members.map(member => member.userId)
         const memberPills = members.map(member => <MemberPill member={member}/>)
-        const clientId = props.client.getUserId()
-        var status = "invited"
+        const status = memberIds.includes(props.client.getUserId()) 
+                     ? "joined"
+                     : "invited"
         const annotations = props.annotations.map(ev => ev.getContent())
                                              .filter(content => !!content[eventVersion]) //so that we can bump eventversion
                                              .filter(content => content[eventVersion].activityStatus == "open")
@@ -226,11 +216,10 @@ class PDFRoomEntry extends Component {
                                                                 annotationContent={content.[eventVersion]} 
                                                                 parentRoom={props.room}
                                                                 queryParams={props.queryParams}/>)
-        if (memberIds.includes(clientId)) { status = "joined" }
         return (
             <div  data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
                 <div class="room-listing-heading">
-                    <span class="fav-star">{props.room.tags["m.favourite"] ? Icons.star : null}</span>
+                    {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span>: null}
                     <a onclick={this.handleLoad}>{props.room.name}</a>
                 </div>
                 <div class="roomListingData">

@@ -116,8 +116,11 @@
 } 
 
 .roomListingEntry a {
-  color: #069;
+  color: var(--user_dark);
+  font-size:14pt;
+  font-weight:bold;
   text-decoration: underline;
+  text-decoration-thickness: 2px;
   cursor: pointer;
 }
 

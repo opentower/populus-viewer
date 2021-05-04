@@ -68,6 +68,7 @@ export default class ProfileInfomation extends Component {
                 <div key="profileInformationFormSubmit" id="profileInformationFormSubmit">
                     <button class="styled-button" ref={this.submitButton} type="submit">Update Profile</button>
                     {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
+                    <button class="styled-button" type="button" onclick={props.logoutHandler}>Logout</button>
                 </div>
                 {this.state.progress 
                     ?  <div id="profileInformationFormProgress">
