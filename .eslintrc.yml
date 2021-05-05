@@ -1,0 +1,16 @@
+env:
+  browser: true
+  es2021: true
+extends:
+  - standard
+  - preact
+parser: "@babel/eslint-parser"
+parserOptions:
+  ecmaFeatures:
+    jsx: true
+  ecmaVersion: 12
+  sourceType: module
+rules:
+  no-unused-vars:
+    - "error"
+    - argsIgnorePattern: "^_$"
