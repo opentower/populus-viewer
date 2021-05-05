@@ -4,7 +4,7 @@
   "description": "A pdf viewer for Populus",
   "main": "index.js",
   "scripts": {
-    "test": "npx standard src",
+    "test": "eslint src",
     "build": "webpack --progress --mode=production",
     "watch": "webpack --progress --watch",
     "serve": "webpack serve --mode development"
