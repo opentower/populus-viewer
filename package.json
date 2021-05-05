@@ -1,13 +1,16 @@
 {
   "name": "populus-viewer",
-  "version": "0.1.0",
+  "version": "0.0.35",
   "description": "A pdf viewer for Populus",
   "main": "index.js",
   "scripts": {
     "test": "eslint src",
     "build": "webpack --progress --mode=production",
     "watch": "webpack --progress --watch",
-    "serve": "webpack serve --mode development"
+    "serve": "webpack serve --mode development",
+    "preversion" : "npm test",
+    "version" : "npm run build && git add -A dist/main.js",
+    "postversion" : "git push && git push --tags && git subtree push --prefix dist origin gh-pages"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
