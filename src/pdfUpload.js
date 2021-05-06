@@ -56,6 +56,9 @@ export default class PdfUpload extends Component {
         this.mainForm.current.reset()
         this.props.showMainView()
       }).catch(e => alert(e))
+    } else {
+      alert("Please make sure that the file you're uploading is a pdf.")
+      this.mainForm.current.reset()
     }
   }
 
