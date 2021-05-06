@@ -11,6 +11,7 @@ export default class Navbar extends Component {
     this.state = {
       value: props.page,
       pageViewVisible: false,
+      moreOptionsVisible: false,
       typing: {},
       focused: false
     };
@@ -60,6 +61,12 @@ export default class Navbar extends Component {
   handleClick = _ => this.props.pushHistory({ pageFocused: parseInt(event.target.value, 10) })
 
   togglePageNav = _ => this.setState({pageViewVisible: !this.state.pageViewVisible})
+
+  toggleMoreOptions = _ => {
+    if (this.state.moreOptionsVisible) this.props.setNavHeight(75)
+    else this.props.setNavHeight(150)
+    this.setState({moreOptionsVisible: !this.state.moreOptionsVisible})
+  }
 
   mainMenu = _ => {
     this.props.pushHistory({
@@ -123,7 +130,7 @@ export default class Navbar extends Component {
           <button title="go to next page" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
           <button title="go to last page" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button>
           <button title="remove annotation" disabled={props.focus && !props.selected ? null : "disabled"} onclick={props.closeann}>{Icons.removeAnnotation}</button>
-          <button title="more options (inactive)" disabled>{Icons.moreVertical}</button>
+          <button title="more options" onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
         </div>
       </nav>
     }

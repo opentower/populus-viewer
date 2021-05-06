@@ -22,6 +22,7 @@ export default class PdfView extends Component {
       roomId: null,
       focus: null,
       totalPages: null,
+      navHeight: 75,
       panelVisible: false,
       hasSelection: false,
       pdfWidthPx: null,
@@ -79,13 +80,6 @@ export default class PdfView extends Component {
     this.prevScrollTop = e.target.scrollTop
   }
 
-  setId = id => {
-    // sets the roomId after loading a PDF, and also tries to use that information to update the focus.
-    this.setState({roomId: id}, _ => this.props.queryParams.get("focus")
-      ? this.focusByRoomId(this.props.queryParams.get("focus"))
-      : null)
-  }
-
   annotationLayer = createRef()
 
   annotationLayerWrapper = createRef()
@@ -95,6 +89,15 @@ export default class PdfView extends Component {
   contentContainer = createRef()
 
   pointerCache = []
+
+  setNavHeight = px => this.setState({ navHeight: px })
+
+  setId = id => {
+    // sets the roomId after loading a PDF, and also tries to use that information to update the focus.
+    this.setState({roomId: id}, _ => this.props.queryParams.get("focus")
+      ? this.focusByRoomId(this.props.queryParams.get("focus"))
+      : null)
+  }
 
   setPdfWidthPx = px => this.setState({pdfWidthPx: px})
 
@@ -236,6 +239,7 @@ export default class PdfView extends Component {
   render(props, state) {
     const dynamicDocumentStyle = {
       "--pdfZoomFactor": state.zoomFactor,
+      "--navHeight": `${state.navHeight}px`,
       "--pdfFitRatio": state.pdfFitRatio,
       "--pdfWidthPx": `${state.pdfWidthPx}px`,
       "--pdfHeightPx": `${state.pdfHeightPx}px`,
@@ -310,6 +314,7 @@ export default class PdfView extends Component {
           focus={state.focus}
           roomId={state.roomId}
           container={this.contentContainer}
+          setNavHeight={this.setNavHeight}
           client={props.client}
           pdfWidthPx={state.pdfWidthPx}
           pushHistory={props.pushHistory} />
@@ -370,105 +375,105 @@ class PdfCanvas extends Component {
     })
   }
 
-    textLayer = createRef()
+  textLayer = createRef()
 
-    canvas = createRef()
+  canvas = createRef()
 
-    async fetchPdf (title) {
-      const theId = await this.props.client.getRoomIdForAlias(`#${title}:${domainName}`)
-      await this.props.client.joinRoom(theId.room_id)
-      this.props.setId(theId.room_id)
-      const theRoom = this.props.client.getRoom(theId.room_id)
-      const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-      const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf", "").getContent().identifier
-      const pdfPath = `${serverRoot}/_matrix/media/r0/download/${domainName}/${pdfIdentifier}`
-      this.setState({pdfIdentifier})
-      if (!PdfView.PDFStore[pdfIdentifier]) {
-        console.log(`fetching ${title}` )
-        PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
-      } else { console.log(`found ${title} in store` ) }
-      PdfView.PDFStore[pdfIdentifier]
-        .then(pdf => this.props.setTotalPages(pdf.numPages))
-        .then(this.resolveFetch)
-    }
+  async fetchPdf (title) {
+    const theId = await this.props.client.getRoomIdForAlias(`#${title}:${domainName}`)
+    await this.props.client.joinRoom(theId.room_id)
+    this.props.setId(theId.room_id)
+    const theRoom = this.props.client.getRoom(theId.room_id)
+    const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf", "").getContent().identifier
+    const pdfPath = `${serverRoot}/_matrix/media/r0/download/${domainName}/${pdfIdentifier}`
+    this.setState({pdfIdentifier})
+    if (!PdfView.PDFStore[pdfIdentifier]) {
+      console.log(`fetching ${title}` )
+      PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
+    } else { console.log(`found ${title} in store` ) }
+    PdfView.PDFStore[pdfIdentifier]
+      .then(pdf => this.props.setTotalPages(pdf.numPages))
+      .then(this.resolveFetch)
+  }
 
-    // because rendering is async, we need a way to cancel pending render tasks and
-    // to make sure that pending drawPdf calls don't proceed. That's what this function does.
-    grabControl() {
-      const controlToken = {}
-      this.controlToken = controlToken
-      // we spawn a new control token - this is just an empty object, the
-      // important thing is that it's a *new* empty object, since previous
-      // drawPdf calls will check to see if the control token is the same as
-      // the one that they were spawned with
-      try { this.pendingRender.cancel() } catch (err) { console.log(err) }
-      try { this.pendingTextRender.cancel() } catch (err) { console.log(err) }
-      // now that we're sure we won't spawn any unintended renders, we cancel
-      // any pending renders
-      this.textLayer.current.innerHTML = ''
-      // and we clear the textlayer.
-      return controlToken
-    }
+  // because rendering is async, we need a way to cancel pending render tasks and
+  // to make sure that pending drawPdf calls don't proceed. That's what this function does.
+  grabControl() {
+    const controlToken = {}
+    this.controlToken = controlToken
+    // we spawn a new control token - this is just an empty object, the
+    // important thing is that it's a *new* empty object, since previous
+    // drawPdf calls will check to see if the control token is the same as
+    // the one that they were spawned with
+    try { this.pendingRender.cancel() } catch (err) { console.log(err) }
+    try { this.pendingTextRender.cancel() } catch (err) { console.log(err) }
+    // now that we're sure we won't spawn any unintended renders, we cancel
+    // any pending renders
+    this.textLayer.current.innerHTML = ''
+    // and we clear the textlayer.
+    return controlToken
+  }
 
-    async drawPdf (control) {
-      // since we've started rendering, we want to block subsequent render attempts
-      this.hasRendered = true
-      const theCanvas = this.canvas.current
-      await this.hasFetched
-      const pdf = await PdfView.PDFStore[this.state.pdfIdentifier]
+  async drawPdf (control) {
+    // since we've started rendering, we want to block subsequent render attempts
+    this.hasRendered = true
+    const theCanvas = this.canvas.current
+    await this.hasFetched
+    const pdf = await PdfView.PDFStore[this.state.pdfIdentifier]
 
-      // exit early if someone else has grabbed control
-      if (control !== this.controlToken) return
-      // Fetch the first page
-      const page = await pdf.getPage(this.props.pageFocused || 1)
-      console.log('Page loaded');
+    // exit early if someone else has grabbed control
+    if (control !== this.controlToken) return
+    // Fetch the first page
+    const page = await pdf.getPage(this.props.pageFocused || 1)
+    console.log('Page loaded');
 
-      const scale = 3
-      const viewport = page.getViewport({scale});
+    const scale = 3
+    const viewport = page.getViewport({scale});
 
-      // Prepare canvas using PDF page dimensions
-      theCanvas.height = viewport.height;
-      theCanvas.width = viewport.width;
+    // Prepare canvas using PDF page dimensions
+    theCanvas.height = viewport.height;
+    theCanvas.width = viewport.width;
 
-      // pass scaled height in px upwards for css variables
+    // pass scaled height in px upwards for css variables
 
-      const pdfWidthPx = Math.min((viewport.width * 1.5) / scale, window.innerWidth)
-      const pdfHeightPx = (pdfWidthPx / viewport.width) * viewport.height
-      this.props.setPdfWidthPx(pdfWidthPx)
-      this.props.setPdfFitRatio(Math.min(1, window.innerWidth / ((viewport.width * 1.5) / scale)))
-      this.props.setPdfHeightPx(pdfHeightPx)
+    const pdfWidthPx = Math.min((viewport.width * 1.5) / scale, window.innerWidth)
+    const pdfHeightPx = (pdfWidthPx / viewport.width) * viewport.height
+    this.props.setPdfWidthPx(pdfWidthPx)
+    this.props.setPdfFitRatio(Math.min(1, window.innerWidth / ((viewport.width * 1.5) / scale)))
+    this.props.setPdfHeightPx(pdfHeightPx)
 
-      // Render PDF page into canvas context
-      const canvasContext = theCanvas.getContext('2d')
+    // Render PDF page into canvas context
+    const canvasContext = theCanvas.getContext('2d')
 
-      const renderContext = {
-        canvasContext,
-        viewport
-      };
+    const renderContext = {
+      canvasContext,
+      viewport
+    };
 
-      if (control !== this.controlToken) return
-      this.pendingRender = page.render(renderContext);
+    if (control !== this.controlToken) return
+    this.pendingRender = page.render(renderContext);
 
-      await this.pendingRender.promise
-      console.log('Page rendered');
-      const text = await page.getTextContent();
+    await this.pendingRender.promise
+    console.log('Page rendered');
+    const text = await page.getTextContent();
 
-      if (control !== this.controlToken) return
-      // insert the pdf text into the text layer
-      this.pendingTextRender = PDFJS.renderTextLayer({
-        textContent: text,
-        container: this.textLayer.current,
-        viewport: page.getViewport({scale: 1.5}),
-        textDivs: []
-      })
-    }
+    if (control !== this.controlToken) return
+    // insert the pdf text into the text layer
+    this.pendingTextRender = PDFJS.renderTextLayer({
+      textContent: text,
+      container: this.textLayer.current,
+      viewport: page.getViewport({scale: 1.5}),
+      textDivs: []
+    })
+  }
 
-    render(props) {
-      return (
-        <Fragment>
-          <canvas key={this.canvasRefreshAt} ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas" />
-          <div style="z-index:3" ref={this.textLayer} id="text-layer" />
-        </Fragment>
-      )
-    }
+  render(props) {
+    return (
+      <Fragment>
+        <canvas key={this.canvasRefreshAt} ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas" />
+        <div style="z-index:3" ref={this.textLayer} id="text-layer" />
+      </Fragment>
+    )
+  }
 }

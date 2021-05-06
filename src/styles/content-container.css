@@ -1,7 +1,6 @@
 #content-container {
     position: relative;
     overflow:scroll;
-    --navHeight: 75px;
     height: calc(100% - var(--navHeight));
     width: var(--contentWidth);
     --leftToCenter: max(0px, calc(50% - (var(--pdfWidthPx) * var(--pdfZoomFactor)) / 2));
