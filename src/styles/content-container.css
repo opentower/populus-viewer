@@ -95,7 +95,7 @@
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
     #content-container {
-        --navHeight: 60px;
+        height: calc(100% - (0.8 * var(--navHeight)));
         --sidepanelWidth: 100%;
         --sidepanelPadding: 0px;
         --contentWidth: calc(100% - (var(--sidePanelVisible) * (var(--sidepanelWidth) + (2 * var(--sidepanelPadding)))));

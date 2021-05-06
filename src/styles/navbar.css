@@ -60,13 +60,16 @@
     max-width: var(--contentWidth);
 }
 
-
 @media only screen and (max-width: 600px) {
     #nav-button-wrapper {
         transform: scale(0.8);
         transform-origin: left;
         min-width: calc((var(--contentWidth)/0.8));
         justify-content:space-around;
+    }
+
+    #page-nav {
+      height:calc(0.8 * var(--navHeight));
     }
 }
 
