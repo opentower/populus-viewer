@@ -166,6 +166,7 @@
     visibility:visible;
 }
 
+.file-upload,
 .redacted {
     font-size:10pt;
     color:gray;

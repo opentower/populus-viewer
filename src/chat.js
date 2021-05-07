@@ -106,7 +106,12 @@ export default class Chat extends Component {
     const reactions = {}
     // XXX need to be able to handle other message types
     const messages = state.events.filter(
-      e => e.getType() === "m.room.message" && (e.getContent().msgtype === "m.text" || (Object.keys(e.getContent()).length === 0)))
+      e => e.getType() === "m.room.message" &&
+        (e.getContent().msgtype === "m.text" ||
+        e.getContent().msgtype === "m.file" ||
+        Object.keys(e.getContent()).length === 0
+        )
+    )
     let prev = null
     const messagedivs = messages.reduce((accumulator, event) => {
       if (!prev || prev.getSender() !== event.getSender()) {
@@ -122,6 +127,15 @@ export default class Chat extends Component {
         case "m.text": {
           accumulator.push(
             <Message reactions={reactions}
+              client={this.props.client}
+              key={event.getId()}
+              event={event} />
+          )
+          break;
+        }
+        case "m.file": {
+          accumulator.push(
+            <FileMessage reactions={reactions}
               client={this.props.client}
               key={event.getId()}
               event={event} />
@@ -200,6 +214,30 @@ class RedactedMessage extends Component {
       : <div class="redacted message" style={this.userColor.styleVariables}>
         <div class="ident" />
         <div class="body">{props.count > 1 ? `${props.count} messages deleted` : "message deleted"}</div>
+      </div>
+  }
+}
+
+class FileMessage extends Component {
+  userColor = new UserColor(this.props.event.getSender())
+
+  isMe = this.props.event.getSender() === this.props.client.getUserId()
+
+  url = Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().url)
+
+  render(props) {
+    return this.isMe
+      ? <div class="file-upload message me" style={this.userColor.styleVariables}>
+        <div class="ident" />
+        <div class="body">file upload:&nbsp;
+          <a href={this.url}>{props.event.getContent().filename}</a>
+        </div>
+      </div>
+      : <div class="file-upload message" style={this.userColor.styleVariables}>
+        <div class="ident" />
+        <div class="body">file upload:&nbsp;
+          <a href={this.url}>{props.event.getContent().filename}</a>
+        </div>
       </div>
   }
 }
