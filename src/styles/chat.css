@@ -72,6 +72,8 @@
 
 #submitButton { grid-column:1/4; }
 
+#cancelButton { grid-column:4/7; }
+
 #sendFileButton { grid-column:4/5; }
 
 #sendImageButton { grid-column:5/6; }

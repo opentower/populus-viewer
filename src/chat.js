@@ -1,4 +1,4 @@
-import { h, createRef, Component } from 'preact';
+import { h, createRef, Fragment, Component } from 'preact';
 import './styles/chat.css'
 import * as Matrix from "matrix-js-sdk"
 import * as CommonMark from 'commonmark'
@@ -221,10 +221,99 @@ function TypingIndicator(props) {
 class MessagePanel extends Component {
   constructor (props) {
     super(props)
+    this.state = { mode: "Default" }
+  }
+
+  userColor = new UserColor(this.props.client.getUserId())
+
+  theInput = createRef()
+
+  getInput () {
+    switch (this.state.mode) {
+      case 'Default': return <TextMessageInput ref={this.theInput} focus={this.props.focus} client={this.props.client} />
+      case 'SendFile': return <FileUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} client={this.props.client} />
+    }
+  }
+
+  setModeDefault = _ => {
+    this.setState({ mode: "Default" })
+  }
+
+  setModeSendFile = _ => {
+    this.setState({ mode: "SendFile" })
+  }
+
+  submitCurrentInput = _ => {
+    if (this.theInput.current) this.theInput.current.submitInput()
+    else console.log("no available input")
+  }
+
+  render(props, state) {
+    return (<div style={this.userColor.styleVariables} id="messageComposer">
+      {this.getInput()}
+      <div id="submit-button-wrapper">
+        <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
+        { state.mode === "Default"
+          ? <Fragment>
+              <button id="sendFileButton" onclick={this.setModeSendFile}>{Icons.upload}</button>
+              <button id="sendImageButton" onclick={_ => alert("not implemented")}>{Icons.image}</button>
+              <button id="moreButton" onclick={_ => alert("not implemented")}>{Icons.moreHorizontal}</button>
+          </Fragment>
+          : <button id="cancelButton" onclick={this.setModeDefault}>Cancel</button>
+        }
+      </div>
+    </div>)
+  }
+}
+
+class FileUploadInput extends Component {
+  fileLoader = createRef()
+
+  theForm = createRef()
+
+  submitInput = async _ => {
+    const theFile = this.fileLoader.current.files[0]
+    const mxc = await this.props.client.uploadContent(theFile, { progressHandler: this.progressHandler }).catch(e => console.log(e))
+    const theContent = {
+      body: theFile.name,
+      filename: theFile.name,
+      info: {
+        mimetype: theFile.type ? theFile.type : "application/octet-stream",
+        size: theFile.size
+      },
+      msgtype: "m.file",
+      url: mxc
+    }
+    await this.props.client.sendMessage(this.props.focus.roomId, theContent)
+    this.props.done()
+  }
+
+  progressHandler = (progress) => this.setState({progress})
+
+  render() {
+    return <form ref={this.theForm}>
+      <input ref={this.fileLoader} type="file" />
+      {this.state.progress
+        ? <div id="pdfUploadFormProgress">
+          <span>{this.state.progress.loaded}</span>
+          <span>/</span>
+          <span>{this.state.progress.total} bytes</span>
+        </div>
+        : null
+      }
+    </form>
+  }
+}
+
+class TextMessageInput extends Component {
+  constructor (props) {
+    super(props)
     this.state = { value: "" }
     this.reader = new CommonMark.Parser()
     this.writer = new CommonMark.HtmlRenderer()
   }
+
+  currentInput = createRef()
 
   startTyping = _ => {
     // send a "typing" notification with a 30 second timeout
@@ -258,11 +347,11 @@ class MessagePanel extends Component {
     // send "stopped typing" after 5 seconds of inactivity
     if (event.code === "Enter" && event.ctrlKey) {
       event.preventDefault()
-      this.sendMessage()
+      this.submitInput()
     } else if (!this.typingLock) this.startTyping()
   }
 
-  sendMessage = _ => {
+  submitInput = _ => {
     if (this.props.focus.roomId) {
       this.stopTyping()
       const parsed = this.reader.parse(addLatex(this.state.value))
@@ -277,22 +366,10 @@ class MessagePanel extends Component {
     }
   }
 
-  userColor = new UserColor(this.props.client.getUserId())
-
-  currentInput = createRef()
-
-  render(props, state) {
-    return (<div style={this.userColor.styleVariables} id="messageComposer">
-      <textarea ref={this.currentInput}
-        value={state.value}
-        onkeypress={this.handleKeypress}
-        oninput={this.handleInput} />
-      <div id="submit-button-wrapper">
-        <button id="submitButton" onclick={this.sendMessage}>Submit</button>
-        <button id="sendFileButton" onclick={_ => alert("not implemented")}>{Icons.upload}</button>
-        <button id="sendImageButton" onclick={_ => alert("not implemented")}>{Icons.image}</button>
-        <button id="moreButton" onclick={_ => alert("not implemented")}>{Icons.moreHorizontal}</button>
-      </div>
-    </div>)
+  render (props, state) {
+    return <textarea ref={this.currentInput}
+      value={state.value}
+      onkeypress={this.handleKeypress}
+      oninput={this.handleInput} />
   }
 }
