@@ -8,12 +8,7 @@ import UserColor from './userColors.js'
 import { sanitizeHtmlParams, serverRoot } from './constants.js'
 import * as Replies from './utils/replies.js'
 
-export default class Message extends Component {
-  constructor(props) {
-    super(props)
-    this.state = ({ responding: false })
-  }
-
+export class TextMessage extends Component {
   componentDidMount() {
     this.processLatex()
   }
@@ -24,9 +19,81 @@ export default class Message extends Component {
     }
   }
 
+  messageBody = createRef()
+
+  processLatex() {
+    if (this.messageBody.current) {
+      const latexArray = Array.from(this.messageBody.current.querySelectorAll("[data-mx-maths]"))
+      latexArray.forEach(elt => {
+        if (elt.tagName === "DIV") katex.render(elt.dataset.mxMaths, elt, {displayMode: true, throwOnError: false})
+        else katex.render(elt.dataset.mxMaths, elt, {throwOnError: false})
+      })
+    }
+  }
+
+  getEdits = () => {
+    return this.props.reactions[this.props.event.getId()]
+      ? this.props.reactions[this.props.event.getId()].filter(
+          event => event.getContent()["m.relates_to"].rel_type === "m.replace")
+      : []
+  }
+
+  getCurrentEdit = () => {
+    const edits = this.getEdits()
+    // need to be smarter about ordering
+    if (edits.length > 0) { return edits[edits.length - 1].getContent()["m.new_content"] }
+    return this.props.event.getContent()
+  }
+
+  render(props) {
+    const content = this.getCurrentEdit()
+    const isReply = Replies.isReply(content)
+    const replyPreview = isReply ? <ReplyPreview client={props.client} reactions={props.reactions} event={props.event} /> : null
+    const displayBody = <div ref={this.messageBody} class="body">
+      {replyPreview}
+      {((content.format === "org.matrix.custom.html") && content.formatted_body)
+        ? <div dangerouslySetInnerHTML={{
+          __html: sanitizeHtml(isReply ? sanitizeHtml(content.formatted_body, Replies.stripReply) : content.formatted_body, sanitizeHtmlParams)
+        }} />
+        : <div class="body">{isReply ? Replies.stripFallbackPlain(content.body) : content.body}</div>
+      }
+    </div>
+    return <Message reactions={props.reactions}
+      event={props.event}
+      client={props.client}
+      getCurrentEdit={this.getCurrentEdit}>
+        {displayBody}
+    </Message>
+  }
+}
+
+export class FileMessage extends Component {
   userColor = new UserColor(this.props.event.getSender())
 
-  messageBody = createRef()
+  isMe = this.props.event.getSender() === this.props.client.getUserId()
+
+  url = Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().url)
+
+  render(props) {
+    return <Message reactions={props.reactions}
+      event={props.event}
+      client={props.client}
+      getCurrentEdit={this.getCurrentEdit}>
+        <div class="body file-upload">
+          file upload:&nbsp;
+          <a href={this.url}>{props.event.getContent().filename}</a>
+        </div>
+    </Message>
+  }
+}
+
+class Message extends Component {
+  constructor(props) {
+    super(props)
+    this.state = ({ responding: false })
+  }
+
+  userColor = new UserColor(this.props.event.getSender())
 
   upvote = () => {
     const reactions = this.props.reactions[this.props.event.getId()] || []
@@ -45,33 +112,10 @@ export default class Message extends Component {
 
   closeEditor = () => this.setState({ responding: false })
 
-  getCurrentEdit = () => {
-    const edits = this.getEdits()
-    // need to be smarter about ordering
-    if (edits.length > 0) { return edits[edits.length - 1].getContent()["m.new_content"] }
-    return this.props.event.getContent()
-  }
-
-  getEdits = () => {
-    return this.props.reactions[this.props.event.getId()]
-      ? this.props.reactions[this.props.event.getId()].filter(
-          event => event.getContent()["m.relates_to"].rel_type === "m.replace")
-      : []
-  }
 
   redactMessage = () => {
     // XXX also need to redact all subsequent edits that replace the original
     this.props.client.redactEvent(this.props.event.getRoomId(), this.props.event.getId())
-  }
-
-  processLatex() {
-    if (this.messageBody.current) {
-      const latexArray = Array.from(this.messageBody.current.querySelectorAll("[data-mx-maths]"))
-      latexArray.forEach(elt => {
-        if (elt.tagName === "DIV") katex.render(elt.dataset.mxMaths, elt, {displayMode: true, throwOnError: false})
-        else katex.render(elt.dataset.mxMaths, elt, {throwOnError: false})
-      })
-    }
   }
 
   render(props, state) {
@@ -79,23 +123,12 @@ export default class Message extends Component {
     // relation aggregation mechanism that we're not taking advantage of
     // here. Element doesn't seem to use this for replacements yet either.
     const event = props.event
+    const canEdit = !!props.getCurrentEdit
     const upvotes = props.reactions[event.getId()]
       ? props.reactions[event.getId()].filter(
           event => event.getContent()["m.relates_to"].rel_type === "m.annotation"
         ).length
       : 0
-    const content = this.getCurrentEdit()
-    const isReply = Replies.isReply(content)
-    const replyPreview = isReply ? <ReplyPreview client={props.client} reactions={this.props.reactions} event={event} /> : null
-    const displayBody = <div ref={this.messageBody} class="body">
-      {replyPreview}
-      {((content.format === "org.matrix.custom.html") && content.formatted_body)
-        ? <div dangerouslySetInnerHTML={{
-          __html: sanitizeHtml(isReply ? sanitizeHtml(content.formatted_body, Replies.stripReply) : content.formatted_body, sanitizeHtmlParams)
-        }} />
-        : <div class="body">{isReply ? Replies.stripFallbackPlain(content.body) : content.body}</div>
-      }
-    </div>
 
     if (props.client.getUserId() === event.getSender()) {
       return (
@@ -104,17 +137,17 @@ export default class Message extends Component {
             id={event.getId()}
             style={this.userColor.styleVariables}
             class="message me">
-            {displayBody}
+            {props.children}
             <div class="ident">
               {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
               <div class="info">
-                {!state.responding && <button onclick={this.openEditor}>edit</button>}
+                {!state.responding && canEdit && <button onclick={this.openEditor}>edit</button>}
                 <button onclick={this.redactMessage} class="redact">delete</button>
               </div>
             </div>
           </div>
-          {state.responding && <MessageEditor closeEditor={this.closeEditor}
-            getCurrentEdit={this.getCurrentEdit}
+          {state.responding && canEdit && <MessageEditor closeEditor={this.closeEditor}
+            getCurrentEdit={props.getCurrentEdit}
             client={this.props.client}
             event={event}
           />}
@@ -131,7 +164,7 @@ export default class Message extends Component {
             </div>
             {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
           </div>
-          {displayBody}
+          {props.children}
         </div>
         {state.responding && <ReplyComposer closeEditor={this.closeEditor}
           getCurrentEdit={this.getCurrentEdit}
