@@ -8,9 +8,9 @@
     "build": "webpack --progress --mode=production",
     "watch": "webpack --progress --watch",
     "serve": "webpack serve --mode development",
-    "preversion" : "npm test",
-    "version" : "npm run build && git add -A dist/main.js",
-    "postversion" : "git push && git push --tags && git subtree push --prefix dist origin gh-pages"
+    "preversion": "npm test",
+    "version": "npm run build && git add -A dist/main.js",
+    "postversion": "git push && git push --tags && git subtree push --prefix dist origin gh-pages"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
@@ -39,6 +39,7 @@
     "katex": "^0.13.2",
     "matrix-js-sdk": "^9.7.0",
     "pdfjs-dist": "^2.6.347",
+    "png-chunks-extract": "^1.0.0",
     "preact": "^10.5.12",
     "sanitize-html": "^2.3.3",
     "worker-loader": "^3.0.8"
