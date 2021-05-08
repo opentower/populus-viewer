@@ -4,9 +4,10 @@ import * as Matrix from "matrix-js-sdk"
 import * as CommonMark from 'commonmark'
 import * as Icons from "./icons.js"
 import { addLatex } from './latex.js'
-import { TextMessage, FileMessage } from './message.js'
+import { TextMessage, FileMessage, ImageMessage } from './message.js'
 import UserColor from './userColors.js'
 import { serverRoot } from "./constants.js"
+import { loadImageElement, createThumbnail } from "./utils/media.js"
 
 export default class Chat extends Component {
   constructor (props) {
@@ -109,6 +110,7 @@ export default class Chat extends Component {
       e => e.getType() === "m.room.message" &&
         (e.getContent().msgtype === "m.text" ||
         e.getContent().msgtype === "m.file" ||
+        e.getContent().msgtype === "m.image" ||
         Object.keys(e.getContent()).length === 0
         )
     )
@@ -136,6 +138,15 @@ export default class Chat extends Component {
         case "m.file": {
           accumulator.push(
             <FileMessage reactions={reactions}
+              client={this.props.client}
+              key={event.getId()}
+              event={event} />
+          )
+          break;
+        }
+        case "m.image": {
+          accumulator.push(
+            <ImageMessage reactions={reactions}
               client={this.props.client}
               key={event.getId()}
               event={event} />
@@ -246,16 +257,15 @@ class MessagePanel extends Component {
     switch (this.state.mode) {
       case 'Default': return <TextMessageInput ref={this.theInput} focus={this.props.focus} client={this.props.client} />
       case 'SendFile': return <FileUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} client={this.props.client} />
+      case 'SendImage': return <ImageUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} client={this.props.client} />
     }
   }
 
-  setModeDefault = _ => {
-    this.setState({ mode: "Default" })
-  }
+  setModeDefault = _ => this.setState({ mode: "Default" })
 
-  setModeSendFile = _ => {
-    this.setState({ mode: "SendFile" })
-  }
+  setModeSendFile = _ => this.setState({ mode: "SendFile" })
+
+  setModeSendImage = _ => this.setState({ mode: "SendImage" })
 
   submitCurrentInput = _ => {
     if (this.theInput.current) this.theInput.current.submitInput()
@@ -270,7 +280,7 @@ class MessagePanel extends Component {
         { state.mode === "Default"
           ? <Fragment>
               <button id="sendFileButton" onclick={this.setModeSendFile}>{Icons.upload}</button>
-              <button id="sendImageButton" onclick={_ => alert("not implemented")}>{Icons.image}</button>
+              <button id="sendImageButton" onclick={this.setModeSendImage}>{Icons.image}</button>
               <button id="moreButton" onclick={_ => alert("not implemented")}>{Icons.moreHorizontal}</button>
           </Fragment>
           : <button id="cancelButton" onclick={this.setModeDefault}>Cancel</button>
@@ -307,6 +317,71 @@ class FileUploadInput extends Component {
   render() {
     return <form ref={this.theForm}>
       <input ref={this.fileLoader} type="file" />
+      {this.state.progress
+        ? <div id="pdfUploadFormProgress">
+          <span>{this.state.progress.loaded}</span>
+          <span>/</span>
+          <span>{this.state.progress.total} bytes</span>
+        </div>
+        : null
+      }
+    </form>
+  }
+}
+
+class ImageUploadInput extends Component {
+  theForm = createRef()
+
+  imageLoader = createRef()
+
+  imagePreview = createRef()
+
+  uploadImage = _ => this.imageLoader.current.click()
+
+  updatePreview = _ => {
+    const theImage = this.imageLoader.current.files[0]
+    if (theImage && /^image/.test(theImage.type)) {
+      this.setState({previewUrl: URL.createObjectURL(this.imageLoader.current.files[0]) })
+    }
+  }
+
+  submitInput = async _ => {
+    if (this.imagePreview.current) {
+      const theImage = this.imageLoader.current.files[0]
+      // TODO: reject non-image mimetypes
+      const {width, height, img} = await loadImageElement(theImage)
+      const thumbType = theImage.type === "image/jpeg" ? "image/jpeg" : "image/png"
+      const thumbInfo = await createThumbnail(img, width, height, thumbType)
+      const thumbMxc = await this.props.client.uploadContent(thumbInfo.thumbnail, {
+        name: `${theImage.name}_800x600`,
+        type: thumbType,
+        progressHandler: this.progressHandler
+      })
+      const imageMxc = await this.props.client.uploadContent(theImage, { progressHandler: this.progressHandler })
+      const theContent = {
+        body: theImage.name,
+        info: {
+          h: height,
+          w: width,
+          mimetype: theImage.type,
+          size: theImage.size,
+          thumbnail_url: thumbMxc,
+          thumbnail_info: thumbInfo.thumbnail_info
+        },
+        msgtype: "m.image",
+        url: imageMxc
+      }
+      await this.props.client.sendMessage(this.props.focus.roomId, theContent)
+    }
+    this.props.done()
+  }
+
+  render(props, state) {
+    return <form ref={this.theForm}>
+      <input id="imageUploaderHidden" onchange={this.updatePreview} ref={this.imageLoader} type="file" />
+      {state.previewUrl
+        ? <img ref={this.imagePreview} onclick={this.uploadImage} class="imageMessageThumbnail" src={state.previewUrl} />
+        : <div onclick={this.uploadImage} class="imageMessageThumbnail awaiting" />}
       {this.state.progress
         ? <div id="pdfUploadFormProgress">
           <span>{this.state.progress.loaded}</span>

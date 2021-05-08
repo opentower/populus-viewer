@@ -87,6 +87,28 @@ export class FileMessage extends Component {
   }
 }
 
+export class ImageMessage extends Component {
+  userColor = new UserColor(this.props.event.getSender())
+
+  isMe = this.props.event.getSender() === this.props.client.getUserId()
+
+  url = this.props.event.getContent().info.thumbnail_url
+    ? Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().info.thumbnail_url)
+    : Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().url)
+
+  // TODO need some sort of modal popup providing a preview of the full image
+  render(props) {
+    return <Message reactions={props.reactions}
+      event={props.event}
+      client={props.client}
+      getCurrentEdit={this.getCurrentEdit}>
+        <div class="body image-upload">
+          <img class="imageMessageThumbnail" src={this.url} />
+        </div>
+    </Message>
+  }
+}
+
 class Message extends Component {
   constructor(props) {
     super(props)

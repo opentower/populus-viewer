@@ -95,6 +95,23 @@
     background-color:var(--user_dark);
 }
 
+#imageUploaderHidden {
+  display:none;
+}
+
+.imageMessageThumbnail {
+  width: calc(100% - 40px);
+  max-width:350px;
+  margin:20px;
+  border-radius:20px;
+}
+
+.imageMessageThumbnail.awaiting {
+  height:200px;
+  border:3px dashed black;
+}
+
+
 #chat-panel .message {
     position:relative;
     display: grid;
