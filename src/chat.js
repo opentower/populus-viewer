@@ -378,7 +378,7 @@ class ImageUploadInput extends Component {
 
   render(props, state) {
     return <form ref={this.theForm}>
-      <input id="imageUploaderHidden" onchange={this.updatePreview} ref={this.imageLoader} type="file" />
+      <input id="imageUploaderHidden" onchange={this.updatePreview} accept="image/*" ref={this.imageLoader} type="file" />
       {state.previewUrl
         ? <img ref={this.imagePreview} onclick={this.uploadImage} class="imageMessageThumbnail" src={state.previewUrl} />
         : <div onclick={this.uploadImage} class="imageMessageThumbnail awaiting" />}

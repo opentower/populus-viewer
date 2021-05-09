@@ -65,7 +65,7 @@ export default class PdfUpload extends Component {
   render () {
     return <form id="pdfUploadForm" ref={this.mainForm} onsubmit={this.uploadFile}>
       <label> Pdf to discuss</label>
-      <input ref={this.fileLoader} type="file" />
+      <input ref={this.fileLoader} accept="application/pdf" type="file" />
       <label>Name for Discussion</label>
       <input ref={this.roomNameInput} type="text" />
       <label>Topic of Discussion</label>
