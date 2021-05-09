@@ -77,8 +77,7 @@ export class FileMessage extends Component {
   render(props) {
     return <Message reactions={props.reactions}
       event={props.event}
-      client={props.client}
-      getCurrentEdit={this.getCurrentEdit}>
+      client={props.client} >
         <div class="body file-upload">
           file upload:&nbsp;
           <a href={this.url}>{props.event.getContent().filename}</a>
@@ -96,14 +95,39 @@ export class ImageMessage extends Component {
     ? Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().info.thumbnail_url)
     : Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().url)
 
-  // TODO need some sort of modal popup providing a preview of the full image
+  // TODO need some sort of modal popup providing a preview of the full video
   render(props) {
     return <Message reactions={props.reactions}
       event={props.event}
-      client={props.client}
-      getCurrentEdit={this.getCurrentEdit}>
+      client={props.client}>
         <div class="body image-upload">
-          <img class="imageMessageThumbnail" src={this.url} />
+          <img class="mediaMessageThumbnail" src={this.url} />
+        </div>
+    </Message>
+  }
+}
+
+export class VideoMessage extends Component {
+  userColor = new UserColor(this.props.event.getSender())
+
+  isMe = this.props.event.getSender() === this.props.client.getUserId()
+
+  poster = this.props.event.getContent().info.thumbnail_url
+    ? Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().info.thumbnail_url)
+    : null
+
+  url= Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().url)
+
+  render(props) {
+    return <Message reactions={props.reactions}
+      event={props.event}
+      client={props.client}>
+        <div class="body image-upload">
+          <video class="mediaMessageThumbnail"
+            controls
+            poster={this.poster}
+            preload={this.poster ? "none" : "metadata"}
+            src={this.url} />
         </div>
     </Message>
   }

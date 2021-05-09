@@ -4,10 +4,10 @@ import * as Matrix from "matrix-js-sdk"
 import * as CommonMark from 'commonmark'
 import * as Icons from "./icons.js"
 import { addLatex } from './latex.js'
-import { TextMessage, FileMessage, ImageMessage } from './message.js'
+import { TextMessage, FileMessage, ImageMessage, VideoMessage } from './message.js'
 import UserColor from './userColors.js'
 import { serverRoot } from "./constants.js"
-import { loadImageElement, createThumbnail } from "./utils/media.js"
+import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
 
 export default class Chat extends Component {
   constructor (props) {
@@ -111,6 +111,7 @@ export default class Chat extends Component {
         (e.getContent().msgtype === "m.text" ||
         e.getContent().msgtype === "m.file" ||
         e.getContent().msgtype === "m.image" ||
+        e.getContent().msgtype === "m.video" ||
         Object.keys(e.getContent()).length === 0
         )
     )
@@ -147,6 +148,15 @@ export default class Chat extends Component {
         case "m.image": {
           accumulator.push(
             <ImageMessage reactions={reactions}
+              client={this.props.client}
+              key={event.getId()}
+              event={event} />
+          )
+          break;
+        }
+        case "m.video": {
+          accumulator.push(
+            <VideoMessage reactions={reactions}
               client={this.props.client}
               key={event.getId()}
               event={event} />
@@ -332,56 +342,105 @@ class FileUploadInput extends Component {
 class ImageUploadInput extends Component {
   theForm = createRef()
 
-  imageLoader = createRef()
+  mediaLoader = createRef()
 
-  imagePreview = createRef()
+  mediaPreview = createRef()
 
-  uploadImage = _ => this.imageLoader.current.click()
+  uploadImage = _ => this.mediaLoader.current.click()
 
   updatePreview = _ => {
-    const theImage = this.imageLoader.current.files[0]
-    if (theImage && /^image/.test(theImage.type)) {
-      this.setState({previewUrl: URL.createObjectURL(this.imageLoader.current.files[0]) })
+    const theImage = this.mediaLoader.current.files[0]
+    if (theImage && (/^video/.test(theImage.type) || /^image/.test(theImage.type))) {
+      this.setState({previewUrl: URL.createObjectURL(this.mediaLoader.current.files[0]) })
+      if (/^video/.test(theImage.type)) this.setState({mediaType: "video" })
+      if (/^image/.test(theImage.type)) this.setState({mediaType: "image" })
+    }
+  }
+
+  getPreview = _ => {
+    switch (this.state.mediaType) {
+      case "image": return <img ref={this.mediaPreview} class="mediaMessageThumbnail" src={this.state.previewUrl} />
+      case "video": return <video ref={this.mediaPreview} class="mediaMessageThumbnail" controls src={this.state.previewUrl} />
     }
   }
 
   submitInput = async _ => {
-    if (this.imagePreview.current) {
-      const theImage = this.imageLoader.current.files[0]
-      // TODO: reject non-image mimetypes
-      const {width, height, img} = await loadImageElement(theImage)
-      const thumbType = theImage.type === "image/jpeg" ? "image/jpeg" : "image/png"
-      const thumbInfo = await createThumbnail(img, width, height, thumbType)
-      const thumbMxc = await this.props.client.uploadContent(thumbInfo.thumbnail, {
-        name: `${theImage.name}_800x600`,
-        type: thumbType,
-        progressHandler: this.progressHandler
-      })
-      const imageMxc = await this.props.client.uploadContent(theImage, { progressHandler: this.progressHandler })
-      const theContent = {
-        body: theImage.name,
-        info: {
-          h: height,
-          w: width,
-          mimetype: theImage.type,
-          size: theImage.size,
-          thumbnail_url: thumbMxc,
-          thumbnail_info: thumbInfo.thumbnail_info
-        },
-        msgtype: "m.image",
-        url: imageMxc
+    if (this.mediaPreview.current) {
+      switch (this.state.mediaType) {
+        case "image": await this.submitImage(); break
+        case "video": await this.submitVideo(); break
       }
-      await this.props.client.sendMessage(this.props.focus.roomId, theContent)
     }
     this.props.done()
   }
 
+  progressHandler = (progress) => this.setState({progress})
+
+  async submitVideo () {
+    const theVideo = this.mediaLoader.current.files[0]
+    // TODO: reject non-media mimetypes
+    const videoElt = await loadVideoElement(theVideo)
+    const thumbInfo = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
+    const thumbMxc = await this.props.client.uploadContent(thumbInfo.thumbnail, {
+      name: `${theVideo.name}_800x600`,
+      type: "image/jpeg",
+      progressHandler: this.progressHandler
+    })
+    const videoMxc = await this.props.client.uploadContent(theVideo, { progressHandler: this.progressHandler })
+    const duration = Math.round(videoElt.duration * 1000)
+    const theContent = {
+      body: theVideo.name,
+      info: {
+        h: thumbInfo.h,
+        w: thumbInfo.w,
+        mimetype: theVideo.type,
+        size: theVideo.size,
+        thumbnail_url: thumbMxc,
+        thumbnail_info: thumbInfo.thumbnail_info
+      },
+      msgtype: "m.video",
+      url: videoMxc
+    }
+    if (duration < Infinity) theContent.duration = duration
+    await this.props.client.sendMessage(this.props.focus.roomId, theContent)
+  }
+
+  async submitImage () {
+    const theImage = this.mediaLoader.current.files[0]
+    // TODO: reject non-media mimetypes
+    const {width, height, img} = await loadImageElement(theImage)
+    const thumbType = theImage.type === "image/jpeg" ? "image/jpeg" : "image/png"
+    const thumbInfo = await createThumbnail(img, width, height, thumbType)
+    const thumbMxc = await this.props.client.uploadContent(thumbInfo.thumbnail, {
+      name: `${theImage.name}_800x600`,
+      type: thumbType,
+      progressHandler: this.progressHandler
+    })
+    const imageMxc = await this.props.client.uploadContent(theImage, { progressHandler: this.progressHandler })
+    const theContent = {
+      body: theImage.name,
+      info: {
+        h: height,
+        w: width,
+        mimetype: theImage.type,
+        size: theImage.size,
+        thumbnail_url: thumbMxc,
+        thumbnail_info: thumbInfo.thumbnail_info
+      },
+      msgtype: "m.image",
+      url: imageMxc
+    }
+    await this.props.client.sendMessage(this.props.focus.roomId, theContent)
+  }
+
+  progressHandler = (progress) => this.setState({progress})
+
   render(props, state) {
     return <form ref={this.theForm}>
-      <input id="imageUploaderHidden" onchange={this.updatePreview} accept="image/*" ref={this.imageLoader} type="file" />
+      <input id="mediaUploaderHidden" onchange={this.updatePreview} accept="image/*,video/*" ref={this.mediaLoader} type="file" />
       {state.previewUrl
-        ? <img ref={this.imagePreview} onclick={this.uploadImage} class="imageMessageThumbnail" src={state.previewUrl} />
-        : <div onclick={this.uploadImage} class="imageMessageThumbnail awaiting" />}
+        ? this.getPreview()
+        : <div onclick={this.uploadImage} class="mediaMessageThumbnail awaiting" />}
       {this.state.progress
         ? <div id="pdfUploadFormProgress">
           <span>{this.state.progress.loaded}</span>
