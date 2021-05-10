@@ -373,11 +373,29 @@ class RecordVideoInput extends Component {
       video: { facingMode: "user" }
     }
     try {
-      const stream = await navigator.mediaDevices.getUserMedia(constraints)
-      this.mediaPreview.current.srcObject = stream
+      this.stream = await navigator.mediaDevices.getUserMedia(constraints)
+      this.mediaPreview.current.srcObject = this.stream
+      this.mediaRecorder = new MediaRecorder(this.stream)
+      this.mediaRecorder.ondataavailable = ev => {
+        console.log("data")
+        this.mediaPreview.current.srcObject = null
+        this.mediaPreview.current.setAttribute("controls", "")
+        this.mediaPreview.current.src = URL.createObjectURL(ev.data)
+      }
     } catch (err) {
       alert(err)
     }
+  }
+
+  startRecord = _ => {
+    console.log("started")
+    this.mediaRecorder.start()
+    this.setState({recording: true})
+  }
+
+  finishRecord = _ => {
+    this.mediaRecorder.stop()
+    this.setState({recording: false})
   }
 
   async submitVideo () {
@@ -411,8 +429,11 @@ class RecordVideoInput extends Component {
 
   progressHandler = (progress) => this.setState({progress})
 
-  render() {
-    return <video autoplay ref={this.mediaPreview} class="mediaMessageThumbnail" />
+  render(props, state) {
+    return <video autoplay
+      onclick={state.recording ? this.finishRecord : this.startRecord}
+      ref={this.mediaPreview}
+      class="mediaMessageThumbnail" />
   }
 }
 
