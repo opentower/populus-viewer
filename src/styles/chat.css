@@ -112,6 +112,31 @@
   border:3px dashed black;
 }
 
+#videoRecordingWrapper {
+  position:relative;
+  cursor:pointer;
+}
+
+#videoCaption {
+    position: absolute;
+    display:flex;
+    bottom: 30px;
+    left: 25px;
+    color: black;
+    font-weight: bold;
+    background: white;
+    border-radius: 30px;
+    padding: 5px;
+    align-items:center;
+    width:25px;  
+    height:25px;
+}
+
+#videoCaption[data-recording-state=started] {
+    animation: pulse-color 2s infinite; 
+    animation-timing-function:ease;
+}
+
 
 #chat-panel .message {
     position:relative;

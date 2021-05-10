@@ -392,12 +392,12 @@ class RecordVideoInput extends Component {
 
   startRecord = _ => {
     this.mediaRecorder.start()
-    this.setState({recording: true})
+    this.setState({recording: "started"})
   }
 
   finishRecord = _ => {
     this.mediaRecorder.stop()
-    this.setState({recording: false})
+    this.setState({recording: "done"})
   }
 
   async submitInput () {
@@ -431,10 +431,28 @@ class RecordVideoInput extends Component {
   progressHandler = (progress) => this.setState({progress})
 
   render(props, state) {
-    return <video autoplay
-      onclick={state.recording ? this.finishRecord : this.startRecord}
-      ref={this.mediaPreview}
-      class="mediaMessageThumbnail" />
+    return <div id="videoRecordingWrapper">
+      <video autoplay
+        onclick={state.recording ? this.finishRecord : this.startRecord}
+        ref={this.mediaPreview}
+        class="mediaMessageThumbnail" />
+      {state.recording === "done"
+        ? null
+        : <div data-recording-state={state.recording} id="videoCaption">{
+          state.recording === "started"
+            ? Icons.pause
+            : Icons.video
+        }</div>
+      }
+      {state.progress
+        ? <div id="pdfUploadFormProgress">
+          <span>{this.state.progress.loaded}</span>
+          <span>/</span>
+          <span>{this.state.progress.total} bytes</span>
+        </div>
+        : null
+      }
+    </div>
   }
 }
 
