@@ -293,7 +293,7 @@ class MessagePanel extends Component {
   }
 
   render(props, state) {
-    return (<div style={this.userColor.styleVariables} id="messageComposer">
+    return <div style={this.userColor.styleVariables} id="messageComposer">
       {this.getInput()}
       <div id="submit-button-wrapper">
         { state.mode === "Default"
@@ -307,6 +307,7 @@ class MessagePanel extends Component {
               </Fragment>
               : <Fragment>
                   <button onclick={this.showLess}>{Icons.moreHorizontal}</button>
+                  {/* TODO: Disable recording when userMedia isn't available */}
                   <button onclick={this.setModeRecordVideo}>{Icons.video}</button>
               </Fragment>
             }
@@ -317,7 +318,7 @@ class MessagePanel extends Component {
           </Fragment>
         }
       </div>
-    </div>)
+    </div>
   }
 }
 
@@ -375,9 +376,11 @@ class RecordVideoInput extends Component {
     try {
       this.stream = await navigator.mediaDevices.getUserMedia(constraints)
       this.mediaPreview.current.srcObject = this.stream
-      this.mediaRecorder = new MediaRecorder(this.stream)
+      this.mediaRecorder = new MediaRecorder(this.stream, {
+        mimeType: "video/webm"
+      })
       this.mediaRecorder.ondataavailable = ev => {
-        console.log("data")
+        this.recordingBlob = ev.data
         this.mediaPreview.current.srcObject = null
         this.mediaPreview.current.setAttribute("controls", "")
         this.mediaPreview.current.src = URL.createObjectURL(ev.data)
@@ -388,7 +391,6 @@ class RecordVideoInput extends Component {
   }
 
   startRecord = _ => {
-    console.log("started")
     this.mediaRecorder.start()
     this.setState({recording: true})
   }
@@ -398,25 +400,23 @@ class RecordVideoInput extends Component {
     this.setState({recording: false})
   }
 
-  async submitVideo () {
-    const theVideo = this.mediaLoader.current.files[0]
-    // TODO: reject non-media mimetypes
-    const videoElt = await loadVideoElement(theVideo)
+  async submitInput () {
+    const videoElt = this.mediaPreview.current
     const thumbInfo = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
     const thumbMxc = await this.props.client.uploadContent(thumbInfo.thumbnail, {
-      name: `${theVideo.name}_800x600`,
+      name: `${this.props.client.getUserId()}_${Date.now()}_thumbnail`,
       type: "image/jpeg",
       progressHandler: this.progressHandler
     })
-    const videoMxc = await this.props.client.uploadContent(theVideo, { progressHandler: this.progressHandler })
+    const videoMxc = await this.props.client.uploadContent(this.recordingBlob, { progressHandler: this.progressHandler })
     const duration = Math.round(videoElt.duration * 1000)
     const theContent = {
-      body: theVideo.name,
+      body: `${this.props.client.getUserId()}_${Date.now()}`,
       info: {
         h: thumbInfo.h,
         w: thumbInfo.w,
-        mimetype: theVideo.type,
-        size: theVideo.size,
+        mimetype: "video/webm",
+        size: this.recordingBlob.size,
         thumbnail_url: thumbMxc,
         thumbnail_info: thumbInfo.thumbnail_info
       },
@@ -425,6 +425,7 @@ class RecordVideoInput extends Component {
     }
     if (duration < Infinity) theContent.duration = duration
     await this.props.client.sendMessage(this.props.focus.roomId, theContent)
+    this.props.done()
   }
 
   progressHandler = (progress) => this.setState({progress})
