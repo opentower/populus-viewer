@@ -256,7 +256,10 @@ function TypingIndicator(props) {
 class MessagePanel extends Component {
   constructor (props) {
     super(props)
-    this.state = { mode: "Default" }
+    this.state = {
+      mode: "Default",
+      buttons: 1
+    }
   }
 
   userColor = new UserColor(this.props.client.getUserId())
@@ -267,7 +270,8 @@ class MessagePanel extends Component {
     switch (this.state.mode) {
       case 'Default': return <TextMessageInput ref={this.theInput} focus={this.props.focus} client={this.props.client} />
       case 'SendFile': return <FileUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} client={this.props.client} />
-      case 'SendImage': return <ImageUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} client={this.props.client} />
+      case 'SendMedia': return <MediaUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} client={this.props.client} />
+      case 'RecordVideo': return <RecordVideoInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} client={this.props.client} />
     }
   }
 
@@ -275,7 +279,13 @@ class MessagePanel extends Component {
 
   setModeSendFile = _ => this.setState({ mode: "SendFile" })
 
-  setModeSendImage = _ => this.setState({ mode: "SendImage" })
+  setModeSendImage = _ => this.setState({ mode: "SendMedia" })
+
+  setModeRecordVideo = _ => this.setState({ mode: "RecordVideo" })
+
+  showMore = _ => this.setState({ buttons: this.state.buttons + 1 })
+
+  showLess = _ => this.setState({ buttons: this.state.buttons - 1 })
 
   submitCurrentInput = _ => {
     if (this.theInput.current) this.theInput.current.submitInput()
@@ -286,14 +296,25 @@ class MessagePanel extends Component {
     return (<div style={this.userColor.styleVariables} id="messageComposer">
       {this.getInput()}
       <div id="submit-button-wrapper">
-        <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
         { state.mode === "Default"
           ? <Fragment>
-              <button id="sendFileButton" onclick={this.setModeSendFile}>{Icons.upload}</button>
-              <button id="sendImageButton" onclick={this.setModeSendImage}>{Icons.image}</button>
-              <button id="moreButton" onclick={_ => alert("not implemented")}>{Icons.moreHorizontal}</button>
+            { state.buttons === 1
+              ? <Fragment>
+                  <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
+                  <button onclick={this.setModeSendFile}>{Icons.upload}</button>
+                  <button onclick={this.setModeSendImage}>{Icons.image}</button>
+                  <button onclick={this.showMore}>{Icons.moreHorizontal}</button>
+              </Fragment>
+              : <Fragment>
+                  <button onclick={this.showLess}>{Icons.moreHorizontal}</button>
+                  <button onclick={this.setModeRecordVideo}>{Icons.video}</button>
+              </Fragment>
+            }
           </Fragment>
-          : <button id="cancelButton" onclick={this.setModeDefault}>Cancel</button>
+          : <Fragment>
+              <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
+              <button id="cancelButton" onclick={this.setModeDefault}>Cancel</button>
+          </Fragment>
         }
       </div>
     </div>)
@@ -339,7 +360,63 @@ class FileUploadInput extends Component {
   }
 }
 
-class ImageUploadInput extends Component {
+class RecordVideoInput extends Component {
+  componentDidMount () {
+    this.initVideoStream()
+  }
+
+  mediaPreview = createRef()
+
+  async initVideoStream () {
+    const constraints = {
+      audio: true,
+      video: { facingMode: "user" }
+    }
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia(constraints)
+      this.mediaPreview.current.srcObject = stream
+    } catch (err) {
+      alert(err)
+    }
+  }
+
+  async submitVideo () {
+    const theVideo = this.mediaLoader.current.files[0]
+    // TODO: reject non-media mimetypes
+    const videoElt = await loadVideoElement(theVideo)
+    const thumbInfo = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
+    const thumbMxc = await this.props.client.uploadContent(thumbInfo.thumbnail, {
+      name: `${theVideo.name}_800x600`,
+      type: "image/jpeg",
+      progressHandler: this.progressHandler
+    })
+    const videoMxc = await this.props.client.uploadContent(theVideo, { progressHandler: this.progressHandler })
+    const duration = Math.round(videoElt.duration * 1000)
+    const theContent = {
+      body: theVideo.name,
+      info: {
+        h: thumbInfo.h,
+        w: thumbInfo.w,
+        mimetype: theVideo.type,
+        size: theVideo.size,
+        thumbnail_url: thumbMxc,
+        thumbnail_info: thumbInfo.thumbnail_info
+      },
+      msgtype: "m.video",
+      url: videoMxc
+    }
+    if (duration < Infinity) theContent.duration = duration
+    await this.props.client.sendMessage(this.props.focus.roomId, theContent)
+  }
+
+  progressHandler = (progress) => this.setState({progress})
+
+  render() {
+    return <video autoplay ref={this.mediaPreview} class="mediaMessageThumbnail" />
+  }
+}
+
+class MediaUploadInput extends Component {
   theForm = createRef()
 
   mediaLoader = createRef()
@@ -373,8 +450,6 @@ class ImageUploadInput extends Component {
     }
     this.props.done()
   }
-
-  progressHandler = (progress) => this.setState({progress})
 
   async submitVideo () {
     const theVideo = this.mediaLoader.current.files[0]

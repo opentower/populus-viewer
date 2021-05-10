@@ -37,16 +37,27 @@
     border-bottom: none;
 }
 
+#submit-button-wrapper {
+  background: black
+}
+
 #submit-button-wrapper > button,
 .replyComposer > button,
 .messageEditor > button {
     cursor:pointer;
     outline:none;
     border:2px solid black;
+    border-left:none;
     color:black;
     font-weight:bold;
     transition: background-color 0.5s ease;
     background-color:white;
+}
+
+#submit-button-wrapper > button:first-child,
+.replyComposer > button:first-child,
+.messageEditor > button:first-child {
+    border:2px solid black;
 }
 
 .replyComposer > button,
@@ -73,16 +84,6 @@
 #submitButton { grid-column:1/4; }
 
 #cancelButton { grid-column:4/7; }
-
-#sendFileButton { grid-column:4/5; }
-
-#sendImageButton { grid-column:5/6; }
-
-#moreButtom { grid-column:6/7; }
-
-#sendFileButton, #sendImageButton, #moreButton {
-    border-left:none !important;
-}
 
 #submit-button-wrapper > button:hover,
 .replyComposer > button:hover,
