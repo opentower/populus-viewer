@@ -281,7 +281,11 @@ class MessagePanel extends Component {
 
   setModeSendImage = _ => this.setState({ mode: "SendMedia" })
 
-  setModeRecordVideo = _ => this.setState({ mode: "RecordVideo" })
+  setModeRecordVideo = _ => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("Your browser looks like it doesn't support accessing the webcam...")
+    } else this.setState({ mode: "RecordVideo" })
+  }
 
   showMore = _ => this.setState({ buttons: this.state.buttons + 1 })
 
@@ -307,7 +311,6 @@ class MessagePanel extends Component {
               </Fragment>
               : <Fragment>
                   <button onclick={this.showLess}>{Icons.moreHorizontal}</button>
-                  {/* TODO: Disable recording when userMedia isn't available */}
                   <button onclick={this.setModeRecordVideo}>{Icons.video}</button>
               </Fragment>
             }
