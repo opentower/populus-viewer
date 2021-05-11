@@ -118,6 +118,7 @@
 }
 
 #videoCaption {
+    pointer-events:none;
     position: absolute;
     display:flex;
     bottom: 30px;

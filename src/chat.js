@@ -377,7 +377,8 @@ class RecordVideoInput extends Component {
       this.stream = await navigator.mediaDevices.getUserMedia(constraints)
       this.mediaPreview.current.srcObject = this.stream
       this.mediaRecorder = new MediaRecorder(this.stream, {
-        mimeType: "video/webm"
+        mimeType: "video/webm",
+        videoBitsPerSecond: 1000000 // 1 mbps
       })
       this.mediaRecorder.ondataavailable = ev => {
         this.recordingBlob = ev.data
