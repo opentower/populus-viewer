@@ -438,6 +438,7 @@ class RecordVideoInput extends Component {
     return <div id="videoRecordingWrapper">
       <video autoplay
         onclick={state.recording ? this.finishRecord : this.startRecord}
+        muted={!!state.recording}
         ref={this.mediaPreview}
         class="mediaMessageThumbnail" />
       {state.recording === "done"
