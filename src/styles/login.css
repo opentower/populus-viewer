@@ -47,3 +47,21 @@
 #theRecaptcha {
     padding:1em;
 }
+
+@media only screen and (max-width: 600px) {
+    #loginModal, #registrationModal { 
+      border:none;
+      width:80%;
+    }
+
+    #loginModal form, 
+    #registrationModal form { 
+      border: 0px;
+      grid-template-columns: 1fr; 
+    }
+
+    #loginModal input,
+    #registrationModal input { 
+      grid-column: 1 / 2 
+    }
+} 
