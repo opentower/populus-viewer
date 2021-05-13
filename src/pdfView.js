@@ -6,6 +6,7 @@ import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
 import AnnotationListing from "./annotationListing.js"
+import QueryParameters from './queryParams.js'
 import Navbar from "./navbar.js"
 import { eventVersion, serverRoot, domainName, spaceChild, spaceParent } from "./constants.js"
 import * as Icons from "./icons.js"
@@ -94,8 +95,8 @@ export default class PdfView extends Component {
 
   setId = id => {
     // sets the roomId after loading a PDF, and also tries to use that information to update the focus.
-    this.setState({roomId: id}, _ => this.props.queryParams.get("focus")
-      ? this.focusByRoomId(this.props.queryParams.get("focus"))
+    this.setState({roomId: id}, _ => QueryParameters.get("focus")
+      ? this.focusByRoomId(QueryParameters.get("focus"))
       : null)
   }
 
@@ -131,7 +132,7 @@ export default class PdfView extends Component {
     const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
     if (theAnnotation) {
-      this.props.queryParams.set("focus", roomId)
+      QueryParameters.set("focus", roomId)
       this.setState({
         focus: theAnnotation.getContent()[eventVersion],
         panelVisible: true
@@ -216,23 +217,23 @@ export default class PdfView extends Component {
       }
       this.props.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.roomId)
       this.setState({focus: null})
-      this.props.queryParams.delete("focus")
-      window.history.replaceState({
+      QueryParameters.delete("focus")
+      QueryParameters.replaceHistory({
         pdfFocused: this.props.pdfFocused,
         pageFocused: this.props.pageFocused
-      }, "", `?${this.props.queryParams.toString()}`)
+      })
     } else {
       return false;
     }
   }
 
   setFocus = (content) => {
-    this.props.queryParams.set("focus", content.roomId)
-    window.history.replaceState({
+    QueryParameters.set("focus", content.roomId)
+    QueryParameters.replaceHistory({
       pdfFocused: this.props.pdfFocused,
       pageFocused: this.props.pageFocused,
       annotationFocused: content.roomId
-    }, "", `?${this.props.queryParams.toString()}`)
+    })
     this.setState({focus: content})
   }
 

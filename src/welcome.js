@@ -4,6 +4,7 @@ import * as Matrix from "matrix-js-sdk"
 import UserColor from './userColors.js'
 import PdfUpload from './pdfUpload.js'
 import MemberPill from './memberPill.js'
+import QueryParameters from './queryParams.js'
 import ProfileInformation from './profileInformation.js'
 import * as Icons from './icons.js'
 
@@ -94,7 +95,7 @@ export default class WelcomeView extends Component {
                 <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} client={props.client} />
               </Fragment>
               : <Fragment>
-                <RoomList queryParams={props.queryParams} searchFilter={state.searchFilter} {...props} />
+                <RoomList searchFilter={state.searchFilter} {...props} />
               </Fragment>
           }
         </div>
@@ -175,8 +176,7 @@ class RoomList extends Component {
         const pdfEvent = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType, "")
         const annotations = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
         return pdfEvent
-          ? <PDFRoomEntry queryParams={props.queryParams}
-                          annotations={annotations}
+          ? <PDFRoomEntry annotations={annotations}
                           pushHistory={props.pushHistory}
                           client={props.client}
                           room={room}
@@ -247,8 +247,7 @@ class PDFRoomEntry extends Component {
         .map(content => <AnnotationRoomEntry key={content[eventVersion].roomId}
                                              pushHistory={props.pushHistory}
                                              annotationContent={content[eventVersion]}
-                                             parentRoom={props.room}
-                                             queryParams={props.queryParams} />)
+                                             parentRoom={props.room} />)
       return (
         <div data-room-status={status} className="roomListingEntry" id={props.room.roomId}>
           <div className="room-listing-heading">
@@ -289,7 +288,7 @@ class PDFRoomEntry extends Component {
 
 class AnnotationRoomEntry extends Component {
     handleClick = () => {
-      this.props.queryParams.set("focus", this.props.annotationContent.roomId)
+      QueryParameters.set("focus", this.props.annotationContent.roomId)
       this.props.pushHistory({
         pageFocused: this.props.annotationContent.pageNumber,
         pdfFocused: this.props.parentRoom.name

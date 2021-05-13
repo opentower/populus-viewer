@@ -4,6 +4,7 @@ import WelcomeView from './welcome.js'
 import LoginView from './login.js'
 import PdfView from './pdfView.js'
 import SplashView from './splash.js'
+import QueryParameters from './queryParams.js'
 import './styles/global.css'
 import { serverRoot, domainName, lastViewed } from './constants.js'
 
@@ -17,7 +18,6 @@ class PopulusViewer extends Component {
     super()
     // Probably both client and params should be globals rather than props, since
     // they're incidental to rendering
-    this.queryParams = new URLSearchParams(window.location.search)
     this.client = Matrix.createClient({
       baseUrl: serverRoot,
       userId: localStorage.getItem('userId'),
@@ -67,18 +67,18 @@ class PopulusViewer extends Component {
   }
 
   pushHistory = (newState, callback) => {
-    if (newState.pdfFocused) this.queryParams.set('title', newState.pdfFocused)
+    if (newState.pdfFocused) QueryParameters.set('title', newState.pdfFocused)
     if (newState.pdfFocused === null) {
-      this.queryParams.delete('title')
-      this.queryParams.delete('focus')
+      QueryParameters.delete('title')
+      QueryParameters.delete('focus')
     }
-    if (newState.pageFocused) this.queryParams.set('page', newState.pageFocused)
-    if (newState.pageFocused === null) this.queryParams.delete('page')
+    if (newState.pageFocused) QueryParameters.set('page', newState.pageFocused)
+    if (newState.pageFocused === null) QueryParameters.delete('page')
     this.setState(newState, _ => {
-      window.history.pushState({
+      QueryParameters.pushHistory({
         pdfFocused: this.state.pdfFocused,
         pageFocused: this.state.pageFocused
-      }, '', `?${this.queryParams.toString()}`)
+      })
       clearTimeout(this.setLastPageTimeout)
       this.setLastPageTimeout = setTimeout(this.setLastPage, 1000)
       if (callback) callback()
@@ -93,18 +93,15 @@ class PopulusViewer extends Component {
     if (!state.initialized) {
       return <SplashView setInitialized={this.setInitialized}
         pushHistory={this.pushHistory}
-        queryParams={this.queryParams}
         client={this.client} />
     }
     if (state.pdfFocused) {
-      return <PdfView queryParams={this.queryParams}
-        pushHistory={this.pushHistory}
+      return <PdfView pushHistory={this.pushHistory}
         pageFocused={this.state.pageFocused}
         pdfFocused={this.state.pdfFocused}
         client={this.client} />
     }
     return <WelcomeView pushHistory={this.pushHistory}
-      queryParams={this.queryParams}
       logoutHandler={this.logoutHandler}
       client={this.client} />
   }
