@@ -146,6 +146,16 @@ class RecordVideoInput extends Component {
     }
   }
 
+  countdownToRecord = _ => {
+    if (!this.state.countdown) this.setState({countdown: 3, recording: "countdown"})
+    setTimeout(_ => {
+      const newCount = this.state.countdown - 1
+      this.setState({countdown: newCount})
+      if (newCount === 0) return this.startRecord()
+      this.countdownToRecord()
+    }, 1500)
+  }
+
   startRecord = _ => {
     this.mediaRecorder.start()
     this.setState({recording: "started"})
@@ -186,21 +196,32 @@ class RecordVideoInput extends Component {
 
   progressHandler = (progress) => this.setState({progress})
 
+  clickHandler = () => {
+    switch (this.state.recording) {
+      case "started" : return this.finishRecord()
+      case "countdown" : return null
+      case "done" : return null
+      case undefined : return this.countdownToRecord()
+    }
+  }
+
+  recordingIcon = _ => {
+    switch (this.state.recording) {
+      case "started" : return <div data-recording-state={this.state.recording} id="videoCaption">{Icons.pause}</div>
+      case "countdown" : return <div data-recording-state={this.state.recording} id="videoCaption">{this.state.countdown}</div>
+      case "done" : return null
+      case undefined : return <div data-recording-state={this.state.recording} id="videoCaption">{Icons.video}</div>
+    }
+  }
+
   render(props, state) {
     return <div id="videoRecordingWrapper">
       <video autoplay
-        onclick={state.recording ? this.finishRecord : this.startRecord}
-        muted={!!state.recording}
+        onclick={this.clickHandler}
+        muted={!(state.recording === "done")}
         ref={this.mediaPreview}
         class="mediaMessageThumbnail" />
-      {state.recording === "done"
-        ? null
-        : <div data-recording-state={state.recording} id="videoCaption">{
-          state.recording === "started"
-            ? Icons.pause
-            : Icons.video
-        }</div>
-      }
+      {this.recordingIcon()}
       {state.progress
         ? <div id="pdfUploadFormProgress">
           <span>{this.state.progress.loaded}</span>

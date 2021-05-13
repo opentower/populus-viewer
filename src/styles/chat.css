@@ -138,6 +138,14 @@
     animation-timing-function:ease;
 }
 
+#videoCaption[data-recording-state=countdown] {
+    color:white;
+    justify-content:center;
+    animation: reverse-pulse-color 1.5s infinite;
+    animation-timing-function:ease;
+}
+
+
 #chat-panel .message {
     position:relative;
     display: grid;

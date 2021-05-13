@@ -11,6 +11,12 @@ body {
     height:100vh;
 }
 
+@keyframes reverse-pulse-color{
+    0% { color: white }
+    50% { color: black }
+    100% { color: white}
+}
+
 @keyframes pulse-opacity {
     0% { opacity:1 }
     50% { opacity:.2 }
