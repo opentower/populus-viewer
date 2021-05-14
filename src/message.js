@@ -110,13 +110,16 @@ export class VideoMessage extends Component {
 
   isMe = this.props.event.getSender() === Client.client.getUserId()
 
+  content = this.props.event.getContent()
+
   poster = this.props.event.getContent().info.thumbnail_url
-    ? Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().info.thumbnail_url)
+    ? Matrix.getHttpUriForMxc(serverRoot, this.content.info.thumbnail_url)
     : null
 
-  url= Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().url)
+  url= Matrix.getHttpUriForMxc(serverRoot, this.content.url)
 
   render(props) {
+    console.log(this.content)
     return <Message reactions={props.reactions}
       event={props.event}>
         <div class="body image-upload">

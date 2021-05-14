@@ -169,8 +169,8 @@ class RecordVideoInput extends Component {
 
   async submitInput () {
     const videoElt = this.mediaPreview.current
-    const thumbInfo = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
-    const thumbMxc = await Client.client.uploadContent(thumbInfo.thumbnail, {
+    const thumbContent = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
+    const thumbMxc = await Client.client.uploadContent(thumbContent.thumbnail, {
       name: `${Client.client.getUserId()}_${Date.now()}_thumbnail`,
       type: "image/jpeg",
       progressHandler: this.progressHandler
@@ -180,17 +180,18 @@ class RecordVideoInput extends Component {
     const theContent = {
       body: `${Client.client.getUserId()}_${Date.now()}`,
       info: {
-        h: thumbInfo.h,
-        w: thumbInfo.w,
+        h: thumbContent.info.h,
+        w: thumbContent.info.w,
         mimetype: "video/webm",
         size: this.recordingBlob.size,
         thumbnail_url: thumbMxc,
-        thumbnail_info: thumbInfo.thumbnail_info
+        thumbnail_info: thumbContent.info.thumbnail_info
       },
       msgtype: "m.video",
       url: videoMxc
     }
     if (duration < Infinity) theContent.duration = duration
+    console.log(theContent)
     await Client.client.sendMessage(this.props.focus.roomId, theContent)
     this.props.done()
   }
@@ -274,8 +275,8 @@ class MediaUploadInput extends Component {
     const theVideo = this.mediaLoader.current.files[0]
     // TODO: reject non-media mimetypes
     const videoElt = await loadVideoElement(theVideo)
-    const thumbInfo = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
-    const thumbMxc = await Client.client.uploadContent(thumbInfo.thumbnail, {
+    const thumbContent = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
+    const thumbMxc = await Client.client.uploadContent(thumbContent.thumbnail, {
       name: `${theVideo.name}_800x600`,
       type: "image/jpeg",
       progressHandler: this.progressHandler
@@ -285,12 +286,12 @@ class MediaUploadInput extends Component {
     const theContent = {
       body: theVideo.name,
       info: {
-        h: thumbInfo.h,
-        w: thumbInfo.w,
+        h: thumbContent.info.h,
+        w: thumbContent.info.w,
         mimetype: theVideo.type,
         size: theVideo.size,
         thumbnail_url: thumbMxc,
-        thumbnail_info: thumbInfo.thumbnail_info
+        thumbnail_info: thumbContent.info.thumbnail_info
       },
       msgtype: "m.video",
       url: videoMxc
