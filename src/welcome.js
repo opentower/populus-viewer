@@ -5,6 +5,7 @@ import UserColor from './userColors.js'
 import PdfUpload from './pdfUpload.js'
 import MemberPill from './memberPill.js'
 import QueryParameters from './queryParams.js'
+import Client from './client.js'
 import ProfileInformation from './profileInformation.js'
 import * as Icons from './icons.js'
 
@@ -13,8 +14,8 @@ import './styles/welcome.css'
 export default class WelcomeView extends Component {
   constructor(props) {
     super(props)
-    const userId = props.client.getUserId()
-    this.user = props.client.getUser(props.client.getUserId())
+    const userId = Client.client.getUserId()
+    this.user = Client.client.getUser(Client.client.getUserId())
     this.userColor = new UserColor(userId)
     this.profileListener = this.profileListener.bind(this)
     this.state = {
@@ -87,12 +88,12 @@ export default class WelcomeView extends Component {
           {state.uploadVisible
             ? <Fragment>
               <h2>Upload a new PDF</h2>
-              <PdfUpload showMainView={this.showMainView} client={props.client} />
+              <PdfUpload showMainView={this.showMainView} />
             </Fragment>
             : state.profileVisible
               ? <Fragment>
                 <h2>Update Your Profile</h2>
-                <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} client={props.client} />
+                <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} />
               </Fragment>
               : <Fragment>
                 <RoomList searchFilter={state.searchFilter} {...props} />
@@ -108,28 +109,28 @@ class RoomList extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      rooms: props.client.getVisibleRooms(),
+      rooms: Client.client.getVisibleRooms(),
       sort: "Activity"
     }
     // need to do this to bind "this" as refering to the RoomList component in the listener
     this.roomListener = this.roomListener.bind(this)
   }
 
-  roomListener () { this.setState({ rooms: this.props.client.getVisibleRooms() }) }
+  roomListener () { this.setState({ rooms: Client.client.getVisibleRooms() }) }
 
   componentDidMount () {
-    this.props.client.on("Room", this.roomListener)
-    this.props.client.on("Room.name", this.roomListener)
-    this.props.client.on("RoomState.events", this.roomListener)
-    this.props.client.on("Room.accountData", this.roomListener)
+    Client.client.on("Room", this.roomListener)
+    Client.client.on("Room.name", this.roomListener)
+    Client.client.on("RoomState.events", this.roomListener)
+    Client.client.on("Room.accountData", this.roomListener)
     // State events might cause excessive rerendering, but we can optimize for that later
   }
 
   componentWillUnmount () {
-    this.props.client.off("Room", this.roomListener)
-    this.props.client.off("Room.name", this.roomListener)
-    this.props.client.off("RoomState.events", this.roomListener)
-    this.props.client.off("Room.accountData", this.roomListener)
+    Client.client.off("Room", this.roomListener)
+    Client.client.off("Room.name", this.roomListener)
+    Client.client.off("RoomState.events", this.roomListener)
+    Client.client.off("Room.accountData", this.roomListener)
   }
 
   byActivity(a, b) {
@@ -178,7 +179,6 @@ class RoomList extends Component {
         return pdfEvent
           ? <PDFRoomEntry annotations={annotations}
                           pushHistory={props.pushHistory}
-                          client={props.client}
                           room={room}
                           pdfevent={pdfEvent} />
           : null
@@ -225,11 +225,11 @@ class PDFRoomEntry extends Component {
     toggleButtons = _ => this.setState({ buttonsVisible: !this.state.buttonsVisible })
 
     toggleFavorite = _ => {
-      if (this.props.room.tags["m.favourite"]) this.props.client.deleteRoomTag(this.props.room.roomId, "m.favourite")
-      else this.props.client.setRoomTag(this.props.room.roomId, "m.favourite", {order: 0.5})
+      if (this.props.room.tags["m.favourite"]) Client.client.deleteRoomTag(this.props.room.roomId, "m.favourite")
+      else Client.client.setRoomTag(this.props.room.roomId, "m.favourite", {order: 0.5})
     }
 
-    handleClose = _ => this.props.client.leave(this.props.room.roomId)
+    handleClose = _ => Client.client.leave(this.props.room.roomId)
 
     handleDetailsToggle = _ => this.setState({ detailsOpen: !this.state.detailsOpen })
 
@@ -238,7 +238,7 @@ class PDFRoomEntry extends Component {
       const members = props.room.getJoinedMembers()
       const memberIds = members.map(member => member.userId)
       const memberPills = members.map(member => <MemberPill key={member.userId} member={member} />)
-      const status = memberIds.includes(props.client.getUserId())
+      const status = memberIds.includes(Client.client.getUserId())
         ? "joined"
         : "invited"
       const annotations = props.annotations.map(ev => ev.getContent())

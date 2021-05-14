@@ -2,6 +2,7 @@ import { h, Component } from 'preact';
 import './styles/annotationListing.css'
 import * as Matrix from "matrix-js-sdk"
 import { eventVersion, spaceChild } from "./constants.js"
+import Client from './client.js'
 import MemberPill from './memberPill.js'
 import UserColor from './userColors.js'
 
@@ -18,22 +19,22 @@ export default class AnnotationListing extends Component {
 
   componentDidMount () {
     this.handleStateUpdate()
-    this.props.client.on("RoomState.events", this.handleStateUpdate)
-    this.props.client.on("RoomMember.typing", this.handleTypingNotification)
+    Client.client.on("RoomState.events", this.handleStateUpdate)
+    Client.client.on("RoomMember.typing", this.handleTypingNotification)
   }
 
   componentDidUnmount () {
-    this.props.client.off("RoomState.events", this.handleStateUpdate)
-    this.props.client.off("RoomMember.typing", this.handleTypingNotification)
+    Client.client.off("RoomState.events", this.handleStateUpdate)
+    Client.client.off("RoomMember.typing", this.handleTypingNotification)
   }
 
     handleTypingNotification = (event, member) => {
-      const theRoomState = this.props.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+      const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
       const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
       // We use nested state here because we want to pass this part of the state to a child
       if (theChildRelation) {
         this.setState(prevState => {
-          const myId = this.props.client.getUserId()
+          const myId = Client.client.getUserId()
           const typingOtherThanMe = event.getContent().user_ids.filter(x => x !== myId)
           return {typing: { ...prevState.typing, [member.roomId]: typingOtherThanMe}}
         })

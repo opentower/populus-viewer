@@ -3,6 +3,7 @@ import * as Layout from "./layout.js"
 import * as Matrix from "matrix-js-sdk"
 import { eventVersion, spaceChild } from "./constants.js"
 import UserColor from "./userColors.js"
+import Client from './client.js'
 import './styles/annotation-layer.css'
 import './styles/content-container.css'
 import './styles/text-layer.css'
@@ -16,22 +17,22 @@ export default class AnnotationLayer extends Component {
   }
 
   componentDidMount() {
-    this.props.client.on("RoomState.events", this.handleStateUpdate)
-    this.props.client.on("RoomMember.typing", this.handleTypingNotification)
+    Client.client.on("RoomState.events", this.handleStateUpdate)
+    Client.client.on("RoomMember.typing", this.handleTypingNotification)
   }
 
   componentDidUnmount () {
-    this.props.client.off("RoomState.events", this.handleStateUpdate)
-    this.props.client.off("RoomMember.typing", this.handleTypingNotification)
+    Client.client.off("RoomState.events", this.handleStateUpdate)
+    Client.client.off("RoomMember.typing", this.handleTypingNotification)
   }
 
   handleTypingNotification = (event, member) => {
-    const theRoomState = this.props.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
     // We use nested state here because we want to pass this part of the state to a child
     if (theChildRelation) {
       this.setState(prevState => {
-        const myId = this.props.client.getUserId()
+        const myId = Client.client.getUserId()
         const typingOtherThanMe = event.getContent().user_ids.filter(x => x !== myId)
         return {typing: { ...prevState.typing, [member.roomId]: typingOtherThanMe}}
       })
@@ -54,7 +55,7 @@ export default class AnnotationLayer extends Component {
 
   render(props, state) {
     // just to get started
-    const theRoom = props.client.getRoom(props.roomId)
+    const theRoom = Client.client.getRoom(props.roomId)
     const roomId = props.focus ? props.focus.roomId : null
     let annotations = []
     if (theRoom) {

@@ -1,5 +1,6 @@
 import { h, Fragment, createRef, Component } from 'preact';
 import './styles/login.css'
+import Client from './client.js'
 
 export default class LoginView extends Component {
   constructor(props) {
@@ -16,9 +17,9 @@ export default class LoginView extends Component {
 
   render(props, state) {
     if (state.registering) {
-      return <div><RegistrationModal client={props.client} switchView={this.switchView} /></div>
+      return <div><RegistrationModal switchView={this.switchView} /></div>
     }
-    return <div><LoginModal client={props.client} loginHandler={props.loginHandler} switchView={this.switchView} /></div>
+    return <div><LoginModal loginHandler={props.loginHandler} switchView={this.switchView} /></div>
   }
 }
 
@@ -28,7 +29,7 @@ class LoginModal extends Component {
       const loginForm = document.getElementById("loginForm")
       const formdata = new FormData(loginForm)
       const entries = Array.from(formdata.entries()).map(i => i[1])
-      this.props.client
+      Client.client
         .loginWithPassword(entries[0].toLowerCase(), entries[1])
         .then(_ => this.props.loginHandler())
         .catch(e => window.alert(e))
@@ -72,10 +73,10 @@ class RegistrationModal extends Component {
       this.props.switchView()
       return;
     }
-    this.props.client.register(entries[0].toLowerCase(), entries[1], undefined, {
+    Client.client.register(entries[0].toLowerCase(), entries[1], undefined, {
       type: "m.login.recaptcha",
       response: e.detail
-    }).then(_ => this.props.client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
+    }).then(_ => Client.client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
       .then(_ => this.loginHandler())
       .catch(e => window.alert(e))
   }

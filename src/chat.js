@@ -4,6 +4,7 @@ import * as Matrix from "matrix-js-sdk"
 import { TextMessage, FileMessage, ImageMessage, VideoMessage } from './message.js'
 import MessagePanel from './messagePanel.js'
 import UserColor from './userColors.js'
+import Client from './client.js'
 import { serverRoot } from "./constants.js"
 
 export default class Chat extends Component {
@@ -20,11 +21,11 @@ export default class Chat extends Component {
   }
 
   componentDidMount() {
-    this.props.client.on("Room.timeline", this.handleTimeline)
-    this.props.client.on("Room.redaction", this.handleTimeline)
-    this.props.client.on("Room.localEchoUpdated", this.handleTimeline)
-    this.props.client.on("RoomMember.typing", this.handleTypingNotification)
-    this.props.client.joinRoom(this.props.focus.roomId).then(room =>
+    Client.client.on("Room.timeline", this.handleTimeline)
+    Client.client.on("Room.redaction", this.handleTimeline)
+    Client.client.on("Room.localEchoUpdated", this.handleTimeline)
+    Client.client.on("RoomMember.typing", this.handleTypingNotification)
+    Client.client.joinRoom(this.props.focus.roomId).then(room =>
       this.setState({
         fullyScrolled: this.scrolledIdents.has(this.props.focus.roomId),
         events: room.getLiveTimeline().getEvents()
@@ -33,10 +34,10 @@ export default class Chat extends Component {
   }
 
   componentWillUnmount() {
-    this.props.client.off("Room.timeline", this.handleTimeline)
-    this.props.client.off("Room.redaction", this.handleTimeline)
-    this.props.client.off("Room.localEchoUpdated", this.handleTimeline)
-    this.props.client.off("RoomMember.typing", this.handleTypingNotification)
+    Client.client.off("Room.timeline", this.handleTimeline)
+    Client.client.off("Room.redaction", this.handleTimeline)
+    Client.client.off("Room.localEchoUpdated", this.handleTimeline)
+    Client.client.off("RoomMember.typing", this.handleTypingNotification)
   }
 
   // Room.timeline passes in more params
@@ -53,7 +54,7 @@ export default class Chat extends Component {
       // ^^^ we have to check the originating room in an odd way because
       // the roomId for the typing events isn't set for some reason,
       // maybe a bug in dendrite
-      const myId = this.props.client.getUserId()
+      const myId = Client.client.getUserId()
       const typingOtherThanMe = event.getContent().user_ids.filter(x => x !== myId)
       this.setState({ typing: typingOtherThanMe })
     }
@@ -67,29 +68,29 @@ export default class Chat extends Component {
   tryLoad = (room) => {
     const anchor = document.getElementById("scroll-anchor")
     const chatPanel = document.getElementById("chat-panel")
-    const newroom = this.props.client.getRoom(room.roomId) // we refresh the room to ensure that some state is loaded
+    const newroom = Client.client.getRoom(room.roomId) // we refresh the room to ensure that some state is loaded
     if (!newroom) setTimeout(_ => this.tryLoad(room), 100) // if not, we try again momentarily
     else if (anchor && chatPanel.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
       room = newroom // the initial empty room needs to be replaced by the room that has some loaded state
-      this.props.client.scrollback(room)
+      Client.client.scrollback(room)
       const prevState = room.getLiveTimeline().getState(Matrix.EventTimeline.BACKWARDS)
-      if (!prevState.paginationToken && this.props.client.getRoom(room.roomId)) {
+      if (!prevState.paginationToken && Client.client.getRoom(room.roomId)) {
         this.scrolledIdents.add(room.roomId)
         this.setState({ fullyScrolled: true })
       }
-      this.props.client.joinRoom(room.roomId).then(
+      Client.client.joinRoom(room.roomId).then(
         newroom => setTimeout(_ => this.tryLoad(newroom), 100)
       )
     }
   }
 
   tryLoadRoom = async () => {
-    const room = await this.props.client.joinRoom(this.props.focus.roomId)
+    const room = await Client.client.joinRoom(this.props.focus.roomId)
     this.tryLoad(room)
   }
 
   async resetFocus () {
-    const room = await this.props.client.joinRoom(this.props.focus.roomId)
+    const room = await Client.client.joinRoom(this.props.focus.roomId)
     this.setState({
       fullyScrolled: this.scrolledIdents.has(this.props.focus.roomId),
       events: room.getLiveTimeline().getEvents()
@@ -118,8 +119,7 @@ export default class Chat extends Component {
         accumulator.push(
           <UserInfoMessage key={`${event.getId()}-userinfo`}
             username={event.getSender()}
-            client={props.client}
-            isMe={event.getSender() === props.client.getUserId()} />
+            isMe={event.getSender() === Client.client.getUserId()} />
         )
         prev = event
       }
@@ -127,7 +127,6 @@ export default class Chat extends Component {
         case "m.text": {
           accumulator.push(
             <TextMessage reactions={reactions}
-              client={this.props.client}
               key={event.getId()}
               event={event} />
           )
@@ -136,7 +135,6 @@ export default class Chat extends Component {
         case "m.file": {
           accumulator.push(
             <FileMessage reactions={reactions}
-              client={this.props.client}
               key={event.getId()}
               event={event} />
           )
@@ -145,7 +143,6 @@ export default class Chat extends Component {
         case "m.image": {
           accumulator.push(
             <ImageMessage reactions={reactions}
-              client={this.props.client}
               key={event.getId()}
               event={event} />
           )
@@ -154,7 +151,6 @@ export default class Chat extends Component {
         case "m.video": {
           accumulator.push(
             <VideoMessage reactions={reactions}
-              client={this.props.client}
               key={event.getId()}
               event={event} />
           )
@@ -169,7 +165,7 @@ export default class Chat extends Component {
             accumulator.push(<RedactedMessage count={1}
               key={event.getId()}
               username={event.getSender()}
-              isMe={event.getSender() === props.client.getUserId()} />
+              isMe={event.getSender() === Client.client.getUserId()} />
             )
           }
           break;
@@ -190,10 +186,10 @@ export default class Chat extends Component {
     return (
       <div class={props.class} onscroll={this.handleScroll} id="chat-wrapper">
         <div id="chat-panel">
-          <MessagePanel textarea={this.messageTextarea} client={props.client} focus={props.focus} />
+          <MessagePanel textarea={this.messageTextarea} focus={props.focus} />
           <div id="messages">
             {messagedivs}
-            <TypingIndicator client={this.props.client} typing={this.state.typing} />
+            <TypingIndicator typing={this.state.typing} />
           </div>
           <Anchor focus={props.focus} fullyScrolled={state.fullyScrolled} />
         </div>
@@ -203,9 +199,9 @@ export default class Chat extends Component {
 }
 
 class UserInfoMessage extends Component {
-    displayName = this.props.client.getUser(this.props.username).displayName
+    displayName = Client.client.getUser(this.props.username).displayName
 
-    avatarUrl = this.props.client.getUser(this.props.username).avatarUrl
+    avatarUrl = Client.client.getUser(this.props.username).avatarUrl
 
     avatarHttpURI = Matrix.getHttpUriForMxc(serverRoot, this.avatarUrl, 20, 20, "crop")
 
@@ -242,7 +238,7 @@ function Anchor(props) {
 }
 
 function TypingIndicator(props) {
-  const displayNames = props.typing.map(typer => props.client.getUser(typer).displayName)
+  const displayNames = props.typing.map(typer => Client.client.getUser(typer).displayName)
   const howMany = displayNames.length
   if (howMany === 0) return <div class="typingIndicator">&nbsp;</div>
   else if (howMany === 1) return <div class="typingIndicator">{displayNames[0]} is typing</div>

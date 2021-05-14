@@ -1,12 +1,12 @@
-import * as Matrix from 'matrix-js-sdk'
 import { h, render, Component } from 'preact'
 import WelcomeView from './welcome.js'
 import LoginView from './login.js'
 import PdfView from './pdfView.js'
 import SplashView from './splash.js'
 import QueryParameters from './queryParams.js'
+import Client from './client.js'
 import './styles/global.css'
-import { serverRoot, domainName, lastViewed } from './constants.js'
+import { domainName, lastViewed } from './constants.js'
 
 // This module is the entrypoint for the viewer. It'll be reponsible for the
 // main container element, for initializing the client object, and for
@@ -16,21 +16,13 @@ import { serverRoot, domainName, lastViewed } from './constants.js'
 class PopulusViewer extends Component {
   constructor () {
     super()
-    // Probably both client and params should be globals rather than props, since
-    // they're incidental to rendering
-    this.client = Matrix.createClient({
-      baseUrl: serverRoot,
-      userId: localStorage.getItem('userId'),
-      accessToken: localStorage.getItem('accessToken'),
-      timelineSupport: true,
-      unstableClientRelationAggregation: true
-    })
     this.state = {
       loggedIn: false,
       initialized: false
     }
-    if (this.client.getUserId()) this.loginHandler()
-    // handle navigation events
+    console.log(Client.client)
+    if (Client.client.getUserId()) this.loginHandler()
+    // handle navigation events - should probably be in onmount
     window.addEventListener('popstate', e => {
       this.setState({
         pdfFocused: e.state.pdfFocused || false,
@@ -44,26 +36,22 @@ class PopulusViewer extends Component {
 
   logoutHandler = _ => {
     localStorage.clear()
-    this.client.stopClient()
-    this.client = Matrix.createClient({
-      baseUrl: serverRoot,
-      timelineSupport: true
-    })
+    Client.restart()
     this.setState({ loggedIn: false })
   }
 
   loginHandler = _ => {
-    localStorage.setItem('accessToken', this.client.getAccessToken())
-    localStorage.setItem('userId', this.client.getUserId())
-    this.client.startClient({ initialSyncLimit: 1 }).then(_ => {
+    localStorage.setItem('accessToken', Client.client.getAccessToken())
+    localStorage.setItem('userId', Client.client.getUserId())
+    Client.client.startClient({ initialSyncLimit: 1 }).then(_ => {
       this.setState({ loggedIn: true })
     })
   }
 
   setLastPage = async _ => {
     if (!this.state.pdfFocused || !this.state.pageFocused) return
-    const theId = await this.client.getRoomIdForAlias(`#${this.state.pdfFocused}:${domainName}`)
-    await this.client.setRoomAccountData(theId.room_id, lastViewed, { page: this.state.pageFocused })
+    const theId = await Client.client.getRoomIdForAlias(`#${this.state.pdfFocused}:${domainName}`)
+    await Client.client.setRoomAccountData(theId.room_id, lastViewed, { page: this.state.pageFocused })
   }
 
   pushHistory = (newState, callback) => {
@@ -88,22 +76,19 @@ class PopulusViewer extends Component {
 
   render (props, state) {
     if (!state.loggedIn) {
-      return <LoginView loginHandler={this.loginHandler} client={this.client} />
+      return <LoginView loginHandler={this.loginHandler} />
     }
     if (!state.initialized) {
       return <SplashView setInitialized={this.setInitialized}
-        pushHistory={this.pushHistory}
-        client={this.client} />
+        pushHistory={this.pushHistory} />
     }
     if (state.pdfFocused) {
       return <PdfView pushHistory={this.pushHistory}
         pageFocused={this.state.pageFocused}
-        pdfFocused={this.state.pdfFocused}
-        client={this.client} />
+        pdfFocused={this.state.pdfFocused} />
     }
     return <WelcomeView pushHistory={this.pushHistory}
-      logoutHandler={this.logoutHandler}
-      client={this.client} />
+      logoutHandler={this.logoutHandler} />
   }
 }
 

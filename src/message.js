@@ -6,6 +6,7 @@ import { addLatex } from './latex.js'
 import katex from 'katex'
 import UserColor from './userColors.js'
 import { sanitizeHtmlParams, serverRoot } from './constants.js'
+import Client from './client.js'
 import * as Replies from './utils/replies.js'
 
 export class TextMessage extends Component {
@@ -48,7 +49,7 @@ export class TextMessage extends Component {
   render(props) {
     const content = this.getCurrentEdit()
     const isReply = Replies.isReply(content)
-    const replyPreview = isReply ? <ReplyPreview client={props.client} reactions={props.reactions} event={props.event} /> : null
+    const replyPreview = isReply ? <ReplyPreview  reactions={props.reactions} event={props.event} /> : null
     const displayBody = <div ref={this.messageBody} class="body">
       {replyPreview}
       {((content.format === "org.matrix.custom.html") && content.formatted_body)
@@ -60,7 +61,6 @@ export class TextMessage extends Component {
     </div>
     return <Message reactions={props.reactions}
       event={props.event}
-      client={props.client}
       getCurrentEdit={this.getCurrentEdit}>
         {displayBody}
     </Message>
@@ -70,14 +70,13 @@ export class TextMessage extends Component {
 export class FileMessage extends Component {
   userColor = new UserColor(this.props.event.getSender())
 
-  isMe = this.props.event.getSender() === this.props.client.getUserId()
+  isMe = this.props.event.getSender() === Client.client.getUserId()
 
   url = Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().url)
 
   render(props) {
     return <Message reactions={props.reactions}
-      event={props.event}
-      client={props.client} >
+      event={props.event} >
         <div class="body file-upload">
           file upload:&nbsp;
           <a href={this.url}>{props.event.getContent().filename}</a>
@@ -89,7 +88,7 @@ export class FileMessage extends Component {
 export class ImageMessage extends Component {
   userColor = new UserColor(this.props.event.getSender())
 
-  isMe = this.props.event.getSender() === this.props.client.getUserId()
+  isMe = this.props.event.getSender() === Client.client.getUserId()
 
   url = this.props.event.getContent().info.thumbnail_url
     ? Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().info.thumbnail_url)
@@ -98,8 +97,7 @@ export class ImageMessage extends Component {
   // TODO need some sort of modal popup providing a preview of the full video
   render(props) {
     return <Message reactions={props.reactions}
-      event={props.event}
-      client={props.client}>
+      event={props.event}>
         <div class="body image-upload">
           <img class="mediaMessageThumbnail" src={this.url} />
         </div>
@@ -110,7 +108,7 @@ export class ImageMessage extends Component {
 export class VideoMessage extends Component {
   userColor = new UserColor(this.props.event.getSender())
 
-  isMe = this.props.event.getSender() === this.props.client.getUserId()
+  isMe = this.props.event.getSender() === Client.client.getUserId()
 
   poster = this.props.event.getContent().info.thumbnail_url
     ? Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().info.thumbnail_url)
@@ -120,8 +118,7 @@ export class VideoMessage extends Component {
 
   render(props) {
     return <Message reactions={props.reactions}
-      event={props.event}
-      client={props.client}>
+      event={props.event}>
         <div class="body image-upload">
           <video class="mediaMessageThumbnail"
             controls
@@ -143,9 +140,9 @@ class Message extends Component {
 
   upvote = () => {
     const reactions = this.props.reactions[this.props.event.getId()] || []
-    if (reactions.some(react => react.getSender() === this.props.client.getUserId() )) return
+    if (reactions.some(react => react.getSender() === Client.client.getUserId() )) return
     // we bail out if there's already a plus one from me.
-    this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
+    Client.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
       "m.relates_to": {
         rel_type: "m.annotation",
         event_id: this.props.event.getId(),
@@ -161,7 +158,7 @@ class Message extends Component {
 
   redactMessage = () => {
     // XXX also need to redact all subsequent edits that replace the original
-    this.props.client.redactEvent(this.props.event.getRoomId(), this.props.event.getId())
+    Client.client.redactEvent(this.props.event.getRoomId(), this.props.event.getId())
   }
 
   render(props, state) {
@@ -176,7 +173,7 @@ class Message extends Component {
         ).length
       : 0
 
-    if (props.client.getUserId() === event.getSender()) {
+    if (Client.client.getUserId() === event.getSender()) {
       return (
         <Fragment>
           <div data-event-status={event.getAssociatedStatus()}
@@ -194,7 +191,6 @@ class Message extends Component {
           </div>
           {state.responding && canEdit && <MessageEditor closeEditor={this.closeEditor}
             getCurrentEdit={props.getCurrentEdit}
-            client={this.props.client}
             event={event}
           />}
         </Fragment>
@@ -214,7 +210,6 @@ class Message extends Component {
         </div>
         {state.responding && <ReplyComposer closeEditor={this.closeEditor}
           getCurrentEdit={this.getCurrentEdit}
-          client={this.props.client}
           event={event}
         />}
       </Fragment>
@@ -236,7 +231,7 @@ class ReplyPreview extends Component {
     if (!this.state.liveEvent) {
       const inReplyToId = this.props.event.getContent()["m.relates_to"]["m.in_reply_to"].event_id
       const roomId = this.props.event.getRoomId()
-      const theRoom = this.props.client.getRoom(roomId)
+      const theRoom = Client.client.getRoom(roomId)
       if (!theRoom) return // room state not ready
       const inReplyTo = theRoom.findEventById(inReplyToId)
       if (inReplyTo) {
@@ -250,7 +245,7 @@ class ReplyPreview extends Component {
         // https://github.com/matrix-org/dendrite/issues/670
         //
         // Hence, 404s right now.
-        await this.props.client.getEventTimeline(theRoom.getUnfilteredTimelineSet(), inReplyToId)
+        await Client.client.getEventTimeline(theRoom.getUnfilteredTimelineSet(), inReplyToId)
         console.log("retrived")
       } catch (e) {
         console.log("couldn't retrieve")
@@ -280,7 +275,7 @@ class ReplyPreview extends Component {
     const hasHtml = (content.format === "org.matrix.custom.html") && content.formatted_body
     const isReply = Replies.isReply(content)
     const senderId = this.state.liveEvent.getSender()
-    const sender = this.props.client.getUser(senderId)
+    const sender = Client.client.getUser(senderId)
     const senderColors = new UserColor(this.state.liveEvent.getSender())
     const avatarHttpURI = Matrix.getHttpUriForMxc(serverRoot, sender.avatarUrl, 20, 20, "crop")
     let displayBody
@@ -371,7 +366,7 @@ class MessageEditor extends Component {
         event_id: this.props.event.getId()
       }
     }
-    this.props.client.sendEvent(this.props.event.getRoomId(), "m.reaction", theReactionContent).then(_ => this.props.closeEditor())
+    Client.client.sendEvent(this.props.event.getRoomId(), "m.reaction", theReactionContent).then(_ => this.props.closeEditor())
   }
 
   render(props, state) {
@@ -407,7 +402,7 @@ class ReplyComposer extends Component {
     const writer = new CommonMark.HtmlRenderer()
     const parsed = reader.parse(addLatex(this.state.value))
     const rendered = writer.render(parsed)
-    this.props.client.sendMessage(this.props.event.getRoomId(), {
+    Client.client.sendMessage(this.props.event.getRoomId(), {
       body: Replies.generateFallbackPlain(this.props.event) + this.state.value,
       formatted_body: Replies.generateFallbackHtml(this.props.event) + rendered,
       format: "org.matrix.custom.html",

@@ -4,6 +4,7 @@ import * as Matrix from "matrix-js-sdk"
 import UserColor from "./userColors.js"
 import './styles/navbar.css';
 import { spaceChild, eventVersion } from "./constants.js"
+import Client from './client.js'
 
 export default class Navbar extends Component {
   constructor(props) {
@@ -19,11 +20,11 @@ export default class Navbar extends Component {
   }
 
   componentDidMount() {
-    this.props.client.on("RoomMember.typing", this.handleTypingNotification)
+    Client.client.on("RoomMember.typing", this.handleTypingNotification)
   }
 
   componentWillUnmount() {
-    this.props.client.off("RoomMember.typing", this.handleTypingNotification)
+    Client.client.off("RoomMember.typing", this.handleTypingNotification)
   }
 
   pageTotal = createRef()
@@ -31,7 +32,7 @@ export default class Navbar extends Component {
   pageInput = createRef()
 
   handleTypingNotification = (event, member) => {
-    const theRoomState = this.props.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
     // We use nested state here because we want to pass this part of the state to a child
     if (theChildRelation) {

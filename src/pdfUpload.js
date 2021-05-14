@@ -1,6 +1,7 @@
 import { h, createRef, Component } from 'preact';
 import './styles/pdfUpload.css'
 import { pdfStateType, roomType, spaceType, spaceChild } from "./constants.js"
+import Client from './client.js'
 
 export default class PdfUpload extends Component {
   mainForm = createRef()
@@ -22,7 +23,7 @@ export default class PdfUpload extends Component {
     const theTopic = this.roomTopicInput.current.value
     if (theFile.type === "application/pdf") {
       this.submitButton.current.setAttribute("disabled", true)
-      const id = await this.props.client.createRoom({
+      const id = await Client.client.createRoom({
         room_alias_name: theName, // should sanatize, check for clashes
         visibility: "public",
         name: theName,
@@ -43,9 +44,9 @@ export default class PdfUpload extends Component {
           }
         }
       }).catch(e => { alert(e); })
-      this.props.client.uploadContent(theFile, { progressHandler: this.progressHandler }).then(e => {
+      Client.client.uploadContent(theFile, { progressHandler: this.progressHandler }).then(e => {
         const parts = e.split('/')
-        this.props.client.sendStateEvent(id.room_id, pdfStateType, {
+        Client.client.sendStateEvent(id.room_id, pdfStateType, {
           identifier: parts[parts.length - 1]
         })
         // XXX: this event doesn't get through before the name is

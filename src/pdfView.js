@@ -7,6 +7,7 @@ import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
 import AnnotationListing from "./annotationListing.js"
 import QueryParameters from './queryParams.js'
+import Client from './client.js'
 import Navbar from "./navbar.js"
 import { eventVersion, serverRoot, domainName, spaceChild, spaceParent } from "./constants.js"
 import * as Icons from "./icons.js"
@@ -128,7 +129,7 @@ export default class PdfView extends Component {
   }
 
   focusByRoomId = roomId => {
-    const theRoom = this.props.client.getRoom(this.state.roomId) // the roomId here is for the PDF
+    const theRoom = Client.client.getRoom(this.state.roomId) // the roomId here is for the PDF
     const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
     if (theAnnotation) {
@@ -172,7 +173,7 @@ export default class PdfView extends Component {
       //
       // TODO: we should set room_alias_name, name, and topic in the options
       // object, in a useful way based on the selection
-    this.props.client.createRoom({
+    Client.client.createRoom({
       visibility: "public",
       initial_state: [{
         type: "m.room.join_rules",
@@ -190,14 +191,14 @@ export default class PdfView extends Component {
           boundingClientRect: JSON.stringify(boundingClientRect),
           clientRects: JSON.stringify(clientRects),
           roomId: roominfo.room_id,
-          creator: this.props.client.getUserId(),
+          creator: Client.client.getUserId(),
           selectedText: theSelectedText
         }
       }
-      this.props.client.sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
+      Client.client.sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
         .catch(e => alert(e))
       // set parent event in child room state
-      this.props.client.sendStateEvent(roominfo.room_id, spaceParent, { via: [domainName] }, this.state.roomId)
+      Client.client.sendStateEvent(roominfo.room_id, spaceParent, { via: [domainName] }, this.state.roomId)
         .catch(e => alert(e))
       this.setFocus(childContent[eventVersion])
       this.setState({ panelVisible: true })
@@ -215,7 +216,7 @@ export default class PdfView extends Component {
           creator: this.state.focus.creator
         }
       }
-      this.props.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.roomId)
+      Client.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.roomId)
       this.setState({focus: null})
       QueryParameters.delete("focus")
       QueryParameters.replaceHistory({
@@ -250,7 +251,7 @@ export default class PdfView extends Component {
     const hideUntilWidthAvailable = {
       visibility: state.pdfHeightPx ? null : "hidden"
     }
-    const theRoom = props.client.getRoom(state.roomId)
+    const theRoom = Client.client.getRoom(state.roomId)
     return (
       <div style={dynamicDocumentStyle}
         id="content-container"
@@ -271,8 +272,7 @@ export default class PdfView extends Component {
               pageFocused={props.pageFocused}
               initFocus={this.initFocus}
               setId={this.setId}
-              setTotalPages={this.setTotalPages}
-              client={props.client} />
+              setTotalPages={this.setTotalPages} />
             <AnnotationLayer ref={this.annotationLayer}
               annotationLayer={this.annotationLayer}
               annotationLayerWrapper={this.annotationLayerWrapper}
@@ -280,16 +280,14 @@ export default class PdfView extends Component {
               page={props.pageFocused}
               roomId={state.roomId}
               setFocus={this.setFocus}
-              focus={state.focus}
-              client={props.client} />
+              focus={state.focus} />
           </div>
         </div>
         <div style={state.panelVisible ? {visibility: "visible"} : {}} id="sidepanel">
           {state.focus
             ? <Fragment>
-              <Chat class="panel-widget-1" handleWidgetScroll={this.handleWidgetScroll} client={props.client} focus={state.focus} />
+              <Chat class="panel-widget-1" handleWidgetScroll={this.handleWidgetScroll} focus={state.focus} />
               <AnnotationListing
-                client={props.client}
                 roomId={state.roomId}
                 class="panel-widget-2"
                 handleWidgetScroll={this.handleWidgetScroll}
@@ -298,7 +296,6 @@ export default class PdfView extends Component {
                 room={theRoom} />
             </Fragment>
             : <AnnotationListing
-              client={props.client}
               roomId={state.roomId}
               class="panel-widget-1"
               handleWidgetScroll={this.handleWidgetScroll}
@@ -316,7 +313,6 @@ export default class PdfView extends Component {
           roomId={state.roomId}
           container={this.contentContainer}
           setNavHeight={this.setNavHeight}
-          client={props.client}
           pdfWidthPx={state.pdfWidthPx}
           pushHistory={props.pushHistory} />
         <div data-hide-buttons={state.hideButtons} id="pdf-panel-button-wrapper">
@@ -381,10 +377,10 @@ class PdfCanvas extends Component {
   canvas = createRef()
 
   async fetchPdf (title) {
-    const theId = await this.props.client.getRoomIdForAlias(`#${title}:${domainName}`)
-    await this.props.client.joinRoom(theId.room_id)
+    const theId = await Client.client.getRoomIdForAlias(`#${title}:${domainName}`)
+    await Client.client.joinRoom(theId.room_id)
     this.props.setId(theId.room_id)
-    const theRoom = this.props.client.getRoom(theId.room_id)
+    const theRoom = Client.client.getRoom(theId.room_id)
     const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf", "").getContent().identifier
     const pdfPath = `${serverRoot}/_matrix/media/r0/download/${domainName}/${pdfIdentifier}`

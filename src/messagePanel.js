@@ -4,6 +4,7 @@ import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
 import { addLatex } from './latex.js'
 import UserColor from './userColors.js'
+import Client from './client.js'
 
 export default class MessagePanel extends Component {
   constructor (props) {
@@ -14,16 +15,16 @@ export default class MessagePanel extends Component {
     }
   }
 
-  userColor = new UserColor(this.props.client.getUserId())
+  userColor = new UserColor(Client.client.getUserId())
 
   theInput = createRef()
 
   getInput () {
     switch (this.state.mode) {
-      case 'Default': return <TextMessageInput ref={this.theInput} focus={this.props.focus} client={this.props.client} />
-      case 'SendFile': return <FileUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} client={this.props.client} />
-      case 'SendMedia': return <MediaUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} client={this.props.client} />
-      case 'RecordVideo': return <RecordVideoInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} client={this.props.client} />
+      case 'Default': return <TextMessageInput ref={this.theInput} focus={this.props.focus} />
+      case 'SendFile': return <FileUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
+      case 'SendMedia': return <MediaUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
+      case 'RecordVideo': return <RecordVideoInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
     }
   }
 
@@ -84,7 +85,7 @@ class FileUploadInput extends Component {
 
   submitInput = async _ => {
     const theFile = this.fileLoader.current.files[0]
-    const mxc = await this.props.client.uploadContent(theFile, { progressHandler: this.progressHandler }).catch(e => console.log(e))
+    const mxc = await Client.client.uploadContent(theFile, { progressHandler: this.progressHandler }).catch(e => console.log(e))
     const theContent = {
       body: theFile.name,
       filename: theFile.name,
@@ -95,7 +96,7 @@ class FileUploadInput extends Component {
       msgtype: "m.file",
       url: mxc
     }
-    await this.props.client.sendMessage(this.props.focus.roomId, theContent)
+    await Client.client.sendMessage(this.props.focus.roomId, theContent)
     this.props.done()
   }
 
@@ -169,15 +170,15 @@ class RecordVideoInput extends Component {
   async submitInput () {
     const videoElt = this.mediaPreview.current
     const thumbInfo = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
-    const thumbMxc = await this.props.client.uploadContent(thumbInfo.thumbnail, {
-      name: `${this.props.client.getUserId()}_${Date.now()}_thumbnail`,
+    const thumbMxc = await Client.client.uploadContent(thumbInfo.thumbnail, {
+      name: `${Client.client.getUserId()}_${Date.now()}_thumbnail`,
       type: "image/jpeg",
       progressHandler: this.progressHandler
     })
-    const videoMxc = await this.props.client.uploadContent(this.recordingBlob, { progressHandler: this.progressHandler })
+    const videoMxc = await Client.client.uploadContent(this.recordingBlob, { progressHandler: this.progressHandler })
     const duration = Math.round(videoElt.duration * 1000)
     const theContent = {
-      body: `${this.props.client.getUserId()}_${Date.now()}`,
+      body: `${Client.client.getUserId()}_${Date.now()}`,
       info: {
         h: thumbInfo.h,
         w: thumbInfo.w,
@@ -190,7 +191,7 @@ class RecordVideoInput extends Component {
       url: videoMxc
     }
     if (duration < Infinity) theContent.duration = duration
-    await this.props.client.sendMessage(this.props.focus.roomId, theContent)
+    await Client.client.sendMessage(this.props.focus.roomId, theContent)
     this.props.done()
   }
 
@@ -274,12 +275,12 @@ class MediaUploadInput extends Component {
     // TODO: reject non-media mimetypes
     const videoElt = await loadVideoElement(theVideo)
     const thumbInfo = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
-    const thumbMxc = await this.props.client.uploadContent(thumbInfo.thumbnail, {
+    const thumbMxc = await Client.client.uploadContent(thumbInfo.thumbnail, {
       name: `${theVideo.name}_800x600`,
       type: "image/jpeg",
       progressHandler: this.progressHandler
     })
-    const videoMxc = await this.props.client.uploadContent(theVideo, { progressHandler: this.progressHandler })
+    const videoMxc = await Client.client.uploadContent(theVideo, { progressHandler: this.progressHandler })
     const duration = Math.round(videoElt.duration * 1000)
     const theContent = {
       body: theVideo.name,
@@ -295,7 +296,7 @@ class MediaUploadInput extends Component {
       url: videoMxc
     }
     if (duration < Infinity) theContent.duration = duration
-    await this.props.client.sendMessage(this.props.focus.roomId, theContent)
+    await Client.client.sendMessage(this.props.focus.roomId, theContent)
   }
 
   async submitImage () {
@@ -304,12 +305,12 @@ class MediaUploadInput extends Component {
     const {width, height, img} = await loadImageElement(theImage)
     const thumbType = theImage.type === "image/jpeg" ? "image/jpeg" : "image/png"
     const thumbInfo = await createThumbnail(img, width, height, thumbType)
-    const thumbMxc = await this.props.client.uploadContent(thumbInfo.thumbnail, {
+    const thumbMxc = await Client.client.uploadContent(thumbInfo.thumbnail, {
       name: `${theImage.name}_800x600`,
       type: thumbType,
       progressHandler: this.progressHandler
     })
-    const imageMxc = await this.props.client.uploadContent(theImage, { progressHandler: this.progressHandler })
+    const imageMxc = await Client.client.uploadContent(theImage, { progressHandler: this.progressHandler })
     const theContent = {
       body: theImage.name,
       info: {
@@ -323,7 +324,7 @@ class MediaUploadInput extends Component {
       msgtype: "m.image",
       url: imageMxc
     }
-    await this.props.client.sendMessage(this.props.focus.roomId, theContent)
+    await Client.client.sendMessage(this.props.focus.roomId, theContent)
   }
 
   progressHandler = (progress) => this.setState({progress})
@@ -358,7 +359,7 @@ class TextMessageInput extends Component {
 
   startTyping = _ => {
     // send a "typing" notification with a 30 second timeout
-    this.props.client.sendTyping(this.props.focus.roomId, true, 30000)
+    Client.client.sendTyping(this.props.focus.roomId, true, 30000)
     // lock sending further typing notifications
     this.typingLock = true
     // Release lock (to allow sending another typing notification) after 10 seconds
@@ -371,7 +372,7 @@ class TextMessageInput extends Component {
     clearTimeout(this.resetLockTimeout)
     clearTimeout(this.typingTimeout)
     // send a "not typing" notification
-    this.props.client.sendTyping(this.props.focus.roomId, false)
+    Client.client.sendTyping(this.props.focus.roomId, false)
   }
 
   handleInput = (event) => {
@@ -397,7 +398,7 @@ class TextMessageInput extends Component {
       this.stopTyping()
       const parsed = this.reader.parse(addLatex(this.state.value))
       const rendered = this.writer.render(parsed)
-      this.props.client.sendMessage(this.props.focus.roomId, {
+      Client.client.sendMessage(this.props.focus.roomId, {
         body: this.state.value,
         msgtype: "m.text",
         format: "org.matrix.custom.html",

@@ -2,11 +2,12 @@ import { h, createRef, Component } from 'preact';
 import * as Matrix from "matrix-js-sdk"
 import './styles/profileInformation.css'
 import { serverRoot } from "./constants.js"
+import Client from './client.js'
 
 export default class ProfileInfomation extends Component {
   constructor(props) {
     super(props)
-    const me = props.client.getUser(props.client.getUserId())
+    const me = Client.client.getUser(Client.client.getUserId())
     this.state = {
       previewUrl: Matrix.getHttpUriForMxc(serverRoot, me.avatarUrl, 180, 180, "crop"),
       displayName: me.displayName
@@ -39,12 +40,12 @@ export default class ProfileInfomation extends Component {
     const theImage = this.avatarImageInput.current.files[0]
     const theDisplayName = this.displayNameInput.current.value
     this.submitButton.current.setAttribute("disabled", true)
-    if (theDisplayName) await this.props.client.setDisplayName(theDisplayName)
+    if (theDisplayName) await Client.client.setDisplayName(theDisplayName)
     if (theImage && /^image/.test(theImage.type)) {
-      await this.props.client.uploadContent(theImage, { progressHandler: this.progressHandler })
-        .then(e => this.props.client.setAvatarUrl(e))
+      await Client.client.uploadContent(theImage, { progressHandler: this.progressHandler })
+        .then(e => Client.client.setAvatarUrl(e))
     } else if (!this.state.previewUrl) {
-      await this.props.client.setAvatarUrl("null")
+      await Client.client.setAvatarUrl("null")
       // XXX this is a pretty awful hack. Discussion at https://github.com/matrix-org/matrix-doc/issues/1674
     }
     this.mainForm.current.reset()
