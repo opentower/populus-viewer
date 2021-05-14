@@ -20,8 +20,9 @@ class PopulusViewer extends Component {
       loggedIn: false,
       initialized: false
     }
-    console.log(Client.client)
-    if (Client.client.getUserId()) this.loginHandler()
+    Client.initClient().then(_ => {
+      if (Client.client.getUserId()) this.loginHandler()
+    })
     // handle navigation events - should probably be in onmount
     window.addEventListener('popstate', e => {
       this.setState({
@@ -43,7 +44,7 @@ class PopulusViewer extends Component {
   loginHandler = _ => {
     localStorage.setItem('accessToken', Client.client.getAccessToken())
     localStorage.setItem('userId', Client.client.getUserId())
-    Client.client.startClient({ initialSyncLimit: 1 }).then(_ => {
+    Client.client.startClient().then(_ => {
       this.setState({ loggedIn: true })
     })
   }

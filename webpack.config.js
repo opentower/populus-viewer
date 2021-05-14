@@ -1,6 +1,10 @@
 const path = require('path')
 
 module.exports = {
+  entry: {
+    main: "./src/index.js",
+    "indexeddb-worker": "./src/indexeddb-worker.js"
+  },
   output: {
     library: "Populus"
   },

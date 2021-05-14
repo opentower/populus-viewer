@@ -119,7 +119,6 @@ export class VideoMessage extends Component {
   url= Matrix.getHttpUriForMxc(serverRoot, this.content.url)
 
   render(props) {
-    console.log(this.content)
     return <Message reactions={props.reactions}
       event={props.event}>
         <div class="body image-upload">
