@@ -1,4 +1,4 @@
-import { h, Component } from 'preact';
+import { h, createRef, Component } from 'preact';
 import './styles/chat.css'
 import * as Matrix from "matrix-js-sdk"
 import { TextMessage, FileMessage, ImageMessage, VideoMessage } from './message.js'
@@ -40,6 +40,8 @@ export default class Chat extends Component {
     Client.client.off("RoomMember.typing", this.handleTypingNotification)
   }
 
+  chatWrapper = createRef()
+
   // Room.timeline passes in more params
   handleTimeline = (event, room) => {
     if (this.props.focus && this.props.focus.roomId === event.getRoomId()) {
@@ -61,22 +63,26 @@ export default class Chat extends Component {
   }
 
   handleScroll = e => {
-    this.tryLoadRoom()
-    if (this.props.handleWidgetScroll) this.props.handleWidgetScroll(e)
+    clearTimeout(this.debounceTimeout)
+    this.debounceTimeout = setTimeout(_ => {
+      this.tryLoadRoom()
+      if (this.props.handleWidgetScroll) this.props.handleWidgetScroll(e)
+    }, 200)
   }
 
   tryLoad = (room) => {
     const anchor = document.getElementById("scroll-anchor")
-    const chatPanel = document.getElementById("chat-panel")
     const newroom = Client.client.getRoom(room.roomId) // we refresh the room to ensure that some state is loaded
     if (!newroom) setTimeout(_ => this.tryLoad(room), 100) // if not, we try again momentarily
-    else if (anchor && chatPanel.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
+    else if (anchor && this.chatWrapper.current.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
       room = newroom // the initial empty room needs to be replaced by the room that has some loaded state
-      Client.client.scrollback(room)
       const prevState = room.getLiveTimeline().getState(Matrix.EventTimeline.BACKWARDS)
       if (!prevState.paginationToken && Client.client.getRoom(room.roomId)) {
         this.scrolledIdents.add(room.roomId)
         this.setState({ fullyScrolled: true })
+      } else {
+        Client.client.scrollback(room)
+        console.log("did scrollback")
       }
       Client.client.joinRoom(room.roomId).then(
         newroom => setTimeout(_ => this.tryLoad(newroom), 100)
@@ -184,7 +190,7 @@ export default class Chat extends Component {
     // the chat wrapper works around a nasty positioning bug in chrome - it
     // has height set, so that we don't need to set height on the flexbox element
     return (
-      <div class={props.class} onscroll={this.handleScroll} id="chat-wrapper">
+      <div ref={this.chatWrapper} class={props.class} onscroll={this.handleScroll} id="chat-wrapper">
         <div id="chat-panel">
           <MessagePanel textarea={this.messageTextarea} focus={props.focus} />
           <div id="messages">
