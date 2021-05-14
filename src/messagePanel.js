@@ -122,6 +122,10 @@ class RecordVideoInput extends Component {
     this.initVideoStream()
   }
 
+  componentWillUnmount () {
+    this.teardownVideoStream()
+  }
+
   mediaPreview = createRef()
 
   async initVideoStream () {
@@ -147,6 +151,10 @@ class RecordVideoInput extends Component {
     }
   }
 
+  teardownVideoStream () {
+    this.stream.getTracks().forEach(track => track.stop())
+  }
+
   countdownToRecord = _ => {
     if (!this.state.countdown) this.setState({countdown: 3, recording: "countdown"})
     setTimeout(_ => {
@@ -164,6 +172,7 @@ class RecordVideoInput extends Component {
 
   finishRecord = _ => {
     this.mediaRecorder.stop()
+    this.teardownVideoStream()
     this.setState({recording: "done"})
   }
 
