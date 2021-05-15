@@ -377,7 +377,7 @@ class PdfCanvas extends Component {
   canvas = createRef()
 
   async fetchPdf (title) {
-    const theId = await Client.client.getRoomIdForAlias(`#${title}:${domainName}`)
+    const theId = await Client.client.getRoomIdForAlias(`#${title.replace(/[\s:]/g, '_')}:${domainName}`)
     await Client.client.joinRoom(theId.room_id)
     this.props.setId(theId.room_id)
     const theRoom = Client.client.getRoom(theId.room_id)

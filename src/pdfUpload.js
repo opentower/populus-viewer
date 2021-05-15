@@ -24,7 +24,7 @@ export default class PdfUpload extends Component {
     if (theFile.type === "application/pdf") {
       this.submitButton.current.setAttribute("disabled", true)
       const id = await Client.client.createRoom({
-        room_alias_name: theName, // should sanatize, check for clashes
+        room_alias_name: theName.replace(/[\s:]/g, '_'), // replace forbidden characters
         visibility: "public",
         name: theName,
         topic: theTopic,
