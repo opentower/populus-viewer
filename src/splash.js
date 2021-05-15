@@ -6,7 +6,7 @@ import { domainName, lastViewed } from './constants.js'
 
 export default class SplashView extends Component {
   pollInitialized = async () => {
-    if (Client.client.isInitialSyncComplete()) {
+    if (Client.client && Client.client.isInitialSyncComplete()) {
       const maybeTitle = QueryParameters.get("title") || null
       let maybePage = Number(QueryParameters.get("page")) || null
       if (maybeTitle && !maybePage) {
@@ -18,21 +18,18 @@ export default class SplashView extends Component {
         pdfFocused: maybeTitle,
         pageFocused: maybePage
       })
-      this.props.setInitialized()
+      this.props.setInitializationStage("initialized")
     } else {
-      console.log("polling initialization...")
       setTimeout(this.pollInitialized, 1000)
     }
   }
 
-  componentDidMount() {
-    setTimeout(this.pollInitialized, 3000)
-  }
+  componentDidMount() { this.pollInitialized() }
 
-  render () {
+  render (props) {
     return <div id="splash-wrapper">
       <div id="splash-logo">Populus</div>
-      <div id="splash-loader">loading...</div>
+      <div id="splash-loader">{props.initializationStage}...</div>
     </div>
   }
 }

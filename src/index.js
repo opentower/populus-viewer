@@ -17,11 +17,11 @@ class PopulusViewer extends Component {
   constructor () {
     super()
     this.state = {
-      loggedIn: false,
-      initialized: false
+      initializationStage: "connecting to database"
     }
     Client.initClient().then(_ => {
       if (Client.client.getUserId()) this.loginHandler()
+      else this.setState({ loggedIn: false })
     })
     // handle navigation events - should probably be in onmount
     window.addEventListener('popstate', e => {
@@ -33,7 +33,7 @@ class PopulusViewer extends Component {
     this.setLastPage = this.setLastPage.bind(this)
   }
 
-  setInitialized = _ => this.setState({ initialized: true })
+  setInitializationStage = s => this.setState({ initializationStage: s })
 
   logoutHandler = _ => {
     localStorage.clear()
@@ -45,7 +45,10 @@ class PopulusViewer extends Component {
     localStorage.setItem('accessToken', Client.client.getAccessToken())
     localStorage.setItem('userId', Client.client.getUserId())
     Client.client.startClient().then(_ => {
-      this.setState({ loggedIn: true })
+      this.setState({
+        initializationStage: "performing initial sync",
+        loggedIn: true
+      })
     })
   }
 
@@ -76,11 +79,13 @@ class PopulusViewer extends Component {
   }
 
   render (props, state) {
-    if (!state.loggedIn) {
+    if (state.loggedIn === false) {
       return <LoginView loginHandler={this.loginHandler} />
     }
-    if (!state.initialized) {
-      return <SplashView setInitialized={this.setInitialized}
+    if (!(state.initializationStage === "initialized")) {
+      return <SplashView
+        initializationStage={state.initializationStage}
+        setInitializationStage={this.setInitializationStage}
         pushHistory={this.pushHistory} />
     }
     if (state.pdfFocused) {
