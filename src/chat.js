@@ -25,12 +25,7 @@ export default class Chat extends Component {
     Client.client.on("Room.redaction", this.handleTimeline)
     Client.client.on("Room.localEchoUpdated", this.handleTimeline)
     Client.client.on("RoomMember.typing", this.handleTypingNotification)
-    Client.client.joinRoom(this.props.focus.roomId).then(room =>
-      this.setState({
-        fullyScrolled: this.scrolledIdents.has(this.props.focus.roomId),
-        events: room.getLiveTimeline().getEvents()
-      }, _ => this.tryLoad(room))
-    )
+    this.resetFocus()
   }
 
   componentWillUnmount() {
@@ -40,6 +35,10 @@ export default class Chat extends Component {
     Client.client.off("RoomMember.typing", this.handleTypingNotification)
   }
 
+  async componentDidUpdate(prevProps) {
+    if (prevProps.focus !== this.props.focus) this.resetFocus()
+  }
+
   chatWrapper = createRef()
 
   // Room.timeline passes in more params
@@ -47,7 +46,7 @@ export default class Chat extends Component {
     if (this.props.focus && this.props.focus.roomId === event.getRoomId()) {
       this.setState({
         events: room.getLiveTimeline().getEvents()
-      })
+      }, this.updateReadReceipt)
     }
   }
 
@@ -82,11 +81,8 @@ export default class Chat extends Component {
         this.setState({ fullyScrolled: true })
       } else {
         Client.client.scrollback(room)
-        console.log("did scrollback")
+        setTimeout(_ => this.tryLoad(newroom), 100)
       }
-      Client.client.joinRoom(room.roomId).then(
-        newroom => setTimeout(_ => this.tryLoad(newroom), 100)
-      )
     }
   }
 
@@ -95,16 +91,39 @@ export default class Chat extends Component {
     this.tryLoad(room)
   }
 
+  async updateReadReceipt() {
+    clearTimeout(this.updateReadReceiptDebounce)
+    this.updateReadReceiptDebounce = setTimeout(_ => {
+      const room = Client.client.getRoom(this.props.focus.roomId)
+      const currentReceiptId = room.getEventReadUpTo(Client.client.getUserId(), true)
+      const lastEvent = this.state.events[this.state.events.length - 1]
+      const lastEventId = lastEvent.getId()
+      // fire if last read event is different from last event
+      const differsFromLast = currentReceiptId !== lastEventId
+      // and last event hasn't already had a receipt sent for it.
+      const isUnsent = lastEventId !== this.lastReceiptSentId
+      if (differsFromLast && isUnsent) {
+        console.log("sending receipt")
+        Client.client.setRoomReadMarkers(room.roomId, lastEventId, lastEvent, {}).catch(console.log)
+        Client.client.sendReadReceipt(lastEvent, {}).then(_ => {
+          // faster to zero these manually than waiting for the server
+          room.setUnreadNotificationCount('total', 0);
+          room.setUnreadNotificationCount('hightlight', 0);
+          this.lastReceiptSentId = lastEventId
+        }).catch(console.log)
+      }
+    }, 200)
+  }
+
   async resetFocus () {
     const room = await Client.client.joinRoom(this.props.focus.roomId)
     this.setState({
       fullyScrolled: this.scrolledIdents.has(this.props.focus.roomId),
       events: room.getLiveTimeline().getEvents()
-    }, _ => this.tryLoad(room))
-  }
-
-  async componentDidUpdate(prevProps) {
-    if (prevProps.focus !== this.props.focus) this.resetFocus()
+    }, _ => {
+      this.updateReadReceipt()
+      this.tryLoad(room)
+    })
   }
 
   render(props, state) {

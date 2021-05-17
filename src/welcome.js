@@ -269,7 +269,7 @@ class PDFRoomEntry extends Component {
             ? <div><details>
               <summary open={state.detailsOpen} ontoggle={this.handleDetailsToggle}>{annotations.length} annotations</summary>
               <table className="annotationRoomTable">
-                <thead> <tr><td>Text</td><td>Page</td><td>Creator</td></tr></thead>
+                <thead> <tr><td>Text</td><td>Page</td><td>Creator</td><td>Unread</td></tr></thead>
                 <tbody>{annotations}</tbody>
               </table>
             </details></div>
@@ -298,10 +298,28 @@ class AnnotationRoomEntry extends Component {
     creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
 
     render (props) {
+      const roomIfJoined = Client.client.getRoom(props.annotationContent.roomId)
+      let unreadCount = "All"
+      if (roomIfJoined) {
+        const events = roomIfJoined.getLiveTimeline().getEvents()
+        const maybeRead = roomIfJoined.getAccountData('m.fully_read')
+        const currentFullyReadId = maybeRead ? maybeRead.getContent().event_id : null
+        let receiptIndex = 0
+        if (currentFullyReadId) {
+          for (let i = 0; i < events.length; ++i) {
+            if (currentFullyReadId === events[i].getId()) {
+              receiptIndex = i + 1
+              break
+            }
+          }
+        }
+        unreadCount = events.length - receiptIndex
+      }
       return <tr className="annotationRoomEntry">
         <td>…&nbsp;<a onClick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</td>
         <td>{props.annotationContent.pageNumber}</td>
         <td><MemberPill member={this.creator} /></td>
+        <td>{ unreadCount }</td>
       </tr>
     }
 }
