@@ -30,6 +30,7 @@ export default class Client {
 
   static restart () {
     Client.client.stopClient()
+    Client.client.store.deleteAllData()
     Client.initClient()
   }
 }
