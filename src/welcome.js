@@ -308,12 +308,14 @@ class AnnotationRoomEntry extends Component {
         if (currentFullyReadId) {
           for (let i = 0; i < events.length; ++i) {
             if (currentFullyReadId === events[i].getId()) {
-              receiptIndex = i + 1
+              receiptIndex = ++i
               break
             }
           }
         }
-        unreadCount = events.length - receiptIndex
+        const unreadEvents = events.slice(receiptIndex).filter(e => e.getType() === 'm.room.message')
+        console.log(unreadEvents)
+        unreadCount = unreadEvents.length
       }
       return <tr className="annotationRoomEntry">
         <td>…&nbsp;<a onClick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</td>
