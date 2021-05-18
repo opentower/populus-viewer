@@ -5,6 +5,7 @@ import { eventVersion, spaceChild } from "./constants.js"
 import Client from './client.js'
 import MemberPill from './memberPill.js'
 import UserColor from './userColors.js'
+import { calculateUnread } from './utils/unread.js'
 
 export default class AnnotationListing extends Component {
   constructor(props) {
@@ -69,25 +70,47 @@ export default class AnnotationListing extends Component {
     }
 }
 
+// XXX: could DRY by making a superclass from this and AnnotationRoomEntry
 class AnnotationListingEntry extends Component {
-    handleClick = () => {
-      this.props.focusByRoomId(this.props.annotationContent.roomId)
-      this.props.pushHistory({
-        pageFocused: this.props.annotationContent.pageNumber,
-        pdfFocused: this.props.parentRoom.name
-      })
+  constructor(props) {
+    super(props)
+    this.state = {unreadCount: calculateUnread(this.props.annotationContent.roomId)}
+    this.handleTimeline = this.handleTimeline.bind(this)
+  }
+
+  componentDidMount () {
+    Client.client.on("Room.timeline", this.handleTimeline)
+  }
+
+  componentWillUnmount () {
+    Client.client.off("Room.timeline", this.handleTimeline)
+  }
+
+  handleClick = () => {
+    this.props.focusByRoomId(this.props.annotationContent.roomId)
+    this.props.pushHistory({
+      pageFocused: this.props.annotationContent.pageNumber,
+      pdfFocused: this.props.parentRoom.name
+    })
+  }
+
+  handleTimeline (event) {
+    if (this.props.annotationContent.roomId === event.getRoomId()) {
+      this.setState({unreadCount: calculateUnread(this.props.annotationContent.roomId)})
     }
+  }
 
-    creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
+  creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
 
-    userColor = new UserColor(this.creator.userId)
+  userColor = new UserColor(this.creator.userId)
 
-    render(props) {
-      const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
-      return <div style={this.userColor.styleVariables} data-annotation-entry-typing={typing} onclick={this.handleClick} class="annotation-listing-entry">
-                <div class="annotation-listing-text">{props.annotationContent.selectedText}</div>
-                <div class="annotation-listing-page">page: {props.annotationContent.pageNumber}</div>
-                <div class="annotation-listing-creator">creator: <MemberPill member={this.creator} /></div>
-            </div>
-    }
+  render(props, state) {
+    const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
+    return <div style={this.userColor.styleVariables} data-annotation-entry-typing={typing} onclick={this.handleClick} class="annotation-listing-entry">
+              <div class="annotation-listing-text">{props.annotationContent.selectedText}</div>
+              <div class="annotation-listing-page">page: {props.annotationContent.pageNumber}</div>
+              <div class="annotation-listing-page">unread: {state.unreadCount}</div>
+              <div class="annotation-listing-creator">creator: <MemberPill member={this.creator} /></div>
+          </div>
+  }
 }

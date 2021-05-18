@@ -8,6 +8,7 @@ import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import ProfileInformation from './profileInformation.js'
 import * as Icons from './icons.js'
+import { calculateUnread } from './utils/unread.js'
 
 import './styles/welcome.css'
 
@@ -287,41 +288,42 @@ class PDFRoomEntry extends Component {
 }
 
 class AnnotationRoomEntry extends Component {
-    handleClick = () => {
-      QueryParameters.set("focus", this.props.annotationContent.roomId)
-      this.props.pushHistory({
-        pageFocused: this.props.annotationContent.pageNumber,
-        pdfFocused: this.props.parentRoom.name
-      })
-    }
+  constructor(props) {
+    super(props)
+    this.state = {unreadCount: calculateUnread(this.props.annotationContent.roomId)}
+    this.handleTimeline = this.handleTimeline.bind(this)
+  }
 
-    creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
+  handleClick = () => {
+    QueryParameters.set("focus", this.props.annotationContent.roomId)
+    this.props.pushHistory({
+      pageFocused: this.props.annotationContent.pageNumber,
+      pdfFocused: this.props.parentRoom.name
+    })
+  }
 
-    render (props) {
-      const roomIfJoined = Client.client.getRoom(props.annotationContent.roomId)
-      let unreadCount = "All"
-      if (roomIfJoined) {
-        const events = roomIfJoined.getLiveTimeline().getEvents()
-        const maybeRead = roomIfJoined.getAccountData('m.fully_read')
-        const currentFullyReadId = maybeRead ? maybeRead.getContent().event_id : null
-        let receiptIndex = 0
-        if (currentFullyReadId) {
-          for (let i = 0; i < events.length; ++i) {
-            if (currentFullyReadId === events[i].getId()) {
-              receiptIndex = ++i
-              break
-            }
-          }
-        }
-        const unreadEvents = events.slice(receiptIndex).filter(e => e.getType() === 'm.room.message')
-        console.log(unreadEvents)
-        unreadCount = unreadEvents.length
-      }
-      return <tr className="annotationRoomEntry">
-        <td>…&nbsp;<a onClick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</td>
-        <td>{props.annotationContent.pageNumber}</td>
-        <td><MemberPill member={this.creator} /></td>
-        <td>{ unreadCount }</td>
-      </tr>
+  componentDidMount () {
+    Client.client.on("Room.timeline", this.handleTimeline)
+  }
+
+  componentWillUnmount () {
+    Client.client.off("Room.timeline", this.handleTimeline)
+  }
+
+  creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
+
+  handleTimeline (event) {
+    if (this.props.annotationContent.roomId === event.getRoomId()) {
+      this.setState({unreadCount: calculateUnread(this.props.annotationContent.roomId)})
     }
+  }
+
+  render (props, state) {
+    return <tr className="annotationRoomEntry">
+      <td>…&nbsp;<a onClick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</td>
+      <td>{props.annotationContent.pageNumber}</td>
+      <td><MemberPill member={this.creator} /></td>
+      <td>{state.unreadCount}</td>
+    </tr>
+  }
 }
