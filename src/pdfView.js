@@ -283,7 +283,7 @@ export default class PdfView extends Component {
               focus={state.focus} />
           </div>
         </div>
-        <div style={state.panelVisible ? {visibility: "visible"} : {}} id="sidepanel">
+        <div id="sidepanel">
           {state.focus
             ? <Fragment>
               <Chat class="panel-widget-1" handleWidgetScroll={this.handleWidgetScroll} focus={state.focus} />

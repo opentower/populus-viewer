@@ -6,22 +6,23 @@
     --leftToCenter: max(0px, calc(50% - (var(--pdfWidthPx) * var(--pdfZoomFactor)) / 2));
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
+    transition:width 0.5s ease;
 }
 
 #content-container::-webkit-scrollbar { display: none; }
 
 #sidepanel {
     display:flex;
-    visibility:hidden;
     position:fixed;
-    right:0px;
+    right: calc((var(--sidePanelVisible) - 1) * (var(--sidepanelWidth) + (2 * var(--sidepanelPadding))));
     top:0px;
     bottom:0px;
     padding: var(--sidepanelPadding);
     box-shadow: -2px 0 4px 0 rgba(0,0,0,.2);
     background:white;
     z-index:6;
-    width: var(--sidepanelWidth)
+    width: var(--sidepanelWidth);
+    transition: width 0.5s ease, right 0.5s ease, padding 0.5s ease;
 }
 
 #document-view {
@@ -135,7 +136,7 @@
         --contentWidth: calc(100% - (var(--sidepanelWidth) + (2 * var(--sidepanelPadding))));
     }
     #sidepanel {
-        visibility:visible;
+        right: 0px
     }
     #panel-toggle {
         visibility:hidden;

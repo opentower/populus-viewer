@@ -59,6 +59,7 @@
     align-items: center;
     justify-content:center;
     max-width: var(--contentWidth);
+    transition:max-width 0.5s ease;
 }
 
 @media only screen and (max-width: 600px) {
