@@ -107,10 +107,10 @@ class AnnotationListingEntry extends Component {
   render(props, state) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
     return <div style={this.userColor.styleVariables} data-annotation-entry-typing={typing} onclick={this.handleClick} class="annotation-listing-entry">
-              <div class="annotation-listing-text">{props.annotationContent.selectedText}</div>
-              <div class="annotation-listing-page">page: {props.annotationContent.pageNumber}</div>
-              <div class="annotation-listing-page">unread: {state.unreadCount}</div>
-              <div class="annotation-listing-creator">creator: <MemberPill member={this.creator} /></div>
-          </div>
+        <div class="annotation-listing-text">{props.annotationContent.selectedText}</div>
+        <div class="annotation-listing-page">page: {props.annotationContent.pageNumber}</div>
+        <div class="annotation-listing-page">unread: {state.unreadCount}</div>
+        <div class="annotation-listing-creator">creator: <MemberPill member={this.creator} /></div>
+    </div>
   }
 }
