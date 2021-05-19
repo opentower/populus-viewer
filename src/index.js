@@ -20,6 +20,7 @@ class PopulusViewer extends Component {
       initializationStage: "connecting to database"
     }
     Client.initClient().then(_ => {
+      Client.client.on("Session.logged_out", this.logoutHandler)
       if (Client.client.getUserId()) this.loginHandler()
       else this.setState({ loggedIn: false })
     })
