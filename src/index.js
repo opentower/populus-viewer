@@ -8,11 +8,6 @@ import Client from './client.js'
 import './styles/global.css'
 import { domainName, lastViewed } from './constants.js'
 
-// This module is the entrypoint for the viewer. It'll be reponsible for the
-// main container element, for initializing the client object, and for
-// handling high-level global state and events. Other functionality should
-// be delegated to other components that we import here.
-
 class PopulusViewer extends Component {
   constructor () {
     super()
