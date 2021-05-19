@@ -132,6 +132,25 @@ export class VideoMessage extends Component {
   }
 }
 
+export class AudioMessage extends Component {
+  userColor = new UserColor(this.props.event.getSender())
+
+  isMe = this.props.event.getSender() === Client.client.getUserId()
+
+  content = this.props.event.getContent()
+
+  url= Matrix.getHttpUriForMxc(serverRoot, this.content.url)
+
+  render(props) {
+    return <Message reactions={props.reactions}
+      event={props.event}>
+        <div class="body image-upload">
+          <audio controls src={this.url} />
+        </div>
+    </Message>
+  }
+}
+
 class Message extends Component {
   constructor(props) {
     super(props)

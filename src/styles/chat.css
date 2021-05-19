@@ -112,17 +112,19 @@
   border:3px dashed black;
 }
 
-#videoRecordingWrapper {
+#audioRecordingWrapper, #videoRecordingWrapper {
   position:relative;
   cursor:pointer;
 }
 
-#videoCaption {
+#audioRecordingWrapper {
+  background:black;
+  padding:15px;
+}
+
+#audioCaption, #videoCaption {
     pointer-events:none;
-    position: absolute;
     display:flex;
-    bottom: 30px;
-    left: 25px;
     color: black;
     font-weight: bold;
     background: white;
@@ -133,18 +135,23 @@
     height:25px;
 }
 
-#videoCaption[data-recording-state=started] {
+#videoCaption {
+    position: absolute;
+    bottom: 30px;
+    left: 25px;
+}
+
+#audioCaption[data-recording-state=started], #videoCaption[data-recording-state=started] {
     animation: pulse-color 2s infinite; 
     animation-timing-function:ease;
 }
 
-#videoCaption[data-recording-state=countdown] {
+#audioCaption[data-recording-state=countdown] {
     color:white;
     justify-content:center;
     animation: reverse-pulse-color 1.5s infinite;
     animation-timing-function:ease;
 }
-
 
 #chat-panel .message {
     position:relative;

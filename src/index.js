@@ -70,8 +70,7 @@ class PopulusViewer extends Component {
       clearTimeout(this.setLastPageTimeout)
       this.setLastPageTimeout = setTimeout(this.setLastPage, 1000)
       if (callback) callback()
-    }
-    )
+    })
   }
 
   render (props, state) {

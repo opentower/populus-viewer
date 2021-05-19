@@ -25,6 +25,7 @@ export default class MessagePanel extends Component {
       case 'SendFile': return <FileUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
       case 'SendMedia': return <MediaUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
       case 'RecordVideo': return <RecordVideoInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
+      case 'RecordAudio': return <RecordAudioInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
     }
   }
 
@@ -38,6 +39,12 @@ export default class MessagePanel extends Component {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       alert("Your browser looks like it doesn't support accessing the webcam...")
     } else this.setState({ mode: "RecordVideo" })
+  }
+
+  setModeRecordAudio = _ => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      alert("Your browser looks like it doesn't support accessing the webcam...")
+    } else this.setState({ mode: "RecordAudio" })
   }
 
   showMore = _ => this.setState({ buttons: this.state.buttons + 1 })
@@ -65,6 +72,7 @@ export default class MessagePanel extends Component {
               : <Fragment>
                   <button onclick={this.showLess}>{Icons.moreHorizontal}</button>
                   <button onclick={this.setModeRecordVideo}>{Icons.video}</button>
+                  <button onclick={this.setModeRecordAudio}>{Icons.mic}</button>
               </Fragment>
             }
           </Fragment>
@@ -117,30 +125,24 @@ class FileUploadInput extends Component {
   }
 }
 
-class RecordVideoInput extends Component {
+class RecordMediaInput extends Component {
   componentDidMount () {
-    this.initVideoStream()
+    this.initStream()
   }
 
   componentWillUnmount () {
-    this.teardownVideoStream()
+    this.teardownStream()
   }
 
   mediaPreview = createRef()
 
-  async initVideoStream () {
-    const constraints = {
-      audio: true,
-      video: { facingMode: "user" }
-    }
+  async initStream () {
     try {
-      this.stream = await navigator.mediaDevices.getUserMedia(constraints)
+      this.stream = await navigator.mediaDevices.getUserMedia(this.constraints)
       this.mediaPreview.current.srcObject = this.stream
-      this.mediaRecorder = new MediaRecorder(this.stream, {
-        mimeType: "video/webm",
-        videoBitsPerSecond: 1000000 // 1 mbps
-      })
+      this.mediaRecorder = new MediaRecorder(this.stream, this.recorderOptions )
       this.mediaRecorder.ondataavailable = ev => {
+        this.setState({ audioAvailable: true })
         this.recordingBlob = ev.data
         this.mediaPreview.current.srcObject = null
         this.mediaPreview.current.setAttribute("controls", "")
@@ -151,7 +153,7 @@ class RecordVideoInput extends Component {
     }
   }
 
-  teardownVideoStream () {
+  teardownStream () {
     this.stream.getTracks().forEach(track => track.stop())
   }
 
@@ -172,9 +174,45 @@ class RecordVideoInput extends Component {
 
   finishRecord = _ => {
     this.mediaRecorder.stop()
-    this.teardownVideoStream()
+    this.teardownStream()
     this.setState({recording: "done"})
   }
+
+  progressHandler = (progress) => this.setState({progress})
+
+  recordingIcon = _ => {
+    switch (this.state.recording) {
+      case "started" : return <div data-recording-state={this.state.recording} id={this.captionId}>{Icons.pause}</div>
+      case "countdown" : return <div data-recording-state={this.state.recording} id={this.captionId}>{this.state.countdown}</div>
+      case "done" : return null
+      case undefined : return <div data-recording-state={this.state.recording} id={this.captionId}>{this.icon}</div>
+    }
+  }
+
+  clickHandler = () => {
+    switch (this.state.recording) {
+      case "started" : return this.finishRecord()
+      case "countdown" : return null
+      case "done" : return null
+      case undefined : return this.countdownToRecord()
+    }
+  }
+}
+
+class RecordVideoInput extends RecordMediaInput {
+  constraints = {
+    audio: true,
+    video: { facingMode: "user" }
+  }
+
+  recorderOptions = {
+    mimeType: "video/webm",
+    videoBitsPerSecond: 1000000 // 1 mbps
+  }
+
+  icon = Icons.video
+
+  captionId = "videoCaption"
 
   async submitInput () {
     const videoElt = this.mediaPreview.current
@@ -199,30 +237,9 @@ class RecordVideoInput extends Component {
       msgtype: "m.video",
       url: videoMxc
     }
-    if (duration < Infinity) theContent.duration = duration
-    console.log(theContent)
+    if (duration < Infinity) theContent.info.duration = duration
     await Client.client.sendMessage(this.props.focus.roomId, theContent)
     this.props.done()
-  }
-
-  progressHandler = (progress) => this.setState({progress})
-
-  clickHandler = () => {
-    switch (this.state.recording) {
-      case "started" : return this.finishRecord()
-      case "countdown" : return null
-      case "done" : return null
-      case undefined : return this.countdownToRecord()
-    }
-  }
-
-  recordingIcon = _ => {
-    switch (this.state.recording) {
-      case "started" : return <div data-recording-state={this.state.recording} id="videoCaption">{Icons.pause}</div>
-      case "countdown" : return <div data-recording-state={this.state.recording} id="videoCaption">{this.state.countdown}</div>
-      case "done" : return null
-      case undefined : return <div data-recording-state={this.state.recording} id="videoCaption">{Icons.video}</div>
-    }
   }
 
   render(props, state) {
@@ -235,13 +252,61 @@ class RecordVideoInput extends Component {
       {this.recordingIcon()}
       {state.progress
         ? <div id="pdfUploadFormProgress">
-          <span>{this.state.progress.loaded}</span>
+          <span>{state.progress.loaded}</span>
           <span>/</span>
-          <span>{this.state.progress.total} bytes</span>
+          <span>{state.progress.total} bytes</span>
         </div>
         : null
       }
     </div>
+  }
+}
+
+class RecordAudioInput extends RecordMediaInput {
+  constraints = {
+    audio: true,
+    video: false
+  }
+
+  recorderOptions = { mimeType: "audio/webm" }
+
+  icon = Icons.mic
+
+  captionId = "audioCaption"
+
+  async submitInput () {
+    const audioElt = this.mediaPreview.current
+    const duration = Math.round(audioElt.duration * 1000)
+    const audioMxc = await Client.client.uploadContent(this.recordingBlob, { progressHandler: this.progressHandler })
+    const theContent = {
+      body: `${Client.client.getUserId()}_${Date.now()}`,
+      info: {
+        mimetype: "audio/webm",
+        size: this.recordingBlob.size
+      },
+      msgtype: "m.audio",
+      url: audioMxc
+    }
+    if (duration < Infinity) theContent.info.duration = duration
+    await Client.client.sendMessage(this.props.focus.roomId, theContent)
+    this.props.done()
+  }
+
+  render(props, state) {
+    return <Fragment>
+      <div onclick={this.clickHandler} id="audioRecordingWrapper">
+        <audio style={{display: state.audioAvailable ? "block" : "none"}} ref={this.mediaPreview} />
+        {this.recordingIcon()}
+      </div>
+      {state.progress
+        ? <div id="pdfUploadFormProgress">
+          <span>{state.progress.loaded}</span>
+          <span>/</span>
+          <span>{state.progress.total} bytes</span>
+        </div>
+        : null
+      }
+    </Fragment>
   }
 }
 

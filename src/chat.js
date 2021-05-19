@@ -1,7 +1,7 @@
 import { h, createRef, Component } from 'preact';
 import './styles/chat.css'
 import * as Matrix from "matrix-js-sdk"
-import { TextMessage, FileMessage, ImageMessage, VideoMessage } from './message.js'
+import { TextMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } from './message.js'
 import MessagePanel from './messagePanel.js'
 import UserColor from './userColors.js'
 import Client from './client.js'
@@ -135,6 +135,7 @@ export default class Chat extends Component {
         e.getContent().msgtype === "m.file" ||
         e.getContent().msgtype === "m.image" ||
         e.getContent().msgtype === "m.video" ||
+        e.getContent().msgtype === "m.audio" ||
         Object.keys(e.getContent()).length === 0
         )
     )
@@ -176,6 +177,14 @@ export default class Chat extends Component {
         case "m.video": {
           accumulator.push(
             <VideoMessage reactions={reactions}
+              key={event.getId()}
+              event={event} />
+          )
+          break;
+        }
+        case "m.audio": {
+          accumulator.push(
+            <AudioMessage reactions={reactions}
               key={event.getId()}
               event={event} />
           )
