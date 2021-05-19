@@ -130,7 +130,8 @@
     background: white;
     border-radius: 30px;
     padding: 5px;
-    align-items:center;
+    justify-content: center;
+    align-items: center;
     width:25px;  
     height:25px;
 }
