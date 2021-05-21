@@ -21,23 +21,56 @@ export function stripFallbackPlainString (string) {
 }
 
 export function generateFallbackPlain (event) {
-  const targetBody = event.getContent().body
+  let lines
   const targetSender = event.getSender()
-  const lines = targetBody.trim().split('\n')
-  // strip previous fallback, if replying to a reply
-  if (isReply(event.getContent())) stripFallbackPlain(lines)
+  switch (event.getContent().msgtype) {
+    case "m.file": {
+      lines = ["sent a file"]
+      break;
+    }
+    case "m.audio": {
+      lines = ["sent an audio file"]
+      break;
+    }
+    case "m.video": {
+      lines = ["sent a video"]
+      break;
+    }
+    default: {
+      const targetBody = event.getContent().body
+      lines = targetBody.trim().split('\n')
+      // strip previous fallback, if replying to a reply
+      if (isReply(event.getContent())) stripFallbackPlain(lines)
+    }
+  }
   if (lines.length > 0) { lines[0] = `<${targetSender}> ${lines[0]}` }
   return `${lines.map((line) => `> ${line}`).join('\n')}\n\n`
-  // TODO eventually want to handle replying to images and so on, once these are displayable
 }
 
 export function generateFallbackHtml (event) {
-  const targetHTML = event.getContent().formatted_body || event.getContent().body.replace(/\n/g, '<br>')
+  let replyHtml
   const targetSender = event.getSender()
-  const sanitizedHTML = sanitizeHtml(targetHTML, stripReply)
+  switch (event.getContent().msgtype) {
+    case "m.file": {
+      replyHtml = "sent a file"
+      break;
+    }
+    case "m.audio": {
+      replyHtml = "sent an audio file"
+      break;
+    }
+    case "m.video": {
+      replyHtml = "sent a video"
+      break;
+    }
+    default: {
+      const targetHTML = event.getContent().formatted_body || event.getContent().body.replace(/\n/g, '<br>')
+      replyHtml = sanitizeHtml(targetHTML, stripReply)
+    }
+  }
   return (`<mx-reply><blockquote><a href="https://matrix.to/#/${event.getRoomId()}/${event.getId()}">In reply to</a>` +
         ` <a href="https://matrix.to/#/${targetSender}">${targetSender}</a>` +
-        `<br>${sanitizedHTML}</blockquote></mx-reply>`)
+        `<br>${replyHtml}</blockquote></mx-reply>`)
 }
 
 // based on https://github.com/matrix-org/matrix-react-sdk/blob/33e8edb3d508d6eefb354819ca693b7accc695e7/src/components/views/rooms/EditMessageComposer.js
