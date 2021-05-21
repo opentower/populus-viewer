@@ -256,10 +256,9 @@ class ReplyPreview extends Component {
       const theRoom = Client.client.getRoom(roomId)
       if (!theRoom) return // room state not ready
       const inReplyTo = theRoom.findEventById(inReplyToId)
-      if (inReplyTo) {
-        this.setState({ liveEvent: inReplyTo })
-        return
-      }
+      console.log("in reply to")
+      console.log(inReplyTo)
+      if (inReplyTo) this.setState({ liveEvent: inReplyTo })
       // the below uses the event-context route, which isn't implemented yet in Dendrite:
       //
       // https://github.com/matrix-org/dendrite/issues/670
@@ -274,7 +273,7 @@ class ReplyPreview extends Component {
       //   console.log("couldn't retrieve")
       //   return
       // }
-      this.setState({ liveEvent: theRoom.findEventById(inReplyToId) })
+      // this.setState({ liveEvent: theRoom.findEventById(inReplyToId) })
     }
   }
 
