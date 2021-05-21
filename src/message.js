@@ -113,11 +113,11 @@ export class VideoMessage extends Component {
 
   content = this.props.event.getContent()
 
-  poster = this.props.event.getContent().info.thumbnail_url
+  poster = this.content.info.thumbnail_url
     ? Matrix.getHttpUriForMxc(serverRoot, this.content.info.thumbnail_url)
     : null
 
-  url= Matrix.getHttpUriForMxc(serverRoot, this.content.url)
+  url = Matrix.getHttpUriForMxc(serverRoot, this.content.url)
 
   render(props) {
     return <Message reactions={props.reactions}
@@ -293,7 +293,6 @@ class ReplyPreview extends Component {
   }
 
   fromLiveEvent = _ => {
-    const hasMsgType = !!this.state.liveEvent.getContent().msgtype
     const content = this.getCurrentEdit()
     const hasHtml = (content.format === "org.matrix.custom.html") && content.formatted_body
     const isReply = Replies.isReply(content)
@@ -302,25 +301,47 @@ class ReplyPreview extends Component {
     const senderColors = new UserColor(this.state.liveEvent.getSender())
     const avatarHttpURI = Matrix.getHttpUriForMxc(serverRoot, sender.avatarUrl, 20, 20, "crop")
     let displayBody
-    if (isReply && hasHtml) {
-      displayBody = sanitizeHtml(content.formatted_body, Replies.stripReply)
-    } else if (hasHtml) {
-      displayBody = content.formatted_body
-    } else if (isReply) {
-      displayBody = Replies.stripFallbackPlainString(content.body)
-    } else { displayBody = content.body }
+    if (!this.state.liveEvent.getContent().msgtype) {
+      displayBody = <div class="redacted-preview">Original Message Deleted</div>
+    } else {
+      switch (this.state.liveEvent.getContent().msgtype) {
+        case "m.video": {
+          const thumbUrl = this.state.liveEvent.getContent().info.thumbnail_url
+          const poster = thumbUrl ? Matrix.getHttpUriForMxc(serverRoot, thumbUrl) : null
+          displayBody = <video class="mediaMessageThumbnail"
+            controls
+            poster={poster}
+            preload={poster ? "none" : "metadata"}
+            src={Matrix.getHttpUriForMxc(serverRoot, this.state.liveEvent.getContent().url)} />
+          break;
+        }
+        case "m.audio": {
+          displayBody = <audio
+            controls
+            src={Matrix.getHttpUriForMxc(serverRoot, this.state.liveEvent.getContent().url)} />
+          break;
+        }
+        case "m.text": {
+          if (isReply && hasHtml) {
+            const displayText = sanitizeHtml(content.formatted_body, Replies.stripReply)
+            displayBody = <div dangerouslySetInnerHTML={{_html: displayText}} />
+          } else if (hasHtml) {
+            displayBody = <div dangerouslySetInnerHTML={{_html: content.formatted_body}} />
+          } else if (isReply) {
+            displayBody = <div>Replies.stripFallbackPlainString(content.body)</div>
+          } else {
+            displayBody = <div>content.body</div>
+          }
+        }
+      }
+    }
     return <div style={senderColors.styleVariables} class="reply-preview">
       <div class="reply-preface">In reply to:</div>
       <div class="reply-sender-info">
         {avatarHttpURI ? <img src={avatarHttpURI} /> : null}
         <span>{sender.displayName}</span>
       </div>
-      {hasHtml && hasMsgType
-        ? <div dangerouslySetInnerHTML={{__html: displayBody}} />
-        : hasMsgType
-          ? <div>{displayBody}</div>
-          : <div class="redacted-preview">Original Message Deleted</div>
-      }
+      {displayBody}
     </div>
   }
 
