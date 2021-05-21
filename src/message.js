@@ -320,6 +320,16 @@ class ReplyPreview extends Component {
             src={Matrix.getHttpUriForMxc(serverRoot, this.state.liveEvent.getContent().url)} />
           break;
         }
+        case "m.file": {
+          displayBody = <div class="file-upload">
+          file upload:&nbsp;
+          <a href={Matrix.getHttpUriForMxc(serverRoot, this.state.liveEvent.getContent().url)}>
+            {this.state.liveEvent.getContent().filename}
+          </a>
+        </div>
+
+          break;
+        }
         case "m.text": {
           if (isReply && hasHtml) {
             const displayText = sanitizeHtml(content.formatted_body, Replies.stripReply)
