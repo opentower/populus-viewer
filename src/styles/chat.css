@@ -214,11 +214,21 @@
 }
 
 #chat-panel .message .info > button {
+    cursor: pointer;
     margin:0px;
     margin-left:5px;
     border:2px solid var(--user_light);
     padding:4px;
     background-color:white;
+}
+
+#chat-panel .message .info > button:hover {
+    background-color: var(--user_light);
+}
+
+#chat-panel .message .info > button > svg {
+  height:16px;
+  width:16px;
 }
 
 #chat-panel .message .info > button:first-child {

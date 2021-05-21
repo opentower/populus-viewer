@@ -7,6 +7,7 @@ import katex from 'katex'
 import UserColor from './userColors.js'
 import { sanitizeHtmlParams, serverRoot } from './constants.js'
 import Client from './client.js'
+import * as Icons from './icons.js'
 import * as Replies from './utils/replies.js'
 
 export class TextMessage extends Component {
@@ -34,8 +35,8 @@ export class TextMessage extends Component {
 
   getEdits = () => {
     return this.props.reactions[this.props.event.getId()]
-      ? this.props.reactions[this.props.event.getId()].filter(
-          event => event.getContent()["m.relates_to"].rel_type === "m.replace")
+      ? this.props.reactions[this.props.event.getId()]
+        .filter(event => event.getContent()["m.relates_to"].rel_type === "m.replace")
       : []
   }
 
@@ -49,7 +50,7 @@ export class TextMessage extends Component {
   render(props) {
     const content = this.getCurrentEdit()
     const isReply = Replies.isReply(content)
-    const replyPreview = isReply ? <ReplyPreview  reactions={props.reactions} event={props.event} /> : null
+    const replyPreview = isReply ? <ReplyPreview reactions={props.reactions} event={props.event} /> : null
     const displayBody = <div ref={this.messageBody} class="body">
       {replyPreview}
       {((content.format === "org.matrix.custom.html") && content.formatted_body)
@@ -205,8 +206,8 @@ class Message extends Component {
             <div class="ident">
               {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
               <div class="info">
-                {!state.responding && canEdit && <button onclick={this.openEditor}>edit</button>}
-                <button onclick={this.redactMessage} class="redact">delete</button>
+                {!state.responding && canEdit && <button onclick={this.openEditor}>{Icons.edit}</button>}
+                <button onclick={this.redactMessage} class="redact">{Icons.trash}</button>
               </div>
             </div>
           </div>
@@ -222,8 +223,8 @@ class Message extends Component {
         <div style={this.userColor.styleVariables} id={event.getId()} class="message">
           <div class="ident">
             <div class="info">
-              {!state.replying && <button onclick={this.openEditor}>reply</button>}
-              <button class="reaction" onclick={this.upvote}>+1</button>
+              {!state.replying && <button onclick={this.openEditor}>{Icons.reply}</button>}
+              <button class="reaction" onclick={this.upvote}>{Icons.like}</button>
             </div>
             {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
           </div>
@@ -287,7 +288,7 @@ class ReplyPreview extends Component {
   getEdits = () => {
     return this.props.reactions[this.state.liveEvent.getId()]
       ? this.props.reactions[this.state.liveEvent.getId()]
-          .filter(event => event.getContent()["m.relates_to"].rel_type === "m.replace")
+        .filter(event => event.getContent()["m.relates_to"].rel_type === "m.replace")
       : []
   }
 
@@ -309,18 +310,18 @@ class ReplyPreview extends Component {
       displayBody = Replies.stripFallbackPlainString(content.body)
     } else { displayBody = content.body }
     return <div style={senderColors.styleVariables} class="reply-preview">
-          <div class="reply-preface">In reply to:</div>
-          <div class="reply-sender-info">
-              {avatarHttpURI ? <img src={avatarHttpURI} /> : null}
-              <span>{sender.displayName}</span>
-          </div>
-          {hasHtml && hasMsgType
-            ? <div dangerouslySetInnerHTML={{__html: displayBody}} />
-            : hasMsgType
-              ? <div>{displayBody}</div>
-              : <div class="redacted-preview">Original Message Deleted</div>
-          }
+      <div class="reply-preface">In reply to:</div>
+      <div class="reply-sender-info">
+        {avatarHttpURI ? <img src={avatarHttpURI} /> : null}
+        <span>{sender.displayName}</span>
       </div>
+      {hasHtml && hasMsgType
+        ? <div dangerouslySetInnerHTML={{__html: displayBody}} />
+        : hasMsgType
+          ? <div>{displayBody}</div>
+          : <div class="redacted-preview">Original Message Deleted</div>
+      }
+    </div>
   }
 
   fallbackPreview = _ => {
@@ -439,12 +440,12 @@ class ReplyComposer extends Component {
 
   render(props, state) {
     return <div class="replyComposer">
-                   <textarea ref={this.input}
-                             value={state.value}
-                             onkeypress={this.handleKeypress}
-                             oninput={this.handleInput} />
-                   <button onclick={this.sendResponse}>Send Reply</button>
-                   <button onclick={this.props.closeEditor}>Cancel</button>
-             </div>
+      <textarea ref={this.input}
+        value={state.value}
+        onkeypress={this.handleKeypress}
+        oninput={this.handleInput} />
+      <button onclick={this.sendResponse}>Send Reply</button>
+      <button onclick={this.props.closeEditor}>Cancel</button>
+    </div>
   }
 }
