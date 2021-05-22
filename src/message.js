@@ -206,8 +206,8 @@ class Message extends Component {
             <div class="ident">
               {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
               <div class="info">
-                {!state.responding && canEdit && <button onclick={this.openEditor}>{Icons.edit}</button>}
-                <button onclick={this.redactMessage} class="redact">{Icons.trash}</button>
+                {!state.responding && canEdit && <button title="edit this message" onclick={this.openEditor}>{Icons.edit}</button>}
+                <button title="delete this message" onclick={this.redactMessage} class="redact">{Icons.trash}</button>
               </div>
             </div>
           </div>
@@ -223,8 +223,8 @@ class Message extends Component {
         <div style={this.userColor.styleVariables} id={event.getId()} class="message">
           <div class="ident">
             <div class="info">
-              {!state.replying && <button onclick={this.openEditor}>{Icons.reply}</button>}
-              <button class="reaction" onclick={this.upvote}>{Icons.like}</button>
+              {!state.replying && <button title="reply to this message" onclick={this.openEditor}>{Icons.reply}</button>}
+              <button title="upvote this message" class="reaction" onclick={this.upvote}>{Icons.like}</button>
             </div>
             {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
           </div>
@@ -322,12 +322,11 @@ class ReplyPreview extends Component {
         }
         case "m.file": {
           displayBody = <div class="file-upload">
-          file upload:&nbsp;
-          <a href={Matrix.getHttpUriForMxc(serverRoot, this.state.liveEvent.getContent().url)}>
-            {this.state.liveEvent.getContent().filename}
-          </a>
-        </div>
-
+            file upload:&nbsp;
+            <a href={Matrix.getHttpUriForMxc(serverRoot, this.state.liveEvent.getContent().url)}>
+              {this.state.liveEvent.getContent().filename}
+            </a>
+          </div>
           break;
         }
         case "m.text": {

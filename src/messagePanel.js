@@ -66,14 +66,14 @@ export default class MessagePanel extends Component {
             { state.buttons === 1
               ? <Fragment>
                   <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
-                  <button onclick={this.setModeSendFile}>{Icons.upload}</button>
-                  <button onclick={this.setModeSendImage}>{Icons.image}</button>
-                  <button onclick={this.showMore}>{Icons.moreHorizontal}</button>
+                  <button title="upload file" onclick={this.setModeSendFile}>{Icons.upload}</button>
+                  <button title="upload image" onclick={this.setModeSendImage}>{Icons.image}</button>
+                  <button title="more options" onclick={this.showMore}>{Icons.moreHorizontal}</button>
               </Fragment>
               : <Fragment>
-                  <button onclick={this.showLess}>{Icons.moreHorizontal}</button>
-                  <button onclick={this.setModeRecordVideo}>{Icons.video}</button>
-                  <button onclick={this.setModeRecordAudio}>{Icons.mic}</button>
+                  <button title="more options" onclick={this.showLess}>{Icons.moreHorizontal}</button>
+                  <button title="record video message" onclick={this.setModeRecordVideo}>{Icons.video}</button>
+                  <button title="record audio message" onclick={this.setModeRecordAudio}>{Icons.mic}</button>
               </Fragment>
             }
           </Fragment>
@@ -364,10 +364,10 @@ class RecordMediaInput extends Component {
 
   recordingIcon = _ => {
     switch (this.state.recording) {
-      case "started" : return <div data-recording-state={this.state.recording} id={this.captionId}>{Icons.pause}</div>
+      case "started" : return <div title="stop recording" data-recording-state={this.state.recording} id={this.captionId}>{Icons.pause}</div>
       case "countdown" : return <div data-recording-state={this.state.recording} id={this.captionId}>{this.state.countdown}</div>
       case "done" : return null
-      case undefined : return <div data-recording-state={this.state.recording} id={this.captionId}>{this.icon}</div>
+      case undefined : return <div title="start recording" data-recording-state={this.state.recording} id={this.captionId}>{this.icon}</div>
     }
   }
 
