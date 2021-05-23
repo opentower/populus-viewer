@@ -14,7 +14,7 @@
 #sidepanel {
     display:flex;
     position:fixed;
-    right: calc((var(--sidePanelVisible) - 1) * (var(--sidepanelWidth) + (2 * var(--sidepanelPadding))));
+    right: calc((var(--sidePanelVisible) - 1) * (var(--sidepanelWidth) + (2 * var(--sidepanelPadding) + 10px)));
     top:0px;
     bottom:0px;
     padding: var(--sidepanelPadding);

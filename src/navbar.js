@@ -112,6 +112,7 @@ export default class Navbar extends Component {
             typing={state.typing}
             current={props.page} />
         </div>
+        <div id="nav-background" />
         <div id="nav-button-wrapper">
           <button title="go to main menu" onclick={this.mainMenu}>{Icons.home}</button>
           <button title="add annotation" disabled={props.selected ? null : "disabled"} onclick={props.addann}>{Icons.addAnnotation}</button>

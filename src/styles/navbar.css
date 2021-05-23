@@ -7,6 +7,13 @@
     transition: height 0.5s ease;
 }
 
+#nav-background{
+    background: black;
+    position:absolute;
+    width:100%;
+    top:0px;
+    bottom:0px;
+}
 
 #nav-pages {
     display:flex;
@@ -53,9 +60,7 @@
 }
 
 #nav-button-wrapper {
-    background: black;
     position:relative;
-    height:75px;
     display: flex;
     align-items: center;
     justify-content:center;
