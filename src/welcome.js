@@ -291,6 +291,8 @@ class AnnotationRoomEntry extends Component {
     super(props)
     this.state = {unreadCount: calculateUnread(this.props.annotationContent.roomId)}
     this.handleTimeline = this.handleTimeline.bind(this)
+    this.creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
+    this.userColor = new UserColor(this.creator.userId)
   }
 
   handleClick = () => {
@@ -309,8 +311,6 @@ class AnnotationRoomEntry extends Component {
     Client.client.off("Room.timeline", this.handleTimeline)
   }
 
-  creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
-
   handleTimeline (event) {
     if (this.props.annotationContent.roomId === event.getRoomId()) {
       this.setState({unreadCount: calculateUnread(this.props.annotationContent.roomId)})
@@ -318,12 +318,11 @@ class AnnotationRoomEntry extends Component {
   }
 
   render (props, state) {
-    return <div class="annotationRoomEntry">
+    return <div style={this.userColor.styleVariables} class="annotationRoomEntry">
       <div>…&nbsp;<a onClick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</div>
       <div class="annotationRoomEntry-data">
-        <div class="annotationRoom-creator"><MemberPill member={this.creator} /></div>
         <div class="annotationRoom-page">p: {props.annotationContent.pageNumber}</div>
-        <div class="annotationRoom-unread">{state.unreadCount}</div>
+        <div class="annotationRoom-unread">{Icons.bell}&nbsp;{state.unreadCount}</div>
       </div>
     </div>
   }
