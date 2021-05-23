@@ -190,13 +190,13 @@ class RoomList extends Component {
           <span id="select-sort-icon" />
           <button data-current-button={state.sort === "Activity"}
                   onClick={this.sortByActivity}
-                  className="styled-button">Activity</button>
+                  class="styled-button">Activity</button>
           <button data-current-button={state.sort === "Name"}
                   onClick={this.sortByName}
-                  className="styled-button">Name</button>
+                  class="styled-button">Name</button>
           <button data-current-button={state.sort === "Favorite"}
                   onClick={this.sortByFavorite}
-                  className="styled-button">Favorite</button>
+                  class="styled-button">Favorite</button>
         </div>
         <div>{rooms}</div>
       </Fragment>
@@ -250,12 +250,12 @@ class PDFRoomEntry extends Component {
                                              annotationContent={content[eventVersion]}
                                              parentRoom={props.room} />)
       return (
-        <div data-room-status={status} className="roomListingEntry" id={props.room.roomId}>
-          <div className="room-listing-heading">
-            {props.room.tags["m.favourite"] ? <span className="fav-star"> {Icons.star} </span> : null}
+        <div data-room-entry-buttons-visible={state.buttonsVisible} data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
+          <div class="room-listing-heading">
+            {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
             <a onClick={this.handleLoad}>{props.room.name}</a>
           </div>
-          <div className="roomListingData">
+          <div class="roomListingData">
             <span>Members: </span><div>{memberPills}</div>
             <span>Last Active:</span><div>{date.toLocaleString('en-US', {
               weekday: "short",
@@ -269,14 +269,13 @@ class PDFRoomEntry extends Component {
           {annotations.length > 0
             ? <div><details>
               <summary open={state.detailsOpen} ontoggle={this.handleDetailsToggle}>{annotations.length} annotations</summary>
-              <table className="annotationRoomTable">
-                <thead> <tr><td>Text</td><td>Page</td><td>Creator</td><td>Unread</td></tr></thead>
-                <tbody>{annotations}</tbody>
-              </table>
+              <div class="annotationRooms">
+                {annotations}
+              </div>
             </details></div>
             : null
           }
-          <div data-room-entry-buttons-visible={state.buttonsVisible} className="roomListingEntryButtons">
+          <div  class="roomListingEntryButtons">
             { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
             { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
             { state.buttonsVisible ? <button title="Toggle Favorite" onClick={this.toggleFavorite}>{Icons.star}</button> : null }
@@ -319,11 +318,13 @@ class AnnotationRoomEntry extends Component {
   }
 
   render (props, state) {
-    return <tr className="annotationRoomEntry">
-      <td>…&nbsp;<a onClick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</td>
-      <td>{props.annotationContent.pageNumber}</td>
-      <td><MemberPill member={this.creator} /></td>
-      <td>{state.unreadCount}</td>
-    </tr>
+    return <div class="annotationRoomEntry">
+      <div>…&nbsp;<a onClick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</div>
+      <div class="annotationRoomEntry-data">
+        <div class="annotationRoom-creator"><MemberPill member={this.creator} /></div>
+        <div class="annotationRoom-page">p: {props.annotationContent.pageNumber}</div>
+        <div class="annotationRoom-unread">{state.unreadCount}</div>
+      </div>
+    </div>
   }
 }
