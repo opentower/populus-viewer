@@ -62,6 +62,7 @@
 #nav-button-wrapper {
     position:relative;
     display: flex;
+    height:75px;
     align-items: center;
     justify-content:center;
     max-width: var(--contentWidth);
@@ -78,6 +79,10 @@
 
     #page-nav {
       height:calc(0.8 * var(--navHeight));
+    }
+
+    #nav-pages {
+      bottom: calc(0.8 * var(--navHeight));
     }
 
     #nav-button-wrapper {
