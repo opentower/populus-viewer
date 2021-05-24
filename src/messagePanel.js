@@ -320,6 +320,8 @@ class RecordMediaInput extends Component {
 
   async initStream () {
     try {
+      let initialized
+      this.initialization = new Promise(resolve => { initialized = resolve })
       this.stream = await navigator.mediaDevices.getUserMedia(this.constraints)
       this.mediaPreview.current.srcObject = this.stream
       this.mediaRecorder = new MediaRecorder(this.stream, this.recorderOptions )
@@ -330,16 +332,19 @@ class RecordMediaInput extends Component {
         this.mediaPreview.current.setAttribute("controls", "")
         this.mediaPreview.current.src = URL.createObjectURL(ev.data)
       }
+      initialized()
     } catch (err) {
       alert(err)
     }
   }
 
-  teardownStream () {
+  async teardownStream () {
+    await this.initialization
     this.stream.getTracks().forEach(track => track.stop())
   }
 
-  countdownToRecord = _ => {
+  countdownToRecord = async _ => {
+    await this.initialization
     if (!this.state.countdown) this.setState({countdown: 3, recording: "countdown"})
     setTimeout(_ => {
       const newCount = this.state.countdown - 1

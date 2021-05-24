@@ -5,7 +5,6 @@ export default class AudioVisualizer extends Component {
     super(props)
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)()
     this.analyser = audioCtx.createAnalyser()
-    console.log(props.stream)
     const source = audioCtx.createMediaStreamSource(props.stream)
     source.connect(this.analyser)
     this.analyser.fftSize = 2048

@@ -256,8 +256,6 @@ class ReplyPreview extends Component {
       const theRoom = Client.client.getRoom(roomId)
       if (!theRoom) return // room state not ready
       const inReplyTo = theRoom.findEventById(inReplyToId)
-      console.log("in reply to")
-      console.log(inReplyTo)
       if (inReplyTo) this.setState({ liveEvent: inReplyTo })
       // the below uses the event-context route, which isn't implemented yet in Dendrite:
       //
