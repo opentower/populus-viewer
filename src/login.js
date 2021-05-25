@@ -17,7 +17,7 @@ export default class LoginView extends Component {
 
   render(props, state) {
     if (state.registering) {
-      return <div><RegistrationModal switchView={this.switchView} /></div>
+      return <div><RegistrationModal loginHandler={props.loginHandler} switchView={this.switchView} /></div>
     }
     return <div><LoginModal loginHandler={props.loginHandler} switchView={this.switchView} /></div>
   }
@@ -31,8 +31,8 @@ class LoginModal extends Component {
       const entries = Array.from(formdata.entries()).map(i => i[1])
       Client.client
         .loginWithPassword(entries[0].toLowerCase(), entries[1])
-        .then(_ => this.props.loginHandler())
-        .catch(e => window.alert(e))
+        .then(this.props.loginHandler)
+        .catch(window.alert)
     }
 
     render(props, _) {
@@ -54,7 +54,7 @@ class LoginModal extends Component {
 class RegistrationModal extends Component {
   constructor (props) {
     super(props)
-    this.loginHandler = props.loginHandler
+    this.recaptchaHandler = this.recaptchaHandler.bind(this)
     window.addEventListener('recaptcha', this.recaptchaHandler) // TODO: remove on unload of this component
   }
 
@@ -77,8 +77,8 @@ class RegistrationModal extends Component {
       type: "m.login.recaptcha",
       response: e.detail
     }).then(_ => Client.client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
-      .then(_ => this.loginHandler())
-      .catch(e => window.alert(e))
+      .then(this.loginHandler)
+      .catch(window.alert)
   }
 
   render(props, _) {
