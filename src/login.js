@@ -77,7 +77,7 @@ class RegistrationModal extends Component {
       type: "m.login.recaptcha",
       response: e.detail
     }).then(_ => Client.client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
-      .then(this.loginHandler)
+      .then(this.props.loginHandler)
       .catch(window.alert)
   }
 
