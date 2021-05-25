@@ -65,6 +65,12 @@ export default class WelcomeView extends Component {
     this.setState({searchFilter: e.target.value})
   }
 
+  displayInitial = _ => {
+    return this.user.displayName.slice(0, 1) === '@'
+      ? this.user.displayName.slice(1, 2)
+      : this.user.displayName.slice(0, 1)
+  }
+
   render(props, state) {
     return (
       <Fragment>
@@ -79,7 +85,7 @@ export default class WelcomeView extends Component {
               <div id="welcome-profile" onClick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
                 {state.avatarUrl
                   ? <img id="welcome-img" src={state.avatarUrl} />
-                  : <div id="welcome-initial">{this.user.displayName.slice(0, 1)}</div>
+                  : <div id="welcome-initial">{this.displayInitial()}</div>
                 }
               </div>
             </Fragment>}
