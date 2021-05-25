@@ -290,6 +290,7 @@ export default class PdfView extends Component {
               <AnnotationListing
                 roomId={state.roomId}
                 class="panel-widget-2"
+                focus={state.focus}
                 handleWidgetScroll={this.handleWidgetScroll}
                 focusByRoomId={this.focusByRoomId}
                 pushHistory={props.pushHistory}
@@ -298,6 +299,7 @@ export default class PdfView extends Component {
             : <AnnotationListing
               roomId={state.roomId}
               class="panel-widget-1"
+              focus={state.focus}
               handleWidgetScroll={this.handleWidgetScroll}
               focusByRoomId={this.focusByRoomId}
               pushHistory={props.pushHistory}

@@ -29,45 +29,77 @@ export default class AnnotationListing extends Component {
     Client.client.off("RoomMember.typing", this.handleTypingNotification)
   }
 
-    handleTypingNotification = (event, member) => {
-      const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-      const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
-      // We use nested state here because we want to pass this part of the state to a child
-      if (theChildRelation) {
-        this.setState(prevState => {
-          const myId = Client.client.getUserId()
-          const typingOtherThanMe = event.getContent().user_ids.filter(x => x !== myId)
-          return {typing: { ...prevState.typing, [member.roomId]: typingOtherThanMe}}
-        })
+  handleTypingNotification = (event, member) => {
+    const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
+    // We use nested state here because we want to pass this part of the state to a child
+    if (theChildRelation) {
+      this.setState(prevState => {
+        const myId = Client.client.getUserId()
+        const typingOtherThanMe = event.getContent().user_ids.filter(x => x !== myId)
+        return {typing: { ...prevState.typing, [member.roomId]: typingOtherThanMe}}
+      })
+    }
+  }
+
+  handleStateUpdate = _ => {
+    if (this.props.room) {
+      const annotationContents = this.props.room.getLiveTimeline()
+        .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
+        .map(ev => ev.getContent())
+        .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
+      this.setState({ annotationContents})
+    } else setTimeout(this.handleStateUpdate, 500) // keep polling until the room is available
+  }
+
+  focusInArray (array) { 
+    let reachedFocus = !this.props.focus
+    for (const annot of array) {
+      const theId = annot[eventVersion].roomId
+      if (reachedFocus) {
+        const unread = calculateUnread(theId)
+        if (unread > 0) {
+          this.props.focusByRoomId(theId)
+          break
+        }
+      } else {
+        reachedFocus = this.props.focus.roomId === theId
       }
     }
+  }
 
-    handleStateUpdate = _ => {
-      if (this.props.room) {
-        const annotationContents = this.props.room.getLiveTimeline()
-          .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
-          .map(ev => ev.getContent())
-          .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
-        this.setState({ annotationContents})
-      } else setTimeout(this.handleStateUpdate, 500) // keep polling until the room is available
-    }
+  nextUnread = _ => {
+    console.log("click")
+    this.focusInArray(this.state.annotationContents)
+  }
 
-    render (props, state) {
-      const annotationEntries = state.annotationContents.map(content => <AnnotationListingEntry
-                                                                key={content[eventVersion].roomId}
-                                                                typing={state.typing[content[eventVersion].roomId]}
-                                                                annotationContent={content[eventVersion]}
-                                                                focusByRoomId={props.focusByRoomId}
-                                                                pushHistory={props.pushHistory}
-                                                                parentRoom={props.room}
-                                                                />)
-      return <div id="annotation-panel" class={props.class} >
-                    {state.annotationContents.length > 0
-                      ? annotationEntries
-                      : <div class="empty-marker"><b>No annotations yet available </b></div>
-                    }
+  prevUnread = _ => {
+    console.log("click")
+    const clone = [... this.state.annotationContents]
+    this.focusInArray(clone.reverse())
+  }
+
+  render (props, state) {
+    const annotationEntries = state.annotationContents.map(content => <AnnotationListingEntry
+                                                              key={content[eventVersion].roomId}
+                                                              typing={state.typing[content[eventVersion].roomId]}
+                                                              annotationContent={content[eventVersion]}
+                                                              focusByRoomId={props.focusByRoomId}
+                                                              focus={props.focus}
+                                                              pushHistory={props.pushHistory}
+                                                              parentRoom={props.room}
+                                                              />)
+    return <div id="annotation-panel" class={props.class} >
+                  {state.annotationContents.length > 0
+                    ? annotationEntries
+                    : <div class="empty-marker"><b>No annotations yet available </b></div>
+                  }
+              <div id="annotation-panel-button-wrapper">
+                <button onclick={this.prevUnread} class="styled-button">Prev Unread</button>
+                <button onclick={this.nextUnread} class="styled-button">Next Unread</button>
               </div>
-    }
+            </div>
+  }
 }
 
 // XXX: could DRY by making a superclass from this and AnnotationRoomEntry
@@ -80,10 +112,12 @@ class AnnotationListingEntry extends Component {
 
   componentDidMount () {
     Client.client.on("Room.timeline", this.handleTimeline)
+    Client.client.on("Room.accountData", this.handleTimeline)
   }
 
   componentWillUnmount () {
     Client.client.off("Room.timeline", this.handleTimeline)
+    Client.client.on("Room.accountData", this.handleTimeline)
   }
 
   handleClick = () => {
@@ -94,8 +128,8 @@ class AnnotationListingEntry extends Component {
     })
   }
 
-  handleTimeline (event) {
-    if (this.props.annotationContent.roomId === event.getRoomId()) {
+  handleTimeline (event, room) {
+    if (this.props.annotationContent.roomId === room.roomId) {
       this.setState({unreadCount: calculateUnread(this.props.annotationContent.roomId)})
     }
   }
@@ -106,11 +140,16 @@ class AnnotationListingEntry extends Component {
 
   render(props, state) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
-    return <div style={this.userColor.styleVariables} data-annotation-entry-typing={typing} onclick={this.handleClick} class="annotation-listing-entry">
-        <div class="annotation-listing-text">{props.annotationContent.selectedText}</div>
-        <div class="annotation-listing-page">page: {props.annotationContent.pageNumber}</div>
-        <div class="annotation-listing-page">unread: {state.unreadCount}</div>
-        <div class="annotation-listing-creator">creator: <MemberPill member={this.creator} /></div>
+    const focused = props.focus ? props.focus.roomId === this.props.annotationContent.roomId : false
+    return <div style={this.userColor.styleVariables}
+      data-annotation-entry-typing={typing}
+      data-annotation-entry-focused={focused}
+      onclick={this.handleClick}
+      class="annotation-listing-entry">
+      <div class="annotation-listing-text">{props.annotationContent.selectedText}</div>
+      <div class="annotation-listing-page">page: {props.annotationContent.pageNumber}</div>
+      <div class="annotation-listing-page">unread: {state.unreadCount}</div>
+      <div class="annotation-listing-creator">creator: <MemberPill member={this.creator} /></div>
     </div>
   }
 }

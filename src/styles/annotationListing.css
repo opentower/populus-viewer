@@ -1,4 +1,5 @@
 #annotation-panel {
+    position:relative;
     flex-direction: column;
 }
 
@@ -16,7 +17,6 @@
     transition: background-color 0.5s ease;
 }
 
-
 #annotation-panel .annotation-listing-entry[data-annotation-entry-typing] {
     animation: pulse-color 2s infinite; 
     animation-timing-function:ease;
@@ -25,6 +25,10 @@
 #annotation-panel .annotation-listing-entry:hover {
     background: var(--user_ultralight);
     transition: background-color 0.5s ease;
+}
+
+#annotation-panel .annotation-listing-entry[data-annotation-entry-focused] {
+    background: var(--user_ultralight);
 }
 
 .annotation-listing-text {
@@ -42,4 +46,30 @@
     font-size:10pt;
     color:#565656;
     padding-right:10px;
+}
+
+#annotation-panel-button-wrapper {
+  position:absolute;
+  display:grid;
+  column-gap: 0px;
+  grid-template-columns: 1fr 1fr;
+  bottom:0px;
+  width:100%;
+}
+
+#annotation-panel-button-wrapper > button {
+    height:40px;
+    font-size:14pt;
+    border-left:none;
+    transition: background-color 0.5s ease;
+}
+
+#annotation-panel-button-wrapper > button:hover {
+    background-color:#ededed;
+    transition: background-color 0.5s ease;
+}
+
+
+#annotation-panel-button-wrapper > button:first-child {
+    border:2px solid black;
 }
