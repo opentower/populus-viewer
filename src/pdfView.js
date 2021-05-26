@@ -382,7 +382,7 @@ class PdfCanvas extends Component {
     const theId = await Client.client.getRoomIdForAlias(`#${title.replace(/[\s:]/g, '_')}:${domainName}`)
     await Client.client.joinRoom(theId.room_id)
     this.props.setId(theId.room_id)
-    const theRoom = Client.client.getRoom(theId.room_id)
+    const theRoom = await Client.client.getRoomWithState(theId.room_id)
     const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf", "").getContent().identifier
     const pdfPath = `${serverRoot}/_matrix/media/r0/download/${domainName}/${pdfIdentifier}`

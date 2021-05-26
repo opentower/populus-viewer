@@ -1,6 +1,15 @@
 import { serverRoot } from './constants.js'
 import * as Matrix from 'matrix-js-sdk'
 
+function getRoomWithState(roomId) {
+  const checkForState = resolve => _ => {
+    const room = this.getRoom(roomId)
+    if (room) resolve(room)
+    else setTimeout(checkForState(resolve), 500)
+  }
+  return new Promise(resolve => checkForState(resolve)())
+}
+
 export default class Client {
   static async initClient () {
     let indexedDB
@@ -25,6 +34,7 @@ export default class Client {
     } else {
       Client.client = Matrix.createClient(clientOpts)
     }
+    Client.client.getRoomWithState = getRoomWithState.bind(Client.client)
     return true
   }
 

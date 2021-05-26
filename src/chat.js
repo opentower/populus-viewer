@@ -71,23 +71,21 @@ export default class Chat extends Component {
 
   tryLoad = (room) => {
     const anchor = document.getElementById("scroll-anchor")
-    const newroom = Client.client.getRoom(room.roomId) // we refresh the room to ensure that some state is loaded
-    if (!newroom) setTimeout(_ => this.tryLoad(room), 100) // if not, we try again momentarily
-    else if (anchor && this.chatWrapper.current.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
-      room = newroom // the initial empty room needs to be replaced by the room that has some loaded state
+    if (anchor && this.chatWrapper.current.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
       const prevState = room.getLiveTimeline().getState(Matrix.EventTimeline.BACKWARDS)
       if (!prevState.paginationToken && Client.client.getRoom(room.roomId)) {
         this.scrolledIdents.add(room.roomId)
         this.setState({ fullyScrolled: true })
       } else {
         Client.client.scrollback(room)
-        setTimeout(_ => this.tryLoad(newroom), 100)
+        setTimeout(_ => this.tryLoad(room), 100)
       }
     }
   }
 
   tryLoadRoom = async () => {
-    const room = await Client.client.joinRoom(this.props.focus.roomId)
+    await Client.client.joinRoom(this.props.focus.roomId)
+    const room = await Client.client.getRoomWithState(this.props.focus.roomId)
     this.tryLoad(room)
   }
 
@@ -116,7 +114,8 @@ export default class Chat extends Component {
   }
 
   async resetFocus () {
-    const room = await Client.client.joinRoom(this.props.focus.roomId)
+    await Client.client.joinRoom(this.props.focus.roomId)
+    const room = await Client.client.getRoomWithState(this.props.focus.roomId)
     this.setState({
       fullyScrolled: this.scrolledIdents.has(this.props.focus.roomId),
       events: room.getLiveTimeline().getEvents()
