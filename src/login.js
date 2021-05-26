@@ -43,7 +43,9 @@ class LoginModal extends Component {
             <UserData />
             <div>
               <button className="styled-button" onClick={this.handleSubmit} >Login</button>
-              <button className="styled-button" onClick={props.switchView} >Register</button>
+            </div>
+            <div>
+              <span>Don't have a username? </span><button className="styled-button" onClick={props.switchView} >Register an Account</button>
             </div>
           </form>
         </div>
@@ -73,6 +75,7 @@ class RegistrationModal extends Component {
       this.props.switchView()
       return;
     }
+    this.setState({ registering: true })
     Client.client.register(entries[0].toLowerCase(), entries[1], undefined, {
       type: "m.login.recaptcha",
       response: e.detail
@@ -81,22 +84,25 @@ class RegistrationModal extends Component {
       .catch(window.alert)
   }
 
-  render(props, _) {
-    return (
-      <div id="registrationModal">
-        <h3>Register on Populus</h3>
-        <form id="registerForm">
-          <UserData />
-          <div id="theRecaptcha">
-            Complete this Recaptcha to register
-            <div className="g-recaptcha"
-              data-sitekey="6Lf43YEaAAAAAAeDHR1ozhTXVqq--Wthr_MQlYam"
-              data-callback="recaptchaHandler" /></div>
-          <div>OR, <button className="styled-button" onClick={props.switchView} >Login With Existing Account</button></div>
-          <script src="https://www.google.com/recaptcha/api.js" async defer />
-        </form>
+  render(props, state) {
+    if (state.registering) {
+      return <div id="registrationModal">
+        <div id="registeringFeedback">Registering Account...</div>
       </div>
-    )
+    }
+    return <div id="registrationModal">
+      <h3>Register on Populus</h3>
+      <form id="registerForm">
+        <UserData />
+        <div id="theRecaptcha">
+          Complete this Recaptcha to register
+          <div className="g-recaptcha"
+            data-sitekey="6Lf43YEaAAAAAAeDHR1ozhTXVqq--Wthr_MQlYam"
+            data-callback="recaptchaHandler" /></div>
+        <div>OR, <button className="styled-button" onClick={props.switchView} >Login With Existing Account</button></div>
+        <script src="https://www.google.com/recaptcha/api.js" async defer />
+      </form>
+    </div>
   }
 }
 
