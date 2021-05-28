@@ -18,3 +18,8 @@
     pointer-events:auto;
     transform-origin: 0% 0%;
 }
+
+#text-layer span::selection {
+    color:transparent;
+    background:blue;
+}
