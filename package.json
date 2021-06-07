@@ -37,7 +37,7 @@
     "buffer": "^6.0.3",
     "commonmark": "^0.29.3",
     "katex": "^0.13.2",
-    "matrix-js-sdk": "^9.7.0",
+    "matrix-js-sdk": "^11.2.0",
     "pdfjs-dist": "^2.6.347",
     "png-chunks-extract": "^1.0.0",
     "preact": "^10.5.12",
