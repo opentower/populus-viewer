@@ -1,6 +1,6 @@
 import { h, createRef, Component } from 'preact';
 import './styles/pdfUpload.css'
-import { pdfStateType, roomType, spaceType, spaceChild } from "./constants.js"
+import { pdfStateType, spaceType, spaceChild } from "./constants.js"
 import Client from './client.js'
 
 export default class PdfUpload extends Component {

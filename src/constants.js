@@ -3,10 +3,10 @@ export const pdfStateType = "org.populus.pdf" // increment to start over with a 
 export const lastViewed = "org.populus.pdf.lastPageViewed"
 export const domainName = "populus.open-tower.com"
 export const serverRoot = `https://${domainName}`
-export const spaceChild = "org.matrix.msc1772.space.child"
-export const spaceParent = "org.matrix.msc1772.space.parent"
-export const roomType = "org.matrix.msc1772.type"
-export const spaceType = "org.matrix.msc1772.space"
+export const spaceChild = "m.space.child"
+export const spaceParent = "m.space.parent"
+export const roomType = "type"
+export const spaceType = "m.space"
 
 // based on https://github.com/matrix-org/matrix-react-sdk/blob/78b1f6c0b13efd57031a329a1ac62baba948dad3/src/HtmlUtils.tsx
 const COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;
