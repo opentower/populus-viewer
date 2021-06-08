@@ -35,7 +35,7 @@ export default class Client {
       Client.client = Matrix.createClient(clientOpts)
     }
     Client.client.getRoomWithState = getRoomWithState.bind(Client.client)
-    return true
+    return Client.client
   }
 
   static restart () {

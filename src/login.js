@@ -24,33 +24,31 @@ export default class LoginView extends Component {
 }
 
 class LoginModal extends Component {
-    handleSubmit = (e) => {
-      e.preventDefault()
-      const loginForm = document.getElementById("loginForm")
-      const formdata = new FormData(loginForm)
-      const entries = Array.from(formdata.entries()).map(i => i[1])
-      Client.client
-        .loginWithPassword(entries[0].toLowerCase(), entries[1])
-        .then(this.props.loginHandler)
-        .catch(window.alert)
-    }
+  handleSubmit = (e) => {
+    e.preventDefault()
+    const loginForm = document.getElementById("loginForm")
+    const formdata = new FormData(loginForm)
+    const entries = Array.from(formdata.entries()).map(i => i[1])
+    Client.initClient()
+      .then(client => client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
+      .then(this.props.loginHandler)
+      .catch(window.alert)
+  }
 
-    render(props, _) {
-      return (
-        <div id="loginModal">
-          <h3>Login To Populus</h3>
-          <form id="loginForm">
-            <UserData />
-            <div>
-              <button className="styled-button" onClick={this.handleSubmit} >Login</button>
-            </div>
-            <div>
-              <span>Don't have a username? </span><button className="styled-button" onClick={props.switchView} >Register an Account</button>
-            </div>
-          </form>
+  render(props) {
+    return <div id="loginModal">
+      <h3>Login To Populus</h3>
+      <form id="loginForm">
+        <UserData />
+        <div>
+          <button className="styled-button" onClick={this.handleSubmit} >Login</button>
         </div>
-      )
-    }
+        <div>
+          <span>Don't have a username? </span><button className="styled-button" onClick={props.switchView} >Register an Account</button>
+        </div>
+      </form>
+    </div>
+  }
 }
 
 class RegistrationModal extends Component {
@@ -76,10 +74,13 @@ class RegistrationModal extends Component {
       return;
     }
     this.setState({ registering: true })
-    Client.client.register(entries[0].toLowerCase(), entries[1], undefined, {
-      type: "m.login.recaptcha",
-      response: e.detail
-    }).then(_ => Client.client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
+    Client.initClient().then(client => {
+      client.register(entries[0].toLowerCase(), entries[1], undefined, {
+        type: "m.login.recaptcha",
+        response: e.detail
+      })
+      return client
+    }).then(client => client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
       .then(this.props.loginHandler)
       .catch(window.alert)
   }

@@ -14,11 +14,8 @@ class PopulusViewer extends Component {
     this.state = {
       initializationStage: "connecting to database"
     }
-    Client.initClient().then(_ => {
-      Client.client.on("Session.logged_out", this.logoutHandler)
-      if (Client.client.getUserId()) this.loginHandler()
-      else this.setState({ loggedIn: false })
-    })
+    if (localStorage.getItem('accessToken')) Client.initClient().then(this.loginHandler)
+    else this.setState({ loggedIn: false })
     // handle navigation events - should probably be in onmount
     window.addEventListener('popstate', e => {
       this.setState({
@@ -38,6 +35,7 @@ class PopulusViewer extends Component {
   }
 
   loginHandler = _ => {
+    Client.client.on("Session.logged_out", this.logoutHandler)
     localStorage.setItem('accessToken', Client.client.getAccessToken())
     localStorage.setItem('userId', Client.client.getUserId())
     Client.client.startClient().then(_ => {
