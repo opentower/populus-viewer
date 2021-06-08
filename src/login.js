@@ -34,7 +34,7 @@ class LoginModal extends Component {
     Client.initClient()
       .then(client => client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
       .then(this.props.loginHandler)
-      .catch(window.alert) //Should logout here too
+      .catch(window.alert)
   }
 
   render(props) {
