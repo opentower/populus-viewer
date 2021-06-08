@@ -29,10 +29,12 @@ class LoginModal extends Component {
     const loginForm = document.getElementById("loginForm")
     const formdata = new FormData(loginForm)
     const entries = Array.from(formdata.entries()).map(i => i[1])
+    if (entries[2]) localStorage.setItem("baseUrl", `https://${entries[2]}`)
+    else localStorage.setItem("baseUrl", "https://populus.open-tower.com")
     Client.initClient()
       .then(client => client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
       .then(this.props.loginHandler)
-      .catch(window.alert)
+      .catch(window.alert) //Should logout here too
   }
 
   render(props) {
@@ -40,6 +42,8 @@ class LoginModal extends Component {
       <h3>Login To Populus</h3>
       <form id="loginForm">
         <UserData />
+        <label htmlFor="servername">Server</label>
+        <input type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
         <div>
           <button className="styled-button" onClick={this.handleSubmit} >Login</button>
         </div>
@@ -74,6 +78,7 @@ class RegistrationModal extends Component {
       return;
     }
     this.setState({ registering: true })
+    localStorage.setItem("baseUrl", "https://populus.open-tower.com")
     Client.initClient().then(client => {
       client.register(entries[0].toLowerCase(), entries[1], undefined, {
         type: "m.login.recaptcha",

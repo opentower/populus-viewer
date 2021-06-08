@@ -1,7 +1,5 @@
 import { h, createRef, Component } from 'preact';
-import * as Matrix from "matrix-js-sdk"
 import './styles/profileInformation.css'
-import { serverRoot } from "./constants.js"
 import Client from './client.js'
 
 export default class ProfileInfomation extends Component {
@@ -9,7 +7,7 @@ export default class ProfileInfomation extends Component {
     super(props)
     const me = Client.client.getUser(Client.client.getUserId())
     this.state = {
-      previewUrl: Matrix.getHttpUriForMxc(serverRoot, me.avatarUrl, 180, 180, "crop"),
+      previewUrl: Client.client.getHttpUriForMxcFromHS(me.avatarUrl, 180, 180, "crop"),
       displayName: me.displayName
     }
   }

@@ -1,5 +1,5 @@
 import { h, Fragment, Component } from 'preact';
-import { pdfStateType, eventVersion, serverRoot, spaceChild, lastViewed } from "./constants.js"
+import { pdfStateType, eventVersion, spaceChild, lastViewed } from "./constants.js"
 import * as Matrix from "matrix-js-sdk"
 import UserColor from './userColors.js'
 import PdfUpload from './pdfUpload.js'
@@ -24,7 +24,7 @@ export default class WelcomeView extends Component {
       profileVisible: false,
       inputFocus: false,
       searchFilter: "",
-      avatarUrl: Matrix.getHttpUriForMxc(serverRoot, this.user.avatarUrl, 30, 30, "crop")
+      avatarUrl: Client.client.getHttpUriForMxcFromHS(this.user.avatarUrl, 30, 30, "crop")
     }
   }
 
@@ -34,7 +34,7 @@ export default class WelcomeView extends Component {
 
   profileListener () {
     this.setState({
-      avatarUrl: Matrix.getHttpUriForMxc(serverRoot, this.user.avatarUrl, 30, 30, "crop")
+      avatarUrl: Client.client.getHttpUriForMxcFromHS(this.user.avatarUrl, 30, 30, "crop")
     })
   }
 

@@ -2,15 +2,16 @@ import { h, Component } from 'preact';
 import './styles/splash.css'
 import QueryParameters from './queryParams.js'
 import Client from './client.js'
-import { domainName, lastViewed } from './constants.js'
+import { lastViewed } from './constants.js'
 
 export default class SplashView extends Component {
   pollInitialized = async () => {
     if (Client.client && Client.client.isInitialSyncComplete()) {
+      const theDomain = Client.client.getDomain()
       const maybeTitle = QueryParameters.get("title") || null
       let maybePage = Number(QueryParameters.get("page")) || null
       if (maybeTitle && !maybePage) {
-        const theId = await Client.client.getRoomIdForAlias(`#${maybeTitle}:${domainName}`)
+        const theId = await Client.client.getRoomIdForAlias(`#${maybeTitle}:${theDomain}`)
         const theRoom = Client.client.getRoom(theId.room_id)
         maybePage = theRoom.getAccountData(lastViewed).getContent().page || 1
       }

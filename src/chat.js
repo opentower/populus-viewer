@@ -5,7 +5,6 @@ import { TextMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } fr
 import MessagePanel from './messagePanel.js'
 import UserColor from './userColors.js'
 import Client from './client.js'
-import { serverRoot } from "./constants.js"
 
 export default class Chat extends Component {
   constructor (props) {
@@ -236,7 +235,7 @@ class UserInfoMessage extends Component {
 
     avatarUrl = Client.client.getUser(this.props.username).avatarUrl
 
-    avatarHttpURI = Matrix.getHttpUriForMxc(serverRoot, this.avatarUrl, 20, 20, "crop")
+    avatarHttpURI = Client.client.getHttpUriForMxcFromHS(this.avatarUrl, 20, 20, "crop")
 
     userColor = new UserColor(this.props.username)
 

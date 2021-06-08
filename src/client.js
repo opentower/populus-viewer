@@ -10,12 +10,16 @@ function getRoomWithState(roomId) {
   return new Promise(resolve => checkForState(resolve)())
 }
 
+function getHttpUriForMxcFromHS(...theArgs) {
+  return Matrix.getHttpUriForMxc(`https://${this.getDomain()}`, ...theArgs)
+}
+
 export default class Client {
   static async initClient () {
     let indexedDB
     try { indexedDB = window.indexedDB; } catch (e) {}
     const clientOpts = {
-      baseUrl: serverRoot,
+      baseUrl: localStorage.getItem('baseUrl'),
       userId: localStorage.getItem('userId'),
       accessToken: localStorage.getItem('accessToken'),
       timelineSupport: true,
@@ -35,6 +39,7 @@ export default class Client {
       Client.client = Matrix.createClient(clientOpts)
     }
     Client.client.getRoomWithState = getRoomWithState.bind(Client.client)
+    Client.client.getHttpUriForMxcFromHS = getHttpUriForMxcFromHS.bind(Client.client)
     return Client.client
   }
 

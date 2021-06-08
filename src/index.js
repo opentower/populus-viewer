@@ -6,7 +6,7 @@ import SplashView from './splash.js'
 import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import './styles/global.css'
-import { domainName, lastViewed } from './constants.js'
+import { lastViewed } from './constants.js'
 
 class PopulusViewer extends Component {
   constructor () {
@@ -47,8 +47,9 @@ class PopulusViewer extends Component {
   }
 
   setLastPage = async _ => {
+    const theDomain = Client.client.getDomain()
     if (!this.state.pdfFocused || !this.state.pageFocused) return
-    const theId = await Client.client.getRoomIdForAlias(`#${this.state.pdfFocused.replace(/[\s:]/g, '_')}:${domainName}`)
+    const theId = await Client.client.getRoomIdForAlias(`#${this.state.pdfFocused.replace(/[\s:]/g, '_')}:${theDomain}`)
     await Client.client.setRoomAccountData(theId.room_id, lastViewed, { page: this.state.pageFocused })
   }
 

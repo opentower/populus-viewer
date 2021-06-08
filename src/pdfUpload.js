@@ -45,10 +45,7 @@ export default class PdfUpload extends Component {
         }
       }).catch(e => { alert(e); })
       Client.client.uploadContent(theFile, { progressHandler: this.progressHandler }).then(e => {
-        const parts = e.split('/')
-        Client.client.sendStateEvent(id.room_id, pdfStateType, {
-          identifier: parts[parts.length - 1]
-        })
+        Client.client.sendStateEvent(id.room_id, pdfStateType, { mxc: e })
         // XXX: this event doesn't get through before the name is
         // assigned, so the room isn't detected as a pdf room. Probably
         // need to include the pdf in the room's creation event to make

@@ -5,7 +5,7 @@ import * as CommonMark from 'commonmark'
 import { addLatex } from './latex.js'
 import katex from 'katex'
 import UserColor from './userColors.js'
-import { sanitizeHtmlParams, serverRoot } from './constants.js'
+import { sanitizeHtmlParams } from './constants.js'
 import Client from './client.js'
 import * as Icons from './icons.js'
 import * as Replies from './utils/replies.js'
@@ -73,7 +73,7 @@ export class FileMessage extends Component {
 
   isMe = this.props.event.getSender() === Client.client.getUserId()
 
-  url = Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().url)
+  url = Client.client.getHttpUriForMxcFromHS(this.props.event.getContent().url)
 
   render(props) {
     return <Message reactions={props.reactions}
@@ -92,8 +92,8 @@ export class ImageMessage extends Component {
   isMe = this.props.event.getSender() === Client.client.getUserId()
 
   url = this.props.event.getContent().info.thumbnail_url
-    ? Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().info.thumbnail_url)
-    : Matrix.getHttpUriForMxc(serverRoot, this.props.event.getContent().url)
+    ? Client.client.getHttpUriForMxcFromHS(this.props.event.getContent().info.thumbnail_url)
+    : Client.client.getHttpUriForMxcFromHS(this.props.event.getContent().url)
 
   // TODO need some sort of modal popup providing a preview of the full video
   render(props) {
@@ -114,10 +114,10 @@ export class VideoMessage extends Component {
   content = this.props.event.getContent()
 
   poster = this.content.info.thumbnail_url
-    ? Matrix.getHttpUriForMxc(serverRoot, this.content.info.thumbnail_url)
+    ? Client.client.getHttpUriForMxcFromHS(this.content.info.thumbnail_url)
     : null
 
-  url = Matrix.getHttpUriForMxc(serverRoot, this.content.url)
+  url = Client.client.getHttpUriForMxcFromHS(this.content.url)
 
   render(props) {
     return <Message reactions={props.reactions}
@@ -140,7 +140,7 @@ export class AudioMessage extends Component {
 
   content = this.props.event.getContent()
 
-  url= Matrix.getHttpUriForMxc(serverRoot, this.content.url)
+  url= Client.client.getHttpUriForMxcFromHS(this.content.url)
 
   render(props) {
     return <Message reactions={props.reactions}
@@ -296,7 +296,7 @@ class ReplyPreview extends Component {
     const senderId = this.state.liveEvent.getSender()
     const sender = Client.client.getUser(senderId)
     const senderColors = new UserColor(this.state.liveEvent.getSender())
-    const avatarHttpURI = Matrix.getHttpUriForMxc(serverRoot, sender.avatarUrl, 20, 20, "crop")
+    const avatarHttpURI = Client.client.getHttpUriForMxcFromHS(sender.avatarUrl, 20, 20, "crop")
     let displayBody
     if (!this.state.liveEvent.getContent().msgtype) {
       displayBody = <div class="redacted-preview">Original Message Deleted</div>
@@ -304,24 +304,24 @@ class ReplyPreview extends Component {
       switch (this.state.liveEvent.getContent().msgtype) {
         case "m.video": {
           const thumbUrl = this.state.liveEvent.getContent().info.thumbnail_url
-          const poster = thumbUrl ? Matrix.getHttpUriForMxc(serverRoot, thumbUrl) : null
+          const poster = thumbUrl ? Client.client.getHttpUriForMxcFromHS(thumbUrl) : null
           displayBody = <video class="mediaMessageThumbnail"
             controls
             poster={poster}
             preload={poster ? "none" : "metadata"}
-            src={Matrix.getHttpUriForMxc(serverRoot, this.state.liveEvent.getContent().url)} />
+            src={Client.client.getHttpUriForMxcFromHS(this.state.liveEvent.getContent().url)} />
           break;
         }
         case "m.audio": {
           displayBody = <audio
             controls
-            src={Matrix.getHttpUriForMxc(serverRoot, this.state.liveEvent.getContent().url)} />
+            src={Client.client.getHttpUriForMxcFromHS(this.state.liveEvent.getContent().url)} />
           break;
         }
         case "m.file": {
           displayBody = <div class="file-upload">
             file upload:&nbsp;
-            <a href={Matrix.getHttpUriForMxc(serverRoot, this.state.liveEvent.getContent().url)}>
+            <a href={Client.client.getHttpUriForMxcFromHS(this.state.liveEvent.getContent().url)}>
               {this.state.liveEvent.getContent().filename}
             </a>
           </div>

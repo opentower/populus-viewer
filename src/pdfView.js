@@ -9,7 +9,7 @@ import AnnotationListing from "./annotationListing.js"
 import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
-import { eventVersion, serverRoot, domainName, spaceChild, spaceParent } from "./constants.js"
+import { eventVersion, pdfStateType, spaceChild, spaceParent } from "./constants.js"
 import * as Icons from "./icons.js"
 
 export default class PdfView extends Component {
@@ -162,6 +162,7 @@ export default class PdfView extends Component {
     if (theSelection.isCollapsed) return
     const theRange = theSelection.getRangeAt(0)
     const theSelectedText = theSelection.toString()
+    const theDomain = Client.client.getDomain()
 
     const boundingClientRect = Layout.rectRelativeTo( this.annotationLayerWrapper.current
       , theRange.getBoundingClientRect()
@@ -184,7 +185,7 @@ export default class PdfView extends Component {
       // set child event in pdfRoom State
       theSelection.removeAllRanges()
       const childContent = {
-        via: [domainName],
+        via: [theDomain],
         [eventVersion]: {
           pageNumber: this.props.pageFocused,
           activityStatus: "open",
@@ -198,7 +199,7 @@ export default class PdfView extends Component {
       Client.client.sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
         .catch(e => alert(e))
       // set parent event in child room state
-      Client.client.sendStateEvent(roominfo.room_id, spaceParent, { via: [domainName] }, this.state.roomId)
+      Client.client.sendStateEvent(roominfo.room_id, spaceParent, { via: [theDomain] }, this.state.roomId)
         .catch(e => alert(e))
       this.setFocus(childContent[eventVersion])
       this.setState({ panelVisible: true })
@@ -206,9 +207,10 @@ export default class PdfView extends Component {
   }
 
   closeAnnotation = _ => {
+    const theDomain = Client.client.getDomain()
     if (confirm('Are you sure you want to close this annotation?')) {
       const theContent = {
-        via: [domainName],
+        via: [theDomain],
         [eventVersion]: {
           pageNumber: this.state.focus.pageNumber,
           activityStatus: "closed",
@@ -379,13 +381,14 @@ class PdfCanvas extends Component {
   canvas = createRef()
 
   async fetchPdf (title) {
-    const theId = await Client.client.getRoomIdForAlias(`#${title.replace(/[\s:]/g, '_')}:${domainName}`)
+    const theDomain = Client.client.getDomain()
+    const theId = await Client.client.getRoomIdForAlias(`#${title.replace(/[\s:]/g, '_')}:${theDomain}`)
     await Client.client.joinRoom(theId.room_id)
     this.props.setId(theId.room_id)
     const theRoom = await Client.client.getRoomWithState(theId.room_id)
     const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const pdfIdentifier = theRoomState.getStateEvents("org.populus.pdf", "").getContent().identifier
-    const pdfPath = `${serverRoot}/_matrix/media/r0/download/${domainName}/${pdfIdentifier}`
+    const pdfIdentifier = theRoomState.getStateEvents(pdfStateType, "").getContent().mxc
+    const pdfPath = Client.client.getHttpUriForMxcFromHS(pdfIdentifier)
     this.setState({pdfIdentifier})
     if (!PdfView.PDFStore[pdfIdentifier]) {
       console.log(`fetching ${title}` )

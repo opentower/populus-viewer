@@ -1,8 +1,7 @@
-export const eventVersion = "org.populus.annotation.5" // increment to start over with a fresh event type
-export const pdfStateType = "org.populus.pdf" // increment to start over with a fresh event type
-export const lastViewed = "org.populus.pdf.lastPageViewed"
-export const domainName = "populus.open-tower.com"
-export const serverRoot = `https://${domainName}`
+export const eventVersion = "com.open-tower.populus.annotation" // increment to start over with a fresh event type
+export const pdfStateType = "com.open-tower.populus.pdf" // increment to start over with a fresh event type
+export const lastViewed = "com.open-tower.populus.lastPageViewed"
+export const serverRoot = `https://populus.open-tower.com`
 export const spaceChild = "m.space.child"
 export const spaceParent = "m.space.parent"
 export const roomType = "type"
