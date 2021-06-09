@@ -15,6 +15,12 @@ function getHttpUriForMxcFromHS(...theArgs) {
 }
 
 export default class Client {
+  static isResumable() {
+    return !!localStorage.getItem('accessToken') &&
+           !!localStorage.getItem('userId') &&
+           !!localStorage.getItem('baseUrl')
+  }
+
   static async initClient () {
     let indexedDB
     try { indexedDB = window.indexedDB; } catch (e) {}
