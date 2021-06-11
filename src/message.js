@@ -1,5 +1,4 @@
 import { h, createRef, Fragment, Component } from 'preact';
-import * as Matrix from "matrix-js-sdk"
 import sanitizeHtml from 'sanitize-html'
 import * as CommonMark from 'commonmark'
 import { addLatex } from './latex.js'

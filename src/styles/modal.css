@@ -1,0 +1,43 @@
+#modalPopup {
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:20;
+}
+
+#modalBackground {
+  position: absolute;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  background:black;
+  opacity:0.1
+}
+
+#modalContent {
+  position: relative;
+  background:white;
+  opacity:1;
+  width:400px;
+  height:150px;
+  max-width:70vw;
+  max-height:80vh;
+  border-radius:30px;
+  padding:30px;
+  z-index:21;
+}
+
+#dismissModal {
+  cursor:pointer;
+  position:absolute;
+  right:20px;
+  top:20px;
+  background:none;
+  border:none;
+}
