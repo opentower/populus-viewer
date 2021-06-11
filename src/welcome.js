@@ -356,8 +356,8 @@ class InviteContent extends Component {
   }
 
   userBox = (user) => {
-    return <div style={{ marginTop: "15px" }} key={user.userId}>
-      <input checked={this.state.invited[user.userId]} onclick={_ => this.toggleInvited(user)} style={{ marginRight: "15px" }} type="checkbox" />
+    return <div style={{ marginTop: "15px" }} onclick={_ => this.toggleInvited(user)} key={user.userId}>
+      <input checked={this.state.invited[user.userId]} style={{ marginRight: "15px" }} type="checkbox" />
       <UserPill user={user} />
     </div>
   }
@@ -366,7 +366,7 @@ class InviteContent extends Component {
     if (this.state.invited[user.userId]) {
       this.setState(oldstate => {
         const newInvited = {...oldstate.invited}
-        delete newInvited[user.userId]
+        newInvited[user.userId] = false
         return { invited: newInvited }
       })
     } else {
@@ -379,10 +379,11 @@ class InviteContent extends Component {
   }
 
   inviteSelected = _ => {
-    const invitees = Object.keys(this.state.invited)
-    invitees.map(userId =>
-      Client.client.invite(this.props.roomId, userId).catch(alert)
-    )
+    for (const userId of Object.keys(this.state.invited)) {
+      if (this.state.invited[userId]) {
+        Client.client.invite(this.props.roomId, userId).catch(alert)
+      }
+    }
     this.props.populateModal(null)
   }
 
