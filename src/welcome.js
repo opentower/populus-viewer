@@ -4,12 +4,13 @@ import * as Matrix from "matrix-js-sdk"
 import UserColor from './userColors.js'
 import PdfUpload from './pdfUpload.js'
 import MemberPill from './memberPill.js'
+import UserPill from './userPill.js'
 import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import ProfileInformation from './profileInformation.js'
 import * as Icons from './icons.js'
 import { calculateUnread } from './utils/unread.js'
-
+import Modal from './modal.js'
 import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
@@ -48,6 +49,10 @@ export default class WelcomeView extends Component {
     profileVisible: !this.state.profileVisible
   })
 
+  emptyModal = _ => this.setState({ modalContent: null })
+
+  populateModal = s => this.setState({ modalContent: s })
+
   showMainView = _ => this.setState({
     uploadVisible: false,
     profileVisible: false
@@ -74,6 +79,7 @@ export default class WelcomeView extends Component {
   render(props, state) {
     return (
       <Fragment>
+        <Modal modalVisible={state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
         <header id="welcome-header">
           <div id="welcome-header-content">
             <div id="welcome-search">
@@ -103,7 +109,10 @@ export default class WelcomeView extends Component {
                 <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} />
               </Fragment>
               : <Fragment>
-                <RoomList searchFilter={state.searchFilter} {...props} />
+                <RoomList searchFilter={state.searchFilter}
+                  pushHistory={props.pushHistory}
+                  populateModal={this.populateModal}
+                />
               </Fragment>
           }
         </div>
@@ -186,6 +195,7 @@ class RoomList extends Component {
         return pdfEvent
           ? <PDFRoomEntry annotations={annotations}
                           pushHistory={props.pushHistory}
+                          populateModal={props.populateModal}
                           room={room}
                           pdfevent={pdfEvent} />
           : null
@@ -215,81 +225,86 @@ class PDFRoomEntry extends Component {
     super(props)
     this.state = {
       buttonsVisible: false,
-      detailsOpen: false
+      detailsOpen: false,
     }
   }
 
-    handleLoad = _ => {
-      const lastViewedPage = this.props.room.getAccountData(lastViewed)
-        ? this.props.room.getAccountData(lastViewed).getContent().page
-        : 1
-      this.props.pushHistory({
-        pdfFocused: this.props.room.name,
-        pageFocused: lastViewedPage || 1
-      })
-    }
+  handleLoad = _ => {
+    const lastViewedPage = this.props.room.getAccountData(lastViewed)
+      ? this.props.room.getAccountData(lastViewed).getContent().page
+      : 1
+    this.props.pushHistory({
+      pdfFocused: this.props.room.name,
+      pageFocused: lastViewedPage || 1
+    })
+  }
 
-    toggleButtons = _ => this.setState({ buttonsVisible: !this.state.buttonsVisible })
+  toggleButtons = _ => this.setState({ buttonsVisible: !this.state.buttonsVisible })
 
-    toggleFavorite = _ => {
-      if (this.props.room.tags["m.favourite"]) Client.client.deleteRoomTag(this.props.room.roomId, "m.favourite")
-      else Client.client.setRoomTag(this.props.room.roomId, "m.favourite", {order: 0.5})
-    }
+  openInvite = _ => this.props.populateModal(
+    <InviteContent populateModal={this.props.populateModal}
+                   roomId={this.props.room.roomId}/>)
 
-    handleClose = _ => Client.client.leave(this.props.room.roomId)
+  toggleFavorite = _ => {
+    if (this.props.room.tags["m.favourite"]) Client.client.deleteRoomTag(this.props.room.roomId, "m.favourite")
+    else Client.client.setRoomTag(this.props.room.roomId, "m.favourite", {order: 0.5})
+  }
 
-    handleDetailsToggle = _ => this.setState({ detailsOpen: !this.state.detailsOpen })
+  handleClose = _ => Client.client.leave(this.props.room.roomId)
 
-    render (props, state) {
-      const date = new Date(props.room.getLastActiveTimestamp())
-      const members = props.room.getJoinedMembers()
-      const memberIds = members.map(member => member.userId)
-      const memberPills = members.map(member => <MemberPill key={member.userId} member={member} />)
-      const status = memberIds.includes(Client.client.getUserId())
-        ? "joined"
-        : "invited"
-      const annotations = props.annotations.map(ev => ev.getContent())
-        .filter(content => !!content[eventVersion]) // so that we can bump eventversion
-        .filter(content => content[eventVersion].activityStatus === "open")
-        .map(content => <AnnotationRoomEntry key={content[eventVersion].roomId}
-                                             pushHistory={props.pushHistory}
-                                             annotationContent={content[eventVersion]}
-                                             parentRoom={props.room} />)
-      return (
-        <div data-room-entry-buttons-visible={state.buttonsVisible} data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
-          <div class="room-listing-heading">
-            {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
-            <a onClick={this.handleLoad}>{props.room.name}</a>
-          </div>
-          <div class="roomListingData">
-            <span>Members: </span><div>{memberPills}</div>
-            <span>Last Active:</span><div>{date.toLocaleString('en-US', {
-              weekday: "short",
-              day: "numeric",
-              month: "short",
-              hour: "numeric",
-              minute: "numeric",
-              second: "numeric"
-            })}</div>
-          </div>
-          {annotations.length > 0
-            ? <div><details>
-              <summary open={state.detailsOpen} ontoggle={this.handleDetailsToggle}>{annotations.length} annotations</summary>
-              <div class="annotationRooms">
-                {annotations}
-              </div>
-            </details></div>
-            : null
-          }
-          <div  class="roomListingEntryButtons">
-            { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
-            { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
-            { state.buttonsVisible ? <button title="Toggle Favorite" onClick={this.toggleFavorite}>{Icons.star}</button> : null }
-            { state.buttonsVisible ? <button title="Leave conversation" onClick={this.handleClose}>{Icons.userMinus}</button> : null }
-          </div>
+  handleDetailsToggle = _ => this.setState({ detailsOpen: !this.state.detailsOpen })
+
+  render (props, state) {
+    const date = new Date(props.room.getLastActiveTimestamp())
+    const members = props.room.getJoinedMembers()
+    const memberIds = members.map(member => member.userId)
+    const memberPills = members.map(member => <MemberPill key={member.userId} member={member} />)
+    const status = memberIds.includes(Client.client.getUserId())
+      ? "joined"
+      : "invited"
+    const annotations = props.annotations.map(ev => ev.getContent())
+      .filter(content => !!content[eventVersion]) // so that we can bump eventversion
+      .filter(content => content[eventVersion].activityStatus === "open")
+      .map(content => <AnnotationRoomEntry key={content[eventVersion].roomId}
+                                           pushHistory={props.pushHistory}
+                                           annotationContent={content[eventVersion]}
+                                           parentRoom={props.room} />)
+    return (
+      <div data-room-entry-buttons-visible={state.buttonsVisible} data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
+        <div class="room-listing-heading">
+          {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
+          <a onClick={this.handleLoad}>{props.room.name}</a>
         </div>
-      )
-    }
+        <div class="roomListingData">
+          <span>Members: </span><div>{memberPills}</div>
+          <span>Last Active:</span><div>{date.toLocaleString('en-US', {
+            weekday: "short",
+            day: "numeric",
+            month: "short",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric"
+          })}</div>
+        </div>
+        {annotations.length > 0
+          ? <div><details>
+            <summary open={state.detailsOpen} ontoggle={this.handleDetailsToggle}>{annotations.length} annotations</summary>
+            <div class="annotationRooms">
+              {annotations}
+            </div>
+          </details></div>
+          : null
+        }
+        <div class="roomListingEntryButtons">
+          { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
+          { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
+          { state.buttonsVisible ? <button title="Toggle favorite" onClick={this.toggleFavorite}>{Icons.star}</button> : null }
+          { state.buttonsVisible ? <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button> : null }
+          { state.buttonsVisible ? <button title="Leave conversation" onClick={this.handleClose}>{Icons.exit}</button> : null }
+        </div>
+      </div>
+    )
+  }
 }
 
 class AnnotationRoomEntry extends Component {
@@ -331,5 +346,56 @@ class AnnotationRoomEntry extends Component {
         <div class="annotationRoom-unread">{Icons.bell}&nbsp;{state.unreadCount}</div>
       </div>
     </div>
+  }
+}
+
+class InviteContent extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { invited: {} }
+  }
+
+  userBox = (user) => {
+    return <div style={{ marginTop: "15px" }} key={user.userId}>
+      <input checked={this.state.invited[user.userId]} onclick={_ => this.toggleInvited(user)} style={{ marginRight: "15px" }} type="checkbox" />
+      <UserPill user={user} />
+    </div>
+  }
+
+  toggleInvited(user) {
+    if (this.state.invited[user.userId]) {
+      this.setState(oldstate => {
+        const newInvited = {...oldstate.invited}
+        delete newInvited[user.userId]
+        return { invited: newInvited }
+      })
+    } else {
+      this.setState(oldstate => {
+        const newInvited = {...oldstate.invited}
+        newInvited[user.userId] = true
+        return { invited: newInvited }
+      })
+    }
+  }
+
+  inviteSelected = _ => {
+    const invitees = Object.keys(this.state.invited)
+    invitees.map(userId =>
+      Client.client.invite(this.props.roomId, userId).catch(alert)
+    )
+    this.props.populateModal(null)
+  }
+
+  render(props) {
+    return <Fragment>
+      <h3 id="modalHeader">Invite to Join:</h3>
+      {Client.client.getUsers()
+        .sort((u1, u2) => u1.displayName.toUpperCase() > u2.displayName.toUpperCase() ? 1 : -1)
+        .map(this.userBox)
+      }
+      <div style={{ marginTop: "15px" }}>
+        <button onClick={this.inviteSelected} class="styled-button">Invite</button>
+      </div>
+    </Fragment>
   }
 }
