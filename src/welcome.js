@@ -4,10 +4,10 @@ import * as Matrix from "matrix-js-sdk"
 import UserColor from './userColors.js'
 import PdfUpload from './pdfUpload.js'
 import MemberPill from './memberPill.js'
-import UserPill from './userPill.js'
 import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import ProfileInformation from './profileInformation.js'
+import Invite from './invite.js'
 import * as Icons from './icons.js'
 import { calculateUnread } from './utils/unread.js'
 import Modal from './modal.js'
@@ -192,13 +192,25 @@ class RoomList extends Component {
       .map(room => {
         const pdfEvent = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType, "")
         const annotations = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
-        return pdfEvent
-          ? <PDFRoomEntry annotations={annotations}
-                          pushHistory={props.pushHistory}
-                          populateModal={props.populateModal}
-                          room={room}
-                          pdfevent={pdfEvent} />
-          : null
+        let result = null
+        switch (room.getMyMembership()) {
+          case "join" : {
+            if (pdfEvent) {
+              result = <PDFRoomEntry annotations={annotations}
+                pushHistory={props.pushHistory}
+                populateModal={props.populateModal}
+                room={room}
+                pdfevent={pdfEvent} />
+            }
+            break
+          }
+          case "invite" : {
+            result = <InviteEntry room={room}
+              roomListener={this.roomListener}
+            />
+          }
+        }
+        return result
       })
     return (
       <Fragment>
@@ -225,7 +237,7 @@ class PDFRoomEntry extends Component {
     super(props)
     this.state = {
       buttonsVisible: false,
-      detailsOpen: false,
+      detailsOpen: false
     }
   }
 
@@ -242,8 +254,8 @@ class PDFRoomEntry extends Component {
   toggleButtons = _ => this.setState({ buttonsVisible: !this.state.buttonsVisible })
 
   openInvite = _ => this.props.populateModal(
-    <InviteContent populateModal={this.props.populateModal}
-                   roomId={this.props.room.roomId}/>)
+    <Invite populateModal={this.props.populateModal}
+            roomId={this.props.room.roomId} />)
 
   toggleFavorite = _ => {
     if (this.props.room.tags["m.favourite"]) Client.client.deleteRoomTag(this.props.room.roomId, "m.favourite")
@@ -270,12 +282,12 @@ class PDFRoomEntry extends Component {
                                            annotationContent={content[eventVersion]}
                                            parentRoom={props.room} />)
     return (
-      <div data-room-entry-buttons-visible={state.buttonsVisible} data-room-status={status} class="roomListingEntry" id={props.room.roomId}>
+      <div data-room-entry-buttons-visible={state.buttonsVisible} data-room-status={status} class="room-listing-entry" id={props.room.roomId}>
         <div class="room-listing-heading">
           {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
           <a onClick={this.handleLoad}>{props.room.name}</a>
         </div>
-        <div class="roomListingData">
+        <div class="room-listing-data">
           <span>Members: </span><div>{memberPills}</div>
           <span>Last Active:</span><div>{date.toLocaleString('en-US', {
             weekday: "short",
@@ -289,13 +301,13 @@ class PDFRoomEntry extends Component {
         {annotations.length > 0
           ? <div><details>
             <summary open={state.detailsOpen} ontoggle={this.handleDetailsToggle}>{annotations.length} annotations</summary>
-            <div class="annotationRooms">
+            <div class="annotation-rooms">
               {annotations}
             </div>
           </details></div>
           : null
         }
-        <div class="roomListingEntryButtons">
+        <div class="room-listing-entry-buttons">
           { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
           { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
           { state.buttonsVisible ? <button title="Toggle favorite" onClick={this.toggleFavorite}>{Icons.star}</button> : null }
@@ -304,6 +316,30 @@ class PDFRoomEntry extends Component {
         </div>
       </div>
     )
+  }
+}
+
+class InviteEntry extends Component {
+  accept = _ => {
+    Client.client.joinRoom(this.props.room.roomId)
+    setTimeout(this.props.roomListener, 1000)
+    // XXX the updates get grouped in such a way that the redraw misses the state
+    // update that comes with the join. So we need to do a second update to the
+    // room listing, here.
+  }
+
+  decline = _ => { Client.client.leave(this.props.room.roomId).then(console.log).catch(console.log) }
+
+  render(props) {
+    return <div class="invite-entry">
+      <div class="invite-heading">
+        You are invited to join the discussion {props.room.name}.
+      </div>
+      <div class="invite-buttons">
+        <button class="styled-button" onclick={this.accept}>Accept</button>
+        <button class="styled-button" onclick={this.decline}>Decline</button>
+      </div>
+    </div>
   }
 }
 
@@ -339,64 +375,12 @@ class AnnotationRoomEntry extends Component {
   }
 
   render (props, state) {
-    return <div style={this.userColor.styleVariables} class="annotationRoomEntry">
+    return <div style={this.userColor.styleVariables} class="annotation-room-entry">
       <div>…&nbsp;<a onClick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</div>
-      <div class="annotationRoomEntry-data">
-        <div class="annotationRoom-page">p: {props.annotationContent.pageNumber}</div>
-        <div class="annotationRoom-unread">{Icons.bell}&nbsp;{state.unreadCount}</div>
+      <div class="annotation-room-entry-data">
+        <div class="annotation-room-page">p: {props.annotationContent.pageNumber}</div>
+        <div class="annotation-room-unread">{Icons.bell}&nbsp;{state.unreadCount}</div>
       </div>
     </div>
-  }
-}
-
-class InviteContent extends Component {
-  constructor(props) {
-    super(props)
-    this.state = { invited: {} }
-  }
-
-  userBox = (user) => {
-    return <div style={{ marginTop: "15px" }} onclick={_ => this.toggleInvited(user)} key={user.userId}>
-      <input checked={this.state.invited[user.userId]} style={{ marginRight: "15px" }} type="checkbox" />
-      <UserPill user={user} />
-    </div>
-  }
-
-  toggleInvited(user) {
-    if (this.state.invited[user.userId]) {
-      this.setState(oldstate => {
-        const newInvited = {...oldstate.invited}
-        newInvited[user.userId] = false
-        return { invited: newInvited }
-      })
-    } else {
-      this.setState(oldstate => {
-        const newInvited = {...oldstate.invited}
-        newInvited[user.userId] = true
-        return { invited: newInvited }
-      })
-    }
-  }
-
-  inviteSelected = _ => {
-    for (const userId of Object.keys(this.state.invited)) {
-      if (this.state.invited[userId]) {
-        Client.client.invite(this.props.roomId, userId).catch(alert)
-      }
-    }
-    this.props.populateModal(null)
-  }
-
-  render(props) {
-    return <Fragment>
-      <h3 id="modalHeader">Invite to Join:</h3>
-      {Client.client.getUsers()
-        .sort((u1, u2) => u1.displayName.toUpperCase() > u2.displayName.toUpperCase() ? 1 : -1)
-        .map(this.userBox)
-      }
-      <div style={{ marginTop: "15px" }}>
-        <button onClick={this.inviteSelected} class="styled-button">Invite</button>
-      </div>
-    </Fragment>
   }
 }
