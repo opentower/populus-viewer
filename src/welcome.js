@@ -328,12 +328,18 @@ class InviteEntry extends Component {
     // room listing, here.
   }
 
-  decline = _ => { Client.client.leave(this.props.room.roomId).then(console.log).catch(console.log) }
+  decline = _ => { 
+    Client.client.leave(this.props.room.roomId)
+    setTimeout(this.props.roomListener, 1000)
+  }
 
   render(props) {
     return <div class="invite-entry">
       <div class="invite-heading">
         You are invited to join the discussion {props.room.name}.
+      </div>
+      <div class="invite-summary">
+        {props.room.summary.info.summary}
       </div>
       <div class="invite-buttons">
         <button class="styled-button" onclick={this.accept}>Accept</button>
