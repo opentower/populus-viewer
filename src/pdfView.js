@@ -10,6 +10,7 @@ import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
 import { eventVersion, pdfStateType, spaceChild, spaceParent } from "./constants.js"
+import Modal from "./modal.js"
 import * as Icons from "./icons.js"
 
 export default class PdfView extends Component {
@@ -31,6 +32,7 @@ export default class PdfView extends Component {
       pdfHeightPx: null,
       pdfFitRatio: 1,
       zoomFactor: 1,
+      modalContent: null,
       hideButtons: false // this is for hiding the buttons, but only applies if the buttons overlap the chatbox
     }
     this.prevScrollTop = 0
@@ -110,6 +112,10 @@ export default class PdfView extends Component {
   setTotalPages = num => this.setState({totalPages: num})
 
   clearFocus = _ => this.setState({focus: null})
+
+  emptyModal = _ => this.setState({ modalContent: null })
+
+  populateModal = s => this.setState({ modalContent: s })
 
   setZoom = zoomFactor => {
     if (zoomFactor < 1) this.setState({zoomFactor: 1})
@@ -263,6 +269,7 @@ export default class PdfView extends Component {
         onPointerCancel={this.handlePointerUp}
         onPointerLeave={this.handlePointerUp}
         onPointerMove={this.handlePointerMove}>
+        <Modal modalVisible={state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
         {state.pdfHeightPx ? null : <div id="document-view-loading">loading...</div>}
         <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
           <div id="document-wrapper">
@@ -317,6 +324,7 @@ export default class PdfView extends Component {
           roomId={state.roomId}
           container={this.contentContainer}
           setNavHeight={this.setNavHeight}
+          populateModal={this.populateModal}
           pdfWidthPx={state.pdfWidthPx}
           pushHistory={props.pushHistory} />
         <div data-hide-buttons={state.hideButtons} id="pdf-panel-button-wrapper">

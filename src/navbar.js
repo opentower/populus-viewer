@@ -5,6 +5,7 @@ import UserColor from "./userColors.js"
 import './styles/navbar.css';
 import { spaceChild, eventVersion } from "./constants.js"
 import Client from './client.js'
+import Invite from './invite.js'
 
 export default class Navbar extends Component {
   constructor(props) {
@@ -97,6 +98,10 @@ export default class Navbar extends Component {
 
   lastPage = _ => this.props.pushHistory({ pageFocused: this.props.total})
 
+  openInvite = _ => this.props.populateModal(
+    <Invite populateModal={this.props.populateModal}
+            roomId={this.props.roomId} />)
+
   componentDidUpdate() {
     if (this.pageInput.current) this.pageInput.current.style.width = `${this.pageTotal.current.scrollWidth}px`
   }
@@ -113,11 +118,11 @@ export default class Navbar extends Component {
             current={props.page} />
         </div>
         <div id="nav-background" />
-        <div id="nav-button-wrapper">
-          <button title="go to main menu" onclick={this.mainMenu}>{Icons.home}</button>
-          <button title="add annotation" disabled={props.selected ? null : "disabled"} onclick={props.addann}>{Icons.addAnnotation}</button>
-          <button title="go to first page" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button>
-          <button title="go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
+        <div class="nav-button-wrapper top-wrapper">
+          <button title="Go to main menu" onclick={this.mainMenu}>{Icons.home}</button>
+          <button title="Add annotation" disabled={props.selected ? null : "disabled"} onclick={props.addann}>{Icons.addAnnotation}</button>
+          <button title="Go to first page" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button>
+          <button title="Go to previous page" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
           <form onSubmit={this.handleSubmit}>
             <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="show page navigation">{Icons.page}</button>
             <input type="text"
@@ -129,10 +134,13 @@ export default class Navbar extends Component {
             <span>/</span>
             <span ref={this.pageTotal} id="nav-total-pages">{props.total}</span>
           </form>
-          <button title="go to next page" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
-          <button title="go to last page" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button>
-          <button title="remove annotation" disabled={props.focus && !props.selected ? null : "disabled"} onclick={props.closeann}>{Icons.removeAnnotation}</button>
-          <button title="more options" onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
+          <button title="Go to next page" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
+          <button title="Go to last page" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button>
+          <button title="Remove annotation" disabled={props.focus && !props.selected ? null : "disabled"} onclick={props.closeann}>{Icons.removeAnnotation}</button>
+          <button title="More options" onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
+        </div>
+        <div class="nav-button-wrapper bottom-wrapper">
+          <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button>
         </div>
       </nav>
     }

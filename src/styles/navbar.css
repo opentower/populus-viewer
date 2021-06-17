@@ -59,7 +59,7 @@
     animation-timing-function:ease;
 }
 
-#nav-button-wrapper {
+.nav-button-wrapper {
     position:relative;
     display: flex;
     height:75px;
@@ -70,7 +70,7 @@
 }
 
 @media only screen and (max-width: 600px) {
-    #nav-button-wrapper {
+    .nav-button-wrapper {
         transform: scale(0.8);
         transform-origin: left;
         min-width: calc((var(--contentWidth)/0.8));
@@ -85,24 +85,24 @@
       bottom: calc(0.8 * var(--navHeight));
     }
 
-    #nav-button-wrapper {
+    .nav-button-wrapper {
       height:calc(0.8 * 75px);
     }
 }
 
-@media only screen and (min-width: 600px) {
-    #nav-button-wrapper > button:first-child {
+@media only screen and (min-width: 300px) {
+    .nav-button-wrapper > button:first-child {
         position: absolute;
         left:10px;
     }
 
-    #nav-button-wrapper > button:last-child {
+    .nav-button-wrapper > button:last-child {
         position: absolute;
         right:10px;
     }
 }
 
-#nav-button-wrapper > button {
+.nav-button-wrapper > button {
     cursor:pointer;
     outline:none;
     color:white;
@@ -110,11 +110,11 @@
     border:none;
 }
 
-#nav-button-wrapper > button[disabled] {
+.nav-button-wrapper > button[disabled] {
     color:gray;
 }
 
-#nav-button-wrapper > form {
+.nav-button-wrapper > form {
     position: relative;
     display:flex;
     align-items: center;
@@ -125,23 +125,23 @@
     height:45px;
 }
 
-#nav-button-wrapper > form > input {
+.nav-button-wrapper > form > input {
     width:20px; /*this is going to need to be adjusted in JS*/
     font-size: 1em;
     border:none;
     text-align:right;
 }
 
-#nav-button-wrapper > form > span:last-child {
+.nav-button-wrapper > form > span:last-child {
     padding-right:5px;
 }
 
 @media only screen and (max-width: 600px) {
-    #nav-button-wrapper > form > input { display:none }
-    #nav-button-wrapper > form > span { display:none }
+    .nav-button-wrapper > form > input { display:none }
+    .nav-button-wrapper > form > span { display:none }
 }
 
-#nav-button-wrapper > form > button {
+.nav-button-wrapper > form > button {
     cursor:pointer;
     outline:none;
     margin:5px;
@@ -153,13 +153,13 @@
     transition: background 0.5s ease;
 }
 
-#nav-button-wrapper > form > button:hover {
+.nav-button-wrapper > form > button:hover {
     color:white;
     background:#dddddd;
     transition: background 0.5s ease;
 }
 
-#nav-button-wrapper > form > button.nav-toggled {
+.nav-button-wrapper > form > button.nav-toggled {
     color:white;
     background:#ababab;
     transition: background 0.5s ease;

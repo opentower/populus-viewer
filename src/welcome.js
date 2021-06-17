@@ -328,7 +328,7 @@ class InviteEntry extends Component {
     // room listing, here.
   }
 
-  decline = _ => { 
+  decline = _ => {
     Client.client.leave(this.props.room.roomId)
     setTimeout(this.props.roomListener, 1000)
   }
