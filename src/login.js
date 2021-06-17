@@ -79,13 +79,11 @@ class RegistrationModal extends Component {
     }
     this.setState({ registering: true })
     localStorage.setItem("baseUrl", "https://populus.open-tower.com")
-    Client.initClient().then(client => {
-      client.register(entries[0].toLowerCase(), entries[1], undefined, {
-        type: "m.login.recaptcha",
-        response: e.detail
-      })
-      return client
-    }).then(client => client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
+    Client.initClient().then(_ => Client.client.register(entries[0].toLowerCase(), entries[1], undefined, {
+      type: "m.login.recaptcha",
+      response: e.detail
+    }))
+      .then(_ => Client.client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
       .then(this.props.loginHandler)
       .catch(window.alert)
   }
