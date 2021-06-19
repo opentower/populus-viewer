@@ -338,9 +338,6 @@ class InviteEntry extends Component {
       <div class="invite-heading">
         You are invited to join the discussion {props.room.name}.
       </div>
-      <div class="invite-summary">
-        {props.room.summary.info.summary}
-      </div>
       <div class="invite-buttons">
         <button class="styled-button" onclick={this.accept}>Accept</button>
         <button class="styled-button" onclick={this.decline}>Decline</button>
