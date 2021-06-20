@@ -141,6 +141,7 @@ export default class Navbar extends Component {
         </div>
         <div class="nav-button-wrapper bottom-wrapper">
           <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button>
+          <button title="Toggle annotation visibility" onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
         </div>
       </nav>
     }

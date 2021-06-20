@@ -28,6 +28,7 @@ export default class PdfView extends Component {
       navHeight: 75,
       panelVisible: false,
       hasSelection: false,
+      annotationsVisible: true,
       pdfWidthPx: null,
       pdfHeightPx: null,
       pdfFitRatio: 1,
@@ -113,6 +114,10 @@ export default class PdfView extends Component {
 
   clearFocus = _ => this.setState({focus: null})
 
+  toggleAnnotations = _ => this.setState(oldState => {
+    return { annotationsVisible: !oldState.annotationsVisible }
+  })
+
   emptyModal = _ => this.setState({ modalContent: null })
 
   populateModal = s => this.setState({ modalContent: s })
@@ -164,6 +169,7 @@ export default class PdfView extends Component {
   }
 
   openAnnotation = _ => {
+    this.setState({ annotationsVisible: true })
     const theSelection = window.getSelection()
     if (theSelection.isCollapsed) return
     const theRange = theSelection.getRangeAt(0)
@@ -282,38 +288,34 @@ export default class PdfView extends Component {
               initFocus={this.initFocus}
               setId={this.setId}
               setTotalPages={this.setTotalPages} />
-            <AnnotationLayer ref={this.annotationLayer}
-              annotationLayer={this.annotationLayer}
-              annotationLayerWrapper={this.annotationLayerWrapper}
-              zoomFactor={state.zoomFactor}
-              page={props.pageFocused}
-              roomId={state.roomId}
-              setFocus={this.setFocus}
-              focus={state.focus} />
+            {state.annotationsVisible
+              ? <AnnotationLayer ref={this.annotationLayer}
+                  annotationLayer={this.annotationLayer}
+                  annotationLayerWrapper={this.annotationLayerWrapper}
+                  zoomFactor={state.zoomFactor}
+                  page={props.pageFocused}
+                  roomId={state.roomId}
+                  setFocus={this.setFocus}
+                  focus={state.focus} />
+              : null
+            }
           </div>
         </div>
         <div id="sidepanel">
           {state.focus
-            ? <Fragment>
-              <Chat class="panel-widget-1" handleWidgetScroll={this.handleWidgetScroll} focus={state.focus} />
-              <AnnotationListing
-                roomId={state.roomId}
-                class="panel-widget-2"
-                focus={state.focus}
+            ? <Chat class="panel-widget-1"
                 handleWidgetScroll={this.handleWidgetScroll}
-                focusByRoomId={this.focusByRoomId}
-                pushHistory={props.pushHistory}
-                room={theRoom} />
-            </Fragment>
-            : <AnnotationListing
+                focus={state.focus} />
+            : null
+          }
+          <AnnotationListing
               roomId={state.roomId}
-              class="panel-widget-1"
+              class={state.focus ? "panel-widget-2" : "panel-widget-1"}
               focus={state.focus}
               handleWidgetScroll={this.handleWidgetScroll}
               focusByRoomId={this.focusByRoomId}
               pushHistory={props.pushHistory}
               room={theRoom} />
-          }
         </div>
         <Navbar selected={state.hasSelection}
           addann={this.openAnnotation}
@@ -325,6 +327,8 @@ export default class PdfView extends Component {
           container={this.contentContainer}
           setNavHeight={this.setNavHeight}
           populateModal={this.populateModal}
+          annotationsVisible={state.annotationsVisible}
+          toggleAnnotations={this.toggleAnnotations}
           pdfWidthPx={state.pdfWidthPx}
           pushHistory={props.pushHistory} />
         <div data-hide-buttons={state.hideButtons} id="pdf-panel-button-wrapper">
