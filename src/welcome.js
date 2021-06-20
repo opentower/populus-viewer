@@ -300,7 +300,9 @@ class PDFRoomEntry extends Component {
         </div>
         {annotations.length > 0
           ? <div><details>
-            <summary open={state.detailsOpen} ontoggle={this.handleDetailsToggle}>{annotations.length} annotations</summary>
+            <summary open={state.detailsOpen} ontoggle={this.handleDetailsToggle}>
+              {annotations.length} annotation{annotations.length > 1 ? "s" : null }
+            </summary>
             <div class="annotation-rooms">
               {annotations}
             </div>
