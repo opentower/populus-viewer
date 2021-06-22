@@ -3,6 +3,7 @@ export const pdfStateType = "com.open-tower.populus.pdf" // increment to start o
 export const lastViewed = "com.open-tower.populus.lastPageViewed"
 export const serverRoot = `https://populus.open-tower.com`
 export const spaceChild = "m.space.child"
+export const joinRule = "m.room.join_rules"
 export const spaceParent = "m.space.parent"
 export const roomType = "type"
 export const spaceType = "m.space"

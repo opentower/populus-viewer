@@ -30,6 +30,7 @@
   max-height:80vh;
   border-radius:30px;
   padding:30px;
+  padding-right:60px;
   z-index:21;
   overflow:scroll;
   scrollbar-width: none;

@@ -8,6 +8,7 @@ import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import ProfileInformation from './profileInformation.js'
 import Invite from './invite.js'
+import RoomSettings from './roomSettings.js'
 import * as Icons from './icons.js'
 import { calculateUnread } from './utils/unread.js'
 import Modal from './modal.js'
@@ -257,6 +258,10 @@ class PDFRoomEntry extends Component {
     <Invite populateModal={this.props.populateModal}
             roomId={this.props.room.roomId} />)
 
+  openSettings = _ => this.props.populateModal(
+    <RoomSettings populateModal={this.props.populateModal}
+                  room={this.props.room} />)
+
   toggleFavorite = _ => {
     if (this.props.room.tags["m.favourite"]) Client.client.deleteRoomTag(this.props.room.roomId, "m.favourite")
     else Client.client.setRoomTag(this.props.room.roomId, "m.favourite", {order: 0.5})
@@ -314,6 +319,7 @@ class PDFRoomEntry extends Component {
           { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
           { state.buttonsVisible ? <button title="Toggle favorite" onClick={this.toggleFavorite}>{Icons.star}</button> : null }
           { state.buttonsVisible ? <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button> : null }
+          { state.buttonsVisible ? <button title="Configure room settings" onClick={this.openSettings}>{Icons.settings}</button> : null }
           { state.buttonsVisible ? <button title="Leave conversation" onClick={this.handleClose}>{Icons.exit}</button> : null }
         </div>
       </div>
