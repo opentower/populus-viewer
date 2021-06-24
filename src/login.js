@@ -84,18 +84,17 @@ class RegistrationModal extends Component {
       return;
     }
     this.password = entries[1]
-    if (entries[2].length < 1) this.server = serverRoot
-    else this.server = entries[2]
+    if (entries[2]) this.server = `https://${entries[2]}`
+    else this.server = serverRoot
     localStorage.setItem("baseUrl", this.server)
     await Client.initClient()
     await Client.client.register(this.username.toLowerCase(), this.password, undefined, {}).catch(
-      e => {
-        console.log(e.data)
-        if (e.data.session && e.data.params["m.login.recaptcha"]) {
-          this.authSession = e.data.session
-          this.recaptchaKey = e.data.params["m.login.recaptcha"].public_key
+      err => {
+        if (err.data.session && err.data.params["m.login.recaptcha"]) {
+          this.authSession = err.data.session
+          this.recaptchaKey = err.data.params["m.login.recaptcha"].public_key
         } else {
-          alert("Error: can't start registration flow with this server")
+          alert("Error: can't start recaptcha registration flow with this server")
           // need to also analyze for 404 and other failures here.
         }
       })
@@ -108,9 +107,30 @@ class RegistrationModal extends Component {
     Client.client.register(this.username.toLowerCase(), this.password, this.authSession, {
       type: "m.login.recaptcha",
       response: e.detail
-    }).then(_ => Client.client.loginWithPassword(this.username.toLowerCase(), this.password))
+    }).catch(this.handleDummy)
+      .then(_ => Client.client.loginWithPassword(this.username.toLowerCase(), this.password))
       .then(this.props.loginHandler)
       .catch(window.alert)
+  }
+
+  handleDummy = err => {
+    console.log(err.data)
+    const dummyAvailable = data => {
+      if (data.flows && data.completed) {
+        return data.flows.some(flow => {
+          const remaining = flow.stages.filter(x => !data.completed.includes(x))
+          return remaining.length === 1 && remaining.includes("m.login.dummy")
+        })
+      }
+      return false
+    }
+    if (dummyAvailable(err.data)) {
+      return Client.client.register(this.username.toLowerCase(), this.password, this.authSession, {
+        type: "m.login.dummy"
+      })
+    } else {
+      throw new Error("Error: can't complete this registration flow")
+    }
   }
 
   render(props, state) {
