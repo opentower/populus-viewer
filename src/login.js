@@ -132,7 +132,8 @@ class RegistrationModal extends Component {
               Complete this Recaptcha to finish registration
               <div className="g-recaptcha"
                 data-sitekey={this.recaptchaKey}
-                data-callback="recaptchaHandler" /></div>
+                data-callback="recaptchaHandler" />
+            </div>
             <div>OR, <button className="styled-button" onClick={props.switchView} >Login With Existing Account</button></div>
             <script src="https://www.google.com/recaptcha/api.js" async defer />
           </form>

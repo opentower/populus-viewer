@@ -5,9 +5,6 @@ module.exports = {
     main: "./src/index.js",
     "indexeddb-worker": "./src/indexeddb-worker.js"
   },
-  output: {
-    library: "Populus"
-  },
   devServer: {
     contentBase: path.join(__dirname, 'dist'),
     compress: true,

@@ -92,8 +92,10 @@ class PopulusViewer extends Component {
   }
 }
 
-export function recaptchaHandler (recaptchaToken) {
+function recaptchaHandler (recaptchaToken) {
   window.dispatchEvent(new CustomEvent('recaptcha', { detail: recaptchaToken }))
 }
+
+window.recaptchaHandler = recaptchaHandler // needs to be global for the google callback
 
 render(<PopulusViewer />, document.body)
