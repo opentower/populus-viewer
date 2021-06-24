@@ -80,8 +80,6 @@ export default class AnnotationLayer extends Component {
 class Annotation extends Component {
   setFocus = _ => { this.props.setFocus(this.props.event.getContent()[eventVersion]) }
 
-  inlineAnnotations = createRef()
-
   eventContent = this.props.event.getContent()[eventVersion]
 
   roomId = this.eventContent.roomId

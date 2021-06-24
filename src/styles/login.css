@@ -39,7 +39,7 @@
     grid-column: 1 / 3 ;
 }
 
-#loginModal button { 
+#registrationModal button, #loginModal button { 
     margin-top:10px; 
     margin-right:10px;
 }
