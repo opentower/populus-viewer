@@ -124,7 +124,6 @@
   margin-right:10px;
 }
 
-
 .room-listing-entry {
     display: grid;
     grid-template-columns: 1fr 40px;
@@ -216,7 +215,12 @@
     margin-bottom:5px;
     border-left:5px solid var(--user_light);
     padding-left:5px;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    overflow: scroll;
 }
+
+.annotation-room-entry::-webkit-scrollbar { display: none; }
 
 .annotation-room-entry-data {
     display: flex;
