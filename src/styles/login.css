@@ -39,6 +39,21 @@
     grid-column: 1 / 3 ;
 }
 
+.login-sso-listing {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.login-sso-listing:hover .sso-name {
+  font-weight:bold;
+  transition: font-weight ease .2s;
+}
+
+.sso-name {
+  padding-left:20px
+}
+
 #registrationModal button, #loginModal button { 
     margin-top:10px; 
     margin-right:10px;

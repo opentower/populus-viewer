@@ -2,6 +2,8 @@ import { h, Fragment, createRef, Component } from 'preact';
 import './styles/login.css'
 import { serverRoot } from './constants.js'
 import Client from './client.js'
+import * as Matrix from 'matrix-js-sdk'
+import * as Icons from './icons.js'
 
 export default class LoginView extends Component {
   constructor(props) {
@@ -9,16 +11,15 @@ export default class LoginView extends Component {
     this.state = { registering: false }
   }
 
-  switchView = (e) => {
+  switchView = switchTo => (e) => {
     if (e) e.preventDefault()
-    this.setState(oldstate => {
-      return {registering: !oldstate.registering}
-    })
+    this.setState({registering: switchTo})
   }
 
   render(props, state) {
-    if (state.registering) {
-      return <div><RegistrationModal loginHandler={props.loginHandler} switchView={this.switchView} /></div>
+    switch (state.registering) {
+      case "register": return <div><RegistrationModal loginHandler={props.loginHandler} switchView={this.switchView} /></div>
+      case "SSO": return <div><SSOModal loginHandler={props.loginHandler} switchView={this.switchView} /></div>
     }
     return <div><LoginModal loginHandler={props.loginHandler} switchView={this.switchView} /></div>
   }
@@ -38,6 +39,10 @@ class LoginModal extends Component {
       .catch(window.alert)
   }
 
+  handleSSO = (e) => {
+    e.preventDefault()
+  }
+
   render(props) {
     return <div id="loginModal">
       <h3>Login To Populus</h3>
@@ -47,7 +52,74 @@ class LoginModal extends Component {
           <button className="styled-button" onClick={this.handleSubmit} >Login</button>
         </div>
         <div>
-          <span>Don't have a username? </span><button className="styled-button" onClick={props.switchView} >Register an Account</button>
+          <span>Don't have a username? </span>
+          <button className="styled-button" onClick={props.switchView("register")} >Register</button>
+          <span>or&nbsp; </span>
+          <button className="styled-button" onClick={props.switchView("SSO")} >Login Via SSO</button>
+        </div>
+      </form>
+    </div>
+  }
+}
+
+class SSOModal extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {SSOProviders: []}
+  }
+
+  handleSubmit = (e) => {
+    e.preventDefault()
+    const loginForm = document.getElementById("loginForm")
+    const formdata = new FormData(loginForm)
+    const entries = Array.from(formdata.entries()).map(i => i[1])
+    if (entries[0]) localStorage.setItem("baseUrl", `https://${entries[0]}`)
+    else localStorage.setItem("baseUrl", serverRoot)
+    Client.initClient()
+      .then(client => client.loginFlows())
+      .then(this.handleFlows)
+  }
+
+  handleFlows = flows => {
+    const theSSO = flows.flows.find(flow => flow.type === "m.login.sso")
+    if (!theSSO) {
+      window.alert("This server doesn't appear to support SSO login.")
+      return
+    }
+    this.setState({SSOProviders: theSSO.identity_providers})
+  }
+
+  trySSO = idpId => {
+    const loginUrl = Client.client.getSsoLoginUrl(window.location.href, "sso", idpId)
+    window.location.replace(loginUrl)
+  }
+
+  render(props, state) {
+    return <div id="loginModal">
+      <h3>Sign In To Populus</h3>
+      <form id="loginForm">
+        <div>
+          <label htmlFor="servername">Server</label>
+          <input type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
+          <button className="styled-button" onClick={this.handleSubmit} >Look up SSO</button>
+        </div>
+        {state.SSOProviders.map(
+          provider => {
+            console.log(provider.icon)
+            let iconHttpURI = null
+            if (provider.icon) iconHttpURI = Matrix.getHttpUriForMxc(localStorage.getItem("baseUrl"), provider.icon, 40, 40, "crop")
+            return <div onclick={_ => this.trySSO(provider.id)} class="login-sso-listing"key={provider.id}>
+              { iconHttpURI
+                ? <img class="sso-icon" width="40" height="40" src={iconHttpURI} />
+                : Icons.login
+              }
+              <span class="sso-name">{provider.name}</span>
+              </div>
+          }
+        )}
+        <div>
+          <span>Don't want to use a third-party login? </span>
+          <button className="styled-button" onClick={props.switchView("register")} >Register an Account</button>
         </div>
       </form>
     </div>
@@ -74,13 +146,13 @@ class RegistrationModal extends Component {
     const entries = Array.from(formdata.entries()).map(i => i[1])
     if (/[^a-zA-Z0-9._=/]/.test(entries[0])) {
       alert("Usernames must consist of characters which are alphanumeric, or among '.' ,'/' ,'=' , and '_'.")
-      this.props.switchView()
+      this.props.switchView("login")()
       return;
     }
     this.username = entries[0]
     if (entries[1].length < 8) {
       alert("passwords must be at least 8 characters long")
-      this.props.switchView()
+      this.props.switchView("login")()
       return;
     }
     this.password = entries[1]
@@ -154,7 +226,7 @@ class RegistrationModal extends Component {
                 data-sitekey={this.recaptchaKey}
                 data-callback="recaptchaHandler" />
             </div>
-            <div>OR, <button className="styled-button" onClick={props.switchView} >Login With Existing Account</button></div>
+            <div>OR, <button className="styled-button" onClick={props.switchView("login")} >Login With Existing Account</button></div>
             <script src="https://www.google.com/recaptcha/api.js" async defer />
           </form>
         </div>
@@ -165,7 +237,7 @@ class RegistrationModal extends Component {
           <form ref={this.registerForm} id="registerForm">
             <UserData />
             <div><button className="styled-button" onClick={this.beginRegistrationFlow} >Register a New Account</button></div>
-            <div>Already have an account? <button className="styled-button" onClick={props.switchView} >Login With Existing Account</button></div>
+            <div>Already have an account? <button className="styled-button" onClick={props.switchView("login")} >Login With Existing Account</button></div>
           </form>
         </div>
       }
