@@ -52,7 +52,7 @@ export default class AnnotationListing extends Component {
     } else setTimeout(this.handleStateUpdate, 500) // keep polling until the room is available
   }
 
-  focusInArray (array) { 
+  focusInArray (array) {
     let reachedFocus = !this.props.focus
     for (const annot of array) {
       const theId = annot[eventVersion].roomId

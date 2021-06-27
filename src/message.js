@@ -176,7 +176,6 @@ class Message extends Component {
 
   closeEditor = () => this.setState({ responding: false })
 
-
   redactMessage = () => {
     // XXX also need to redact all subsequent edits that replace the original
     Client.client.redactEvent(this.props.event.getRoomId(), this.props.event.getId())
@@ -190,8 +189,8 @@ class Message extends Component {
     const canEdit = !!props.getCurrentEdit
     const upvotes = props.reactions[event.getId()]
       ? props.reactions[event.getId()].filter(
-          event => event.getContent()["m.relates_to"].rel_type === "m.annotation"
-        ).length
+        event => event.getContent()["m.relates_to"].rel_type === "m.annotation"
+      ).length
       : 0
 
     if (Client.client.getUserId() === event.getSender()) {

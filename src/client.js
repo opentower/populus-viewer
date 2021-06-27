@@ -1,4 +1,3 @@
-import { serverRoot } from './constants.js'
 import * as Matrix from 'matrix-js-sdk'
 
 function getRoomWithState(roomId) {

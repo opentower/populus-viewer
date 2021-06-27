@@ -1,5 +1,4 @@
-import { h, Fragment, Component } from 'preact';
-import UserPill from './userPill.js'
+import { h, Component } from 'preact';
 import Client from './client.js'
 import * as Matrix from "matrix-js-sdk"
 import { joinRule } from './constants.js';

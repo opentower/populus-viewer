@@ -200,9 +200,8 @@ class RegistrationModal extends Component {
       return Client.client.register(this.username.toLowerCase(), this.password, this.authSession, {
         type: "m.login.dummy"
       })
-    } else {
-      throw new Error("Error: can't complete this registration flow")
     }
+    throw new Error("Error: can't complete this registration flow")
   }
 
   render(props, state) {
