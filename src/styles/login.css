@@ -68,6 +68,10 @@
   animation: pulse-opacity 2s infinite;
 }
 
+#server-loading-message {
+    animation: pulse-opacity 2s infinite; 
+}
+
 @media only screen and (max-width: 600px) {
     #loginModal, #registrationModal { 
       border:none;

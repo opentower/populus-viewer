@@ -65,7 +65,10 @@ class LoginModal extends Component {
 class SSOModal extends Component {
   constructor(props) {
     super(props)
-    this.state = {SSOProviders: []}
+    this.state = {
+      SSOProviders: [],
+      loading: false
+    }
   }
 
   handleSubmit = (e) => {
@@ -75,9 +78,18 @@ class SSOModal extends Component {
     const entries = Array.from(formdata.entries()).map(i => i[1])
     if (entries[0]) localStorage.setItem("baseUrl", `https://${entries[0]}`)
     else localStorage.setItem("baseUrl", serverRoot)
+    this.setState({
+      SSOProviders: [],
+      loading: true
+    })
     Client.initClient()
       .then(client => client.loginFlows())
       .then(this.handleFlows)
+      .catch(_ => {
+        window.alert("Couldn't connect. Check your server name - it should look like 'matrix.org'")
+        this.setState({ loading: false })
+      })
+      // TODO: a nicer display for this error
   }
 
   handleFlows = flows => {
@@ -86,7 +98,10 @@ class SSOModal extends Component {
       window.alert("This server doesn't appear to support SSO login.")
       return
     }
-    this.setState({SSOProviders: theSSO.identity_providers})
+    this.setState({
+      loading: false,
+      SSOProviders: theSSO.identity_providers
+    })
   }
 
   trySSO = idpId => {
@@ -103,6 +118,7 @@ class SSOModal extends Component {
           <input type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
           <button className="styled-button" onClick={this.handleSubmit} >Look up SSO</button>
         </div>
+        {state.loading ? <div id="server-loading-message">Loading...</div> : null}
         {state.SSOProviders.map(
           provider => {
             console.log(provider.icon)
