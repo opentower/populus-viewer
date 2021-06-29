@@ -2,7 +2,6 @@
   "name": "populus-viewer",
   "version": "0.0.35",
   "description": "A pdf viewer for Populus",
-  "main": "index.js",
   "scripts": {
     "test": "eslint src",
     "build": "webpack --progress --mode=production",
@@ -31,8 +30,8 @@
     "webpack-cli": "^4.5.0",
     "webpack-dev-server": "^3.11.2"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Graham Leach-Krouse",
+  "license": "GPL-3.0-or-later",
   "dependencies": {
     "buffer": "^6.0.3",
     "commonmark": "^0.29.3",
