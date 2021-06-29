@@ -62,6 +62,13 @@ export default class ProfileInfomation extends Component {
         ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl} />
         : <div key="profileSelector" onclick={this.uploadAvatar} id="profileSelector" />}
       <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} type="file" />
+      <details>
+        <summary>Advanced Options</summary>
+        <div id="profile-advanced-options">
+          <label>My Access Token</label>
+          <div>{Client.client.getAccessToken()}</div>
+        </div>
+      </details>
       <div key="profileInformationFormSubmit" id="profileInformationFormSubmit">
         <button class="styled-button" ref={this.submitButton} type="submit">Update Profile</button>
         {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
