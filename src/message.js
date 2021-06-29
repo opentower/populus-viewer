@@ -67,6 +67,59 @@ export class TextMessage extends Component {
   }
 }
 
+export class NoticeMessage extends Component {
+  componentDidMount() {
+    this.processLatex()
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.reactions[this.props.event.getId()] !== prevProps.reactions[prevProps.event.getId()]) {
+      this.processLatex()
+    }
+  }
+
+  messageBody = createRef()
+
+  noticeStyle = {
+    "--user_ultralight": "hsl(0,0%, 95%)",
+    "--user_light": "hsl(0,0%, 80%)",
+    "--user_solid": "hsl(0,0%, 50%)",
+    "--user_dark": "hsl(0,0%, 20%)"
+  }
+
+  processLatex() {
+    if (this.messageBody.current) {
+      const latexArray = Array.from(this.messageBody.current.querySelectorAll("[data-mx-maths]"))
+      latexArray.forEach(elt => {
+        if (elt.tagName === "DIV") katex.render(elt.dataset.mxMaths, elt, {displayMode: true, throwOnError: false})
+        else katex.render(elt.dataset.mxMaths, elt, {throwOnError: false})
+      })
+    }
+  }
+
+  render(props) {
+    const content = props.event.getContent()
+    const isReply = Replies.isReply(content)
+    const replyPreview = isReply ? <ReplyPreview reactions={props.reactions} event={props.event} /> : null
+    const displayBody = <div ref={this.messageBody} class="body">
+      {replyPreview}
+      {((content.format === "org.matrix.custom.html") && content.formatted_body)
+        ? <div dangerouslySetInnerHTML={{
+          __html: sanitizeHtml(isReply ? sanitizeHtml(content.formatted_body, Replies.stripReply) : content.formatted_body, sanitizeHtmlParams)
+        }} />
+        : <div class="body">{isReply ? Replies.stripFallbackPlain(content.body) : content.body}</div>
+      }
+    </div>
+    return <Message
+      reactions={props.reactions}
+      styleOverride={this.noticeStyle}
+      event={props.event}
+      getCurrentEdit={this.getCurrentEdit}>
+        {displayBody}
+    </Message>
+  }
+}
+
 export class FileMessage extends Component {
   userColor = new UserColor(this.props.event.getSender())
 
@@ -198,7 +251,7 @@ class Message extends Component {
         <Fragment>
           <div data-event-status={event.getAssociatedStatus()}
             id={event.getId()}
-            style={this.userColor.styleVariables}
+            style={props.styleOverride || this.userColor.styleVariables}
             class="message me">
             {props.children}
             <div class="ident">
@@ -218,7 +271,7 @@ class Message extends Component {
     }
     return (
       <Fragment>
-        <div style={this.userColor.styleVariables} id={event.getId()} class="message">
+        <div style={props.styleOverride || this.userColor.styleVariables} id={event.getId()} class="message">
           <div class="ident">
             <div class="info">
               {!state.replying && <button title="reply to this message" onclick={this.openEditor}>{Icons.reply}</button>}
@@ -328,9 +381,23 @@ class ReplyPreview extends Component {
         case "m.text": {
           if (isReply && hasHtml) {
             const displayText = sanitizeHtml(content.formatted_body, Replies.stripReply)
-            displayBody = <div dangerouslySetInnerHTML={{_html: displayText}} />
+            displayBody = <div dangerouslySetInnerHTML={{__html: displayText}} />
           } else if (hasHtml) {
-            displayBody = <div dangerouslySetInnerHTML={{_html: content.formatted_body}} />
+            displayBody = <div dangerouslySetInnerHTML={{__html: content.formatted_body}} />
+          } else if (isReply) {
+            displayBody = <div>Replies.stripFallbackPlainString(content.body)</div>
+          } else {
+            displayBody = <div>content.body</div>
+          }
+          break;
+        }
+        case "m.notice": {
+          if (isReply && hasHtml) {
+            const displayText = sanitizeHtml(content.formatted_body, Replies.stripReply)
+            displayBody = <div dangerouslySetInnerHTML={{__html: displayText}} />
+            console.log(displayBody)
+          } else if (hasHtml) {
+            displayBody = <div dangerouslySetInnerHTML={{__html: content.formatted_body}} />
           } else if (isReply) {
             displayBody = <div>Replies.stripFallbackPlainString(content.body)</div>
           } else {
@@ -354,7 +421,7 @@ class ReplyPreview extends Component {
     const hasHtml = (content.format === "org.matrix.custom.html") && content.formatted_body
     const style = {'--user_light': 'lightgray'}
     return hasHtml
-      ? <div style={style} class="reply-preview reply-fallback" dangerouslySetInnerHTML={{__html: Replies.getFallbackHtml(content)}} />
+      ? <div style={style} class="reply-preview reply-fallback" dangerouslySetInnerHTML={{_html: Replies.getFallbackHtml(content)}} />
       : <div style={style} class="reply-preview reply-fallback">{Replies.getFallbackPlain(content)}</div>
   }
 

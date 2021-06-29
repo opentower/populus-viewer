@@ -1,7 +1,7 @@
 import { h, createRef, Component } from 'preact';
 import './styles/chat.css'
 import * as Matrix from "matrix-js-sdk"
-import { TextMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } from './message.js'
+import { TextMessage, NoticeMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } from './message.js'
 import MessagePanel from './messagePanel.js'
 import UserColor from './userColors.js'
 import Client from './client.js'
@@ -130,6 +130,7 @@ export default class Chat extends Component {
     const messages = state.events.filter(
       e => e.getType() === "m.room.message" &&
         (e.getContent().msgtype === "m.text" ||
+        e.getContent().msgtype === "m.notice" ||
         e.getContent().msgtype === "m.file" ||
         e.getContent().msgtype === "m.image" ||
         e.getContent().msgtype === "m.video" ||
@@ -151,6 +152,14 @@ export default class Chat extends Component {
         case "m.text": {
           accumulator.push(
             <TextMessage reactions={reactions}
+              key={event.getId()}
+              event={event} />
+          )
+          break;
+        }
+        case "m.notice": {
+          accumulator.push(
+            <NoticeMessage reactions={reactions}
               key={event.getId()}
               event={event} />
           )
