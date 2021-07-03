@@ -19,7 +19,7 @@ export default class WelcomeView extends Component {
   constructor(props) {
     super(props)
     const userId = Client.client.getUserId()
-    this.user = Client.client.getUser(Client.client.getUserId())
+    this.user = Client.client.getUser(userId)
     this.userColor = new UserColor(userId)
     this.profileListener = this.profileListener.bind(this)
     this.state = {

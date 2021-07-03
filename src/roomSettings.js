@@ -1,4 +1,4 @@
-import { h, Component } from 'preact';
+import { h, Component, Fragment } from 'preact';
 import Client from './client.js'
 import * as Matrix from "matrix-js-sdk"
 import { joinRule } from './constants.js';
@@ -9,7 +9,6 @@ export default class RoomSettings extends Component {
     super(props)
     const roomState = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const currentJoinRule = roomState.getJoinRule()
-    console.log(currentJoinRule)
     this.state = {
       joinRule: currentJoinRule
     }
@@ -28,24 +27,27 @@ export default class RoomSettings extends Component {
   }
 
   render(props, state) {
-    return <form id="room-settings-form">
-      <label htmlFor="joinRule">Join Rule:</label>
-      <select value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
-        <option value="private">Private</option>
-        <option value="public">Public</option>
-        <option value="invite">Invite-Only</option>
-      </select>
-      <div id="room-settings-join-info">
-        {state.joinRule === "public"
-          ? "anyone who can find the room may join"
-          : state.joinRule === "invite"
-            ? "an explicit invitation is required before joiing"
-            : "no new members may join the room"
-        }
-      </div>
-      <div id="room-settings-submit-wrapper">
-      <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
-      </div>
-    </form>
+    return <Fragment>
+      <h3 id="modalHeader">Room Settings</h3>
+      <form id="room-settings-form">
+        <label htmlFor="joinRule">Join Rule:</label>
+        <select value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
+          <option value="private">Private</option>
+          <option value="public">Public</option>
+          <option value="invite">Invite-Only</option>
+        </select>
+        <div id="room-settings-join-info">
+          {state.joinRule === "public"
+            ? "anyone who can find the room may join"
+            : state.joinRule === "invite"
+              ? "an explicit invitation is required before joiing"
+              : "no new members may join the room"
+          }
+        </div>
+        <div id="room-settings-submit-wrapper">
+          <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
+        </div>
+      </form>
+    </Fragment>
   }
 }
