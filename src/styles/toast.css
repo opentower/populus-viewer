@@ -68,6 +68,10 @@
   display: none;
 }
 
+#toast-header{
+  margin-top:-5px;
+}
+
 #dismiss-toast {
   cursor:pointer;
   position:absolute;

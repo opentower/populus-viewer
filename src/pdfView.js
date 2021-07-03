@@ -9,7 +9,7 @@ import AnnotationListing from "./annotationListing.js"
 import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
-import { eventVersion, pdfStateType, spaceChild, spaceParent } from "./constants.js"
+import { eventVersion, pdfStateType, spaceChild, spaceParent, lastViewed } from "./constants.js"
 import Modal from "./modal.js"
 import Toast from "./toast.js"
 import * as Icons from "./icons.js"
@@ -40,6 +40,7 @@ export default class PdfView extends Component {
     this.prevScrollTop = 0
     this.checkForSelection = this.checkForSelection.bind(this)
     this.keyboardZoom = this.keyboardZoom.bind(this)
+    this.handleAccountData = this.handleAccountData.bind(this)
     // need the `bind` here in order to pass a named function into the event
     // listener with the proper `this` reference
   }
@@ -47,11 +48,13 @@ export default class PdfView extends Component {
   componentDidMount() {
     document.addEventListener("selectionchange", this.checkForSelection)
     document.addEventListener('keypress', this.keyboardZoom)
+    Client.client.on("Room.accountData", this.handleAccountData)
   }
 
   componentWillUnmount() {
     document.removeEventListener("selectionchange", this.checkForSelection)
     document.removeEventListener('keypress', this.keyboardZoom)
+    Client.client.off("Room.accountData", this.handleAccountData)
   }
 
   handlePointerDown = e => {
@@ -84,6 +87,30 @@ export default class PdfView extends Component {
     if (this.prevScrollTop > e.target.scrollTop) this.setState({hideButtons: true})
     if (this.prevScrollTop < e.target.scrollTop) this.setState({hideButtons: false})
     this.prevScrollTop = e.target.scrollTop
+  }
+
+  handleAccountData = (e, room) => {
+    if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
+      const theContent = e.getContent()
+      if (theContent.page !== this.props.pageFocused) {
+        this.populateToast(
+          <Fragment>
+            <h3 id="toast-header">Hey!</h3>
+            <div>Another device is viewing a different page.</div>
+            <div style="margin-top:10px">
+              <button
+                onclick={_ => {
+                  this.props.pushHistory({pageFocused: theContent.page})
+                  this.populateToast(null)
+                }}
+                class="styled-button">
+                Jump to there →
+              </button>
+            </div>
+          </Fragment>
+        )
+      }
+    }
   }
 
   annotationLayer = createRef()
