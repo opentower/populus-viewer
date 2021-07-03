@@ -33,7 +33,6 @@ export default class PdfView extends Component {
       pdfWidthPx: null,
       pdfHeightPx: null,
       pdfFitRatio: 1,
-      toastContent: "hello",
       zoomFactor: 1,
       modalContent: null,
       hideButtons: false // this is for hiding the buttons, but only applies if the buttons overlap the chatbox

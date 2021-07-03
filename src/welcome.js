@@ -27,7 +27,6 @@ export default class WelcomeView extends Component {
       profileVisible: false,
       inputFocus: false,
       searchFilter: "",
-      toastContent: "hello",
       avatarUrl: Client.client.getHttpUriForMxcFromHS(this.user.avatarUrl, 30, 30, "crop")
     }
   }
