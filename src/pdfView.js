@@ -11,6 +11,7 @@ import Client from './client.js'
 import Navbar from "./navbar.js"
 import { eventVersion, pdfStateType, spaceChild, spaceParent } from "./constants.js"
 import Modal from "./modal.js"
+import Toast from "./toast.js"
 import * as Icons from "./icons.js"
 
 export default class PdfView extends Component {
@@ -32,6 +33,7 @@ export default class PdfView extends Component {
       pdfWidthPx: null,
       pdfHeightPx: null,
       pdfFitRatio: 1,
+      toastContent: "hello",
       zoomFactor: 1,
       modalContent: null,
       hideButtons: false // this is for hiding the buttons, but only applies if the buttons overlap the chatbox
@@ -121,6 +123,10 @@ export default class PdfView extends Component {
   emptyModal = _ => this.setState({ modalContent: null })
 
   populateModal = s => this.setState({ modalContent: s })
+
+  emptyToast = _ => this.setState({ toastContent: null })
+
+  populateToast = s => this.setState({ toastContent: s })
 
   setZoom = zoomFactor => {
     if (zoomFactor < 1) this.setState({zoomFactor: 1})
@@ -275,7 +281,8 @@ export default class PdfView extends Component {
         onPointerCancel={this.handlePointerUp}
         onPointerLeave={this.handlePointerUp}
         onPointerMove={this.handlePointerMove}>
-        <Modal modalVisible={state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
+        <Modal modalVisible={!!state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
+        <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
         {state.pdfHeightPx ? null : <div id="document-view-loading">loading...</div>}
         <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
           <div id="document-wrapper">

@@ -12,6 +12,7 @@ import RoomSettings from './roomSettings.js'
 import * as Icons from './icons.js'
 import { calculateUnread } from './utils/unread.js'
 import Modal from './modal.js'
+import Toast from './toast.js'
 import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
@@ -26,6 +27,7 @@ export default class WelcomeView extends Component {
       profileVisible: false,
       inputFocus: false,
       searchFilter: "",
+      toastContent: "hello",
       avatarUrl: Client.client.getHttpUriForMxcFromHS(this.user.avatarUrl, 30, 30, "crop")
     }
   }
@@ -54,6 +56,10 @@ export default class WelcomeView extends Component {
 
   populateModal = s => this.setState({ modalContent: s })
 
+  emptyToast = _ => this.setState({ toastContent: null })
+
+  populateToast = s => this.setState({ toastContent: s })
+
   showMainView = _ => this.setState({
     uploadVisible: false,
     profileVisible: false
@@ -79,8 +85,9 @@ export default class WelcomeView extends Component {
 
   render(props, state) {
     return (
-      <Fragment>
-        <Modal modalVisible={state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
+      <Fragment key="welcome-fragment">
+        <Modal modalVisible={!!state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
+        <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
         <header id="welcome-header">
           <div id="welcome-header-content">
             <div id="welcome-search">
