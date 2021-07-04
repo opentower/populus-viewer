@@ -71,10 +71,16 @@
 
 @media only screen and (max-width: 600px) {
     .nav-button-wrapper {
+        display: grid;
+        grid-template-columns: repeat(9,1fr);
         transform: scale(0.8);
         transform-origin: left;
         min-width: calc((var(--contentWidth)/0.8));
         justify-content:space-around;
+    }
+
+    .nav-button-wrapper > *:last-child {
+      grid-column:9/10;
     }
 
     #page-nav {
