@@ -32,14 +32,14 @@ export default class Navbar extends Component {
 
   pageInput = createRef()
 
-  handleTypingNotification = (event, member) => {
+  handleTypingNotification = (ev, member) => {
     const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
     // We use nested state here because we want to pass this part of the state to a child
     if (theChildRelation) {
       this.setState(prevState => {
         const typingKey = theChildRelation.getContent()[eventVersion].pageNumber
-        return {typing: { ...prevState.typing, [typingKey]: event.getContent().user_ids}}
+        return {typing: { ...prevState.typing, [typingKey]: ev.getContent().user_ids}}
       })
     }
   }
@@ -53,14 +53,14 @@ export default class Navbar extends Component {
 
   handleBlur = _ => this.setState({ focused: false, value: this.props.page })
 
-  handleSubmit = e => {
-    e.preventDefault();
+  handleSubmit = ev => {
+    ev.preventDefault();
     const currentPage = Number.isNaN(parseInt(this.state.value, 10)) ? 1 : parseInt(this.state.value, 10)
     if (currentPage > 0 && currentPage <= this.props.total) this.props.pushHistory({ pageFocused: currentPage })
     else alert("Out of range");
   }
 
-  handleClick = _ => this.props.pushHistory({ pageFocused: parseInt(event.target.value, 10) })
+  handleClick = e => this.props.pushHistory({ pageFocused: parseInt(e.target.value, 10) })
 
   togglePageNav = _ => this.setState({pageViewVisible: !this.state.pageViewVisible})
 
