@@ -25,7 +25,7 @@ Populus-Viewer currently supports
 - User Avatars
 - Replies
 - Unread counts
-- Markdown formatting in messages (via [commonmark.js](https://github.com/commonmark/commonmark.js)
+- Markdown formatting in messages (via [commonmark.js](https://github.com/commonmark/commonmark.js))
 - LaTeX in annotations (via [KaTeX](https://katex.org))
 - Integrations with bots
 - Typing notifications
