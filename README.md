@@ -31,7 +31,7 @@ Populus-Viewer currently supports
 - Typing notifications
 - Room Invitations
 - Synchronizing last-viewed page across devices
-- Single Sign On, (via Google, your university, or another SSO provider), given a server that supports it
+- Single Sign On, (via Google, your university, or another SSO provider), given a matrix server that supports it
 
 If there's a feature supported by Matrix that you think would make for a 
 better social annotation experience, please open an issue or a PR!
