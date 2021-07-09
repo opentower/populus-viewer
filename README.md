@@ -1,11 +1,11 @@
 # Populus-Viewer
-*A Social Annotation Tool Powered by Matrix*
+*Social Annotation Powered by Matrix*
 
-Populus-Viewer leverages [pdfjs](https://mozilla.github.io/pdf.js/) 
-and [the Matrix protocol](https://matrix.org) to provide a decentralized 
-platform for social annotation of PDFs. You can use it to read pdfs and 
-have rich discussions in the margins, with your friends, classmates, or
-scholarly collaborators.
+Populus-Viewer is a decentralized platform for social annotation,
+built on [pdfjs](https://mozilla.github.io/pdf.js/) and 
+[the Matrix protocol](https://matrix.org). You can use it to read
+pdfs and have rich discussions in the margins, with your friends, 
+classmates, or scholarly collaborators.
 
 Each uploaded PDF is attached to a matrix space, and each annotation 
 to the PDF becomes a room within that space. Populus-viewer has been 
@@ -18,20 +18,19 @@ and feature requests are welcome.
 
 ## Features
 
-Populus-Viewer currently supports
+Populus-Viewer currently supports:
 
-- Recording audio and video messages
-- Rich media messages
-- User Avatars
-- Replies
-- Unread counts
-- Markdown formatting in messages (via [commonmark.js](https://github.com/commonmark/commonmark.js))
-- LaTeX in annotations (via [KaTeX](https://katex.org))
-- Integrations with bots
+- Audio and video messages
+- Message edits and redactions
+- Replies and reactions
+- Unread message counts
+- Markdown for text formatting (via [commonmark.js](https://github.com/commonmark/commonmark.js))
+- LaTeX for mathematical notation (via [KaTeX](https://katex.org))
+- Integration with bots
 - Typing notifications
 - Room Invitations
-- Synchronizing last-viewed page across devices
-- Single Sign On, (via Google, your university, or another SSO provider), given a matrix server that supports it
+- Synchronizing your reading position across devices
+- Single Sign On (via Google, your university, or another SSO provider), given a matrix server that supports it
 
 If there's a feature supported by Matrix that you think would make for a 
 better social annotation experience, please open an issue or a PR!
