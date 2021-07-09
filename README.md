@@ -4,7 +4,7 @@
 Populus-Viewer is a decentralized platform for social annotation,
 built on [pdfjs](https://mozilla.github.io/pdf.js/) and 
 [the Matrix protocol](https://matrix.org). You can use it to read
-pdfs and have rich discussions in the margins, with your friends, 
+PDFs and have rich discussions in the margins, with your friends, 
 classmates, or scholarly collaborators.
 
 Each uploaded PDF is attached to a matrix space, and each annotation 
