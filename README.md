@@ -1,7 +1,7 @@
 # Populus-Viewer
 *Social Annotation Powered by Matrix*
 
-Populus-Viewer is a decentralized platform for social annotation,
+Populus-Viewer is a tool for decentralized social annotation,
 built on [pdfjs](https://mozilla.github.io/pdf.js/) and 
 [the Matrix protocol](https://matrix.org). You can use it to read
 PDFs and have rich discussions in the margins, with your friends, 
@@ -13,8 +13,9 @@ tested with synapse and dendrite, but should be compatible with any
 spec-compliant matrix server.
 
 To learn more or talk about the project, [find us on Matrix](https://matrix.to/#/#opentower:matrix.org).
-The project should currently be considered beta-quality. Bug reports 
-and feature requests are welcome.
+The project should currently be considered beta-quality. UX is 
+unpolished, bugs are likely, and features are missing. Bug reports and 
+feature requests are welcome.
 
 ## Features
 
@@ -24,8 +25,10 @@ Populus-Viewer currently supports:
 - Message edits and redactions
 - Replies and reactions
 - Unread message counts
-- Markdown for text formatting (via [commonmark.js](https://github.com/commonmark/commonmark.js))
-- LaTeX for mathematical notation (via [KaTeX](https://katex.org))
+- Markdown for text formatting (via 
+  [commonmark.js](https://github.com/commonmark/commonmark.js))
+- LaTeX for mathematical notation (via 
+  [KaTeX](https://katex.org))
 - Integration with bots
 - Typing notifications
 - Room Invitations
