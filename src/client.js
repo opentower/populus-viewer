@@ -14,6 +14,8 @@ function getHttpUriForMxcFromHS(...theArgs) {
 }
 
 export default class Client {
+  static client
+
   static isResumable() {
     return !!localStorage.getItem('accessToken') &&
            !!localStorage.getItem('userId') &&
