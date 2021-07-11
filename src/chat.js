@@ -274,7 +274,7 @@ class RedactedMessage extends Component {
 }
 
 function Anchor(props) {
-  if (props.fullyScrolled) return <div id="scroll-done">All events loaded</div>
+  if (props.fullyScrolled) return <div id="scroll-done">All messages loaded</div>
   return <div id="scroll-anchor">loading...</div>
 }
 

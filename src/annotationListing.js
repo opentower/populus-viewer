@@ -124,11 +124,11 @@ class AnnotationListingEntry extends Component {
     this.props.focusByRoomId(this.props.annotationContent.roomId)
     this.props.pushHistory({
       pageFocused: this.props.annotationContent.pageNumber,
-      pdfFocused: this.props.parentRoom.name
+      pdfFocused: this.props.parentRoom.getCanonicalAlias()
     })
   }
 
-  handleTimeline (event, room) {
+  handleTimeline (_event, room) {
     if (this.props.annotationContent.roomId === room.roomId) {
       this.setState({unreadCount: calculateUnread(this.props.annotationContent.roomId)})
     }
