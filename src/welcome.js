@@ -253,7 +253,7 @@ class PDFRoomEntry extends Component {
       ? this.props.room.getAccountData(lastViewed).getContent().page
       : 1
     this.props.pushHistory({
-      pdfFocused: this.props.room.name,
+      pdfFocused: this.props.room.getCanonicalAlias(),
       pageFocused: lastViewedPage || 1
     })
   }
@@ -373,7 +373,7 @@ class AnnotationRoomEntry extends Component {
     QueryParameters.set("focus", this.props.annotationContent.roomId)
     this.props.pushHistory({
       pageFocused: this.props.annotationContent.pageNumber,
-      pdfFocused: this.props.parentRoom.name
+      pdfFocused: this.props.parentRoom.getCanonicalAlias()
     })
   }
 

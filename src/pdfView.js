@@ -425,9 +425,8 @@ class PdfCanvas extends Component {
 
   canvas = createRef()
 
-  async fetchPdf (title) {
-    const theDomain = Client.client.getDomain()
-    const theId = await Client.client.getRoomIdForAlias(`#${title.replace(/[\s:]/g, '_')}:${theDomain}`)
+  async fetchPdf (alias) {
+    const theId = await Client.client.getRoomIdForAlias(alias)
     await Client.client.joinRoom(theId.room_id)
     this.props.setId(theId.room_id)
     const theRoom = await Client.client.getRoomWithState(theId.room_id)
@@ -436,9 +435,9 @@ class PdfCanvas extends Component {
     const pdfPath = Client.client.getHttpUriForMxcFromHS(pdfIdentifier)
     this.setState({pdfIdentifier})
     if (!PdfView.PDFStore[pdfIdentifier]) {
-      console.log(`fetching ${title}` )
+      console.log(`fetching pdf for ${theRoom.name}` )
       PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
-    } else { console.log(`found ${title} in store` ) }
+    } else { console.log(`found pdf for ${theRoom.name} in store` ) }
     PdfView.PDFStore[pdfIdentifier]
       .then(pdf => this.props.setTotalPages(pdf.numPages))
       .then(this.resolveFetch)
