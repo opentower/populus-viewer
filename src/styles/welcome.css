@@ -201,12 +201,21 @@
     cursor: pointer;
 }
 
+.room-listing-entry .member-listing {
+  margin-bottom:10px;
+}
+
 .annotation-rooms {
     padding:5px;
 }
 
 .annotation-rooms a {
     cursor: pointer;
+}
+
+.annotation-room-entry-snip {
+    line-height: 1.5em;
+    padding-top: .5em;
 }
 
 .annotation-room-entry {

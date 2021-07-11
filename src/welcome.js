@@ -279,9 +279,11 @@ class PDFRoomEntry extends Component {
 
   render (props, state) {
     const date = new Date(props.room.getLastActiveTimestamp())
-    const members = props.room.getJoinedMembers()
+    const members = props.room.getMembersWithMembership("join")
+    const invites = props.room.getMembersWithMembership("invite")
     const memberIds = members.map(member => member.userId)
     const memberPills = members.map(member => <MemberPill key={member.userId} member={member} />)
+    const invitePills = invites.map(invite => <MemberPill key={invite.userId} member={invite} />)
     const status = memberIds.includes(Client.client.getUserId())
       ? "joined"
       : "invited"
@@ -299,7 +301,8 @@ class PDFRoomEntry extends Component {
           <a onClick={this.handleLoad}>{props.room.name}</a>
         </div>
         <div class="room-listing-data">
-          <span>Members: </span><div>{memberPills}</div>
+          <span>Members: </span><div class="member-listing">{memberPills}</div>
+          { invites.length > 0 ? <Fragment><span>Invited: </span><div class="member-listing">{invitePills}</div></Fragment> : null }
           <span>Last Active:</span><div>{date.toLocaleString('en-US', {
             weekday: "short",
             day: "numeric",
@@ -393,7 +396,7 @@ class AnnotationRoomEntry extends Component {
 
   render (props, state) {
     return <div style={this.userColor.styleVariables} class="annotation-room-entry">
-      <div>…&nbsp;<a onClick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</div>
+      <div class="annotation-room-entry-snip">…&nbsp;<a onClick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</div>
       <div class="annotation-room-entry-data">
         <div class="annotation-room-page">p: {props.annotationContent.pageNumber}</div>
         <div class="annotation-room-unread">{Icons.bell}&nbsp;{state.unreadCount}</div>
