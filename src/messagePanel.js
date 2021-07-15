@@ -116,9 +116,7 @@ class FileUploadInput extends Component {
       <input ref={this.fileLoader} type="file" />
       {this.state.progress
         ? <div id="pdfUploadFormProgress">
-          <span>{this.state.progress.loaded}</span>
-          <span>/</span>
-          <span>{this.state.progress.total} bytes</span>
+            <progress max={this.state.progress.total} value={this.state.progress.loaded} />
         </div>
         : null
       }

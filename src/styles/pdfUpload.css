@@ -32,8 +32,29 @@
 #pdfUploadFormProgress {
     text-align:right;
     grid-column: 2 / 3 ;
-    animation: pulse-opacity 2s infinite; 
-    animation-timing-function:ease;
+}
+
+#pdfUploadFormProgress progress {
+  width: 100%;
+  height: 80%;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: none;
+}
+
+#pdfUploadFormProgress progress::-webkit-progress-bar {
+  background: #ededed;
+  padding: 5px;
+}
+
+#pdfUploadFormProgress progress::-moz-progress-bar {
+  background: black;
+  padding: 5px;
+}
+
+#pdfUploadFormProgress progress::-webkit-progress-value {
+  background: black;
 }
 
 @media only screen and (max-width: 600px) {

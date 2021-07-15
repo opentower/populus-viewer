@@ -69,13 +69,13 @@ export default class PdfUpload extends Component {
       <label>Topic of Discussion</label>
       <textarea ref={this.roomTopicInput} type="text" />
       <div id="pdfUploadFormSubmit">
-        <button class="styled-button" ref={this.submitButton} type="submit">Create Discussion</button>
+        <button disabled={this.state.progress} class="styled-button" ref={this.submitButton} type="submit">
+          { this.state.progress ? "Uploading..." : "Create Discussion" }
+        </button>
       </div>
       {this.state.progress
         ? <div id="pdfUploadFormProgress">
-          <span>{this.state.progress.loaded} bytes</span>
-          <span> out of </span>
-          <span>{this.state.progress.total} bytes</span>
+          <progress max={this.state.progress.total} value={this.state.progress.loaded} />
         </div>
         : null
       }

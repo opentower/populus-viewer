@@ -45,3 +45,24 @@ body {
     user-select:none;
     margin:0px;
 }
+
+.styled-progress {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  border: none;
+}
+
+.styled-progress::-webkit-progress-bar {
+  background: #ededed;
+  padding: 5px;
+}
+
+.styled-progress::-moz-progress-bar {
+  background: black;
+  padding: 5px;
+}
+
+.styled-progress::-webkit-progress-value {
+  background: black;
+}
