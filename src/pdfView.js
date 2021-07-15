@@ -13,6 +13,7 @@ import { eventVersion, pdfStateType, spaceChild, spaceParent, lastViewed } from 
 import Modal from "./modal.js"
 import Toast from "./toast.js"
 import * as Icons from "./icons.js"
+import UserColor from "./userColors.js"
 
 export default class PdfView extends Component {
   static PDFStore = {}
@@ -41,6 +42,7 @@ export default class PdfView extends Component {
     this.checkForSelection = this.checkForSelection.bind(this)
     this.keyboardZoom = this.keyboardZoom.bind(this)
     this.handleAccountData = this.handleAccountData.bind(this)
+    this.userColor = new UserColor(Client.client.getUserId())
     // need the `bind` here in order to pass a named function into the event
     // listener with the proper `this` reference
   }
@@ -292,6 +294,7 @@ export default class PdfView extends Component {
       "--pdfWidthPx": `${state.pdfWidthPx}px`,
       "--pdfHeightPx": `${state.pdfHeightPx}px`,
       "--sidePanelVisible": state.panelVisible ? 1 : 0,
+      "--selectColor": this.userColor.solid,
       "touch-action": this.state.pinching ? "none" : null
     }
     const hideUntilWidthAvailable = {
