@@ -126,7 +126,7 @@
 
 .room-listing-entry {
     display: grid;
-    grid-template-columns: 1fr 40px;
+    grid-template-columns: minmax(0, 1fr) 40px;
 }
 
 /* .room-listing-entry > div { */

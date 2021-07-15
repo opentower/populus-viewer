@@ -278,12 +278,11 @@ class PDFRoomEntry extends Component {
   handleDetailsToggle = _ => this.setState({ detailsOpen: !this.state.detailsOpen })
 
   render (props, state) {
-    const date = new Date(props.room.getLastActiveTimestamp())
     const members = props.room.getMembersWithMembership("join")
     const invites = props.room.getMembersWithMembership("invite")
     const memberIds = members.map(member => member.userId)
     const memberPills = members.map(member => <MemberPill key={member.userId} member={member} />)
-    const invitePills = invites.map(invite => <span class="invite-pill"><MemberPill key={invite.userId} member={invite} /></span>)
+    const invitePills = invites.map(invite => <span key={invite.userId} class="invite-pill"><MemberPill member={invite} /></span>)
     const status = memberIds.includes(Client.client.getUserId())
       ? "joined"
       : "invited"
