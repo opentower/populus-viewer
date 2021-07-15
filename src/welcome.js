@@ -283,7 +283,7 @@ class PDFRoomEntry extends Component {
     const invites = props.room.getMembersWithMembership("invite")
     const memberIds = members.map(member => member.userId)
     const memberPills = members.map(member => <MemberPill key={member.userId} member={member} />)
-    const invitePills = invites.map(invite => <MemberPill key={invite.userId} member={invite} />)
+    const invitePills = invites.map(invite => <span class="invite-pill"><MemberPill key={invite.userId} member={invite} /></span>)
     const status = memberIds.includes(Client.client.getUserId())
       ? "joined"
       : "invited"
@@ -301,16 +301,7 @@ class PDFRoomEntry extends Component {
           <a onClick={this.handleLoad}>{props.room.name}</a>
         </div>
         <div class="room-listing-data">
-          <span>Members: </span><div class="member-listing">{memberPills}</div>
-          { invites.length > 0 ? <Fragment><span>Invited: </span><div class="member-listing">{invitePills}</div></Fragment> : null }
-          <span>Last Active:</span><div>{date.toLocaleString('en-US', {
-            weekday: "short",
-            day: "numeric",
-            month: "short",
-            hour: "numeric",
-            minute: "numeric",
-            second: "numeric"
-          })}</div>
+          <span class="members-icon">{Icons.userMany}</span><Fragment>{memberPills}</Fragment><Fragment>{invitePills}</Fragment>
         </div>
         {annotations.length > 0
           ? <div><details>

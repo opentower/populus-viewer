@@ -129,10 +129,10 @@
     grid-template-columns: 1fr 40px;
 }
 
-.room-listing-entry > div {
-    line-height:2em;
-    grid-column: 1 / 3;
-}
+/* .room-listing-entry > div { */
+/*     line-height:2em; */
+/*     grid-column: 1 / 3; */
+/* } */
 
 .room-listing-entry[data-room-entry-buttons-visible] > div {
     grid-column: 1 / 2;
@@ -150,19 +150,27 @@
 }
 
 .room-listing-data {
-    display: grid;
-    grid-template-columns: 1fr;
+    display: flex;
+    padding-bottom:10px;
+    flex-wrap:wrap;
+    align-items: center;
 }
 
-.room-listing-data > span { grid-column: 1/2; }
+.room-listing-data .members-icon { 
+  display:grid;
+  align-items:center;
+  margin-right:10px;
+}
 
-.room-listing-data > div { grid-column: 1/2; }
+.room-listing-data .invite-pill, 
+.room-listing-data .member-pill {
+  margin-top:5px;
+  margin-bottom:5px;
+}
 
-/* Small devices (portrait tablets and large phones, 600px and up) */
-@media only screen and (min-width: 600px) {
-    .room-listing-data > div { grid-column: 2/3; }
-    .room-listing-data { grid-template-columns: 100px 1fr; }
-} 
+.room-listing-data .invite-pill {
+  opacity:.5;
+}
 
 .room-listing-heading > a {
   font-size:16pt;
@@ -201,9 +209,6 @@
     cursor: pointer;
 }
 
-.room-listing-entry .member-listing {
-  margin-bottom:10px;
-}
 
 .annotation-rooms {
     padding:5px;
