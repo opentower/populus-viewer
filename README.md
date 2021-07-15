@@ -8,7 +8,7 @@ PDFs and have rich discussions in the margins, with your friends,
 classmates, or scholarly collaborators.
 
 Each uploaded PDF is attached to a matrix space, and each annotation 
-to the PDF becomes a room within that space. Populus-viewer has been 
+to the PDF becomes a room within that space. Populus-Viewer has been 
 tested with synapse and dendrite, but should be compatible with any 
 spec-compliant matrix server.
 
@@ -31,9 +31,9 @@ Populus-Viewer currently supports:
   [KaTeX](https://katex.org))
 - Integration with bots
 - Typing notifications
-- Room Invitations
-- Synchronizing your reading position across devices
-- Single Sign On (via Google, your university, or another SSO provider), given a matrix server that supports it
+- Room invitations
+- Synchronized reading positions across devices
+- Single Sign On (via Google, university, or another SSO provider), given a matrix server that supports it
 
 If there's a feature supported by Matrix that you think would make for a 
 better social annotation experience, please open an issue or a PR!
