@@ -52,7 +52,7 @@ export default class RoomSettings extends Component {
           {state.joinRule === "public"
             ? "anyone who can find the room may join"
             : state.joinRule === "invite"
-              ? "an explicit invitation is required before joiing"
+              ? "an explicit invitation is required before joining"
               : "no new members may join the room"
           }
         </div>
