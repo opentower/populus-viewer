@@ -53,7 +53,7 @@ class PopulusViewer extends Component {
   setLastPage = async _ => {
     if (!this.state.pdfFocused || !this.state.pageFocused) return
     const theId = await Client.client.getRoomIdForAlias(this.state.pdfFocused)
-    await Client.client.setRoomAccountData(theId.room_id, lastViewed, { page: this.state.pageFocused })
+    await Client.client.setRoomAccountData(theId.room_id, lastViewed, { page: this.state.pageFocused, deviceId: Client.deviceId })
   }
 
   pushHistory = (newState, callback) => {

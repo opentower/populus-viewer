@@ -95,7 +95,7 @@ export default class PdfView extends Component {
   handleAccountData = (e, room) => {
     if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
       const theContent = e.getContent()
-      if (theContent.page !== this.props.pageFocused) {
+      if (theContent.page !== this.props.pageFocused && theContent.deviceId !== Client.deviceId) {
         this.populateToast(
           <Fragment>
             <h3 id="toast-header">Hey!</h3>

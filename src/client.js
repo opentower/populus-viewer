@@ -16,6 +16,10 @@ function getHttpUriForMxcFromHS(...theArgs) {
 export default class Client {
   static client
 
+  // XXX Currently unsure whether this is good enough for the deviceId of the
+  // client, since that has some crypto dimensions
+  static deviceId = Math.random().toString(16).substr(2, 14)
+
   static isResumable() {
     return !!localStorage.getItem('accessToken') &&
            !!localStorage.getItem('userId') &&
