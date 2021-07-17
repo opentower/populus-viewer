@@ -31,6 +31,7 @@ export default class PdfView extends Component {
       panelVisible: false,
       hasSelection: false,
       annotationsVisible: true,
+      loadingStatus: "loading...",
       pdfWidthPx: null,
       pdfHeightPx: null,
       pdfFitRatio: 1,
@@ -141,6 +142,8 @@ export default class PdfView extends Component {
   setPdfHeightPx = px => this.setState({pdfHeightPx: px})
 
   setTotalPages = num => this.setState({totalPages: num})
+
+  setLoadingStatus = status => this.setState({loadingStatus: status})
 
   clearFocus = _ => this.setState({focus: null})
 
@@ -286,6 +289,11 @@ export default class PdfView extends Component {
     this.setState({focus: content})
   }
 
+  getLoadingStatus() {
+    if (this.state.pdfHeightPx) return null
+    return <div id="document-view-loading">{this.state.loadingStatus}</div>
+  }
+
   render(props, state) {
     const dynamicDocumentStyle = {
       "--pdfZoomFactor": state.zoomFactor,
@@ -312,7 +320,7 @@ export default class PdfView extends Component {
         onPointerMove={this.handlePointerMove}>
         <Modal modalVisible={!!state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
         <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
-        {state.pdfHeightPx ? null : <div id="document-view-loading">loading...</div>}
+        {this.getLoadingStatus()}
         <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
           <div id="document-wrapper">
             <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
@@ -323,7 +331,9 @@ export default class PdfView extends Component {
               pageFocused={props.pageFocused}
               initFocus={this.initFocus}
               setId={this.setId}
-              setTotalPages={this.setTotalPages} />
+              setTotalPages={this.setTotalPages}
+              setLoadingStatus={this.setLoadingStatus}
+            />
             {state.annotationsVisible
               ? <AnnotationLayer ref={this.annotationLayer}
                   annotationLayer={this.annotationLayer}
@@ -438,7 +448,7 @@ class PdfCanvas extends Component {
     const pdfPath = Client.client.getHttpUriForMxcFromHS(pdfIdentifier)
     this.setState({pdfIdentifier})
     if (!PdfView.PDFStore[pdfIdentifier]) {
-      console.log(`fetching pdf for ${theRoom.name}` )
+      this.props.setLoadingStatus(`Downloading PDF for ${theRoom.name}`)
       PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
     } else { console.log(`found pdf for ${theRoom.name} in store` ) }
     PdfView.PDFStore[pdfIdentifier]
@@ -469,6 +479,7 @@ class PdfCanvas extends Component {
     this.hasRendered = true
     const theCanvas = this.canvas.current
     await this.hasFetched
+    this.props.setLoadingStatus("Rendering PDF")
     const pdf = await PdfView.PDFStore[this.state.pdfIdentifier]
 
     // exit early if someone else has grabbed control

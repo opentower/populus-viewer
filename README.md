@@ -25,10 +25,8 @@ Populus-Viewer currently supports:
 - Message edits and redactions
 - Replies and reactions
 - Unread message counts
-- Markdown for text formatting (via 
-  [commonmark.js](https://github.com/commonmark/commonmark.js))
-- LaTeX for mathematical notation (via 
-  [KaTeX](https://katex.org))
+- Markdown for text formatting (via [commonmark.js](https://github.com/commonmark/commonmark.js))
+- LaTeX for mathematical notation (via [KaTeX](https://katex.org))
 - Integration with bots
 - Typing notifications
 - Room invitations
@@ -46,13 +44,9 @@ instance](https://opentower.github.io/populus-viewer).
 To get started tinkering with the source code, clone this repository and then
 run:
 
-`npm install` to download dependencies and install them locally.
-
-`npm run-script build` to build the browser JS, which will end up in the dist
-directory.
-
-`npm run-script serve` to serve the contents of `dist` at localhost:9000, and
-auto-reload on changes.
+* `npm install` to download dependencies and install them locally.
+* `npm run-script build` to build the browser JS, which will end up in the `dist` directory. 
+* `npm run-script serve` to serve the contents of `dist` at localhost:9000, and auto-reload on changes.
 
 ## Prior Art
 
