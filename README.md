@@ -38,6 +38,22 @@ Populus-Viewer currently supports:
 If there's a feature supported by Matrix that you think would make for a 
 better social annotation experience, please open an issue or a PR!
 
+## Usage
+
+To try out Populus-Viewer, just point your browser at our [github pages
+instance](https://opentower.github.io/populus-viewer).
+
+To get started tinkering with the source code, clone this repository and then
+run:
+
+`npm install` to download dependencies and install them locally.
+
+`npm run-script build` to build the browser JS, which will end up in the dist
+directory.
+
+`npm run-script serve` to serve the contents of `dist` at localhost:9000, and
+auto-reload on changes.
+
 ## Prior Art
 
 Similar projects include:
