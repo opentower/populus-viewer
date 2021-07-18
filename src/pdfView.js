@@ -143,7 +143,7 @@ export default class PdfView extends Component {
 
   setTotalPages = num => this.setState({totalPages: num})
 
-  setLoadingStatus = status => this.setState({loadingStatus: status})
+  setPdfLoadingStatus = status => this.setState({loadingStatus: status})
 
   clearFocus = _ => this.setState({focus: null})
 
@@ -291,7 +291,14 @@ export default class PdfView extends Component {
 
   getLoadingStatus() {
     if (this.state.pdfHeightPx) return null
-    return <div id="document-view-loading">{this.state.loadingStatus}</div>
+    if (typeof this.state.loadingStatus === "string") {
+      return <div id="document-view-loading">{this.state.loadingStatus}</div>
+    }
+    if (typeof this.state.loadingStatus === "number") {
+      return <div id="document-view-loading">Downloading Pdf...
+          <progress class="styled-progress" max="1" value={this.state.loadingStatus} />
+        </div>
+    }
   }
 
   render(props, state) {
@@ -332,7 +339,7 @@ export default class PdfView extends Component {
               initFocus={this.initFocus}
               setId={this.setId}
               setTotalPages={this.setTotalPages}
-              setLoadingStatus={this.setLoadingStatus}
+              setPdfLoadingStatus={this.setPdfLoadingStatus}
             />
             {state.annotationsVisible
               ? <AnnotationLayer ref={this.annotationLayer}
@@ -448,8 +455,23 @@ class PdfCanvas extends Component {
     const pdfPath = Client.client.getHttpUriForMxcFromHS(pdfIdentifier)
     this.setState({pdfIdentifier})
     if (!PdfView.PDFStore[pdfIdentifier]) {
-      this.props.setLoadingStatus(`Downloading PDF for ${theRoom.name}`)
-      PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(pdfPath).promise
+      await window.fetch(pdfPath)
+        .then(async response => {
+          const theClone = response.clone()
+          const contentLength = +response.headers.get('Content-Length')
+          const reader = response.body.getReader()
+          let accumulator = 0
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) { break }
+            accumulator = accumulator + value.length
+            this.props.setPdfLoadingStatus(accumulator / contentLength)
+          }
+          return theClone.arrayBuffer()
+        })
+        .then(array => {
+          PdfView.PDFStore[pdfIdentifier] = PDFJS.getDocument(array).promise
+        })
     } else { console.log(`found pdf for ${theRoom.name} in store` ) }
     PdfView.PDFStore[pdfIdentifier]
       .then(pdf => this.props.setTotalPages(pdf.numPages))
@@ -479,7 +501,7 @@ class PdfCanvas extends Component {
     this.hasRendered = true
     const theCanvas = this.canvas.current
     await this.hasFetched
-    this.props.setLoadingStatus("Rendering PDF")
+    this.props.setPdfLoadingStatus("Rendering PDF")
     const pdf = await PdfView.PDFStore[this.state.pdfIdentifier]
 
     // exit early if someone else has grabbed control

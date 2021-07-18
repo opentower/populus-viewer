@@ -75,7 +75,7 @@ export default class PdfUpload extends Component {
       </div>
       {this.state.progress
         ? <div id="pdfUploadFormProgress">
-          <progress max={this.state.progress.total} value={this.state.progress.loaded} />
+          <progress class="styled-progress" max={this.state.progress.total} value={this.state.progress.loaded} />
         </div>
         : null
       }
