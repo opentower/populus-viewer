@@ -44,14 +44,17 @@ export default class PdfUpload extends Component {
   validatePdf = _ => {
     const theFile = this.fileLoader.current.files[0]
     if (theFile.type === "application/pdf") this.setState({pdfvalid: true})
-    else { 
+    else {
       this.setState({pdfvalid: false})
       alert("Please make sure that the file you're uploading is a pdf.")
       this.mainForm.current.reset()
     }
   }
 
-  toAlias(s) { return s.replace(/[\s:]/g, '_') }
+  toAlias(s) {
+    // replace forbidden characters
+    return s.replace(/[\s:]/g, '_')
+  }
 
   uploadFile = async e => {
     e.preventDefault()
@@ -59,9 +62,10 @@ export default class PdfUpload extends Component {
     const theName = this.roomNameInput.current.value
     const theAlias = this.toAlias(theName)
     const theTopic = this.roomTopicInput.current.value
+    const mxc = await Client.client.uploadContent(theFile, { progressHandler: this.progressHandler })
     this.submitButton.current.setAttribute("disabled", true)
-    const id = await Client.client.createRoom({
-      room_alias_name: theAlias, // replace forbidden characters
+    await Client.client.createRoom({
+      room_alias_name: theAlias,
       visibility: "public",
       name: theName,
       topic: theTopic,
@@ -69,28 +73,29 @@ export default class PdfUpload extends Component {
       creation_content: {
         [roomType]: spaceType
       },
-      // we allow anyone to join, by default, for now
-      initial_state: [{
-        type: "m.room.join_rules",
-        state_key: "",
-        content: {join_rule: "public"}
-      }],
+      initial_state: [
+        // we allow anyone to join, by default, for now
+        {
+          type: "m.room.join_rules",
+          state_key: "",
+          content: {join_rule: "public"}
+        },
+        // we set the initial PDF
+        {
+          type: pdfStateType,
+          state_key: "",
+          content: { mxc }
+        }
+      ],
       power_level_content_override: {
         events: {
-          [spaceChild]: 0 // we allow anyone to annotate, by default, for now
+          // we allow anyone to annotate, by default, for now
+          [spaceChild]: 0
         }
       }
     }).catch(e => { alert(e); })
-    Client.client.uploadContent(theFile, { progressHandler: this.progressHandler }).then(e => {
-      Client.client.sendStateEvent(id.room_id, pdfStateType, { mxc: e })
-      // XXX: this event doesn't get through before the name is
-      // assigned, so the room isn't detected as a pdf room. Probably
-      // need to include the pdf in the room's creation event to make
-      // this work right.
-    }).then(_ => {
-      this.mainForm.current.reset()
-      this.props.showMainView()
-    }).catch(e => alert(e))
+    this.mainForm.current.reset()
+    this.props.showMainView()
   }
 
   render (_, state) {
