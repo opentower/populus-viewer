@@ -46,6 +46,12 @@ body {
     margin:0px;
 }
 
+.styled-button:disabled {
+    color:#555555;
+    border:2px solid #555555;
+    cursor:not-allowed;
+}
+
 .styled-progress {
   appearance: none;
   -webkit-appearance: none;

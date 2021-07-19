@@ -34,6 +34,14 @@
     grid-column: 2 / 3 ;
 }
 
+.pdfupload-form-detail {
+    color:#ababab;
+    grid-column: 2 / 3 ;
+    font-size:10pt;
+    position:relative;
+    top:-8px;
+}
+
 #pdfUploadFormProgress progress {
   width: 100%;
   height: 80%;
@@ -43,6 +51,7 @@
     #pdfUploadForm { grid-template-columns: 1fr; }
 
     #pdfUploadFormProgress, 
+    .pdfupload-form-detail,
     #pdfUploadForm > input, 
     #pdfUploadForm > textarea { 
         grid-column: 1 / 2 
