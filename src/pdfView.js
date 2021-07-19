@@ -247,7 +247,7 @@ export default class PdfView extends Component {
       }
       Client.client.sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
         .catch(e => alert(e))
-      // set parent event in child room state
+      // set parent event in child room state XXX: should possibly incorporate into creation state
       Client.client.sendStateEvent(roominfo.room_id, spaceParent, { via: [theDomain] }, this.state.roomId)
         .catch(e => alert(e))
       this.setFocus(childContent[eventVersion])

@@ -1,4 +1,4 @@
-import { h, Fragment, Component } from 'preact';
+import { h, Fragment, Component, createRef } from 'preact';
 import { pdfStateType, eventVersion, spaceChild, lastViewed } from "./constants.js"
 import * as Matrix from "matrix-js-sdk"
 import UserColor from './userColors.js'
@@ -191,10 +191,24 @@ class RoomList extends Component {
   render(props, state) {
     // TODO: We're going to want to have different subcategories of rooms,
     // for actual pdfs, and for annotation discussions
+    //
+    // TODO: We're going to need to debounce this rather than searching with each keypress, for longer lists of rooms
     const rooms = state.rooms.filter(room => {
-      const search = room.name.toLowerCase().includes(props.searchFilter.toLowerCase())
+      let search
       const favorite = state.sort !== "Favorite" || room.tags["m.favourite"]
-      return search && favorite
+      const specializedSearch = props.searchFilter.split(":")
+      switch (specializedSearch[0]) {
+        case "tags": {
+          // user-specified tags only
+          const tags = Object.keys(room.tags).filter(tag => tag.slice(0, 2) === 'u.')
+          search = tags.some(tag => tag.toLowerCase().includes(specializedSearch.slice(1).join(":")))
+          return search && favorite
+        }
+        default: {
+          search = room.name.toLowerCase().includes(props.searchFilter.toLowerCase())
+          return search && favorite
+        }
+      }
     }).sort(this.getSortFunc())
       .map(room => {
         const pdfEvent = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType, "")
@@ -268,6 +282,10 @@ class PDFRoomEntry extends Component {
     <RoomSettings populateModal={this.props.populateModal}
                   room={this.props.room} />)
 
+  handleEditTags = _ => this.props.populateModal(
+    <TagEditor room={this.props.room} />
+  )
+
   toggleFavorite = _ => {
     if (this.props.room.tags["m.favourite"]) Client.client.deleteRoomTag(this.props.room.roomId, "m.favourite")
     else Client.client.setRoomTag(this.props.room.roomId, "m.favourite", {order: 0.5})
@@ -300,7 +318,10 @@ class PDFRoomEntry extends Component {
           <a onClick={this.handleLoad}>{props.room.name}</a>
         </div>
         <div class="room-listing-data">
-          <span class="members-icon">{Icons.userMany}</span><Fragment>{memberPills}</Fragment><Fragment>{invitePills}</Fragment>
+          <div class="room-listing-data-row">
+            <span class="room-data-icon">{Icons.userMany}</span><Fragment>{memberPills}</Fragment><Fragment>{invitePills}</Fragment>
+          </div>
+          <TagList room={props.room} />
         </div>
         {annotations.length > 0
           ? <div><details>
@@ -320,10 +341,83 @@ class PDFRoomEntry extends Component {
           { state.buttonsVisible ? <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button> : null }
           { state.buttonsVisible ? <button title="Configure room settings" onClick={this.openSettings}>{Icons.settings}</button> : null }
           { state.buttonsVisible ? <button title="Leave conversation" onClick={this.handleClose}>{Icons.exit}</button> : null }
+          { state.buttonsVisible ? <button title="Edit room tags" onClick={this.handleEditTags}>{Icons.tag}</button> : null }
         </div>
       </div>
     )
   }
+}
+
+function TagList(props) {
+  const roomTags = Object.keys(props.room.tags)
+    .filter(tag => tag.slice(0, 2) === 'u.')
+    .map(tag => <Tag key={`${props.room.roomId}"-tag-"${props.tag}`} room={props.room} tag={tag} />)
+  return roomTags.length > 0
+    ? <div class="room-listing-data-row">
+      <span class="room-data-icon">{Icons.tag}</span><Fragment>{roomTags}</Fragment>
+    </div>
+    : null
+}
+
+class TagEditor extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      newTag: "",
+      tags: Object.keys(props.room.tags)
+    }
+    this.accountListener = this.accountListener.bind(this)
+  }
+
+  componentDidMount () {
+    Client.client.on("Room.accountData", this.accountListener)
+  }
+
+  componentWillUnmount () {
+    Client.client.off("Room.accountData", this.accountListener)
+  }
+
+  accountListener () {
+    this.setState({tags: Object.keys(this.props.room.tags)})
+  }
+
+  newTagInput = createRef()
+
+  handleBlur = _ => this.setState({newTag: ""})
+
+  handleKeyup = e => {
+    if (e.key === "Enter") {
+      Client.client.setRoomTag(this.props.room.roomId, `u.${this.newTagInput.current.value}`, {order: 0.5})
+      this.setState({newTag: ""})
+    } else this.setState({newTag: this.newTagInput.current.value})
+  }
+
+  handleClick = name => _ => {
+    Client.client.deleteRoomTag(this.props.room.roomId, name)
+  }
+
+  render(props, state) {
+    const roomTags = state.tags
+      .filter(tag => tag.slice(0, 2) === 'u.')
+      .map(tag => <Fragment key={`${props.room.roomId}"-tag-"${tag}`}>
+        <span onclick={this.handleClick(tag)}
+          class="room-tag-delete-icon">{Icons.trash}</span>
+        <Tag room={props.room} tag={tag} />
+      </Fragment>)
+    return <div class="tag-editor">
+        <Fragment>{roomTags}</Fragment>
+        <input ref={this.newTagInput}
+          class="styled-input tag-input"
+          value={state.newTag}
+          onkeyup={this.handleKeyup}
+          onblur={this.handleBlur}
+          placeholder="new tag" />
+      </div>
+  }
+}
+
+function Tag(props) {
+  return <span class="room-tag">{props.tag.slice(2)}</span>
 }
 
 class InviteEntry extends Component {

@@ -59,6 +59,12 @@ body {
   border: none;
 }
 
+.styled-input {
+    padding:7px;
+    border:none;
+    background:#ededed;
+}
+
 .styled-progress::-webkit-progress-bar {
   background: #ededed;
   padding: 5px;
