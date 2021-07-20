@@ -1,0 +1,196 @@
+#select-sort-icon {
+    height:1.5em;
+    content: url(data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz48IURPQ1RZUEUgc3ZnIFBVQkxJQyAiLS8vVzNDLy9EVEQgU1ZHIDEuMS8vRU4iICJodHRwOi8vd3d3LnczLm9yZy9HcmFwaGljcy9TVkcvMS4xL0RURC9zdmcxMS5kdGQiPjxzdmcgdmVyc2lvbj0iMS4xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTYiIGhlaWdodD0iMjgiIHZpZXdCb3g9IjAgMCAxNiAyOCI+PGcgaWQ9Imljb21vb24taWdub3JlIj48L2c+PHBhdGggZD0iTTE2IDE3cTAgMC40MDYtMC4yOTcgMC43MDNsLTcgN3EtMC4yOTcgMC4yOTctMC43MDMgMC4yOTd0LTAuNzAzLTAuMjk3bC03LTdxLTAuMjk3LTAuMjk3LTAuMjk3LTAuNzAzdDAuMjk3LTAuNzAzIDAuNzAzLTAuMjk3aDE0cTAuNDA2IDAgMC43MDMgMC4yOTd0MC4yOTcgMC43MDN6TTE2IDExcTAgMC40MDYtMC4yOTcgMC43MDN0LTAuNzAzIDAuMjk3aC0xNHEtMC40MDYgMC0wLjcwMy0wLjI5N3QtMC4yOTctMC43MDMgMC4yOTctMC43MDNsNy03cTAuMjk3LTAuMjk3IDAuNzAzLTAuMjk3dDAuNzAzIDAuMjk3bDcgN3EwLjI5NyAwLjI5NyAwLjI5NyAwLjcwM3oiIGZpbGw9IiMwMDAwMDAiPjwvcGF0aD48L3N2Zz4=);
+}
+
+#select-sort {
+    user-select:none;
+    display:flex;
+    align-items:center;
+    margin-left: 1em;
+}
+
+#select-sort > button {
+    margin-left: 1em;
+}
+
+#select-sort > button[data-current-button]{
+    color:white;
+    background:black;
+}
+
+.invite-entry, .room-listing-entry {
+    border: 1px black solid;
+    margin: 1em;
+    padding: 1em;
+}
+
+.invite-buttons button {
+  margin-right:10px;
+}
+
+.room-listing-entry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 40px;
+}
+
+.room-listing-entry[data-room-entry-buttons-visible] > div {
+    grid-column: 1 / 2;
+}
+
+.room-listing-entry-buttons {
+    grid-column: 1 / 2 !important;
+}
+
+.invite-heading, .room-listing-heading {
+    grid-column: 1 / 2 !important;
+    margin-bottom:1em;
+    display:flex;
+    align-items:center;
+}
+
+.room-listing-data {
+    padding-bottom:5px;
+}
+
+.room-listing-data-row {
+    display: flex;
+    padding-bottom:5px;
+    flex-wrap:wrap;
+    align-items: center;
+}
+
+.room-listing-data-row .room-data-icon { 
+  display:grid;
+  align-items:center;
+  margin-right:10px;
+}
+
+.room-listing-data-row .invite-pill, 
+.room-listing-data-row .member-pill {
+  margin-top:5px;
+  margin-bottom:5px;
+}
+
+.tag-input {
+  width:55px;
+}
+
+.tag-input:focus {
+  width:120px;
+}
+
+.tag-editor {
+    display: flex;
+    padding-bottom:5px;
+    flex-wrap:wrap;
+    align-items: center;
+}
+
+.room-tag {
+  padding-right:5px;
+}
+
+.room-tag::after {
+  content:',';
+}
+
+.room-tag:last-child::after {
+  content:'';
+}
+
+.room-tag-delete-icon svg {
+  height:15px;
+  cursor: pointer;
+}
+
+.room-listing-data .invite-pill {
+  opacity:.5;
+}
+
+.room-listing-heading > a {
+  font-size:16pt;
+  font-weight:bold;
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  cursor: pointer;
+}
+
+.room-listing-entry .fav-star {
+    height:24px;
+    padding-right:5px;
+}
+
+.room-listing-entry .fav-star svg {
+    transform: scale(1);
+}
+
+.room-listing-entry-buttons  {
+    grid-column: 2 / 3 !important;
+    grid-row: 1 / 50 !important;
+    padding:5px;
+    margin-left:5px;
+}
+
+.room-listing-entry[data-room-entry-buttons-visible] .room-listing-entry-buttons {
+    background: #ededed;
+    border-radius: 15px;
+}
+
+.room-listing-entry-buttons > button {
+    padding: 0px;
+    margin: 0px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.annotation-rooms {
+    padding:5px;
+}
+
+.annotation-rooms a {
+    cursor: pointer;
+}
+
+.annotation-room-entry-snip {
+    line-height: 1.5em;
+    padding-top: .5em;
+}
+
+.annotation-room-entry {
+    background:#ededed;
+    width:calc(100% - 10px);
+    margin-bottom:5px;
+    border-left:5px solid var(--user_light);
+    padding-left:5px;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+    overflow: scroll;
+}
+
+.annotation-room-entry::-webkit-scrollbar { display: none; }
+
+.annotation-room-entry-data {
+    display: flex;
+    align-items:center;
+    justify-content:left;
+    flex-wrap:wrap;
+    font-size:10pt;
+    margin:5px;
+}
+
+.annotation-room-unread {
+  display:flex;
+  background:white;
+  border-radius:15px;
+  height:15pt;
+  justify-content:center;
+  align-items:center;
+  padding-right:7px;
+  margin-left:7px;
+}
+
+.annotation-room-unread > svg {
+  height:10pt;
+}
