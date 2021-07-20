@@ -71,27 +71,22 @@ export default class RoomList extends Component {
     }
   }
 
-  render(props, state) {
+  searchRooms = _ => {
     // TODO: We're going to want to have different subcategories of rooms,
     // for actual pdfs, and for annotation discussions
-    //
-    // TODO: We're going to need to debounce this rather than searching with each keypress, for longer lists of rooms
-    const rooms = state.rooms.filter(room => {
-      let search
-      const favorite = state.sort !== "Favorite" || room.tags["m.favourite"]
-      const specializedSearch = props.searchFilter.split(":")
-      switch (specializedSearch[0]) {
-        case "tags": {
-          // user-specified tags only
-          const tags = Object.keys(room.tags).filter(tag => tag.slice(0, 2) === 'u.')
-          search = tags.some(tag => tag.toLowerCase().includes(specializedSearch.slice(1).join(":")))
-          return search && favorite
-        }
-        default: {
-          search = room.name.toLowerCase().includes(props.searchFilter.toLowerCase())
-          return search && favorite
-        }
-      }
+    const searchNames = []
+    const searchTags = []
+    const searchWords = this.props.searchFilter.split(" ")
+    for (const word of searchWords) {
+      if (word.slice(0, 1) === '#') searchTags.push(word.slice(1))
+      else searchNames.push(word)
+    }
+    return this.state.rooms.filter(room => {
+      const favorite = this.state.sort !== "Favorite" || room.tags["m.favourite"]
+      const tags = Object.keys(room.tags).filter(tag => tag.slice(0, 2) === 'u.')
+      return searchNames.every(name => room.name.toLowerCase().includes(name)) &&
+        searchTags.every(searchTag => tags.some(tag => tag.toLowerCase().includes(searchTag))) &&
+        favorite
     }).sort(this.getSortFunc())
       .map(room => {
         const pdfEvent = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType, "")
@@ -101,8 +96,8 @@ export default class RoomList extends Component {
           case "join" : {
             if (pdfEvent) {
               result = <PDFRoomEntry annotations={annotations}
-                pushHistory={props.pushHistory}
-                populateModal={props.populateModal}
+                pushHistory={this.props.pushHistory}
+                populateModal={this.props.populateModal}
                 room={room}
                 pdfevent={pdfEvent} />
             }
@@ -116,6 +111,9 @@ export default class RoomList extends Component {
         }
         return result
       })
+  }
+
+  render(_, state) {
     return (
       <Fragment>
         <div id="select-sort">
@@ -130,7 +128,8 @@ export default class RoomList extends Component {
                   onClick={this.sortByFavorite}
                   class="styled-button">Favorite</button>
         </div>
-        <div>{rooms}</div>
+        {/* TODO: We're going to need to debounce this rather than searching with each render, for longer lists of rooms */}
+        <div>{this.searchRooms()}</div>
       </Fragment>
     )
   }
