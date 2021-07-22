@@ -61,7 +61,7 @@ export default class ProfileInfomation extends Component {
       {state.previewUrl
         ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl} />
         : <div key="profileSelector" onclick={this.uploadAvatar} id="profileSelector" />}
-      <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} type="file" />
+      <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
       <details>
         <summary>Advanced Options</summary>
         <div id="profile-advanced-options">
@@ -76,9 +76,7 @@ export default class ProfileInfomation extends Component {
       </div>
       {this.state.progress
         ? <div id="profileInformationFormProgress">
-          <span>{this.state.progress.loaded} bytes</span>
-          <span> out of </span>
-          <span>{this.state.progress.total} bytes</span>
+          <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
         </div>
         : null
       }
