@@ -103,6 +103,7 @@ export default class Navbar extends Component {
             roomId={this.props.roomId} />)
 
   zoomOut = _ => this.props.setZoom(this.props.zoomFactor - 0.1)
+
   zoomIn = _ => this.props.setZoom(this.props.zoomFactor + 0.1)
 
   componentDidUpdate() {
@@ -123,9 +124,9 @@ export default class Navbar extends Component {
         <div id="nav-background" />
         <div class="nav-button-wrapper top-wrapper">
           <button title="Go to main menu&#013;Shortcut: Esc" onclick={this.mainMenu}>{Icons.home}</button>
-          <button title="Add annotation&#013;Shortcut: Alt + A " disabled={props.selected ? null : "disabled"} onclick={props.addann}>{Icons.addAnnotation}</button>
-          <button title="Go to first page&#013;Shortcut: H" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button>
-          <button title="Go to previous page&#013;Shortcuts: J, &larr;" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
+          <button title="Add annotation&#013;Shortcut: Alt + a " disabled={props.selected ? null : "disabled"} onclick={props.addann}>{Icons.addAnnotation}</button>
+          <button title="Go to first page&#013;Shortcut: h" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button>
+          <button title="Go to previous page&#013;Shortcuts: k, &larr;" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
           <form onSubmit={this.handleSubmit}>
             <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="Show page navigation">{Icons.page}</button>
             <input type="text"
@@ -137,16 +138,16 @@ export default class Navbar extends Component {
             <span>/</span>
             <span ref={this.pageTotal} id="nav-total-pages">{props.total}</span>
           </form>
-          <button title="Go to next page&#013;Shortcuts: K, &rarr;" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
-          <button title="Go to last page&#013;Shortcut: L" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button>
-          <button title="Remove annotation&#013;Shortcut: Alt + R" disabled={props.focus && !props.selected ? null : "disabled"} onclick={props.closeann}>{Icons.removeAnnotation}</button>
+          <button title="Go to next page&#013;Shortcuts: j, &rarr;" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
+          <button title="Go to last page&#013;Shortcut: l" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button>
+          <button title="Remove annotation&#013;Shortcut: Alt + r" disabled={props.focus && !props.selected ? null : "disabled"} onclick={props.closeann}>{Icons.removeAnnotation}</button>
           <button title="More options" onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
         </div>
         <div class="nav-button-wrapper bottom-wrapper">
           <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button>
           <button title="Zoom out&#013;Shortcut: -" onClick={this.zoomOut}>{Icons.zoomout}</button>
           <button title="Zoom in&#013;Shortcut: +" onClick={this.zoomIn}>{Icons.zoomin}</button>
-          <button title="Toggle annotation visibility&#013;Shortcut: Alt + V" onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
+          <button title="Toggle annotation visibility&#013;Shortcut: Alt + v" onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
         </div>
       </nav>
     }

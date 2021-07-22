@@ -1,4 +1,4 @@
-import { h, Fragment, Component } from 'preact';
+import { h, Fragment, Component, createRef } from 'preact';
 import UserColor from './userColors.js'
 import PdfUpload from './pdfUpload.js'
 import RoomList from './roomList.js'
@@ -27,12 +27,12 @@ export default class WelcomeView extends Component {
 
   componentDidMount () {
     this.user.on("User.avatarUrl", this.profileListener)
-    document.addEventListener('keydown', this.keyboardFocus)
+    document.addEventListener('keydown', this.keydownHandler)
   }
 
   componentWillUnmount () {
     this.user.off("User.avatarUrl", this.profileListener)
-    document.removeEventListener('keydown', this.keyboardFocus)
+    document.removeEventListener('keydown', this.keydownHandler)
   }
 
   profileListener () {
@@ -40,6 +40,8 @@ export default class WelcomeView extends Component {
       avatarUrl: Client.client.getHttpUriForMxcFromHS(this.user.avatarUrl, 30, 30, "crop")
     })
   }
+
+  searchInput = createRef()
 
   toggleUploadVisible = _ => this.setState({
     uploadVisible: !this.state.uploadVisible,
@@ -72,6 +74,11 @@ export default class WelcomeView extends Component {
 
   handleInputBlur = _ => this.setState({inputFocus: false})
 
+  handleInputKey = e => {
+    e.stopPropagation() // don't propagate to global keypress handlers
+    if (e.key === "Esc" || e.key === "Escape") this.searchInput.current.blur()
+  }
+
   handleInput = e => {
     this.setState({searchFilter: e.target.value})
   }
@@ -82,8 +89,9 @@ export default class WelcomeView extends Component {
       : this.user.displayName.slice(0, 1)
   }
 
-  keyboardFocus = e => {
-    if (e.keyCode === 27) document.getElementById("welcome-search-input").blur()
+  keydownHandler = e => {
+    e.preventDefault()
+    if (e.key === "/") this.searchInput.current.focus()
   }
 
   render(props, state) {
@@ -94,7 +102,13 @@ export default class WelcomeView extends Component {
         <header id="welcome-header">
           <div id="welcome-header-content">
             <div id="welcome-search">
-              <input value={state.searchFilter} onInput={this.handleInput} onBlur={this.handleInputBlur} onFocus={this.handleInputFocus} id="welcome-search-input" />
+              <input id="welcome-search-input"
+                value={state.searchFilter}
+                ref={this.searchInput}
+                onkeydown={this.handleInputKey}
+                onInput={this.handleInput}
+                onBlur={this.handleInputBlur}
+                onFocus={this.handleInputFocus} />
               {Icons.search}
             </div>
             { !state.inputFocus && <Fragment>

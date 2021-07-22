@@ -203,30 +203,34 @@ export default class PdfView extends Component {
   keyboardZoom = e => {
     if (e.key === '+') this.setZoom(this.state.zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(this.state.zoomFactor - 0.1)
-    if (e.keyCode === 27) this.props.pushHistory({pdfFocused: null, pageFocused: null});
-    if ((e.key === 'h')) {
-      this.props.pushHistory({pageFocused: 1 }, _ => {this.contentContainer.current.scrollTop = 0})
+    if (e.key === "Esc" || e.key === "Escape") this.props.pushHistory({pdfFocused: null, pageFocused: null});
+    if (e.key === 'h') {
+      this.props.pushHistory({pageFocused: 1 }, _ => {
+        this.contentContainer.current.scrollTop = 0
+      })
     }
-    if ((e.key === 'j') || (e.keyCode === 37)) {
-      if (this.props.pageFocused > 1) {
-        this.props.pushHistory({pageFocused: this.props.pageFocused - 1}, _ => {
-          this.contentContainer.current.scrollTop = this.contentContainer.current.scrollHeight
-        })
-      }
-    }
-    if ((e.key === 'k') || (e.keyCode === 39)) {
+    if (e.key === 'j' || e.key === "ArrowRight") {
       if (this.props.pageFocused < this.state.totalPages) {
         this.props.pushHistory({ pageFocused: this.props.pageFocused + 1 }, _ => {
           this.contentContainer.current.scrollTop = 0
         })
       }
     }
-    if (e.key === 'l') {
-      this.props.pushHistory({ pageFocused: this.state.totalPages}, _ => {this.contentContainer.current.scrollTop = 0})
+    if (e.key === 'k' || e.key === "ArrowLeft") {
+      if (this.props.pageFocused > 1) {
+        this.props.pushHistory({pageFocused: this.props.pageFocused - 1}, _ => {
+          this.contentContainer.current.scrollTop = this.contentContainer.current.scrollHeight
+        })
+      }
     }
-    if ((event.altKey) && (e.key === 'a')) this.openAnnotation()
-    if ((event.altKey) && (e.key === 'r')) this.closeAnnotation()
-    if ((event.altKey) && (e.key === 'v')) this.toggleAnnotations()
+    if (e.key === 'l') {
+      this.props.pushHistory({pageFocused: this.state.totalPages}, _ => {
+        this.contentContainer.current.scrollTop = 0
+      })
+    }
+    if (e.altKey && e.key === 'a') this.openAnnotation()
+    if (e.altKey && e.key === 'r') this.closeAnnotation()
+    if (e.altKey && e.key === 'v') this.toggleAnnotations()
   }
 
   openAnnotation = _ => {

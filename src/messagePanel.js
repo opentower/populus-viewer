@@ -271,13 +271,13 @@ class TextMessageInput extends Component {
     this.currentInput.current.style.height = `${this.currentInput.current.scrollHeight}px`;
   }
 
-  handleKeypress = (event) => {
-    event.stopPropagation() // don't propagate to global keypress handlers
+  handleKeypress = e => {
+    e.stopPropagation() // don't propagate to global keypress handlers
     clearTimeout(this.typingTimeout)
     this.typingTimeout = setTimeout(_ => this.stopTyping(), 5000)
     // send "stopped typing" after 5 seconds of inactivity
-    if (event.code === "Enter" && event.ctrlKey) {
-      event.preventDefault()
+    if (e.code === "Enter" && e.ctrlKey) {
+      e.preventDefault()
       this.submitInput()
     } else if (!this.typingLock) this.startTyping()
   }
@@ -297,7 +297,7 @@ class TextMessageInput extends Component {
     }
   }
 
-  render (props, state) {
+  render (_props, state) {
     return <textarea ref={this.currentInput}
       value={state.value}
       onkeypress={this.handleKeypress}
