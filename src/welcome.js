@@ -25,9 +25,15 @@ export default class WelcomeView extends Component {
     }
   }
 
-  componentDidMount () { this.user.on("User.avatarUrl", this.profileListener) }
+  componentDidMount () {
+    this.user.on("User.avatarUrl", this.profileListener)
+    document.addEventListener('keydown', this.keyboardFocus)
+  }
 
-  componentWillUnmount () { this.user.off("User.avatarUrl", this.profileListener) }
+  componentWillUnmount () {
+    this.user.off("User.avatarUrl", this.profileListener)
+    document.removeEventListener('keydown', this.keyboardFocus)
+  }
 
   profileListener () {
     this.setState({
@@ -74,6 +80,10 @@ export default class WelcomeView extends Component {
     return this.user.displayName.slice(0, 1) === '@'
       ? this.user.displayName.slice(1, 2)
       : this.user.displayName.slice(0, 1)
+  }
+
+  keyboardFocus = e => {
+    if (e.keyCode === 27) document.getElementById("welcome-search-input").blur()
   }
 
   render(props, state) {
