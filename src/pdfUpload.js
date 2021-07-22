@@ -27,6 +27,8 @@ export default class PdfUpload extends Component {
 
   progressHandler = (progress) => this.setState({progress})
 
+  keydownHandler = e => e.stopPropagation()
+
   validateName = _ => {
     clearTimeout(this.namingTimeout)
     this.setState({querying: true})
@@ -103,7 +105,7 @@ export default class PdfUpload extends Component {
       <label> Pdf to discuss</label>
       <input oninput={this.validatePdf} ref={this.fileLoader} accept="application/pdf" type="file" />
       <label>Name for Discussion</label>
-      <input oninput={this.validateName} ref={this.roomNameInput} type="text" />
+      <input onkeydown={this.keydownHandler} oninput={this.validateName} ref={this.roomNameInput} type="text" />
       <div class="pdfupload-form-detail">{
         state.querying
           ? "querying..."
@@ -113,7 +115,7 @@ export default class PdfUpload extends Component {
         }
       </div>
       <label>Topic of Discussion</label>
-      <textarea ref={this.roomTopicInput} type="text" />
+      <textarea onkeydown={this.keydownHandler} ref={this.roomTopicInput} type="text" />
       <div id="pdfUploadFormSubmit">
         <button disabled={state.progress || state.querying || !state.nameavailable || !state.pdfvalid} class="styled-button" ref={this.submitButton} type="submit">
           { state.progress ? "Uploading..." : "Create Discussion" }
