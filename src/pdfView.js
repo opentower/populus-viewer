@@ -201,6 +201,10 @@ export default class PdfView extends Component {
   }
 
   keyboardZoom = e => {
+    if (e.altKey && e.key === 'a') this.openAnnotation()
+    if (e.altKey && e.key === 'r') this.closeAnnotation()
+    if (e.altKey && e.key === 'v') this.toggleAnnotations()
+    if (e.ctrlKey || e.altKey || e.metaKey) return // Don't catch browser shortcuts
     if (e.key === '+') this.setZoom(this.state.zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(this.state.zoomFactor - 0.1)
     if (e.key === "Esc" || e.key === "Escape") this.props.pushHistory({pdfFocused: null, pageFocused: null});
@@ -228,9 +232,6 @@ export default class PdfView extends Component {
         this.contentContainer.current.scrollTop = 0
       })
     }
-    if (e.altKey && e.key === 'a') this.openAnnotation()
-    if (e.altKey && e.key === 'r') this.closeAnnotation()
-    if (e.altKey && e.key === 'v') this.toggleAnnotations()
   }
 
   openAnnotation = _ => {
