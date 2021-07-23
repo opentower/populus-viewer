@@ -26,6 +26,10 @@ export default class ProfileInfomation extends Component {
 
   removeAvatar = _ => this.setState({ previewUrl: null })
 
+  handleKeydown = e => {
+    e.stopPropagation() // don't go to global keypress handler
+  }
+
   updatePreview = _ => {
     const theImage = this.avatarImageInput.current.files[0]
     if (theImage && /^image/.test(theImage.type)) {
@@ -56,7 +60,7 @@ export default class ProfileInfomation extends Component {
     // elements as they bubble up through the DOM otherwise
     return <form id="profileInformationForm" ref={this.mainForm} onsubmit={this.updateProfile}>
       <label>My Display Name</label>
-      <input placeholder={state.displayName} ref={this.displayNameInput} type="text" />
+      <input onkeydown={this.handleKeydown} placeholder={state.displayName} ref={this.displayNameInput} type="text" />
       <label>My Avatar</label>
       {state.previewUrl
         ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl} />
