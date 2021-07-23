@@ -34,6 +34,10 @@ export default class RoomSettings extends Component {
     this.setState({ roomName: e.target.value })
   }
 
+  handleKeydown = e => {
+    e.stopPropagation() // don't go to global keypress handler
+  }
+
   handleVisibilityChange = e => {
     this.setState({ visibility: e.target.value })
   }
@@ -82,7 +86,12 @@ export default class RoomSettings extends Component {
           }
         </div>
         <label htmlFor="room-name">Room Name</label>
-        <input class="styled-input" value={state.roomName} onInput={this.handleNameInput} name="room-name" type="text" />
+        <input name="room-name"
+          type="text"
+          class="styled-input"
+          value={state.roomName}
+          onkeydown={this.handleKeydown}
+          onInput={this.handleNameInput} />
         <div id="room-settings-submit-wrapper">
           <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
           <button className="styled-button" onClick={this.cancel} >Cancel</button>

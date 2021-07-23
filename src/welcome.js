@@ -90,8 +90,10 @@ export default class WelcomeView extends Component {
   }
 
   keydownHandler = e => {
-    e.preventDefault()
-    if (e.key === "/") this.searchInput.current.focus()
+    if (e.key === "/") {
+      e.preventDefault()
+      this.searchInput.current.focus()
+    }
   }
 
   render(props, state) {

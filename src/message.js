@@ -425,7 +425,7 @@ class ReplyPreview extends Component {
       : <div style={style} class="reply-preview reply-fallback">{Replies.getFallbackPlain(content)}</div>
   }
 
-  render(props, state) {
+  render(_props, state) {
     if (state.liveEvent) return this.fromLiveEvent()
     return this.fallbackPreview()
   }
