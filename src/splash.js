@@ -9,7 +9,6 @@ export default class SplashView extends Component {
     if (Client.client && Client.client.isInitialSyncComplete()) {
       const maybeTitle = QueryParameters.get("title") || null
       let maybePage = Number(QueryParameters.get("page")) || null
-      console.log(maybeTitle)
       if (maybeTitle && !maybePage) {
         const theId = await Client.client.getRoomIdForAlias(maybeTitle)
         const theRoom = Client.client.getRoom(theId.room_id)

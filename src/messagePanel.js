@@ -271,7 +271,7 @@ class TextMessageInput extends Component {
     this.currentInput.current.style.height = `${this.currentInput.current.scrollHeight}px`;
   }
 
-  handleKeypress = e => {
+  handleKeydown = e => {
     e.stopPropagation() // don't propagate to global keypress handlers
     clearTimeout(this.typingTimeout)
     this.typingTimeout = setTimeout(_ => this.stopTyping(), 5000)
@@ -300,7 +300,7 @@ class TextMessageInput extends Component {
   render (_props, state) {
     return <textarea ref={this.currentInput}
       value={state.value}
-      onkeypress={this.handleKeypress}
+      onkeydown={this.handleKeydown}
       oninput={this.handleInput} />
   }
 }

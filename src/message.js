@@ -442,9 +442,10 @@ class MessageEditor extends Component {
 
   input = createRef()
 
-  handleKeypress = (event) => {
-    if (event.code === "Enter" && event.ctrlKey) {
-      event.preventDefault()
+  handleKeydown = e => {
+    e.stopPropagation() // don't propagate to global keypress handlers
+    if (e.key === "Enter" && e.ctrlKey) {
+      e.preventDefault()
       this.sendResponse()
     }
   }
@@ -488,7 +489,7 @@ class MessageEditor extends Component {
     return <div class="replyComposer">
       <textarea ref={this.input}
         value={state.value}
-        onkeypress={this.handleKeypress}
+        onkeydown={this.handleKeydown}
         oninput={this.handleInput} />
       <button onclick={this.sendResponse}>Submit Changes</button>
       <button onclick={this.props.closeEditor}>Cancel</button>
@@ -499,9 +500,10 @@ class MessageEditor extends Component {
 class ReplyComposer extends Component {
   input = createRef()
 
-  handleKeypress = (event) => {
-    if (event.code === "Enter" && event.ctrlKey) {
-      event.preventDefault()
+  handleKeydown = e => {
+    e.stopPropagation() // don't propagate to global keypress handlers
+    if (e.key === "Enter" && e.ctrlKey) {
+      e.preventDefault()
       this.sendResponse()
     }
   }
@@ -534,7 +536,7 @@ class ReplyComposer extends Component {
     return <div class="replyComposer">
       <textarea ref={this.input}
         value={state.value}
-        onkeypress={this.handleKeypress}
+        onkeydown={this.handleKeydown}
         oninput={this.handleInput} />
       <button onclick={this.sendResponse}>Send Reply</button>
       <button onclick={this.props.closeEditor}>Cancel</button>
