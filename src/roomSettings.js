@@ -12,8 +12,18 @@ export default class RoomSettings extends Component {
     this.initialName = props.room.name
     this.state = {
       joinRule: this.initialJoinRule,
-      roomName: this.initialName
+      roomName: this.initialName,
+      visibility: "private"
     }
+  }
+
+  componentDidMount () {
+    this.checkVisibility()
+  }
+
+  async checkVisibility () {
+    const visibility = await Client.client.getRoomDirectoryVisibility(this.props.room.roomId)
+    this.setState({visibility: visibility.visibility})
   }
 
   handleJoinRuleChange = e => {
@@ -22,6 +32,10 @@ export default class RoomSettings extends Component {
 
   handleNameInput = e => {
     this.setState({ roomName: e.target.value })
+  }
+
+  handleVisibilityChange = e => {
+    this.setState({ visibility: e.target.value })
   }
 
   handleSubmit = async e => {
@@ -42,6 +56,17 @@ export default class RoomSettings extends Component {
     return <Fragment>
       <h3 id="modalHeader">Room Settings</h3>
       <form id="room-settings-form">
+        <label htmlFor="visibilty">Visibility:</label>
+        <select class="styled-input" value={state.visibility} name="joinRule" onchange={this.handleVisibilityChange}>
+          <option value="private">Private</option>
+          <option value="public">Publically Listed</option>
+        </select>
+        <div id="room-settings-visibility-info">
+          {state.visibility === "public"
+            ? "the room will appear in public listings"
+            : "the room will be hidden from other users"
+          }
+        </div>
         <label htmlFor="joinRule">Join Rule:</label>
         <select value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
           <option value="private">Private</option>
@@ -57,7 +82,7 @@ export default class RoomSettings extends Component {
           }
         </div>
         <label htmlFor="room-name">Room Name</label>
-        <input value={state.roomName} onInput={this.handleNameInput} name="room-name" type="text" />
+        <input class="styled-input" value={state.roomName} onInput={this.handleNameInput} name="room-name" type="text" />
         <div id="room-settings-submit-wrapper">
           <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
           <button className="styled-button" onClick={this.cancel} >Cancel</button>

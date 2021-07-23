@@ -5,6 +5,7 @@
   margin-bottom: 40px;
 }
 
+#room-settings-visibility-info,
 #room-settings-join-info {
   grid-column: 2/3;
   padding-top:5px;
