@@ -68,7 +68,7 @@ export default class PdfUpload extends Component {
     this.submitButton.current.setAttribute("disabled", true)
     await Client.client.createRoom({
       room_alias_name: theAlias,
-      visibility: "public",
+      visibility: "private",
       name: theName,
       topic: theTopic,
       // We declare the room a space
