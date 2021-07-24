@@ -41,7 +41,7 @@ export default class PdfView extends Component {
     }
     this.prevScrollTop = 0
     this.checkForSelection = this.checkForSelection.bind(this)
-    this.keyboardZoom = this.keyboardZoom.bind(this)
+    this.handleKeydown = this.handleKeydown.bind(this)
     this.handleAccountData = this.handleAccountData.bind(this)
     this.userColor = new UserColor(Client.client.getUserId())
     // need the `bind` here in order to pass a named function into the event
@@ -50,13 +50,13 @@ export default class PdfView extends Component {
 
   componentDidMount() {
     document.addEventListener("selectionchange", this.checkForSelection)
-    document.addEventListener('keydown', this.keyboardZoom)
+    document.addEventListener('keydown', this.handleKeydown)
     Client.client.on("Room.accountData", this.handleAccountData)
   }
 
   componentWillUnmount() {
     document.removeEventListener("selectionchange", this.checkForSelection)
-    document.removeEventListener('keydown', this.keyboardZoom)
+    document.removeEventListener('keydown', this.handleKeydown)
     Client.client.off("Room.accountData", this.handleAccountData)
   }
 
@@ -200,12 +200,13 @@ export default class PdfView extends Component {
     // timeout to avoid excessive rerendering
   }
 
-  keyboardZoom = e => {
+  handleKeydown = e => {
     if (e.altKey && e.key === 'a') this.openAnnotation()
     if (e.altKey && e.key === 'r') this.closeAnnotation()
     if (e.altKey && e.key === 'v') this.toggleAnnotations()
     if (e.ctrlKey || e.altKey || e.metaKey) return // Don't catch browser shortcuts
     if (e.key === '+') this.setZoom(this.state.zoomFactor + 0.1)
+    if (e.key === '=') this.setZoom(this.state.zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(this.state.zoomFactor - 0.1)
     if (e.key === "Esc" || e.key === "Escape") this.props.pushHistory({pdfFocused: null, pageFocused: null});
     if (e.key === 'h') {
