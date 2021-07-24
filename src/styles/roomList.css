@@ -194,3 +194,8 @@
 .annotation-room-unread > svg {
   height:10pt;
 }
+
+#settings-loading {
+  animation: pulse-opacity 2s infinite; 
+  animation-timing-function:ease;
+}
