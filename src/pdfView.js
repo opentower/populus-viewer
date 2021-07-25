@@ -221,6 +221,20 @@ export default class PdfView extends Component {
         })
       }
     }
+    if (e.key === "ArrowUp") {
+      e.preventDefault() // block default scrolling behavior
+      this.contentContainer.current.scroll({
+        top: this.contentContainer.current.scrollTop - 100,
+        left: this.contentContainer.current.scrollLeft
+      })
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault() // block default scrolling behavior
+      this.contentContainer.current.scroll({
+        top: this.contentContainer.current.scrollTop + 100,
+        left: this.contentContainer.current.scrollLeft
+      })
+    }
     if (e.key === 'k' || e.key === "ArrowLeft") {
       if (this.props.pageFocused > 1) {
         this.props.pushHistory({pageFocused: this.props.pageFocused - 1}, _ => {
