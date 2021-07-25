@@ -16,6 +16,6 @@ function latexDisplayToReplacement(match) {
 }
 
 export function addLatex(string) {
-  return string.replace(latexDisplayRegex, (m, match) => latexDisplayToReplacement(match))
-    .replace(latexInlineRegex, (m, match) => latexInlineToReplacement(match))
+  return string.replace(latexDisplayRegex, (_, match) => latexDisplayToReplacement(match))
+    .replace(latexInlineRegex, (_, match) => latexInlineToReplacement(match))
 }
