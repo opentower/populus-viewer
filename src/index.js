@@ -14,6 +14,8 @@ class PopulusViewer extends Component {
     this.state = {
       initializationStage: "connecting to database"
     }
+
+    // handle navigation events - should probably be in onmount
     window.addEventListener('popstate', e => {
       this.setState({
         pdfFocused: e.state.pdfFocused || false,
@@ -27,7 +29,6 @@ class PopulusViewer extends Component {
     if (Client.isResumable()) Client.initClient().then(this.loginHandler)
     else if (this.loginToken) Client.initClient().then(_ => Client.client.loginWithToken(this.loginToken, this.loginHandler))
     else this.setState({ loggedIn: false })
-    // handle navigation events - should probably be in onmount
   }
 
   setInitializationStage = s => this.setState({ initializationStage: s })

@@ -282,7 +282,7 @@
 }
 
 #chat-panel .message div[data-mx-maths] {
-    min-width:350px;
+    min-width:300px;
 }
 
 #chat-panel .message .upvotes {
