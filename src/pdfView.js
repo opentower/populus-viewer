@@ -401,6 +401,8 @@ export default class PdfView extends Component {
         <div id="sidepanel">
           {state.focus
             ? <Chat class="panel-widget-1"
+                pushHistory={props.pushHistory}
+                setFocus={this.setFocus}
                 handleWidgetScroll={this.handleWidgetScroll}
                 focus={state.focus} />
             : null

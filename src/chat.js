@@ -152,6 +152,8 @@ export default class Chat extends Component {
         case "m.text": {
           accumulator.push(
             <TextMessage reactions={reactions}
+              pushHistory={props.pushHistory}
+              setFocus={props.setFocus}
               key={event.getId()}
               event={event} />
           )

@@ -12,6 +12,7 @@ import * as Replies from './utils/replies.js'
 export class TextMessage extends Component {
   componentDidMount() {
     this.processLatex()
+    this.processLinks()
   }
 
   componentDidUpdate(prevProps) {
@@ -29,6 +30,31 @@ export class TextMessage extends Component {
         if (elt.tagName === "DIV") katex.render(elt.dataset.mxMaths, elt, {displayMode: true, throwOnError: false})
         else katex.render(elt.dataset.mxMaths, elt, {throwOnError: false})
       })
+    }
+  }
+
+  processLinks() {
+    if (this.messageBody.current) {
+      const linkArray = Array.from(this.messageBody.current.querySelectorAll("a[href]"))
+      linkArray
+        .filter(link => new URL(link.getAttribute("href")).pathname === window.location.pathname)
+        .forEach(link => {
+          const params = new URL(link.getAttribute("href")).searchParams
+          link.addEventListener("click", e => {
+            e.preventDefault()
+            const title = params.get("title") || null
+            const focus = params.get("focus") || null
+            const page = parseInt(params.get("page"), 10) || null
+            this.props.pushHistory({
+              pdfFocused: title,
+              pageFocused: page
+            }, _ => {
+              console.log(focus)
+              focus ? this.props.setFocus({ roomId: focus })
+                    : null
+            })
+          })
+        })
     }
   }
 
