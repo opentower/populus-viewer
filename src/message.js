@@ -18,6 +18,7 @@ export class TextMessage extends Component {
   componentDidUpdate(prevProps) {
     if (this.props.reactions[this.props.event.getId()] !== prevProps.reactions[prevProps.event.getId()]) {
       this.processLatex()
+      this.processLinks()
     }
   }
 
@@ -48,11 +49,7 @@ export class TextMessage extends Component {
             this.props.pushHistory({
               pdfFocused: title,
               pageFocused: page
-            }, _ => {
-              console.log(focus)
-              focus ? this.props.setFocus({ roomId: focus })
-                    : null
-            })
+            }, _ => focus ? this.props.setFocus({ roomId: focus }) : null )
           })
         })
     }
