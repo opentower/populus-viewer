@@ -508,7 +508,7 @@ class MessageEditor extends Component {
     Client.client.sendEvent(this.props.event.getRoomId(), "m.reaction", theReactionContent).then(_ => this.props.closeEditor())
   }
 
-  render(props, state) {
+  render(_props, state) {
     return <div class="replyComposer">
       <textarea ref={this.input}
         value={state.value}
@@ -555,7 +555,7 @@ class ReplyComposer extends Component {
     }).then(_ => this.props.closeEditor())
   }
 
-  render(props, state) {
+  render(_props, state) {
     return <div class="replyComposer">
       <textarea ref={this.input}
         value={state.value}

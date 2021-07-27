@@ -90,10 +90,12 @@ export default class AnnotationListing extends Component {
                                                               parentRoom={props.room}
                                                               />)
     return <div id="annotation-panel" class={props.class} >
+              <div id="annotation-entries-wrapper">
                   {state.annotationContents.length > 0
                     ? annotationEntries
                     : <div class="empty-marker"><b>No annotations yet available </b></div>
                   }
+              </div>
               <div id="annotation-panel-button-wrapper">
                 <button onclick={this.prevUnread} class="styled-button">Prev Unread</button>
                 <button onclick={this.nextUnread} class="styled-button">Next Unread</button>

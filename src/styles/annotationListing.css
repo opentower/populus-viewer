@@ -5,6 +5,16 @@
 
 #annotation-panel .empty-marker { padding:10px }
 
+#annotation-entries-wrapper {
+    overflow-y:scroll;
+    padding-bottom:40px;
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+
+#annotation-entries-wrapper::-webkit-scrollbar { display: none; }
+
 #annotation-panel .annotation-listing-entry {
     cursor: pointer;
     position:relative;
@@ -68,7 +78,6 @@
     background-color:#ededed;
     transition: background-color 0.5s ease;
 }
-
 
 #annotation-panel-button-wrapper > button:first-child {
     border:2px solid black;
