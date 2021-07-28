@@ -79,16 +79,24 @@ export default class AnnotationListing extends Component {
     this.focusInArray(clone.reverse())
   }
 
+  byPage(a, b) {
+    if (a[eventVersion].pageNumber > b[eventVersion].pageNumber) return 1
+    if (a[eventVersion].pageNumber < b[eventVersion].pageNumber) return -1
+    return 0
+  }
+
   render (props, state) {
-    const annotationEntries = state.annotationContents.map(content => <AnnotationListingEntry
-                                                              key={content[eventVersion].roomId}
-                                                              typing={state.typing[content[eventVersion].roomId]}
-                                                              annotationContent={content[eventVersion]}
-                                                              focusByRoomId={props.focusByRoomId}
-                                                              focus={props.focus}
-                                                              pushHistory={props.pushHistory}
-                                                              parentRoom={props.room}
-                                                              />)
+    const annotationEntries = state.annotationContents
+      .sort(this.byPage)
+      .map(content => <AnnotationListingEntry
+        key={content[eventVersion].roomId}
+        typing={state.typing[content[eventVersion].roomId]}
+        annotationContent={content[eventVersion]}
+        focusByRoomId={props.focusByRoomId}
+        focus={props.focus}
+        pushHistory={props.pushHistory}
+        parentRoom={props.room}
+      />)
     return <div id="annotation-panel" class={props.class} >
               <div id="annotation-entries-wrapper">
                   {state.annotationContents.length > 0
