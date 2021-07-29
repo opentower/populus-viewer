@@ -12,8 +12,21 @@
     scrollbar-width: none;  /* Firefox */
 }
 
-
 #annotation-entries-wrapper::-webkit-scrollbar { display: none; }
+
+#annotation-select-sort {
+    user-select:none;
+    display:flex;
+    align-items:center;
+    margin-top: .5em;
+    padding-bottom: .5em;
+    padding-left: .5em;
+    border-bottom: 1px solid #ababab;
+}
+
+#annotation-select-sort button {
+    margin-left: 1em;
+}
 
 #annotation-panel .annotation-listing-entry {
     cursor: pointer;

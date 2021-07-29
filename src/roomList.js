@@ -117,7 +117,7 @@ export default class RoomList extends Component {
     return (
       <Fragment>
         <div id="select-sort">
-          <span id="select-sort-icon" />
+          <span class="select-sort-icon" />
           <button data-current-button={state.sort === "Activity"}
                   onClick={this.sortByActivity}
                   class="styled-button">Activity</button>

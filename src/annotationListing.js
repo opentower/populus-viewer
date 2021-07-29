@@ -12,7 +12,8 @@ export default class AnnotationListing extends Component {
     super(props)
     this.state = {
       annotationContents: [],
-      typing: {}
+      typing: {},
+      sort: "Page"
     }
     this.handleStateUpdate = this.handleStateUpdate.bind(this)
     this.handleTypingNotification = this.handleTypingNotification.bind(this)
@@ -48,7 +49,7 @@ export default class AnnotationListing extends Component {
         .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
         .map(ev => ev.getContent())
         .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
-      this.setState({ annotationContents})
+      this.setState({annotationContents})
     } else setTimeout(this.handleStateUpdate, 500) // keep polling until the room is available
   }
 
@@ -79,15 +80,34 @@ export default class AnnotationListing extends Component {
     this.focusInArray(clone.reverse())
   }
 
+  getSortFunc() {
+    switch (this.state.sort) {
+      case 'Page': return this.byPage
+      case 'Activity': return this.byActivity
+    }
+  }
+
   byPage(a, b) {
     if (a[eventVersion].pageNumber > b[eventVersion].pageNumber) return 1
     if (a[eventVersion].pageNumber < b[eventVersion].pageNumber) return -1
     return 0
   }
 
+  byActivity(a, b) {
+    const ts1 = Client.client.getRoom(a[eventVersion].roomId).getLastActiveTimestamp()
+    const ts2 = Client.client.getRoom(b[eventVersion].roomId).getLastActiveTimestamp()
+    if (ts1 < ts2) return 1
+    else if (ts2 < ts1) return -1
+    return 0
+  }
+
+  sortByActivity = _ => this.setState({ sort: "Activity" })
+
+  sortByPage = _ => this.setState({ sort: "Page" })
+
   render (props, state) {
     const annotationEntries = state.annotationContents
-      .sort(this.byPage)
+      .sort(this.getSortFunc())
       .map(content => <AnnotationListingEntry
         key={content[eventVersion].roomId}
         typing={state.typing[content[eventVersion].roomId]}
@@ -99,6 +119,15 @@ export default class AnnotationListing extends Component {
       />)
     return <div id="annotation-panel" class={props.class} >
               <div id="annotation-entries-wrapper">
+                <div id="annotation-select-sort">
+                  <span class="select-sort-icon" />
+                  <button data-current-button={state.sort === "Activity"}
+                          onClick={this.sortByActivity}
+                          class="styled-button">Activity</button>
+                  <button data-current-button={state.sort === "Page"}
+                          onClick={this.sortByPage}
+                          class="styled-button">Page</button>
+                </div>
                   {state.annotationContents.length > 0
                     ? annotationEntries
                     : <div class="empty-marker"><b>No annotations yet available </b></div>
