@@ -136,6 +136,10 @@ export default class AnnotationListing extends Component {
     )
   }
 
+  flipSort = _ => this.setState(oldState => {
+    return { sortOrder: oldState.sortOrder * -1 }
+  })
+
   render (props, state) {
     const annotationEntries = state.annotationContents
       .sort(this.getSortFunc())
@@ -151,7 +155,9 @@ export default class AnnotationListing extends Component {
     return <div id="annotation-panel" class={props.class} >
               <div id="annotation-entries-wrapper">
                 <div id="annotation-select-sort">
-                  <span class="small-icon">
+                  <span class="small-icon"
+                    style="cursor: pointer"
+                    onClick={this.flipSort}>
                     {state.sortOrder === 1
                       ? Icons.sortDesc
                       : Icons.sortAsc

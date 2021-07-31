@@ -74,6 +74,10 @@ export default class RoomList extends Component {
     )
   }
 
+  flipSort = _ => this.setState(oldState => {
+    return { sortOrder: oldState.sortOrder * -1 }
+  })
+
   sortByFavorite = _ => this.setState({ sort: "Favorite" })
 
   getSortFunc() {
@@ -135,7 +139,9 @@ export default class RoomList extends Component {
     return (
       <Fragment>
         <div id="select-sort">
-          <span class="small-icon">
+          <span class="small-icon"
+            style="cursor: pointer"
+            onClick={this.flipSort}>
             {state.sortOrder === 1
               ? Icons.sortDesc
               : Icons.sortAsc

@@ -76,6 +76,11 @@
     width: calc(var(--sidepanelWidth) + var(--sidepanelPadding));
     margin-top:10px;
     font-size:24px;
+    pointer-events:none;
+}
+
+#panel-toggle {
+    pointer-events:all;
 }
 
 #pdf-panel-button-wrapper > button {
