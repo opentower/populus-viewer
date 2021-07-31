@@ -83,6 +83,10 @@
     pointer-events:all;
 }
 
+#show-annotations {
+    pointer-events:all;
+}
+
 #pdf-panel-button-wrapper > button {
     border:none;
     outline:none;
