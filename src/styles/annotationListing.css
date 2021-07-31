@@ -14,11 +14,6 @@
 
 #annotation-entries-wrapper::-webkit-scrollbar { display: none; }
 
-#annotation-select-sort-icon {
-  height: 20px;
-  width: 20px;
-}
-
 #annotation-select-sort {
     user-select:none;
     display:flex;

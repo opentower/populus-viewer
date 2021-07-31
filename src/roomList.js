@@ -16,7 +16,8 @@ export default class RoomList extends Component {
     super(props)
     this.state = {
       rooms: Client.client.getVisibleRooms(),
-      sort: "Activity"
+      sort: "Activity",
+      sortOrder: 1
     }
     // need to do this to bind "this" as refering to the RoomList component in the listener
     this.roomListener = this.roomListener.bind(this)
@@ -39,27 +40,39 @@ export default class RoomList extends Component {
     Client.client.off("Room.accountData", this.roomListener)
   }
 
-  byActivity(a, b) {
+  byActivity = (a, b) => {
     const ts1 = a.getLastActiveTimestamp()
     const ts2 = b.getLastActiveTimestamp()
-    if (ts1 < ts2) return 1
-    else if (ts2 < ts1) return -1
+    if (ts1 < ts2) return 1 * this.state.sortOrder
+    else if (ts2 < ts1) return -1 * this.state.sortOrder
     return 0
   }
 
-  byName(a, b) {
+  byName = (a, b) => {
     const ts1 = a.name
     const ts2 = b.name
-    if (ts1 < ts2) return 1
-    else if (ts2 < ts1) return -1
+    if (ts1 > ts2) return 1 * this.state.sortOrder
+    else if (ts1 < ts2) return -1 * this.state.sortOrder
     return 0
   }
 
   byFavorite() { return 0 }
 
-  sortByActivity = _ => this.setState({ sort: "Activity" })
+  sortByActivity = _ => {
+    this.setState(oldState =>
+      oldState.sort === "Activity"
+        ? { sortOrder: oldState.sortOrder * -1 }
+        : { sort: "Activity" }
+    )
+  }
 
-  sortByName = _ => this.setState({ sort: "Name" })
+  sortByName = _ => {
+    this.setState(oldState =>
+      oldState.sort === "Name"
+        ? { sortOrder: oldState.sortOrder * -1 }
+        : { sort: "Name" }
+    )
+  }
 
   sortByFavorite = _ => this.setState({ sort: "Favorite" })
 
@@ -117,7 +130,12 @@ export default class RoomList extends Component {
     return (
       <Fragment>
         <div id="select-sort">
-          <span class="select-sort-icon" />
+          <span class="small-icon">
+            {state.sortOrder === 1
+              ? Icons.sortDesc
+              : Icons.sortAsc
+            }
+          </span>
           <button data-current-button={state.sort === "Activity"}
                   onClick={this.sortByActivity}
                   class="styled-button">Activity</button>

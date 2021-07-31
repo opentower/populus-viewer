@@ -88,3 +88,8 @@ button[data-current-button]{
 .styled-progress::-webkit-progress-value {
   background: black;
 }
+
+.small-icon {
+  height: 20px;
+  width: 20px;
+}

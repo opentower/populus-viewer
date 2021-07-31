@@ -151,7 +151,7 @@ export default class AnnotationListing extends Component {
     return <div id="annotation-panel" class={props.class} >
               <div id="annotation-entries-wrapper">
                 <div id="annotation-select-sort">
-                  <span id="annotation-select-sort-icon">
+                  <span class="small-icon">
                     {state.sortOrder === 1
                       ? Icons.sortDesc
                       : Icons.sortAsc
