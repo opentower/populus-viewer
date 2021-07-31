@@ -431,7 +431,7 @@ export default class PdfView extends Component {
           pdfWidthPx={state.pdfWidthPx}
           pushHistory={props.pushHistory}
           setZoom={this.setZoom}
-          zoomFactor={state.zoomFactor}/>
+          zoomFactor={state.zoomFactor} />
         <div data-hide-buttons={state.hideButtons} id="pdf-panel-button-wrapper">
           {(state.panelVisible && state.focus)
             ? <button title="focus annotation list" id="show-annotations" onclick={this.clearFocus}>
