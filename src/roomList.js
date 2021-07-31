@@ -78,13 +78,10 @@ export default class RoomList extends Component {
     return { sortOrder: oldState.sortOrder * -1 }
   })
 
-  sortByFavorite = _ => this.setState({ sort: "Favorite" })
-
   getSortFunc() {
     switch (this.state.sort) {
       case 'Activity': return this.byActivity
       case 'Name': return this.byName
-      case 'Favorite': return this.byFavorite
     }
   }
 
@@ -94,21 +91,24 @@ export default class RoomList extends Component {
     const searchNames = []
     const searchTags = []
     const searchMembers = []
+    const searchFlags = []
     const searchWords = this.props.searchFilter.split(" ")
     for (const word of searchWords) {
       if (word.slice(0, 1) === '#') searchTags.push(word.slice(1))
       if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
+      if (word.slice(0, 1) === '~') searchFlags.push(word.slice(1))
       else searchNames.push(word)
     }
     return this.state.rooms.filter(room => {
-      const favorite = this.state.sort !== "Favorite" || room.tags["m.favourite"]
+      let flagged = true
+      if (searchFlags.includes("fav")) { flagged = flagged && !!room.tags["m.favourite"] }
       const tags = Object.keys(room.tags).filter(tag => tag.slice(0, 2) === 'u.')
       // TODO: could make the below smarter to search by displayname as well as userID.
       const roomMembers = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getMembers().map(m => m.userId)
       return searchNames.every(name => room.name.toLowerCase().includes(name)) &&
         searchMembers.every(member => roomMembers.some(roomMember => roomMember.toLowerCase().includes(member))) &&
         searchTags.every(searchTag => tags.some(tag => tag.toLowerCase().includes(searchTag))) &&
-        favorite
+        flagged
     }).sort(this.getSortFunc())
       .map(room => {
         const pdfEvent = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType, "")
@@ -153,9 +153,6 @@ export default class RoomList extends Component {
           <button data-current-button={state.sort === "Name"}
                   onClick={this.sortByName}
                   class="styled-button">Name</button>
-          <button data-current-button={state.sort === "Favorite"}
-                  onClick={this.sortByFavorite}
-                  class="styled-button">Favorite</button>
         </div>
         {/* TODO: We're going to need to debounce this rather than searching with each render, for longer lists of rooms */}
         <div>{this.searchRooms()}</div>
