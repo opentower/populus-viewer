@@ -89,15 +89,20 @@ export default class RoomList extends Component {
     // for actual pdfs, and for annotation discussions
     const searchNames = []
     const searchTags = []
+    const searchMembers = []
     const searchWords = this.props.searchFilter.split(" ")
     for (const word of searchWords) {
       if (word.slice(0, 1) === '#') searchTags.push(word.slice(1))
+      if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
       else searchNames.push(word)
     }
     return this.state.rooms.filter(room => {
       const favorite = this.state.sort !== "Favorite" || room.tags["m.favourite"]
       const tags = Object.keys(room.tags).filter(tag => tag.slice(0, 2) === 'u.')
+      // TODO: could make the below smarter to search by displayname as well as userID.
+      const roomMembers = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getMembers().map(m => m.userId)
       return searchNames.every(name => room.name.toLowerCase().includes(name)) &&
+        searchMembers.every(member => roomMembers.some(roomMember => roomMember.toLowerCase().includes(member))) &&
         searchTags.every(searchTag => tags.some(tag => tag.toLowerCase().includes(searchTag))) &&
         favorite
     }).sort(this.getSortFunc())
