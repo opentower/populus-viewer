@@ -105,11 +105,20 @@ export default class AnnotationListing extends Component {
   }
 
   byActivity = (a, b) => {
-    const ts1 = Client.client.getRoom(a[eventVersion].roomId).getLastActiveTimestamp()
-    const ts2 = Client.client.getRoom(b[eventVersion].roomId).getLastActiveTimestamp()
-    if (ts1 < ts2) return 1 * this.state.sortOrder
-    else if (ts2 < ts1) return -1 * this.state.sortOrder
+    const room1 = Client.client.getRoom(a[eventVersion].roomId)
+    const room2 = Client.client.getRoom(b[eventVersion].roomId)
+    // XXX might not be a member of both rooms, hence unable to get timestamps
+    if (room1 && room2) {
+      const ts1 = room1.getLastActiveTimestamp()
+      const ts2 = room2.getLastActiveTimestamp()
+      if (ts1 < ts2) return 1 * this.state.sortOrder
+      else if (ts2 < ts1) return -1 * this.state.sortOrder
+      return 0
+    }
+    if (room1) return -1 * this.state.sortOrder
+    if (room2) return 1 * this.state.sortOrder
     return 0
+    // should warn that unjoined rooms are last
   }
 
   sortByActivity = _ => {
