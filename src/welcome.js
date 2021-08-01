@@ -1,8 +1,9 @@
-import { h, Fragment, Component, createRef } from 'preact';
+import { h, Fragment, Component } from 'preact';
 import UserColor from './userColors.js'
 import PdfUpload from './pdfUpload.js'
 import RoomList from './roomList.js'
 import Client from './client.js'
+import SearchBar from './search.js'
 import ProfileInformation from './profileInformation.js'
 import * as Icons from './icons.js'
 import Modal from './modal.js'
@@ -27,12 +28,10 @@ export default class WelcomeView extends Component {
 
   componentDidMount () {
     this.user.on("User.avatarUrl", this.profileListener)
-    document.addEventListener('keydown', this.keydownHandler)
   }
 
   componentWillUnmount () {
     this.user.off("User.avatarUrl", this.profileListener)
-    document.removeEventListener('keydown', this.keydownHandler)
   }
 
   profileListener () {
@@ -41,7 +40,13 @@ export default class WelcomeView extends Component {
     })
   }
 
-  searchInput = createRef()
+  setSearch = s => this.setState({ searchFilter: s})
+
+  setFocus = b => this.setState({
+    inputFocus: b,
+    uploadVisible: false,
+    profileVisible: false
+  })
 
   toggleUploadVisible = _ => this.setState({
     uploadVisible: !this.state.uploadVisible,
@@ -66,34 +71,10 @@ export default class WelcomeView extends Component {
     profileVisible: false
   })
 
-  handleInputFocus = _ => this.setState({
-    inputFocus: true,
-    uploadVisible: false,
-    profileVisible: false
-  })
-
-  handleInputBlur = _ => this.setState({inputFocus: false})
-
-  handleInputKey = e => {
-    e.stopPropagation() // don't propagate to global keypress handlers
-    if (e.key === "Esc" || e.key === "Escape") this.searchInput.current.blur()
-  }
-
-  handleInput = e => {
-    this.setState({searchFilter: e.target.value})
-  }
-
   displayInitial = _ => {
     return this.user.displayName.slice(0, 1) === '@'
       ? this.user.displayName.slice(1, 2)
       : this.user.displayName.slice(0, 1)
-  }
-
-  keydownHandler = e => {
-    if (e.key === "/") {
-      e.preventDefault()
-      this.searchInput.current.focus()
-    }
   }
 
   render(props, state) {
@@ -103,16 +84,10 @@ export default class WelcomeView extends Component {
         <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
         <header id="welcome-header">
           <div id="welcome-header-content">
-            <div id="welcome-search">
-              <input id="welcome-search-input"
-                value={state.searchFilter}
-                ref={this.searchInput}
-                onkeydown={this.handleInputKey}
-                onInput={this.handleInput}
-                onBlur={this.handleInputBlur}
-                onFocus={this.handleInputFocus} />
-              {Icons.search}
-            </div>
+            <SearchBar
+              searchFilter={state.searchFilter}
+              setSearch={this.setSearch}
+              setFocus={this.setFocus} />
             { !state.inputFocus && <Fragment>
               <div id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</div>
               <div id="welcome-profile" onClick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
