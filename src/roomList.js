@@ -105,9 +105,9 @@ export default class RoomList extends Component {
       const tags = Object.keys(room.tags).filter(tag => tag.slice(0, 2) === 'u.')
       // TODO: could make the below smarter to search by displayname as well as userID.
       const roomMembers = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getMembers().map(m => m.userId)
-      return searchNames.every(name => room.name.toLowerCase().includes(name)) &&
-        searchMembers.every(member => roomMembers.some(roomMember => roomMember.toLowerCase().includes(member))) &&
-        searchTags.every(searchTag => tags.some(tag => tag.toLowerCase().includes(searchTag))) &&
+      return searchNames.every(name => room.name.toLowerCase().includes(name.toLowerCase())) &&
+        searchMembers.every(member => roomMembers.some(roomMember => roomMember.toLowerCase().includes(member.toLowerCase()))) &&
+        searchTags.every(searchTag => tags.some(tag => tag.toLowerCase().includes(searchTag.toLowerCase()))) &&
         flagged
     }).sort(this.getSortFunc())
       .map(room => {
