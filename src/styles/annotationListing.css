@@ -14,7 +14,7 @@
 
 #annotation-entries-wrapper::-webkit-scrollbar { display: none; }
 
-#annotation-select-sort {
+#annotation-controls {
     user-select:none;
     display:flex;
     align-items:center;
@@ -24,7 +24,7 @@
     border-bottom: 1px solid #ababab;
 }
 
-#annotation-select-sort button {
+#annotation-controls button {
     margin-left: 1em;
 }
 
@@ -75,16 +75,53 @@
   position:absolute;
   display:grid;
   column-gap: 0px;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1fr 40px;
   bottom:0px;
   width:100%;
 }
 
+#annotation-panel-button-wrapper[data-mode="navigation"] #search-bar {
+  border: 2px solid black;
+  margin:0px;
+  border-left:none;
+  background-color:white;
+}
+
+#annotation-panel-button-wrapper[data-mode="search"] #search-bar {
+  grid-column: 1/4;
+  margin:0px;
+  padding:0px;
+  height:36px;
+  border: 2px solid black;
+}
+
+#annotation-panel-button-wrapper[data-mode="search"] #search-bar > input {
+  opacity:1;
+  width:100%;
+  height:100%;
+  margin:0px;
+  padding:0px;
+  padding-left:7px;
+  outline:none;
+}
+
+#annotation-panel-button-wrapper[data-mode="navigation"] #search-bar > input {
+  opacity:0;
+}
+
+#annotation-panel-button-wrapper #search-bar > svg {
+  right:7px;
+}
+
+#annotation-panel-button-wrapper[data-mode="search"] button {
+  display:none;
+}
+
 #annotation-panel-button-wrapper > button {
-    height:40px;
-    font-size:14pt;
-    border-left:none;
-    transition: background-color 0.5s ease;
+  height:40px;
+  font-size:14pt;
+  border-left:none;
+  transition: background-color 0.5s ease;
 }
 
 #annotation-panel-button-wrapper > button:hover {

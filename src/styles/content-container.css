@@ -74,7 +74,7 @@
     transition: top 0.5s ease;
     right:0px;
     width: calc(var(--sidepanelWidth) + var(--sidepanelPadding));
-    margin-top:10px;
+    margin-top:5px;
     font-size:24px;
     pointer-events:none;
 }
@@ -101,7 +101,6 @@
     float:right
 }
 
-
 /* Extra small devices (phones, 600px and down) */
 @media only screen and (max-width: 600px) {
     #content-container {
@@ -127,6 +126,7 @@
 
     #pdf-panel-button-wrapper {
         margin-right:10px;
+        margin-top:10px;
     }
 } 
 

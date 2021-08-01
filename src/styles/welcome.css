@@ -67,28 +67,6 @@
     padding:1em;
 }
 
-#welcome-search { 
-    position:relative; 
-    flex-shrink:2;
-    flex-grow:1;
-    margin-right:30px; 
-    margin-left:13px; 
-}
-
-#welcome-search > svg {
-    position:absolute;
-    right:0px;
-    top:3px;
-}
-
-#welcome-search-input {
-    width:100%;
-    margin:auto;
-    padding:7px;
-    border:none;
-    background:#ededed;
-}
-
 @media only screen and (min-width: 600px) {
     #welcome-header-content { width:400px; }
 } 

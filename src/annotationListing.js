@@ -5,6 +5,7 @@ import { eventVersion, spaceChild } from "./constants.js"
 import Client from './client.js'
 import MemberPill from './memberPill.js'
 import UserColor from './userColors.js'
+import SearchBar from './search.js'
 import { calculateUnread } from './utils/unread.js'
 import * as Icons from './icons.js'
 
@@ -15,7 +16,9 @@ export default class AnnotationListing extends Component {
       annotationContents: [],
       typing: {},
       sort: "Page",
-      sortOrder: 1
+      sortOrder: 1,
+      searchFocus: false,
+      searchFilter: ""
     }
     this.handleStateUpdate = this.handleStateUpdate.bind(this)
     this.handleTypingNotification = this.handleTypingNotification.bind(this)
@@ -58,6 +61,10 @@ export default class AnnotationListing extends Component {
       this.setState({annotationContents})
     } else setTimeout(this.handleStateUpdate, 500) // keep polling until the room is available
   }
+
+  setFocus = b => this.setState({searchFocus: b})
+
+  setSearch = s => this.setState({searchFilter: s})
 
   focusInArray (array) {
     let reachedFocus = !this.props.focus
@@ -163,7 +170,7 @@ export default class AnnotationListing extends Component {
       />)
     return <div id="annotation-panel" class={props.class} >
               <div id="annotation-entries-wrapper">
-                <div id="annotation-select-sort">
+                <div id="annotation-controls">
                   <span class="small-icon"
                     style="cursor: pointer"
                     onClick={this.flipSort}>
@@ -187,9 +194,13 @@ export default class AnnotationListing extends Component {
                     : <div class="empty-marker"><b>No annotations yet available </b></div>
                   }
               </div>
-              <div id="annotation-panel-button-wrapper">
+              <div id="annotation-panel-button-wrapper" data-mode={state.searchFocus ? "search" : "navigation"}>
                 <button onclick={this.prevUnread} class="styled-button">Prev Unread</button>
                 <button onclick={this.nextUnread} class="styled-button">Next Unread</button>
+                <SearchBar
+                  searchFilter={state.searchFilter}
+                  setSearch={this.setSearch}
+                  setFocus={this.setFocus} />
               </div>
             </div>
   }

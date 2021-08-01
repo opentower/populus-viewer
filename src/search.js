@@ -1,5 +1,6 @@
 import { h, Component, createRef } from 'preact';
 import * as Icons from './icons.js'
+import './styles/search.css'
 
 export default class SearchBar extends Component {
   componentDidMount () {
@@ -31,10 +32,9 @@ export default class SearchBar extends Component {
   handleInput = e => this.props.setSearch(e.target.value)
 
   render(props, _) {
-    return <div id="welcome-search">
-      <input id="welcome-search-input"
+    return <div id="search-bar">
+      <input ref={this.searchInput}
         value={props.searchFilter}
-        ref={this.searchInput}
         onkeydown={this.handleInputKeydown}
         onInput={this.handleInput}
         onBlur={this.handleInputBlur}
