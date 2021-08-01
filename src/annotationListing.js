@@ -91,6 +91,29 @@ export default class AnnotationListing extends Component {
     this.focusInArray(clone.reverse())
   }
 
+  searchAnnotations = _ => {
+    const searchText = []
+    const searchMembers = []
+    const searchWords = this.state.searchFilter.split(" ")
+    for (const word of searchWords) {
+      if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
+      else searchText.push(word)
+    }
+    return this.state.annotationContents.filter(content => {
+      return searchText.every(frag => content[eventVersion].selectedText.toLowerCase().includes(frag.toLowerCase())) &&
+        searchMembers.every(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase()))
+    }).sort(this.getSortFunc())
+      .map(content => <AnnotationListingEntry
+        key={content[eventVersion].roomId}
+        typing={this.state.typing[content[eventVersion].roomId]}
+        annotationContent={content[eventVersion]}
+        focusByRoomId={this.props.focusByRoomId}
+        focus={this.props.focus}
+        pushHistory={this.props.pushHistory}
+        parentRoom={this.props.room}
+      />)
+  }
+
   getSortFunc() {
     switch (this.state.sort) {
       case 'Page': return this.byPage
@@ -157,17 +180,6 @@ export default class AnnotationListing extends Component {
   })
 
   render (props, state) {
-    const annotationEntries = state.annotationContents
-      .sort(this.getSortFunc())
-      .map(content => <AnnotationListingEntry
-        key={content[eventVersion].roomId}
-        typing={state.typing[content[eventVersion].roomId]}
-        annotationContent={content[eventVersion]}
-        focusByRoomId={props.focusByRoomId}
-        focus={props.focus}
-        pushHistory={props.pushHistory}
-        parentRoom={props.room}
-      />)
     return <div id="annotation-panel" class={props.class} >
               <div id="annotation-entries-wrapper">
                 <div id="annotation-controls">
@@ -190,7 +202,7 @@ export default class AnnotationListing extends Component {
                           class="styled-button">Creation</button>
                 </div>
                   {state.annotationContents.length > 0
-                    ? annotationEntries
+                    ? this.searchAnnotations() // XXX : will need to debounce eventually
                     : <div class="empty-marker"><b>No annotations yet available </b></div>
                   }
               </div>
