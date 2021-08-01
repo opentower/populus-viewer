@@ -95,8 +95,8 @@ export default class RoomList extends Component {
     const searchWords = this.props.searchFilter.split(" ")
     for (const word of searchWords) {
       if (word.slice(0, 1) === '#') searchTags.push(word.slice(1))
-      if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
-      if (word.slice(0, 1) === '~') searchFlags.push(word.slice(1))
+      else if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
+      else if (word.slice(0, 1) === '~') searchFlags.push(word.slice(1))
       else searchNames.push(word)
     }
     return this.state.rooms.filter(room => {
