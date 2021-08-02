@@ -31,6 +31,9 @@ export default class PdfView extends Component {
       panelVisible: false,
       hasSelection: false,
       annotationsVisible: true,
+      annotationContents: [],
+      filteredAnnotationContents: [],
+      annotationFilter: "",
       loadingStatus: "loading...",
       pdfWidthPx: null,
       pdfHeightPx: null,
@@ -43,6 +46,7 @@ export default class PdfView extends Component {
     this.checkForSelection = this.checkForSelection.bind(this)
     this.handleKeydown = this.handleKeydown.bind(this)
     this.handleAccountData = this.handleAccountData.bind(this)
+    this.handleStateUpdate = this.handleStateUpdate.bind(this)
     this.userColor = new UserColor(Client.client.getUserId())
     // need the `bind` here in order to pass a named function into the event
     // listener with the proper `this` reference
@@ -51,13 +55,31 @@ export default class PdfView extends Component {
   componentDidMount() {
     document.addEventListener("selectionchange", this.checkForSelection)
     document.addEventListener('keydown', this.handleKeydown)
+    this.handleStateUpdate()
+    Client.client.on("RoomState.events", this.handleStateUpdate)
     Client.client.on("Room.accountData", this.handleAccountData)
   }
 
   componentWillUnmount() {
     document.removeEventListener("selectionchange", this.checkForSelection)
     document.removeEventListener('keydown', this.handleKeydown)
+    Client.client.off("RoomState.events", this.handleStateUpdate)
     Client.client.off("Room.accountData", this.handleAccountData)
+  }
+
+  handleStateUpdate = _ => {
+    const theRoom = Client.client.getRoom(this.state.roomId)
+    if (theRoom) {
+      const annotationContents = theRoom.getLiveTimeline()
+        .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
+        .map(ev => {
+          const content = ev.getContent()
+          content.timestamp = ev.getTs()
+          return content
+        })
+        .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
+      this.setState({annotationContents, filteredAnnotationContents: this.filterAnnotations(this.state.annotationFilter, annotationContents)})
+    } else setTimeout(this.handleStateUpdate, 500) // keep polling until the room is available
   }
 
   handlePointerDown = e => {
@@ -135,15 +157,23 @@ export default class PdfView extends Component {
       : null)
   }
 
-  setPdfWidthPx = px => this.setState({pdfWidthPx: px})
+  setPdfWidthPx = pdfWidthPx => this.setState({pdfWidthPx})
 
-  setPdfFitRatio = ratio => this.setState({pdfFitRatio: ratio})
+  setPdfFitRatio = pdfFitRatio => this.setState({pdfFitRatio})
 
-  setPdfHeightPx = px => this.setState({pdfHeightPx: px})
+  setPdfHeightPx = pdfHeightPx => this.setState({pdfHeightPx})
 
-  setTotalPages = num => this.setState({totalPages: num})
+  // XXX : will need to debounce eventually
+  setAnnotationFilter = annotationFilter => this.setState(oldState => {
+    return {
+      annotationFilter,
+      filteredAnnotationContents: this.filterAnnotations(annotationFilter, oldState.annotationContents)
+    }
+  })
 
-  setPdfLoadingStatus = status => this.setState({loadingStatus: status})
+  setTotalPages = totalPages => this.setState({totalPages})
+
+  setPdfLoadingStatus = loadingStatus => this.setState({loadingStatus})
 
   clearFocus = _ => this.setState({focus: null})
 
@@ -345,6 +375,20 @@ export default class PdfView extends Component {
     }
   }
 
+  filterAnnotations = (search, annotations) => {
+    const searchText = []
+    const searchMembers = []
+    const searchWords = search.split(" ")
+    for (const word of searchWords) {
+      if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
+      else searchText.push(word)
+    }
+    return annotations.filter(content => {
+      return searchText.every(frag => content[eventVersion].selectedText.toLowerCase().includes(frag.toLowerCase())) &&
+        searchMembers.every(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase()))
+    })
+  }
+
   render(props, state) {
     const dynamicDocumentStyle = {
       "--pdfZoomFactor": state.zoomFactor,
@@ -411,10 +455,15 @@ export default class PdfView extends Component {
               roomId={state.roomId}
               class={state.focus ? "panel-widget-2" : "panel-widget-1"}
               focus={state.focus}
+              setAnnotationFilter={this.setAnnotationFilter}
+              annotationFilter={state.annotationFilter}
+              annotationContents={state.annotationContents}
+              filteredAnnotationContents={state.filteredAnnotationContents}
               handleWidgetScroll={this.handleWidgetScroll}
               focusByRoomId={this.focusByRoomId}
               pushHistory={props.pushHistory}
-              room={theRoom} />
+              room={theRoom}
+            />
         </div>
         <Navbar selected={state.hasSelection}
           addann={this.openAnnotation}

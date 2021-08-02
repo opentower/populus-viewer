@@ -13,26 +13,19 @@ export default class AnnotationListing extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      annotationContents: [],
-      filteredAnnotationContents: [],
       typing: {},
       sort: "Page",
       sortOrder: 1,
-      searchFocus: false,
-      searchFilter: ""
+      searchFocus: false
     }
-    this.handleStateUpdate = this.handleStateUpdate.bind(this)
     this.handleTypingNotification = this.handleTypingNotification.bind(this)
   }
 
   componentDidMount () {
-    this.handleStateUpdate()
-    Client.client.on("RoomState.events", this.handleStateUpdate)
     Client.client.on("RoomMember.typing", this.handleTypingNotification)
   }
 
   componentDidUnmount () {
-    Client.client.off("RoomState.events", this.handleStateUpdate)
     Client.client.off("RoomMember.typing", this.handleTypingNotification)
   }
 
@@ -49,30 +42,7 @@ export default class AnnotationListing extends Component {
     }
   }
 
-  handleStateUpdate = _ => {
-    if (this.props.room) {
-      const annotationContents = this.props.room.getLiveTimeline()
-        .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
-        .map(ev => {
-          const content = ev.getContent()
-          content.timestamp = ev.getTs()
-          return content
-        })
-        .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
-      this.setState({
-        annotationContents,
-        filteredAnnotationContents: this.filterAnnotations(this.state.searchFilter, annotationContents)
-      })
-    } else setTimeout(this.handleStateUpdate, 500) // keep polling until the room is available
-  }
-
   setFocus = searchFocus => this.setState({searchFocus})
-
-  // XXX : will need to debounce eventually
-  setSearch = searchFilter => this.setState({
-    searchFilter,
-    filteredAnnotationContents: this.filterAnnotations(searchFilter, this.state.annotationContents)
-  })
 
   focusInArray (array) {
     let reachedFocus = !this.props.focus
@@ -91,26 +61,12 @@ export default class AnnotationListing extends Component {
   }
 
   nextUnread = _ => {
-    this.focusInArray(this.state.annotationContents)
+    this.focusInArray(this.props.filteredAnnotationContents)
   }
 
   prevUnread = _ => {
-    const clone = [... this.state.annotationContents]
+    const clone = [... this.props.filteredAnnotationContents]
     this.focusInArray(clone.reverse())
-  }
-
-  filterAnnotations = (search, annotations) => {
-    const searchText = []
-    const searchMembers = []
-    const searchWords = search.split(" ")
-    for (const word of searchWords) {
-      if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
-      else searchText.push(word)
-    }
-    return annotations.filter(content => {
-      return searchText.every(frag => content[eventVersion].selectedText.toLowerCase().includes(frag.toLowerCase())) &&
-        searchMembers.every(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase()))
-    }).sort(this.getSortFunc())
   }
 
   getSortFunc() {
@@ -151,53 +107,24 @@ export default class AnnotationListing extends Component {
   }
 
   sortByActivity = _ => {
-    this.setState(oldState =>
-      oldState.sort === "Activity"
-        ? {
-            sortOrder: oldState.sortOrder * -1,
-            filteredAnnotationContents: oldState.filteredAnnotationContents.reverse()
-          }
-        : {
-            sort: "Activity",
-            filteredAnnotationContents: oldState.filteredAnnotationContents.sort(this.byActivity)
-          }
-    )
+    const initialSort = this.state.sort
+    if (initialSort === "Activity") this.setState(oldState => { return { sortOrder: oldState.sortOrder * -1 } })
+    else this.setState({ sort: "Activity" })
   }
 
   sortByPage = _ => {
-    this.setState(oldState =>
-      oldState.sort === "Page"
-        ? {
-            sortOrder: oldState.sortOrder * -1,
-            filteredAnnotationContents: oldState.filteredAnnotationContents.reverse()
-          }
-        : {
-            sort: "Page",
-            filteredAnnotationContents: oldState.filteredAnnotationContents.sort(this.byPage)
-          }
-    )
+    const initialSort = this.state.sort
+    if (initialSort === "Page") this.setState(oldState => { return { sortOrder: oldState.sortOrder * -1 } })
+    else this.setState({ sort: "Page" })
   }
 
   sortByCreation = _ => {
-    this.setState(oldState =>
-      oldState.sort === "Creation"
-        ? {
-            sortOrder: oldState.sortOrder * -1,
-            filteredAnnotationContents: oldState.filteredAnnotationContents.reverse()
-          }
-        : {
-            sort: "Creation",
-            filteredAnnotationContents: oldState.filteredAnnotationContents.sort(this.byCreation)
-          }
-    )
+    const initialSort = this.state.sort
+    if (initialSort === "Creation") this.setState(oldState => { return { sortOrder: oldState.sortOrder * -1 } })
+    else this.setState({ sort: "Creation" })
   }
 
-  flipSort = _ => this.setState(oldState => {
-    return {
-      sortOrder: oldState.sortOrder * -1,
-      filteredAnnotationContents: oldState.filteredAnnotationContents.reverse()
-    }
-  })
+  flipSort = _ => this.setState(oldState => { return { sortOrder: oldState.sortOrder * -1 } })
 
   render (props, state) {
     return <div id="annotation-panel" class={props.class} >
@@ -221,27 +148,28 @@ export default class AnnotationListing extends Component {
                           onClick={this.sortByCreation}
                           class="styled-button">Creation</button>
                 </div>
-                  {state.annotationContents.length === 0
+                  {props.annotationContents.length === 0
                     ? <div class="empty-marker"><b>No annotations yet available</b></div>
-                    : state.filteredAnnotationContents.length === 0
+                    : props.filteredAnnotationContents.length === 0
                       ? <div class="empty-marker"><b>No annotations matching search</b></div>
-                      : state.filteredAnnotationContents.map(content => <AnnotationListingEntry
+                      : props.filteredAnnotationContents.sort(this.getSortFunc()).map(content =>
+                        <AnnotationListingEntry
                             key={content[eventVersion].roomId}
-                            typing={this.state.typing[content[eventVersion].roomId]}
+                            typing={state.typing[content[eventVersion].roomId]}
                             annotationContent={content[eventVersion]}
-                            focusByRoomId={this.props.focusByRoomId}
-                            focus={this.props.focus}
-                            pushHistory={this.props.pushHistory}
-                            parentRoom={this.props.room}
-                          />)
+                            focusByRoomId={props.focusByRoomId}
+                            focus={props.focus}
+                            pushHistory={props.pushHistory}
+                            parentRoom={props.room}
+                        />)
                   }
               </div>
               <div id="annotation-panel-button-wrapper" data-mode={state.searchFocus ? "search" : "navigation"}>
                 <button onclick={this.prevUnread} class="styled-button">Prev Unread</button>
                 <button onclick={this.nextUnread} class="styled-button">Next Unread</button>
                 <SearchBar
-                  searchFilter={state.searchFilter}
-                  setSearch={this.setSearch}
+                  searchFilter={props.annotationFilter}
+                  setSearch={props.setAnnotationFilter}
                   setFocus={this.setFocus} />
               </div>
             </div>
