@@ -12,17 +12,14 @@ export default class AnnotationLayer extends Component {
   constructor(props) {
     super(props)
     this.state = {typing: {}}
-    this.handleStateUpdate = this.handleStateUpdate.bind(this)
     this.handleTypingNotification = this.handleTypingNotification.bind(this)
   }
 
   componentDidMount() {
-    Client.client.on("RoomState.events", this.handleStateUpdate)
     Client.client.on("RoomMember.typing", this.handleTypingNotification)
   }
 
   componentDidUnmount () {
-    Client.client.off("RoomState.events", this.handleStateUpdate)
     Client.client.off("RoomMember.typing", this.handleTypingNotification)
   }
 
@@ -39,17 +36,11 @@ export default class AnnotationLayer extends Component {
     }
   }
 
-  handleStateUpdate = event => {
-    if (event.getRoomId() === this.props.roomId && event.getType() === spaceChild) {
-      this.forceUpdate()
-    }
-  }
-
-  filterAnnotations (event) {
+  filterAnnotations (content) {
     return (
-      !!event.getContent()[eventVersion] && // filter out old eventVersions
-      event.getContent()[eventVersion].pageNumber === this.props.page &&
-      event.getContent()[eventVersion].activityStatus !== "closed"
+      !!content[eventVersion] && // filter out old eventVersions
+      content[eventVersion].pageNumber === this.props.page &&
+      content[eventVersion].activityStatus !== "closed"
     )
   }
 
@@ -59,15 +50,14 @@ export default class AnnotationLayer extends Component {
     const roomId = props.focus ? props.focus.roomId : null
     let annotations = []
     if (theRoom) {
-      const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-      annotations = theRoomState.getStateEvents(spaceChild)
-        .filter(event => this.filterAnnotations(event))
-        .map(event => <Annotation zoomFactor={props.zoomFactor}
-          key={event.getContent()[eventVersion].roomId}
-          focused={roomId === event.getContent()[eventVersion].roomId}
-          typing={state.typing[event.getContent()[eventVersion].roomId]}
+      annotations = props.filteredAnnotationContents
+        .filter(content => this.filterAnnotations(content))
+        .map(content => <Annotation zoomFactor={props.zoomFactor}
+          key={content[eventVersion].roomId}
+          focused={roomId === content[eventVersion].roomId}
+          typing={state.typing[content[eventVersion].roomId]}
           setFocus={props.setFocus}
-          event={event} />)
+          content={content} />)
     }
     return (
       <div ref={props.annotationLayerWrapper} id="annotation-layer">
@@ -78,9 +68,9 @@ export default class AnnotationLayer extends Component {
 }
 
 class Annotation extends Component {
-  setFocus = _ => { this.props.setFocus(this.props.event.getContent()[eventVersion]) }
+  setFocus = _ => { this.props.setFocus(this.props.content[eventVersion]) }
 
-  eventContent = this.props.event.getContent()[eventVersion]
+  eventContent = this.props.content[eventVersion]
 
   roomId = this.eventContent.roomId
 

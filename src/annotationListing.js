@@ -50,7 +50,7 @@ export default class AnnotationListing extends Component {
       const theId = annot[eventVersion].roomId
       if (reachedFocus) {
         const unread = calculateUnread(theId)
-        if (unread > 0) {
+        if (unread > 0 || unread === "All") {
           this.props.focusByRoomId(theId)
           break
         }

@@ -68,6 +68,7 @@ export default class PdfView extends Component {
   }
 
   handleStateUpdate = _ => {
+    // XXX consider guarding against irrelevant updates here.
     const theRoom = Client.client.getRoom(this.state.roomId)
     if (theRoom) {
       const annotationContents = theRoom.getLiveTimeline()
@@ -433,6 +434,7 @@ export default class PdfView extends Component {
               ? <AnnotationLayer ref={this.annotationLayer}
                   annotationLayer={this.annotationLayer}
                   annotationLayerWrapper={this.annotationLayerWrapper}
+                  filteredAnnotationContents={state.filteredAnnotationContents}
                   zoomFactor={state.zoomFactor}
                   page={props.pageFocused}
                   roomId={state.roomId}
