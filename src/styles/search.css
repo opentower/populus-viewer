@@ -1,0 +1,23 @@
+#search-bar { 
+    position:relative; 
+    display:flex;
+    flex-shrink:2;
+    flex-grow:1;
+    margin-right:15px; 
+    margin-left:13px; 
+    align-items:center;
+}
+
+#search-bar > svg {
+    position:absolute;
+    right:5px;
+    pointer-events:none;
+}
+
+#search-bar > input {
+    width:100%;
+    margin:auto;
+    padding:7px;
+    border:none;
+    background:#ededed;
+}
