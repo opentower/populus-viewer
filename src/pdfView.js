@@ -55,7 +55,7 @@ export default class PdfView extends Component {
   componentDidMount() {
     document.addEventListener("selectionchange", this.checkForSelection)
     document.addEventListener('keydown', this.handleKeydown)
-    this.handleStateUpdate()
+    this.updateAnnotations()
     Client.client.on("RoomState.events", this.handleStateUpdate)
     Client.client.on("Room.accountData", this.handleAccountData)
   }
@@ -67,20 +67,10 @@ export default class PdfView extends Component {
     Client.client.off("Room.accountData", this.handleAccountData)
   }
 
-  handleStateUpdate = _ => {
-    // XXX consider guarding against irrelevant updates here.
-    const theRoom = Client.client.getRoom(this.state.roomId)
-    if (theRoom) {
-      const annotationContents = theRoom.getLiveTimeline()
-        .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
-        .map(ev => {
-          const content = ev.getContent()
-          content.timestamp = ev.getTs()
-          return content
-        })
-        .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
-      this.setState({annotationContents, filteredAnnotationContents: this.filterAnnotations(this.state.annotationFilter, annotationContents)})
-    } else setTimeout(this.handleStateUpdate, 500) // keep polling until the room is available
+  handleStateUpdate = e => {
+    if (e.getRoomId() === this.state.roomId && e.getType() === spaceChild) {
+      this.updateAnnotations()
+    }
   }
 
   handlePointerDown = e => {
@@ -374,6 +364,21 @@ export default class PdfView extends Component {
           <progress class="styled-progress" max="1" value={this.state.loadingStatus} />
         </div>
     }
+  }
+
+  updateAnnotations = _ => {
+    const theRoom = Client.client.getRoom(this.state.roomId)
+    if (theRoom) {
+      const annotationContents = theRoom.getLiveTimeline()
+        .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
+        .map(ev => {
+          const content = ev.getContent()
+          content.timestamp = ev.getTs()
+          return content
+        })
+        .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
+      this.setState({annotationContents, filteredAnnotationContents: this.filterAnnotations(this.state.annotationFilter, annotationContents)})
+    } else setTimeout(this.updateAnnotations, 500) // keep polling until the room is available
   }
 
   filterAnnotations = (search, annotations) => {
