@@ -109,7 +109,11 @@ export default class RoomList extends Component {
         searchMembers.every(member => roomMembers.some(roomMember => roomMember.toLowerCase().includes(member.toLowerCase()))) &&
         searchTags.every(searchTag => tags.some(tag => tag.toLowerCase().includes(searchTag.toLowerCase()))) &&
         flagged
-    }).sort(this.getSortFunc())
+    })
+  }
+
+  sortRooms = rooms => {
+    return rooms.sort(this.getSortFunc())
       .map(room => {
         const pdfEvent = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType, "")
         const annotations = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
@@ -154,8 +158,8 @@ export default class RoomList extends Component {
                   onClick={this.sortByName}
                   class="styled-button">Name</button>
         </div>
-        {/* TODO: We're going to need to debounce this rather than searching with each render, for longer lists of rooms */}
-        <div>{this.searchRooms()}</div>
+        {/* TODO: We're probably going to need to debounce this rather than searching with each render, for longer lists of rooms */}
+        <div>{this.sortRooms(this.searchRooms())}</div>
       </Fragment>
     )
   }
