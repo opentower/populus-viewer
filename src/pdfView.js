@@ -580,6 +580,17 @@ class PdfCanvas extends Component {
     PdfView.PDFStore[pdfIdentifier]
       .then(pdf => this.props.setTotalPages(pdf.numPages))
       .then(this.resolveFetch)
+      .then(this.gatherText(pdfIdentifier))
+  }
+
+  async gatherText(pdfIdentifier) {
+    const pdf = await PdfView.PDFStore[pdfIdentifier]
+    this.pdfText = {}
+    for (let i = 1; i < pdf.numPages + 1; i++) {
+      const page = await pdf.getPage(i)
+      const content = await page.getTextContent()
+      this.pdfText[i] = content.items.map(item => item.str).join()
+    }
   }
 
   // because rendering is async, we need a way to cancel pending render tasks and
