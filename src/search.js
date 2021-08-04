@@ -14,7 +14,9 @@ export default class SearchBar extends Component {
   searchInput = createRef()
 
   keydownHandler = e => {
-    if (e.key === "/") {
+    const searchPredicate = this.props.searchPredicate ||
+      (e => e.key === "/" && !e.altKey && !e.ctrlKey)
+    if (searchPredicate(e)) {
       e.preventDefault()
       this.searchInput.current.focus()
     }
