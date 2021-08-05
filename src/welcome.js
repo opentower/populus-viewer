@@ -85,7 +85,7 @@ export default class WelcomeView extends Component {
         <header id="welcome-header">
           <div id="welcome-header-content">
             <SearchBar
-              searchFilter={state.searchFilter}
+              search={state.searchFilter}
               setSearch={this.setSearch}
               setFocus={this.setFocus} />
             { !state.inputFocus && <Fragment>

@@ -1,4 +1,4 @@
-#search-bar { 
+.search-bar { 
     position:relative; 
     display:flex;
     flex-shrink:2;
@@ -8,13 +8,13 @@
     align-items:center;
 }
 
-#search-bar > svg {
+.search-bar > svg {
     position:absolute;
     right:5px;
     pointer-events:none;
 }
 
-#search-bar > input {
+.search-bar > input {
     width:100%;
     margin:auto;
     padding:7px;

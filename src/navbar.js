@@ -1,6 +1,7 @@
 import { h, createRef, Fragment, Component } from 'preact';
 import * as Icons from './icons.js';
 import * as Matrix from "matrix-js-sdk"
+import SearchBar from './search.js'
 import UserColor from "./userColors.js"
 import './styles/navbar.css';
 import { spaceChild, eventVersion } from "./constants.js"
@@ -15,7 +16,8 @@ export default class Navbar extends Component {
       pageViewVisible: false,
       moreOptionsVisible: false,
       typing: {},
-      focused: false
+      pageFocused: false,
+      searchFocused: false
     };
     this.handleTypingNotifications = this.handleTypingNotification.bind(this)
   }
@@ -31,6 +33,8 @@ export default class Navbar extends Component {
   pageTotal = createRef()
 
   pageInput = createRef()
+
+  bottomWrapper = createRef()
 
   handleTypingNotification = (ev, member) => {
     const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
@@ -49,9 +53,11 @@ export default class Navbar extends Component {
     else this.setState({ value: "" })
   }
 
-  handleFocus = _ => this.setState({ focused: true, value: "" })
+  handlePageFocus = _ => this.setState({ pageFocused: true, value: "" })
 
-  handleBlur = _ => this.setState({ focused: false, value: this.props.page })
+  handlePageBlur = _ => this.setState({ pageFocused: false, value: this.props.page })
+
+  setSearchFocus = searchFocused => this.setState({ searchFocused })
 
   handleSubmit = ev => {
     ev.preventDefault();
@@ -106,6 +112,8 @@ export default class Navbar extends Component {
 
   zoomIn = _ => this.props.setZoom(this.props.zoomFactor + 0.1)
 
+  searchPredicate = _ => false // not functional for now
+
   componentDidUpdate() {
     if (this.pageInput.current) this.pageInput.current.style.width = `${this.pageTotal.current.scrollWidth}px`
   }
@@ -131,9 +139,9 @@ export default class Navbar extends Component {
             <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="Show page navigation">{Icons.page}</button>
             <input type="text"
               ref={this.pageInput}
-              value={state.focused ? state.value : props.page}
-              onblur={this.handleBlur}
-              onfocus={this.handleFocus}
+              value={state.pageFocused ? state.value : props.page}
+              onblur={this.handlePageBlur}
+              onfocus={this.handlePageFocus}
               oninput={this.handleInput} />
             <span>/</span>
             <span ref={this.pageTotal} id="nav-total-pages">{props.total}</span>
@@ -143,11 +151,12 @@ export default class Navbar extends Component {
           <button title="Remove annotation&#013;Shortcut: Alt + r" disabled={props.focus && !props.selected ? null : "disabled"} onclick={props.closeann}>{Icons.removeAnnotation}</button>
           <button title="More options" onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
         </div>
-        <div class="nav-button-wrapper bottom-wrapper">
+        <div ref={this.bottomWrapper} data-searchFocused={state.searchFocused} class="nav-button-wrapper bottom-wrapper">
           <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button>
           <button title="Zoom out&#013;Shortcut: -" onClick={this.zoomOut}>{Icons.zoomout}</button>
           <button title="Zoom in&#013;Shortcut: +" onClick={this.zoomIn}>{Icons.zoomin}</button>
           <button title="Toggle annotation visibility&#013;Shortcut: Alt + v" onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
+          <SearchBar setSearch={props.setSearch} search={props.searchString} searchPredicate={this.searchPredicate} setFocus={this.setSearchFocus} />
         </div>
       </nav>
     }

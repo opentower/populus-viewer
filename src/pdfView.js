@@ -34,6 +34,7 @@ export default class PdfView extends Component {
       annotationContents: [],
       filteredAnnotationContents: [],
       annotationFilter: "",
+      searchString: null,
       loadingStatus: "loading...",
       pdfWidthPx: null,
       pdfHeightPx: null,
@@ -165,6 +166,8 @@ export default class PdfView extends Component {
   setTotalPages = totalPages => this.setState({totalPages})
 
   setPdfLoadingStatus = loadingStatus => this.setState({loadingStatus})
+
+  setSearch = searchString => this.setState({searchString})
 
   clearFocus = _ => this.setState({focus: null})
 
@@ -479,13 +482,15 @@ export default class PdfView extends Component {
           total={state.totalPages}
           focus={state.focus}
           roomId={state.roomId}
+          searchString={state.searchString}
+          pdfWidthPx={state.pdfWidthPx}
           container={this.contentContainer}
-          setNavHeight={this.setNavHeight}
           populateModal={this.populateModal}
           annotationsVisible={state.annotationsVisible}
           toggleAnnotations={this.toggleAnnotations}
-          pdfWidthPx={state.pdfWidthPx}
           pushHistory={props.pushHistory}
+          setNavHeight={this.setNavHeight}
+          setSearch={this.setSearch}
           setZoom={this.setZoom}
           zoomFactor={state.zoomFactor} />
         <div data-hide-buttons={state.hideButtons} id="pdf-panel-button-wrapper">

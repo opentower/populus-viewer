@@ -168,7 +168,7 @@ export default class AnnotationListing extends Component {
                 <button onclick={this.prevUnread} class="styled-button">Prev Unread</button>
                 <button onclick={this.nextUnread} class="styled-button">Next Unread</button>
                 <SearchBar
-                  searchFilter={props.annotationFilter}
+                  search={props.annotationFilter}
                   setSearch={props.setAnnotationFilter}
                   setFocus={this.setFocus} />
               </div>
