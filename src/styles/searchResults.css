@@ -1,0 +1,38 @@
+#pdf-search-result-panel {
+  flex-direction: column;
+  position:relative;
+}
+
+#pdf-search-term {
+  padding:10px;
+  border-bottom: 1px solid #ababab;
+}
+
+#pdf-search-term .small-icon {
+  position:absolute;
+  right:10px;
+  cursor:pointer;
+}
+
+#pdf-search-warn {
+  padding:10px;
+}
+
+#pdf-search-result-panel .pdf-search-result:hover {
+    background: #efefef;
+    transition: background-color 0.5s ease;
+}
+
+#pdf-search-result-panel .pdf-search-result {
+  cursor: pointer;
+  position:relative;
+  width:calc(100% - 20px);
+  padding:10px;
+  border-bottom: 1px solid #ababab;
+  transition: background-color 0.5s ease;
+}
+
+#pdf-search-result-panel .page-data {
+  font-size:10pt;
+  color:#565656;
+}

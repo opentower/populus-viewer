@@ -6,6 +6,7 @@ import * as Layout from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
 import AnnotationListing from "./annotationListing.js"
+import SearchResults from "./searchResults.js"
 import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
@@ -154,6 +155,8 @@ export default class PdfView extends Component {
   setPdfFitRatio = pdfFitRatio => this.setState({pdfFitRatio})
 
   setPdfHeightPx = pdfHeightPx => this.setState({pdfHeightPx})
+
+  setPdfText = pdfText => { this.pdfText = pdfText }
 
   // XXX : will need to debounce eventually
   setAnnotationFilter = annotationFilter => this.setState(oldState => {
@@ -436,6 +439,7 @@ export default class PdfView extends Component {
               initFocus={this.initFocus}
               setId={this.setId}
               setTotalPages={this.setTotalPages}
+              setPdfText={this.setPdfText}
               setPdfLoadingStatus={this.setPdfLoadingStatus}
             />
             {state.annotationsVisible
@@ -461,19 +465,28 @@ export default class PdfView extends Component {
                 focus={state.focus} />
             : null
           }
-          <AnnotationListing
-              roomId={state.roomId}
-              class={state.focus ? "panel-widget-2" : "panel-widget-1"}
-              focus={state.focus}
-              setAnnotationFilter={this.setAnnotationFilter}
-              annotationFilter={state.annotationFilter}
-              annotationContents={state.annotationContents}
-              filteredAnnotationContents={state.filteredAnnotationContents}
-              handleWidgetScroll={this.handleWidgetScroll}
-              focusByRoomId={this.focusByRoomId}
-              pushHistory={props.pushHistory}
-              room={theRoom}
-            />
+          { state.searchString
+            ? <SearchResults
+                class={state.focus ? "panel-widget-2" : "panel-widget-1"}
+                searchString={state.searchString}
+                setSearch={this.setSearch}
+                pdfText={this.pdfText}
+                pushHistory={props.pushHistory}
+              />
+            : <AnnotationListing
+                  roomId={state.roomId}
+                  class={state.focus ? "panel-widget-2" : "panel-widget-1"}
+                  focus={state.focus}
+                  setAnnotationFilter={this.setAnnotationFilter}
+                  annotationFilter={state.annotationFilter}
+                  annotationContents={state.annotationContents}
+                  filteredAnnotationContents={state.filteredAnnotationContents}
+                  handleWidgetScroll={this.handleWidgetScroll}
+                  focusByRoomId={this.focusByRoomId}
+                  pushHistory={props.pushHistory}
+                  room={theRoom}
+                />
+            }
         </div>
         <Navbar selected={state.hasSelection}
           addann={this.openAnnotation}
@@ -594,8 +607,9 @@ class PdfCanvas extends Component {
     for (let i = 1; i < pdf.numPages + 1; i++) {
       const page = await pdf.getPage(i)
       const content = await page.getTextContent()
-      this.pdfText[i] = content.items.map(item => item.str).join()
+      this.pdfText[i] = content.items.map(item => item.str).join(" ")
     }
+    this.props.setPdfText(this.pdfText)
   }
 
   // because rendering is async, we need a way to cancel pending render tasks and
