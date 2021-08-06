@@ -57,7 +57,12 @@ export default class Navbar extends Component {
 
   handlePageBlur = _ => this.setState({ pageFocused: false, value: this.props.page })
 
-  setSearchFocus = searchFocused => this.setState({ searchFocused })
+  setSearchFocus = searchFocused => {
+    if (searchFocused) {
+      this.props.setNavHeight(150)
+      this.setState({ searchFocused, moreOptionsVisible: true})
+    } else this.setState({ searchFocused })
+  }
 
   handleSubmit = ev => {
     ev.preventDefault();
@@ -73,7 +78,7 @@ export default class Navbar extends Component {
   toggleMoreOptions = _ => {
     if (this.state.moreOptionsVisible) this.props.setNavHeight(75)
     else this.props.setNavHeight(150)
-    this.setState({moreOptionsVisible: !this.state.moreOptionsVisible})
+    this.setState(oldState => { return {moreOptionsVisible: !oldState.moreOptionsVisible} })
   }
 
   mainMenu = _ => {
@@ -112,7 +117,7 @@ export default class Navbar extends Component {
 
   zoomIn = _ => this.props.setZoom(this.props.zoomFactor + 0.1)
 
-  searchPredicate = _ => false // not functional for now
+  searchPredicate = e => e.key === "/" && e.ctrlKey
 
   componentDidUpdate() {
     if (this.pageInput.current) this.pageInput.current.style.width = `${this.pageTotal.current.scrollWidth}px`
