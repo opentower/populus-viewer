@@ -117,7 +117,7 @@ export default class Navbar extends Component {
 
   zoomIn = _ => this.props.setZoom(this.props.zoomFactor + 0.1)
 
-  searchPredicate = e => e.key === "/" && e.ctrlKey
+  searchPredicate = e => e.key === "/" && e.altKey
 
   componentDidUpdate() {
     if (this.pageInput.current) this.pageInput.current.style.width = `${this.pageTotal.current.scrollWidth}px`
@@ -161,7 +161,7 @@ export default class Navbar extends Component {
           <button title="Zoom out&#013;Shortcut: -" onClick={this.zoomOut}>{Icons.zoomout}</button>
           <button title="Zoom in&#013;Shortcut: +" onClick={this.zoomIn}>{Icons.zoomin}</button>
           <button title="Toggle annotation visibility&#013;Shortcut: Alt + v" onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
-          <SearchBar setSearch={props.setSearch} search={props.searchString} searchPredicate={this.searchPredicate} setFocus={this.setSearchFocus} />
+          <SearchBar title="Search within PDF&#013;Shortcut: Alt + /" setSearch={props.setSearch} search={props.searchString} searchPredicate={this.searchPredicate} setFocus={this.setSearchFocus} />
         </div>
       </nav>
     }

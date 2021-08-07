@@ -34,7 +34,7 @@ export default class SearchBar extends Component {
   handleInput = e => this.props.setSearch(e.target.value)
 
   render(props, _) {
-    return <div class="search-bar">
+    return <div title={props.title} class="search-bar">
       <input ref={this.searchInput}
         value={props.search}
         onkeydown={this.handleInputKeydown}
