@@ -17,20 +17,19 @@ export default class Chat extends Component {
     this.scrolledIdents = new Set()
     this.handleTimeline = this.handleTimeline.bind(this)
     this.handleTypingNotifications = this.handleTypingNotification.bind(this)
+    this.timelinePromise = this.loadTimelineWindow(props.focus.roomId)
   }
 
   componentDidMount() {
-    Client.client.on("Room.timeline", this.handleTimeline)
-    Client.client.on("Room.redaction", this.handleTimeline)
-    Client.client.on("Room.localEchoUpdated", this.handleTimeline)
+    Client.client.on("Room.timeline", this.handleTimeline) // this also handles redactions, although they have their own event.
+    Client.client.on("Room.localEchoUpdated", this.updateEvents)
     Client.client.on("RoomMember.typing", this.handleTypingNotification)
-    this.resetFocus()
+    this.timelinePromise.then(this.updateEvents).then(this.tryBackfill)
   }
 
   componentWillUnmount() {
     Client.client.off("Room.timeline", this.handleTimeline)
-    Client.client.off("Room.redaction", this.handleTimeline)
-    Client.client.off("Room.localEchoUpdated", this.handleTimeline)
+    Client.client.off("Room.localEchoUpdated", this.updateEvents)
     Client.client.off("RoomMember.typing", this.handleTypingNotification)
   }
 
@@ -40,20 +39,20 @@ export default class Chat extends Component {
 
   chatWrapper = createRef()
 
+  scrollAnchor = createRef()
+
   // Room.timeline passes in more params
-  handleTimeline = (event, room) => {
+  handleTimeline = (event) => {
     if (this.props.focus && this.props.focus.roomId === event.getRoomId()) {
-      this.setState({
-        events: room.getLiveTimeline().getEvents()
-      }, this.updateReadReceipt)
+      this.timelineWindow.paginate(Matrix.EventTimeline.FORWARDS, 1, false)
+      this.updateEvents()
     }
   }
 
   handleTypingNotification = (event, member) => {
     if (member.roomId === this.props.focus.roomId) {
       // ^^^ we have to check the originating room in an odd way because
-      // the roomId for the typing events isn't set for some reason,
-      // maybe a bug in dendrite
+      // the roomId for the typing events isn't set for some reason.
       const myId = Client.client.getUserId()
       const typingOtherThanMe = event.getContent().user_ids.filter(x => x !== myId)
       this.setState({ typing: typingOtherThanMe })
@@ -63,49 +62,54 @@ export default class Chat extends Component {
   handleScroll = e => {
     clearTimeout(this.debounceTimeout)
     this.debounceTimeout = setTimeout(_ => {
-      this.tryLoadRoom()
+      this.tryBackfill()
       if (this.props.handleWidgetScroll) this.props.handleWidgetScroll(e)
     }, 200)
   }
 
-  tryLoad = (room) => {
-    const anchor = document.getElementById("scroll-anchor")
-    if (anchor && this.chatWrapper.current.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
-      const prevState = room.getLiveTimeline().getState(Matrix.EventTimeline.BACKWARDS)
-      if (!prevState.paginationToken && Client.client.getRoom(room.roomId)) {
-        this.scrolledIdents.add(room.roomId)
+  tryBackfill = _ => {
+    const anchor = this.scrollAnchor.current.base
+    if (!this.state.fullyScrolled && this.chatWrapper.current.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
+      if (!this.timelineWindow.canPaginate(Matrix.EventTimeline.BACKWARDS)) {
+        this.scrolledIdents.add(this.room.roomId)
         this.setState({ fullyScrolled: true })
       } else {
-        Client.client.scrollback(room)
-        setTimeout(_ => this.tryLoad(room), 100)
+        this.timelineWindow.paginate(Matrix.EventTimeline.BACKWARDS, 10)
+          .then(_ => setTimeout(_ => {
+            this.setState({events: this.timelineWindow.getEvents()}, this.tryBackfill)
+          }, 200))
       }
     }
   }
 
-  tryLoadRoom = async () => {
+  async loadTimelineWindow (roomId) {
     await Client.client.joinRoom(this.props.focus.roomId)
-    const room = await Client.client.getRoomWithState(this.props.focus.roomId)
-    this.tryLoad(room)
+    this.room = await Client.client.getRoomWithState(roomId)
+    this.timelineWindow = new Matrix.TimelineWindow(Client.client, this.room.getUnfilteredTimelineSet())
+    this.timelineWindow.load()
+    return true
   }
+
+  updateEvents = _ => this.setState({events: this.timelineWindow.getEvents()}, this.updateReadReceipt)
 
   async updateReadReceipt() {
     clearTimeout(this.updateReadReceiptDebounce)
     this.updateReadReceiptDebounce = setTimeout(_ => {
-      const room = Client.client.getRoom(this.props.focus.roomId)
-      const currentReceiptId = room.getEventReadUpTo(Client.client.getUserId(), true)
       const lastEvent = this.state.events[this.state.events.length - 1]
+      if (lastEvent.getAssociatedStatus()) return // we bail out if the event hasn't been echoed yet.
       const lastEventId = lastEvent.getId()
+      const currentReceiptId = this.room.getEventReadUpTo(Client.client.getUserId(), true)
       // fire if last read event is different from last event
       const differsFromLast = currentReceiptId !== lastEventId
       // and last event hasn't already had a receipt sent for it.
       const isUnsent = lastEventId !== this.lastReceiptSentId
       if (differsFromLast && isUnsent) {
         console.log("sending receipt")
-        Client.client.setRoomReadMarkers(room.roomId, lastEventId, lastEvent, {}).catch(console.log)
+        Client.client.setRoomReadMarkers(this.room.roomId, lastEventId, lastEvent, {}).catch(console.log)
         Client.client.sendReadReceipt(lastEvent, {}).then(_ => {
           // faster to zero these manually than waiting for the server
-          room.setUnreadNotificationCount('total', 0);
-          room.setUnreadNotificationCount('hightlight', 0);
+          this.room.setUnreadNotificationCount('total', 0);
+          this.room.setUnreadNotificationCount('hightlight', 0);
           this.lastReceiptSentId = lastEventId
         }).catch(console.log)
       }
@@ -113,14 +117,13 @@ export default class Chat extends Component {
   }
 
   async resetFocus () {
-    await Client.client.joinRoom(this.props.focus.roomId)
-    const room = await Client.client.getRoomWithState(this.props.focus.roomId)
+    await this.loadTimelineWindow(this.props.focus.roomId)
     this.setState({
       fullyScrolled: this.scrolledIdents.has(this.props.focus.roomId),
-      events: room.getLiveTimeline().getEvents()
+      events: this.timelineWindow.getEvents()
     }, _ => {
       this.updateReadReceipt()
-      this.tryLoad(room)
+      this.tryBackfill()
     })
   }
 
@@ -234,7 +237,7 @@ export default class Chat extends Component {
             {messagedivs}
             <TypingIndicator typing={this.state.typing} />
           </div>
-          <Anchor focus={props.focus} fullyScrolled={state.fullyScrolled} />
+          <Anchor ref={this.scrollAnchor} focus={props.focus} fullyScrolled={state.fullyScrolled} />
         </div>
       </div>
     )
