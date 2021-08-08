@@ -13,12 +13,37 @@ export default class SearchResults extends Component {
 
   resultListing = createRef()
 
+  componentDidMount() {
+    this.initializeSearch()
+  }
+
   componentDidUpdate(prevProps, prevState) {
-    if (this.props.searchString !== prevProps.searchString &&
-      this.props.pdfText
-    ) {
-      const searchResults = []
-      for (const [page, text] of Object.entries(this.props.pdfText)) {
+    if (this.props.searchString !== prevProps.searchString && this.props.pdfText) this.initializeSearch()
+    else if (this.state.searchLimit > prevState.searchLimit && this.props.pdfText) this.expandSearch()
+  }
+
+  initializeSearch () {
+    if (this.props.searchString.length < 3) return
+    const searchResults = []
+    for (const [page, text] of Object.entries(this.props.pdfText)) {
+      let idx = text.indexOf(this.props.searchString)
+      const contexts = []
+      while (idx > -1) {
+        contexts.push(text.slice(Math.max(0, idx - 15), idx + this.props.searchString.length + 15))
+        idx = text.indexOf(this.props.searchString, idx + 1)
+      }
+      if (contexts.length > 0) searchResults.push({ page, contexts })
+      if (searchResults.length > 20) break
+    }
+    this.setState({searchResults, searchLimit: 20})
+  }
+
+  expandSearch () {
+    if (this.props.searchString.length < 3) return
+    const searchResults = this.state.searchResults
+    const oldPage = searchResults.slice(-1)[0].page
+    for (const [page, text] of Object.entries(this.props.pdfText)) {
+      if (parseInt(page, 10) > parseInt(oldPage, 10)) {
         let idx = text.indexOf(this.props.searchString)
         const contexts = []
         while (idx > -1) {
@@ -26,28 +51,12 @@ export default class SearchResults extends Component {
           idx = text.indexOf(this.props.searchString, idx + 1)
         }
         if (contexts.length > 0) searchResults.push({ page, contexts })
-        if (searchResults.length > 20) break
+        if (searchResults.length > this.state.searchLimit) break
       }
-      this.setState({searchResults, searchLimit: 20}) // state update here is safe, we've included a guard
-    } else if (this.state.searchLimit > prevState.searchLimit && this.props.pdfText) {
-      const searchResults = this.state.searchResults
-      const oldPage = searchResults.slice(-1)[0].page
-      for (const [page, text] of Object.entries(this.props.pdfText)) {
-        if (parseInt(page,10) > parseInt(oldPage,10)) {
-          let idx = text.indexOf(this.props.searchString)
-          const contexts = []
-          while (idx > -1) {
-            contexts.push(text.slice(Math.max(0, idx - 15), idx + this.props.searchString.length + 15))
-            idx = text.indexOf(this.props.searchString, idx + 1)
-          }
-          if (contexts.length > 0) searchResults.push({ page, contexts })
-          if (searchResults.length > this.state.searchLimit) break
-        }
-      }
-      this.setState({searchResults}, _ => {
-        this.limitRaised = false
-      }) // state update here is safe, we've included a guard
     }
+    this.setState({searchResults}, _ => {
+      this.limitRaised = false
+    })
   }
 
   clearSearch = _ => this.props.setSearch(null)
