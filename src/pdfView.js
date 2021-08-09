@@ -390,14 +390,21 @@ export default class PdfView extends Component {
   filterAnnotations = (search, annotations) => {
     const searchText = []
     const searchMembers = []
+    const searchFlags = []
     const searchWords = search.split(" ")
     for (const word of searchWords) {
       if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
+      if (word.slice(0, 1) === '~') searchFlags.push(word.slice(1))
       else searchText.push(word)
     }
     return annotations.filter(content => {
+      let flagged = true
+      if (searchFlags.includes("hour")) { flagged = flagged && (content.timestamp > (Date.now() - 3600000)) }
+      if (searchFlags.includes("day")) { flagged = flagged && (content.timestamp > (Date.now() - 86400000)) }
+      if (searchFlags.includes("week")) { flagged = flagged && (content.timestamp > (Date.now() - 604800000)) }
       return searchText.every(frag => content[eventVersion].selectedText.toLowerCase().includes(frag.toLowerCase())) &&
-        searchMembers.every(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase()))
+        searchMembers.every(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase())) &&
+        flagged
     })
   }
 
