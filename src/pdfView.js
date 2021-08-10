@@ -441,6 +441,7 @@ export default class PdfView extends Component {
               setPdfHeightPx={this.setPdfHeightPx}
               setPdfFitRatio={this.setPdfFitRatio}
               annotationLayer={this.annotationLayer}
+              searchString={state.searchString}
               pdfFocused={props.pdfFocused}
               pageFocused={props.pageFocused}
               initFocus={this.initFocus}
@@ -548,7 +549,10 @@ class PdfCanvas extends Component {
       this.drawPdf(control).then(_ =>
       // need to do this to take into account positioning changes caused by rescaling
         this.props.annotationLayer.current.forceUpdate()
-      )
+      ).then(_ => this.highlightText(this.props.searchString))
+    }
+    if (prevProps.searchString !== this.props.searchString) {
+      this.highlightText(this.props.searchString)
     }
   }
 
@@ -688,16 +692,16 @@ class PdfCanvas extends Component {
       container: this.textLayer.current,
       viewport: page.getViewport({scale: 1.5}),
       textDivs: []
-    })
+    }).promise.then(_ => { this.cleanText = this.textLayer.current.innerHTML })
   }
 
   async highlightText (word) {
+    this.textLayer.current.innerHTML = this.cleanText
+    if (!word) return
     const spans = this.textLayer.current.children
     // We strip out all non-alphanumerics, for fuzzy search
     const text = Array.from(spans).map(span => span.innerText).join("").replace(/[^a-zA-Z0-9]/gm, "").toLowerCase()
     word = word.replace(/[^a-zA-Z0-9]/gm, "").toLowerCase()
-    console.log(word)
-    console.log(text)
     let start = text.indexOf(word)
     let end = start + word.length
     let counter = 0
@@ -735,7 +739,6 @@ class PdfCanvas extends Component {
       }
       if (within !== "" || prior !== "") {
         span.innerHTML = `${prior}${pre}<mark>${within}</mark>${post}`
-        console.log(span)
       }
     }
   }
