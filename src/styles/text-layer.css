@@ -19,6 +19,11 @@
     transform-origin: 0% 0%;
 }
 
+#text-layer mark {
+    color:transparent;
+    background:gray;
+}
+
 #text-layer span::selection {
     color:transparent;
     background:var(--selectColor);

@@ -691,6 +691,55 @@ class PdfCanvas extends Component {
     })
   }
 
+  async highlightText (word) {
+    const spans = this.textLayer.current.children
+    // We strip out all non-alphanumerics, for fuzzy search
+    const text = Array.from(spans).map(span => span.innerText).join("").replace(/[^a-zA-Z0-9]/gm, "").toLowerCase()
+    word = word.replace(/[^a-zA-Z0-9]/gm, "").toLowerCase()
+    console.log(word)
+    console.log(text)
+    let start = text.indexOf(word)
+    let end = start + word.length
+    let counter = 0
+    let before = true
+    let after = false
+    for (const span of spans) {
+      let prior = ""
+      let pre = ""
+      let within = ""
+      let post = ""
+      for (const letter of span.innerText) {
+        if (counter === start) {
+          before = false
+        } else if (counter === end) {
+          after = true
+          start = text.indexOf(word, end)
+          if (start >= 0) {
+            prior += `${pre}<mark>${within}</mark>${post}`
+            pre = ""
+            within = ""
+            post = ""
+            end = start + word.length
+            before = true
+            after = false
+          }
+        }
+        if (before) {
+          pre += letter
+        } else if (after) {
+          post += letter
+        } else {
+          within += letter
+        }
+        if (letter.match(/[a-zA-Z0-9]/)) counter++
+      }
+      if (within !== "" || prior !== "") {
+        span.innerHTML = `${prior}${pre}<mark>${within}</mark>${post}`
+        console.log(span)
+      }
+    }
+  }
+
   render(props) {
     return (
       <Fragment>
