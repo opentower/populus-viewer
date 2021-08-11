@@ -21,7 +21,10 @@
 
 #text-layer mark {
     color:transparent;
-    background:gray;
+    background:black;
+    padding:5px;
+    position:relative;
+    left:-5px;
 }
 
 #text-layer span::selection {

@@ -26,11 +26,11 @@ export default class SearchResults extends Component {
     if (this.props.searchString.length < 3) return
     const searchResults = []
     for (const [page, text] of Object.entries(this.props.pdfText)) {
-      let idx = text.indexOf(this.props.searchString)
+      let idx = text.toLowerCase().indexOf(this.props.searchString.toLowerCase())
       const contexts = []
       while (idx > -1) {
         contexts.push(text.slice(Math.max(0, idx - 15), idx + this.props.searchString.length + 15))
-        idx = text.indexOf(this.props.searchString, idx + 1)
+        idx = text.toLowerCase().indexOf(this.props.searchString.toLowerCase(), idx + 1)
       }
       if (contexts.length > 0) searchResults.push({ page, contexts })
       if (searchResults.length > 20) break
@@ -44,11 +44,11 @@ export default class SearchResults extends Component {
     const oldPage = searchResults.slice(-1)[0].page
     for (const [page, text] of Object.entries(this.props.pdfText)) {
       if (parseInt(page, 10) > parseInt(oldPage, 10)) {
-        let idx = text.indexOf(this.props.searchString)
+        let idx = text.toLowerCase().indexOf(this.props.searchString.toLowerCase())
         const contexts = []
         while (idx > -1) {
           contexts.push(text.slice(Math.max(0, idx - 15), idx + this.props.searchString.length + 15))
-          idx = text.indexOf(this.props.searchString, idx + 1)
+          idx = text.toLowerCase().indexOf(this.props.searchString.toLowerCase(), idx + 1)
         }
         if (contexts.length > 0) searchResults.push({ page, contexts })
         if (searchResults.length > this.state.searchLimit) break
