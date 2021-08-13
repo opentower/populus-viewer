@@ -5,8 +5,6 @@ import { eventVersion, spaceChild } from "./constants.js"
 import UserColor from "./userColors.js"
 import Client from './client.js'
 import './styles/annotation-layer.css'
-import './styles/content-container.css'
-import './styles/text-layer.css'
 
 export default class AnnotationLayer extends Component {
   constructor(props) {
