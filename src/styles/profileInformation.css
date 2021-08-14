@@ -12,7 +12,18 @@
 #profile-advanced-options {
     display:grid;
     grid-template-columns: 180px 1fr;
+    padding:10px;
 }
+
+#profile-advanced-options > div {
+  overflow-y:scroll;
+  user-select:all;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+
+#profile-advanced-options > div::-webkit-scrollbar { display: none; }
 
 #profileInformationForm label {
     grid-column: 1 / 2 ;
@@ -73,6 +84,7 @@ div#profileSelector {
 @media only screen and (max-width: 600px) {
 
     #profileInformationForm { grid-template-columns: 1fr }
+    #profile-advanced-options { grid-template-columns: 1fr }
 
     #profileInformationFormProgress,
     #profileSelector, 
