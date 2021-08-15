@@ -8,10 +8,16 @@
     align-items:center;
 }
 
-.search-bar > svg {
+.search-bar > .search-icon {
+      pointer-events:none;
+}
+
+.search-bar > .search-icon,
+.search-bar > .clear-icon {
     position:absolute;
     right:5px;
-    pointer-events:none;
+    align-items:center;
+    display:flex;
 }
 
 .search-bar > input {

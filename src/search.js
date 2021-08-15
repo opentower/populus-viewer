@@ -22,6 +22,8 @@ export default class SearchBar extends Component {
     }
   }
 
+  handleClear = _ => this.props.setSearch("")
+
   handleInputBlur = _ => this.props.setFocus(false)
 
   handleInputFocus = _ => this.props.setFocus(true)
@@ -41,7 +43,7 @@ export default class SearchBar extends Component {
         onInput={this.handleInput}
         onBlur={this.handleInputBlur}
         onFocus={this.handleInputFocus} />
-      {Icons.search}
+      <div onmousedown={this.handleClear} class={props.search ? "clear-icon" : "search-icon"}>{props.search ? Icons.close : Icons.search }</div>
     </div>
   }
 }

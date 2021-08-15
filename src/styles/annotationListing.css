@@ -109,8 +109,9 @@
   opacity:0;
 }
 
-#annotation-panel-button-wrapper .search-bar > svg {
-  right:7px;
+#annotation-panel-button-wrapper .search-bar > .clear-icon,
+#annotation-panel-button-wrapper .search-bar > .search-icon {
+  right:6px;
 }
 
 #annotation-panel-button-wrapper[data-mode="search"] button {
