@@ -9,7 +9,11 @@
 }
 
 .search-bar > .search-icon {
-      pointer-events:none;
+    pointer-events:none;
+}
+
+.search-bar > .clear-icon {
+    cursor: pointer;
 }
 
 .search-bar > .search-icon,

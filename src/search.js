@@ -22,7 +22,10 @@ export default class SearchBar extends Component {
     }
   }
 
-  handleClear = _ => this.props.setSearch("")
+  handleClear = e => {
+    e.preventDefault()
+    this.props.setSearch("")
+  }
 
   handleInputBlur = _ => this.props.setFocus(false)
 
