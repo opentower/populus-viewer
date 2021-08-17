@@ -111,7 +111,8 @@ export default class WelcomeView extends Component {
                 <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} />
               </Fragment>
               : <Fragment>
-                <RoomList searchFilter={state.searchFilter}
+                <RoomList
+                  searchFilter={state.searchFilter}
                   pushHistory={props.pushHistory}
                   populateModal={this.populateModal}
                 />

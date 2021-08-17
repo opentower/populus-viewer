@@ -1,4 +1,4 @@
-#loginModal, #registrationModal {
+#login, #registration {
     display: inline-block;
     border: 1px solid black;
     padding: 2em;
@@ -9,23 +9,23 @@
     top: 50%;
 }
 
-#loginModal input:invalid, #registrationModal input:invalid {
+#login input:invalid, #registration input:invalid {
     background:#ff9394;
 }
 
-#loginModal form, #registrationModal form {
+#login form, #registration form {
     display:grid;
     grid-template-columns: 80px 1fr;
     align-items: center;
 }
 
-#loginModal label, #registrationModal label {
+#login label, #registration label {
     grid-column: 1 / 2 ;
     margin:5px;
     margin-left:0px;
 }
 
-#loginModal input, #registrationModal input {
+#login input, #registration input {
     grid-column: 2 / 3 ;
     margin:5px;
     margin-left:0px;
@@ -34,7 +34,7 @@
     background:#ededed;
 }
 
-#loginModal div, #registrationModal div {
+#login div, #registration div {
     padding-top:.5em;
     grid-column: 1 / 3 ;
 }
@@ -54,7 +54,7 @@
   padding-left:20px
 }
 
-#registrationModal button, #loginModal button { 
+#registration button, #login button { 
     margin-top:10px; 
     margin-right:10px;
 }
@@ -73,19 +73,19 @@
 }
 
 @media only screen and (max-width: 600px) {
-    #loginModal, #registrationModal { 
+    #login, #registration { 
       border:none;
       width:80%;
     }
 
-    #loginModal form, 
-    #registrationModal form { 
+    #login form, 
+    #registration form { 
       border: 0px;
       grid-template-columns: 1fr; 
     }
 
-    #loginModal input,
-    #registrationModal input { 
+    #login input,
+    #registration input { 
       grid-column: 1 / 2 
     }
 } 

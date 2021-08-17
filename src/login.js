@@ -2,13 +2,19 @@ import { h, Fragment, createRef, Component } from 'preact';
 import './styles/login.css'
 import { serverRoot } from './constants.js'
 import Client from './client.js'
+import QueryParameters from './queryParams.js'
 import * as Matrix from 'matrix-js-sdk'
 import * as Icons from './icons.js'
 
 export default class LoginView extends Component {
   constructor(props) {
     super(props)
-    this.state = { registering: false }
+    this.state = {
+      registering: false,
+      name: "",
+      password: "",
+      server: QueryParameters.get("server") || ""
+    }
   }
 
   switchView = switchTo => (e) => {
@@ -16,16 +22,32 @@ export default class LoginView extends Component {
     this.setState({registering: switchTo})
   }
 
+  setServer = server => this.setState({ server })
+
+  setName = name => this.setState({ name })
+
+  setPassword = password => this.setState({ password})
+
   render(props, state) {
-    switch (state.registering) {
-      case "register": return <div><RegistrationModal loginHandler={props.loginHandler} switchView={this.switchView} /></div>
-      case "SSO": return <div><SSOModal loginHandler={props.loginHandler} switchView={this.switchView} /></div>
+    const theProps = {
+      setServer: this.setServer,
+      server: state.server,
+      setName: this.setName,
+      name: state.name,
+      setPassword: this.setPassword,
+      password: state.password,
+      loginHandler: props.loginHandler,
+      switchView: this.switchView
     }
-    return <div><LoginModal loginHandler={props.loginHandler} switchView={this.switchView} /></div>
+    switch (state.registering) {
+      case "register": return <div><Registration {...theProps} /></div>
+      case "SSO": return <div><SSO {...theProps} /></div>
+    }
+    return <div><Login {...theProps} /></div>
   }
 }
 
-class LoginModal extends Component {
+class Login extends Component {
   handleSubmit = (e) => {
     e.preventDefault()
     const loginForm = document.getElementById("loginForm")
@@ -44,10 +66,16 @@ class LoginModal extends Component {
   }
 
   render(props) {
-    return <div id="loginModal">
+    return <div id="login">
       <h3>Login To Populus</h3>
       <form id="loginForm">
-        <UserData />
+        <UserData
+          setServer={props.setServer}
+          server={props.server}
+          setPassword={props.setPassword}
+          password={props.password}
+          setName={props.setName}
+          name={props.name} />
         <div>
           <button className="styled-button" onClick={this.handleSubmit} >Login</button>
         </div>
@@ -62,7 +90,7 @@ class LoginModal extends Component {
   }
 }
 
-class SSOModal extends Component {
+class SSO extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -109,13 +137,20 @@ class SSOModal extends Component {
     window.location.replace(loginUrl)
   }
 
+  handleServerInput = e => this.props.setServer(e.target.value)
+
   render(props, state) {
-    return <div id="loginModal">
+    return <div id="login">
       <h3>Sign In To Populus</h3>
       <form id="loginForm">
         <div>
           <label htmlFor="servername">Server</label>
-          <input type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
+          <input id="servername"
+            value={props.server}
+            oninput={this.handleServerInput}
+            type="text"
+            name="servername"
+            placeholder="populus.open-tower.com" />
           <button className="styled-button" onClick={this.handleSubmit} >Look up SSO</button>
         </div>
         {state.loading ? <div id="server-loading-message">Loading...</div> : null}
@@ -142,7 +177,7 @@ class SSOModal extends Component {
   }
 }
 
-class RegistrationModal extends Component {
+class Registration extends Component {
   constructor (props) {
     super(props)
     this.state = {
@@ -223,17 +258,17 @@ class RegistrationModal extends Component {
   render(props, state) {
     switch (state.registrationStage) {
       case "retrieving-auth" : {
-        return <div id="registrationModal">
+        return <div id="registration">
           <div id="registeringFeedback">Retrieving Authentication Procedures...</div>
         </div>
       }
       case "registering" : {
-        return <div id="registrationModal">
+        return <div id="registration">
           <div id="registeringFeedback">Registering Account...</div>
         </div>
       }
       case "awaiting-recaptcha" : {
-        return <div id="registrationModal">
+        return <div id="registration">
           <form id="registerForm">
             <div id="theRecaptcha">
               Complete this Recaptcha to finish registration
@@ -247,10 +282,16 @@ class RegistrationModal extends Component {
         </div>
       }
       case "awaiting-server" : {
-        return <div id="registrationModal">
+        return <div id="registration">
           <h3>Register an account</h3>
           <form ref={this.registerForm} id="registerForm">
-            <UserData />
+            <UserData
+              setServer={props.setServer}
+              server={props.server}
+              setPassword={props.setPassword}
+              password={props.password}
+              setName={props.setName}
+              name={props.name} />
             <div><button className="styled-button" onClick={this.beginRegistrationFlow} >Register a New Account</button></div>
             <div>Already have an account? <button className="styled-button" onClick={props.switchView("login")} >Login With Existing Account</button></div>
           </form>
@@ -263,20 +304,31 @@ class RegistrationModal extends Component {
 class UserData extends Component {
   usernameInput = createRef()
 
+  passwordInput = createRef()
+
   validateUsername = (e) => {
+    this.props.setName(e.target.value)
     if (/[^a-zA-Z0-9._=/]/.test(e.target.value)) this.usernameInput.current.setCustomValidity("Bad Character")
     else this.usernameInput.current.setCustomValidity("")
   }
 
-  render () {
+  validatePassword = (e) => {
+    this.props.setPassword(e.target.value)
+    if (e.target.value.length < 8 && e.target.value.length > 0) this.passwordInput.current.setCustomValidity("Bad Password")
+    else this.passwordInput.current.setCustomValidity("")
+  }
+
+  handleServerInput = e => this.props.setServer(e.target.value)
+
+  render (props) {
     return (
       <Fragment>
         <label htmlFor="username">Username</label>
-        <input type="text" ref={this.usernameInput} id="username" onInput={this.validate} name="username" />
+        <input value={props.name} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
         <label htmlFor="password">Password</label>
-        <input type="password" id="password" name="password" />
+        <input value={props.password} oninput={this.validatePassword} type="password" ref={this.passwordInput} id="password" name="password" />
         <label htmlFor="servername">Server</label>
-        <input type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
+        <input value={props.server} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
       </Fragment>
     )
   }
