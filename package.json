@@ -1,15 +1,16 @@
 {
   "name": "populus-viewer",
-  "version": "0.0.35",
+  "version": "0.0.71",
   "description": "A pdf viewer for Populus",
   "scripts": {
     "test": "eslint src",
     "build": "webpack --progress --mode=production",
     "watch": "webpack --progress --watch",
     "serve": "webpack serve --mode development",
+    "deploy": "ORIGIN=\"$(git remote get-url origin)\" && rm -rf dist/.git && npm run build && cd dist && git init && git add . && git commit -m \"deploy $(date -I)\" && git remote add origin \"$ORIGIN\" && git push --force origin main:gh-pages",
     "preversion": "npm test",
-    "version": "npm run build && git add -A dist/main.js",
-    "postversion": "git push && git push --tags && git subtree push --prefix dist origin gh-pages"
+    "version": "npm run build && npm run deploy",
+    "postversion": "git push && git push --tags"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
