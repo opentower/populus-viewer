@@ -210,7 +210,7 @@
   padding-bottom:10px;
 }
 
-.nav-button-wrapper .search-bar > svg {
+.nav-button-wrapper .search-bar > .search-icon {
   color:white
 }
 
@@ -218,7 +218,7 @@
   background:white;
 }
 
-.nav-button-wrapper .search-bar > input:focus + svg {
+.nav-button-wrapper .search-bar > input:focus + .search-icon {
   color:black;
 }
 
