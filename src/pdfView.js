@@ -148,14 +148,7 @@ export default class PdfView extends Component {
 
   setPdfWidthPx = pdfWidthPx => this.setState({pdfWidthPx})
 
-  setPdfHeightPx = pdfHeightPx => {
-    if (pdfHeightPx < (window.innerHeight - 100)) {
-      const initialZoom = Math.min((window.innerHeight - 100) / pdfHeightPx, 5)
-      this.setState({pdfHeightPx, zoomFactor: initialZoom})
-    } else {
-      this.setState({pdfHeightPx})
-    }
-  }
+  setPdfHeightPx = pdfHeightPx => this.setState({pdfHeightPx})
 
   setPdfFitRatio = pdfFitRatio => this.setState({pdfFitRatio})
 
