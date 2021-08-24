@@ -52,6 +52,7 @@ export default class AnnotationListing extends Component {
         const unread = calculateUnread(theId)
         if (unread > 0 || unread === "All") {
           this.props.focusByRoomId(theId)
+          this.props.pushHistory({ pageFocused: annot[eventVersion].pageNumber })
           break
         }
       } else {
