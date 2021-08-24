@@ -44,8 +44,9 @@ export default class Chat extends Component {
   // Room.timeline passes in more params
   handleTimeline = (event) => {
     if (this.props.focus && this.props.focus.roomId === event.getRoomId()) {
-      this.timelineWindow.paginate(Matrix.EventTimeline.FORWARDS, 1, false)
-      this.updateEvents()
+      this.timelinePromise
+        .then(_ => this.timelineWindow.paginate(Matrix.EventTimeline.FORWARDS, 1, false))
+        .then(this.updateEvents)
     }
   }
 
@@ -117,7 +118,8 @@ export default class Chat extends Component {
   }
 
   async resetFocus () {
-    await this.loadTimelineWindow(this.props.focus.roomId)
+    this.timelinePromise = this.loadTimelineWindow(this.props.focus.roomId)
+    await this.timelinePromise
     this.setState({
       fullyScrolled: this.scrolledIdents.has(this.props.focus.roomId),
       events: this.timelineWindow.getEvents()
