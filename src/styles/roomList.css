@@ -106,6 +106,24 @@
   cursor: pointer;
 }
 
+.room-more-members {
+  border-radius:5px;
+  margin-right:5px;
+  border:none;
+  background:white;
+  font-size:12pt;
+  cursor:pointer;
+  padding:5px;
+  white-space: nowrap;
+  color:black;
+  transition:background .5s ease;
+}
+
+.room-more-members:hover {
+  background:#ededed;
+  transition:background .5s ease;
+}
+
 .room-listing-entry .fav-star {
     height:24px;
     padding-right:5px;

@@ -170,6 +170,7 @@ class PDFRoomEntry extends Component {
     super(props)
     this.state = {
       buttonsVisible: false,
+      memberListOpen: false,
       detailsOpen: false
     }
   }
@@ -184,7 +185,9 @@ class PDFRoomEntry extends Component {
     })
   }
 
-  toggleButtons = _ => this.setState({ buttonsVisible: !this.state.buttonsVisible })
+  toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
+
+  toggleMemberList = _ => this.setState(oldState => { return { memberListOpen: !oldState.memberListOpen } })
 
   openInvite = _ => this.props.populateModal(
     <Invite populateModal={this.props.populateModal}
@@ -211,7 +214,9 @@ class PDFRoomEntry extends Component {
     const members = props.room.getMembersWithMembership("join")
     const invites = props.room.getMembersWithMembership("invite")
     const memberIds = members.map(member => member.userId)
-    const memberPills = members.map(member => <MemberPill key={member.userId} member={member} />)
+    const memberPills = state.memberListOpen
+      ? members.map(member => <MemberPill key={member.userId} member={member} />)
+      : members.slice(0, 15).map(member => <MemberPill key={member.userId} member={member} />)
     const invitePills = invites.map(invite => <span key={invite.userId} class="invite-pill"><MemberPill member={invite} /></span>)
     const status = memberIds.includes(Client.client.getUserId())
       ? "joined"
@@ -232,6 +237,12 @@ class PDFRoomEntry extends Component {
         <div class="room-listing-data">
           <div class="room-listing-data-row">
             <span class="room-data-icon">{Icons.userMany}</span><Fragment>{memberPills}</Fragment><Fragment>{invitePills}</Fragment>
+            { state.memberListOpen || members.length < 16
+              ? null
+              : <button onclick={this.toggleMemberList}
+                  class="room-more-members">and {members.length - 15} more.
+              </button>
+            }
           </div>
           <TagList room={props.room} />
         </div>
