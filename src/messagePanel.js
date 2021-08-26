@@ -301,7 +301,9 @@ class TextMessageInput extends Component {
     return <textarea ref={this.currentInput}
       value={state.value}
       onkeydown={this.handleKeydown}
-      oninput={this.handleInput} />
+      oninput={this.handleInput} 
+      data-gramm="false" // disable grammarly
+    />
   }
 }
 

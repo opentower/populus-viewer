@@ -513,7 +513,9 @@ class MessageEditor extends Component {
       <textarea ref={this.input}
         value={state.value}
         onkeydown={this.handleKeydown}
-        oninput={this.handleInput} />
+        oninput={this.handleInput}
+        data-gramm="false" // disable grammarly
+      />
       <button onclick={this.sendResponse}>Submit Changes</button>
       <button onclick={this.props.closeEditor}>Cancel</button>
     </div>
@@ -560,7 +562,9 @@ class ReplyComposer extends Component {
       <textarea ref={this.input}
         value={state.value}
         onkeydown={this.handleKeydown}
-        oninput={this.handleInput} />
+        oninput={this.handleInput}
+        data-gramm="false" // disable grammarly
+      />
       <button onclick={this.sendResponse}>Send Reply</button>
       <button onclick={this.props.closeEditor}>Cancel</button>
     </div>

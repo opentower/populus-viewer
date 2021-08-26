@@ -115,7 +115,12 @@ export default class PdfUpload extends Component {
         }
       </div>
       <label>Topic of Discussion</label>
-      <textarea onkeydown={this.keydownHandler} ref={this.roomTopicInput} type="text" />
+      <textarea
+        onkeydown={this.keydownHandler}
+        ref={this.roomTopicInput}
+        type="text"
+        data-gramm="false" // disable grammarly
+      />
       <div id="pdfUploadFormSubmit">
         <button disabled={state.progress || state.querying || !state.nameavailable || !state.pdfvalid} class="styled-button" ref={this.submitButton} type="submit">
           { state.progress ? "Uploading..." : "Create Discussion" }
