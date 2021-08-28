@@ -12,10 +12,12 @@
     white-space: pre;
     cursor: text;
     transform-origin: 0% 0%;
+    pointer-events: auto !important;
 }
 
 #annotation-layer .inline-annotations {
     opacity:0.2;
+    pointer-events:none;
 }
 
 #annotation-layer > div[data-focused] > .inline-annotations {
