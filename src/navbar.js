@@ -137,7 +137,7 @@ export default class Navbar extends Component {
         <div id="nav-background" />
         <div class="nav-button-wrapper top-wrapper">
           <button title="Go to main menu&#013;Shortcut: Esc" onclick={this.mainMenu}>{Icons.home}</button>
-          <button title="Add annotation&#013;Shortcut: Alt + a " disabled={props.selected ? null : "disabled"} onclick={props.addann}>{Icons.addAnnotation}</button>
+          <button title="Add annotation&#013;Shortcut: Alt + a " disabled={props.selected ? null : "disabled"} onclick={props.openAnnotation}>{Icons.addAnnotation}</button>
           <button title="Go to first page&#013;Shortcut: h" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button>
           <button title="Go to previous page&#013;Shortcuts: k, &larr;" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
           <form onSubmit={this.handleSubmit}>
@@ -153,7 +153,7 @@ export default class Navbar extends Component {
           </form>
           <button title="Go to next page&#013;Shortcuts: j, &rarr;" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
           <button title="Go to last page&#013;Shortcut: l" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button>
-          <button title="Remove annotation&#013;Shortcut: Alt + r" disabled={props.focus && !props.selected ? null : "disabled"} onclick={props.closeann}>{Icons.removeAnnotation}</button>
+          <button title="Remove annotation&#013;Shortcut: Alt + r" disabled={props.focus && !props.selected ? null : "disabled"} onclick={props.closeAnnotation}>{Icons.removeAnnotation}</button>
           <button title="More options" onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
         </div>
         <div ref={this.bottomWrapper} data-searchFocused={state.searchFocused} class="nav-button-wrapper bottom-wrapper">

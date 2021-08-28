@@ -324,26 +324,31 @@ export default class PdfView extends Component {
 
   closeAnnotation = _ => {
     const theDomain = Client.client.getDomain()
-    if (confirm('Are you sure you want to close this annotation?')) {
-      const theContent = {
-        via: [theDomain],
-        [eventVersion]: {
-          pageNumber: this.state.focus.pageNumber,
-          activityStatus: "closed",
-          clientRects: this.state.focus.clientRects,
-          creator: this.state.focus.creator
-        }
-      }
-      Client.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.roomId)
-      this.setState({focus: null})
-      QueryParameters.delete("focus")
-      QueryParameters.replaceHistory({
-        pdfFocused: this.props.pdfFocused,
-        pageFocused: this.props.pageFocused
-      })
-    } else {
-      return false;
+    const isCreator = Client.client.getUserId() === this.state.focus.creator
+    const theRoom = Client.client.getRoom(this.state.roomId)
+    const isMod = theRoom.getMember(Client.client.getUserId()).powerLevel > 50
+    console.log(isMod)
+    if (!confirm('Are you sure you want to close this annotation?')) return
+    if (!isCreator && !isMod) {
+      alert("Only moderators can close annotations that they didn't create")
+      return
     }
+    const theContent = {
+      via: [theDomain],
+      [eventVersion]: {
+        pageNumber: this.state.focus.pageNumber,
+        activityStatus: "closed",
+        clientRects: this.state.focus.clientRects,
+        creator: this.state.focus.creator
+      }
+    }
+    Client.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.roomId)
+    this.setState({focus: null})
+    QueryParameters.delete("focus")
+    QueryParameters.replaceHistory({
+      pdfFocused: this.props.pdfFocused,
+      pageFocused: this.props.pageFocused
+    })
   }
 
   setFocus = (content) => {
@@ -493,8 +498,8 @@ export default class PdfView extends Component {
             }
         </div>
         <Navbar selected={state.hasSelection}
-          addann={this.openAnnotation}
-          closeann={this.closeAnnotation}
+          openAnnotation={this.openAnnotation}
+          closeAnnotation={this.closeAnnotation}
           page={props.pageFocused}
           total={state.totalPages}
           focus={state.focus}
