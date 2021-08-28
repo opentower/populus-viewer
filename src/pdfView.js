@@ -400,6 +400,7 @@ export default class PdfView extends Component {
     }
     return annotations.filter(content => {
       let flagged = true
+      if (searchFlags.includes("me")) { flagged = flagged && content[eventVersion].creator === Client.client.getUserId() }
       if (searchFlags.includes("hour")) { flagged = flagged && (content.timestamp > (Date.now() - 3600000)) }
       if (searchFlags.includes("day")) { flagged = flagged && (content.timestamp > (Date.now() - 86400000)) }
       if (searchFlags.includes("week")) { flagged = flagged && (content.timestamp > (Date.now() - 604800000)) }
