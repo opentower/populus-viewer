@@ -84,22 +84,10 @@ class Annotation extends Component {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
     return <div style={this.userColor.styleVariables} data-annotation-typing={typing} data-focused={props.focused} id={this.roomId}>
       <BarTab rect={this.boundingRect} zoomFactor={props.zoomFactor} setFocus={this.setFocus} />
-      <InlineAnnotations rect={this.boundingRect}>
+      <div class="inline-annotations">
         {this.spans}
-      </InlineAnnotations>
+      </div>
     </div>
-  }
-}
-
-class InlineAnnotations extends Component {
-  ref = createRef()
-
-  componentDidMount() { Layout.positionRelativeAt(this.props.rect, this.ref.current, this.props.zoomFactor) }
-
-  componentDidUpdate() { Layout.positionRelativeAt(this.props.rect, this.ref.current, this.props.zoomFactor) }
-
-  render(props) {
-    return <div ref={this.ref} class="inline-annotations">{props.children}</div>
   }
 }
 

@@ -17,7 +17,6 @@
 
 #annotation-layer .inline-annotations {
     opacity:0.2;
-    pointer-events:none;
 }
 
 #annotation-layer > div[data-focused] > .inline-annotations {
