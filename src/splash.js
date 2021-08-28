@@ -12,7 +12,7 @@ export default class SplashView extends Component {
       if (maybeTitle && !maybePage) {
         const theId = await Client.client.getRoomIdForAlias(maybeTitle)
         const theRoom = Client.client.getRoom(theId.room_id)
-        maybePage = theRoom.getAccountData(lastViewed).getContent().page || 1
+        maybePage = (theRoom && theRoom.getAccountData(lastViewed).getContent().page) || 1
       }
       this.props.pushHistory({
         pdfFocused: maybeTitle,
