@@ -285,6 +285,7 @@ class TextMessageInput extends Component {
   submitInput = _ => {
     if (this.props.focus.roomId) {
       this.stopTyping()
+      if (this.state.value === "") return // don't send empty messages
       const parsed = this.reader.parse(addLatex(this.state.value))
       const rendered = this.writer.render(parsed)
       Client.client.sendMessage(this.props.focus.roomId, {
