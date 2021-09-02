@@ -19,8 +19,11 @@ class PopulusViewer extends Component {
     this.loginToken = QueryParameters.get('loginToken')
 
     if (Client.isResumable()) Client.initClient().then(this.loginHandler)
-    else if (this.loginToken) Client.initClient().then(_ => Client.client.loginWithToken(this.loginToken, this.loginHandler))
-    else this.setState({ loggedIn: false })
+    else if (this.loginToken) {
+      Client.initClient()
+        .then(_ => Client.client.loginWithToken(this.loginToken, this.loginHandler))
+        .then(_ => QueryParameters.delete('loginToken'))
+    } else this.setState({ loggedIn: false })
   }
 
   componentDidMount() {
