@@ -50,11 +50,13 @@ export default class AnnotationLayer extends Component {
     if (theRoom) {
       annotations = props.filteredAnnotationContents
         .filter(content => this.filterAnnotations(content))
-        .map(content => <Annotation zoomFactor={props.zoomFactor}
+        .map((content, idx) => <Annotation zoomFactor={props.zoomFactor}
           key={content[eventVersion].roomId}
           focused={roomId === content[eventVersion].roomId}
           typing={state.typing[content[eventVersion].roomId]}
           setFocus={props.setFocus}
+          pdfWidthPx={props.pdfWidthPx}
+          rightSide={idx % 2 === 0}
           content={content} />)
     }
     return (
@@ -83,7 +85,12 @@ class Annotation extends Component {
   render(props) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
     return <div style={this.userColor.styleVariables} data-annotation-typing={typing} data-focused={props.focused} id={this.roomId}>
-      <BarTab rect={this.boundingRect} zoomFactor={props.zoomFactor} setFocus={this.setFocus} />
+      <BarTab 
+        pdfWidthPx={props.pdfWidthPx}
+        rightSide={props.rightSide}
+        rect={this.boundingRect}
+        zoomFactor={props.zoomFactor}
+        setFocus={this.setFocus} />
       <div class="inline-annotations">
         {this.spans}
       </div>
@@ -111,7 +118,11 @@ class BarTab extends Component {
 
   ref = createRef()
 
-  getTabRect = _ => new DOMRect(5 + this.state.overlapOffset, this.props.rect.y, 5, this.props.rect.height)
+  getTabRect = _ => {
+    return this.props.rightSide 
+      ? new DOMRect(this.props.pdfWidthPx - 10 + this.state.overlapOffset, this.props.rect.y, 5, this.props.rect.height)
+      : new DOMRect(5 - this.state.overlapOffset, this.props.rect.y, 5, this.props.rect.height)
+  }
 
   scootch = _ => {
     const rect = this.ref.current.getBoundingClientRect()
