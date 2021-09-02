@@ -129,6 +129,8 @@ export default class PdfView extends Component {
 
   annotationLayer = createRef()
 
+  textLayer = createRef()
+
   annotationLayerWrapper = createRef()
 
   documentView = createRef()
@@ -217,8 +219,8 @@ export default class PdfView extends Component {
   checkForSelection () {
     if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
     const hasSelection = !window.getSelection().isCollapsed &&
-                       this.documentView.current.contains(window.getSelection().getRangeAt(0).endContainer) &&
-                       this.documentView.current.contains(window.getSelection().getRangeAt(0).startContainer)
+                       this.textLayer.current.contains(window.getSelection().getRangeAt(0).endContainer) &&
+                       this.textLayer.current.contains(window.getSelection().getRangeAt(0).startContainer)
     this.selectionTimeout = setTimeout(200, this.setState({hasSelection}))
     // timeout to avoid excessive rerendering
   }
@@ -277,7 +279,8 @@ export default class PdfView extends Component {
     const theSelection = window.getSelection()
     if (theSelection.isCollapsed) return
     const theRange = theSelection.getRangeAt(0)
-    const theSelectedText = Array.from(theRange.cloneContents().children).map(child => child.innerText).join(' ')
+    const theContents = Array.from(theRange.cloneContents().children)
+    const theSelectedText = theContents.map(child => child.innerText).join(' ')
     const theDomain = Client.client.getDomain()
 
     const boundingClientRect = Layout.rectRelativeTo( this.annotationLayerWrapper.current
@@ -443,6 +446,7 @@ export default class PdfView extends Component {
               setPdfHeightPx={this.setPdfHeightPx}
               setPdfFitRatio={this.setPdfFitRatio}
               annotationLayer={this.annotationLayer}
+              textLayer={this.textLayer}
               searchString={state.searchString}
               pdfFocused={props.pdfFocused}
               pageFocused={props.pageFocused}

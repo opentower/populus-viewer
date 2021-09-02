@@ -46,7 +46,7 @@ export default class PdfCanvas extends Component {
   componentDidMount() {
     this.fetchPdf(this.props.pdfFocused)
     // fetch will fail if the initial sync isn't complete, but that should be handled by the splash page
-    this.textLayer.current.addEventListener('click', e => {
+    this.props.textLayer.current.addEventListener('click', e => {
       e.preventDefault() // this should prevent touch-to-search on mobile chrome
       const mouseEvent = new MouseEvent(e.type, e)
       document.elementsFromPoint(e.clientX, e.clientY).forEach(elt => {
@@ -54,8 +54,6 @@ export default class PdfCanvas extends Component {
       })
     })
   }
-
-  textLayer = createRef()
 
   canvas = createRef()
 
@@ -117,7 +115,7 @@ export default class PdfCanvas extends Component {
     try { this.pendingTextRender.cancel() } catch (err) { console.log(err) }
     // now that we're sure we won't spawn any unintended renders, we cancel
     // any pending renders
-    this.textLayer.current.innerHTML = ''
+    this.props.textLayer.current.innerHTML = ''
     // and we clear the textlayer.
     return controlToken
   }
@@ -170,16 +168,16 @@ export default class PdfCanvas extends Component {
     // insert the pdf text into the text layer
     this.pendingTextRender = PDFJS.renderTextLayer({
       textContent: text,
-      container: this.textLayer.current,
+      container: this.props.textLayer.current,
       viewport: page.getViewport({scale: 1.5}),
       textDivs: []
-    }).promise.then(_ => { this.cleanText = this.textLayer.current.innerHTML })
+    }).promise.then(_ => { this.cleanText = this.props.textLayer.current.innerHTML })
   }
 
   async highlightText (word) {
-    this.textLayer.current.innerHTML = this.cleanText
+    this.props.textLayer.current.innerHTML = this.cleanText
     if (word.length < 3) return
-    const spans = this.textLayer.current.children
+    const spans = this.props.textLayer.current.children
     // We strip out all non-alphanumerics, for fuzzy search
     const text = Array.from(spans).map(span => span.innerText).join("").replace(/[^a-zA-Z0-9]/gm, "").toLowerCase()
     word = word.replace(/[^a-zA-Z0-9]/gm, "").toLowerCase()
@@ -230,7 +228,7 @@ export default class PdfCanvas extends Component {
     return (
       <Fragment>
         <canvas key={this.canvasRefreshAt} ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas" />
-        <div style="z-index:3" ref={this.textLayer} id="text-layer" />
+        <div style="z-index:3" ref={this.props.textLayer} id="text-layer" />
       </Fragment>
     )
   }
