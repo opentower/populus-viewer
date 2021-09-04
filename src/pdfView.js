@@ -345,6 +345,10 @@ export default class PdfView extends Component {
       }
     }
     Client.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.roomId)
+    this.unsetFocus()
+  }
+
+  unsetFocus = _ => {
     this.setState({focus: null})
     QueryParameters.delete("focus")
     QueryParameters.replaceHistory({
@@ -440,7 +444,7 @@ export default class PdfView extends Component {
         <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
         {this.getLoadingStatus()}
         <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
-          <div id="document-wrapper">
+          <div id="document-wrapper" data-annotations-hidden={!state.annotationsVisible}>
             <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
               setPdfHeightPx={this.setPdfHeightPx}
               setPdfFitRatio={this.setPdfFitRatio}
@@ -455,8 +459,7 @@ export default class PdfView extends Component {
               setPdfText={this.setPdfText}
               setPdfLoadingStatus={this.setPdfLoadingStatus}
             />
-            {state.annotationsVisible
-              ? <AnnotationLayer ref={this.annotationLayer}
+            <AnnotationLayer ref={this.annotationLayer}
                   annotationLayer={this.annotationLayer}
                   annotationLayerWrapper={this.annotationLayerWrapper}
                   filteredAnnotationContents={state.filteredAnnotationContents}
@@ -466,8 +469,6 @@ export default class PdfView extends Component {
                   roomId={state.roomId}
                   setFocus={this.setFocus}
                   focus={state.focus} />
-              : null
-            }
           </div>
         </div>
         <div id="sidepanel">

@@ -19,15 +19,6 @@
     opacity:0.2;
 }
 
-#annotation-layer > div[data-focused] > .inline-annotations {
-    opacity:0.5;
-}
-
-#annotation-layer > div[data-annotation-typing] > .inline-annotations {
-    animation: pulse-half-opacity 2s infinite; 
-    animation-timing-function:ease;
-}
-
 #annotation-layer .annotation-bartab {
     opacity:0.5;
 }
@@ -39,3 +30,19 @@
 #annotation-layer .annotation-bartab:hover + .inline-annotations {
     opacity:0.5;
 }
+
+#annotation-layer > div[data-annotation-typing] > .inline-annotations {
+    animation: pulse-half-opacity 2s infinite; 
+    animation-timing-function:ease;
+}
+
+[data-annotations-hidden] .annotation-bartab,
+[data-annotations-hidden] .inline-annotations {
+  visibility: hidden;
+}
+
+#annotation-layer > div[data-focused] > .annotation-bartab,
+#annotation-layer > div[data-focused] > .inline-annotations {
+    visibility:visible;
+}
+

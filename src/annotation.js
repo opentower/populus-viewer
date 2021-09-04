@@ -133,7 +133,9 @@ class BarTab extends Component {
         const isPrior = elt.compareDocumentPosition(this.ref.current) === 4
         return (isAnnot && ((eltRect.y < rect.y) || (isPrior && eltRect.y === rect.y)))
       })
-    if (overlaps.length > 0) this.setState({overlapOffset: this.state.overlapOffset + 10})
+    if (overlaps.length > 0) {
+      this.setState({overlapOffset: this.state.overlapOffset + 10})
+    }
   }
 
   render(props) {
