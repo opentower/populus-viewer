@@ -184,8 +184,11 @@ class Registration extends Component {
       registrationStage: "awaiting-server"
     }
     this.recaptchaHandler = this.recaptchaHandler.bind(this)
-    window.addEventListener('recaptcha', this.recaptchaHandler) // TODO: remove on unload of this component
   }
+
+  componentDidMount() { window.addEventListener('recaptcha', this.recaptchaHandler) }
+
+  componentWillUnmount() { window.removeEventListener('recaptcha', this.recaptchaHandler) }
 
   registerForm = createRef()
 
