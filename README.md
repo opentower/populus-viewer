@@ -55,5 +55,6 @@ Similar projects include:
 - [Perusall](https://perusall.com)
 - [Hypothes.is](https://web.hypothes.is)
 - [PeerLibrary](https://peerlibrary.org)
+- [BookWyrm](https://joinbookwyrm.com)
 
 But I couldn't resist trying something new :)
