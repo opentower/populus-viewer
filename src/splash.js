@@ -19,6 +19,7 @@ export default class SplashView extends Component {
         pageFocused: maybePage
       })
       this.props.setInitializationStage("initialized")
+      QueryParameters.delete("server") // delete no-longer-needed server param if it's present
     } else {
       setTimeout(this.pollInitialized, 1000)
     }
