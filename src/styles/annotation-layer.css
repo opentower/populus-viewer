@@ -27,8 +27,9 @@
     opacity:1;
 }
 
+#annotation-layer > div[data-focused] > .inline-annotations,
 #annotation-layer .annotation-bartab:hover + .inline-annotations {
-    opacity:0.5;
+    opacity:0.3;
 }
 
 #annotation-layer > div[data-annotation-typing] > .inline-annotations {
