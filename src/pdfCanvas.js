@@ -14,7 +14,6 @@ export default class PdfCanvas extends Component {
 
   constructor(props) {
     super(props)
-    this.canvasRefreshAt = Date.now()
     this.pendingRender = null
     this.pendingTextRender = null
     this.hasRendered = false // we allow one initial render, but then require a page change for a redraw
@@ -34,12 +33,6 @@ export default class PdfCanvas extends Component {
     }
     if (prevProps.searchString !== this.props.searchString) {
       this.highlightText(this.props.searchString)
-    }
-  }
-
-  shouldComponentUpdate(nextProps) {
-    if (!this.hasRendered || (this.props.pageFocused !== nextProps.pageFocused)) {
-      this.canvasRefreshAt = Date.now()
     }
   }
 
@@ -106,17 +99,17 @@ export default class PdfCanvas extends Component {
   // to make sure that pending drawPdf calls don't proceed. That's what this function does.
   grabControl() {
     const controlToken = {}
-    this.controlToken = controlToken
     // we spawn a new control token - this is just an empty object, the
     // important thing is that it's a *new* empty object, since previous
     // drawPdf calls will check to see if the control token is the same as
     // the one that they were spawned with
-    try { this.pendingRender.cancel() } catch (err) { console.log(err) }
-    try { this.pendingTextRender.cancel() } catch (err) { console.log(err) }
+    this.controlToken = controlToken
     // now that we're sure we won't spawn any unintended renders, we cancel
     // any pending renders
-    this.props.textLayer.current.innerHTML = ''
+    try { this.pendingRender.cancel() } catch (err) { console.log(err) }
+    try { this.pendingTextRender.cancel() } catch (err) { console.log(err) }
     // and we clear the textlayer.
+    this.props.textLayer.current.innerHTML = ''
     return controlToken
   }
 
@@ -142,7 +135,6 @@ export default class PdfCanvas extends Component {
     theCanvas.width = viewport.width;
 
     // pass scaled height in px upwards for css variables
-
     const pdfWidthPx = Math.min((viewport.width * 1.5) / scale, window.innerWidth)
     const pdfHeightPx = (pdfWidthPx / viewport.width) * viewport.height
     this.props.setPdfWidthPx(pdfWidthPx)
@@ -152,12 +144,12 @@ export default class PdfCanvas extends Component {
     // Render PDF page into canvas context
     const canvasContext = theCanvas.getContext('2d')
 
-    const renderContext = {
-      canvasContext,
-      viewport
-    };
+    const renderContext = { canvasContext, viewport };
 
     if (control !== this.controlToken) return
+
+    // clear canvas (prevents occasional flickering on firefox)
+    canvasContext.clearRect(0, 0, theCanvas.width, theCanvas.height)
     this.pendingRender = page.render(renderContext);
 
     await this.pendingRender.promise
@@ -171,7 +163,8 @@ export default class PdfCanvas extends Component {
       container: this.props.textLayer.current,
       viewport: page.getViewport({scale: 1.5}),
       textDivs: []
-    }).promise.then(_ => { this.cleanText = this.props.textLayer.current.innerHTML })
+    })
+    this.pendingTextRender.promise.then(_ => { this.cleanText = this.props.textLayer.current.innerHTML })
   }
 
   async highlightText (word) {
@@ -227,7 +220,7 @@ export default class PdfCanvas extends Component {
   render(props) {
     return (
       <Fragment>
-        <canvas key={this.canvasRefreshAt} ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas" />
+        <canvas ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas" />
         <div style="z-index:3" ref={this.props.textLayer} id="text-layer" />
       </Fragment>
     )
