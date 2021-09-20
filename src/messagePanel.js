@@ -296,6 +296,7 @@ class TextMessageInput extends Component {
         format: "org.matrix.custom.html",
         formatted_body: rendered
       })
+      this.currentInput.current.style.height = null
       this.setState({ value: "" })
     }
   }
@@ -304,7 +305,7 @@ class TextMessageInput extends Component {
     return <textarea ref={this.currentInput}
       value={state.value}
       onkeydown={this.handleKeydown}
-      oninput={this.handleInput} 
+      oninput={this.handleInput}
       data-gramm="false" // disable grammarly
     />
   }
