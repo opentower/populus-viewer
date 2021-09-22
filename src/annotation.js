@@ -56,7 +56,7 @@ export default class AnnotationLayer extends Component {
           typing={state.typing[content[eventVersion].roomId]}
           setFocus={props.setFocus}
           pdfWidthPx={props.pdfWidthPx}
-          rightSide={idx % 2 === 1}
+          rightSide={content.timestamp % 2 === 1}
           content={content} />)
     }
     return (
