@@ -50,7 +50,7 @@ export default class AnnotationLayer extends Component {
     if (theRoom) {
       annotations = props.filteredAnnotationContents
         .filter(content => this.filterAnnotations(content))
-        .map((content, idx) => <Annotation zoomFactor={props.zoomFactor}
+        .map(content => <Annotation zoomFactor={props.zoomFactor}
           key={content[eventVersion].roomId}
           focused={roomId === content[eventVersion].roomId}
           typing={state.typing[content[eventVersion].roomId]}

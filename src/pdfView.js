@@ -279,8 +279,13 @@ export default class PdfView extends Component {
     const theSelection = window.getSelection()
     if (theSelection.isCollapsed) return
     const theRange = theSelection.getRangeAt(0)
-    const theContents = Array.from(theRange.cloneContents().children)
-    const theSelectedText = theContents.map(child => child.innerText).join(' ')
+    const theContents = Array.from(theRange.cloneContents().childNodes)
+    const theSelectedText = theContents.map(child =>
+      child.nodeType === 3 // Text node
+        ? child.data
+        : child.nodeType === 1 // Element Node
+          ? child.innerText
+          : "" ).join(' ')
     const theDomain = Client.client.getDomain()
 
     const boundingClientRect = Layout.rectRelativeTo( this.annotationLayerWrapper.current
