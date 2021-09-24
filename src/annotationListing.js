@@ -97,8 +97,8 @@ export default class AnnotationListing extends Component {
     if (room1 && room2) {
       const ts1 = room1.getLastActiveTimestamp()
       const ts2 = room2.getLastActiveTimestamp()
-      if (ts1 < ts2) return 1 * this.state.sortOrder
-      else if (ts2 < ts1) return -1 * this.state.sortOrder
+      if (ts1 > ts2) return 1 * this.state.sortOrder
+      else if (ts1 < ts2) return -1 * this.state.sortOrder
       return 0
     }
     if (room1) return -1 * this.state.sortOrder
