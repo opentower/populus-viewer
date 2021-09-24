@@ -55,7 +55,7 @@ export default class AnnotationLayer extends Component {
           focused={roomId === content[eventVersion].roomId}
           typing={state.typing[content[eventVersion].roomId]}
           setFocus={props.setFocus}
-          pdfWidthPx={props.pdfWidthPx}
+          pdfWidthAdjusted={props.pdfWidthAdjusted}
           rightSide={content.timestamp % 2 === 1}
           content={content} />)
     }
@@ -86,7 +86,7 @@ class Annotation extends Component {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
     return <div style={this.userColor.styleVariables} data-annotation-typing={typing} data-focused={props.focused} id={this.roomId}>
       <BarTab
-        pdfWidthPx={props.pdfWidthPx}
+        pdfWidthAdjusted={props.pdfWidthAdjusted}
         rightSide={props.rightSide}
         rect={this.boundingRect}
         zoomFactor={props.zoomFactor}
@@ -120,7 +120,7 @@ class BarTab extends Component {
 
   getTabRect = _ => {
     return this.props.rightSide
-      ? new DOMRect(this.props.pdfWidthPx - 10 + this.state.overlapOffset, this.props.rect.y, 5, this.props.rect.height)
+      ? new DOMRect(this.props.pdfWidthAdjusted - 10 + this.state.overlapOffset, this.props.rect.y, 5, this.props.rect.height)
       : new DOMRect(5 - this.state.overlapOffset, this.props.rect.y, 5, this.props.rect.height)
   }
 

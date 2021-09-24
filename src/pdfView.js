@@ -468,7 +468,7 @@ export default class PdfView extends Component {
                   annotationLayer={this.annotationLayer}
                   annotationLayerWrapper={this.annotationLayerWrapper}
                   filteredAnnotationContents={state.filteredAnnotationContents}
-                  pdfWidthPx={state.pdfWidthPx}
+                  pdfWidthAdjusted={state.pdfWidthPx / state.pdfFitRatio}
                   zoomFactor={state.zoomFactor}
                   page={props.pageFocused}
                   roomId={state.roomId}
