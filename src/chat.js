@@ -292,11 +292,12 @@ class RedactedMessage extends Component {
 }
 
 function Anchor(props) {
-  if (props.fullyScrolled) return <div>
-    <div id="anchor-quote">{props.topic}</div>
-    <div id="scroll-done">All messages loaded</div>
-  </div>
-  return <div id="scroll-anchor">loading...</div>
+  return props.fullyScrolled
+    ? <div>
+      <div id="anchor-quote">{props.topic}</div>
+      <div id="scroll-done">All messages loaded</div>
+    </div>
+    : <div id="scroll-anchor">loading...</div>
 }
 
 function TypingIndicator(props) {
