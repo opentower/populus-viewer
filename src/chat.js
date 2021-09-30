@@ -12,6 +12,7 @@ export default class Chat extends Component {
     this.state = {
       typing: [],
       events: [],
+      topic: "",
       fullyScrolled: false
     }
     this.scrolledIdents = new Set()
@@ -91,7 +92,17 @@ export default class Chat extends Component {
     return true
   }
 
-  updateEvents = _ => this.setState({events: this.timelineWindow.getEvents()}, this.updateReadReceipt)
+  getTopic = _ => this.room.getLiveTimeline()
+    .getState(Matrix.EventTimeline.FORWARDS)
+    .getStateEvents("m.room.topic", "")
+    ?.getContent().topic || ""
+
+  updateEvents = _ => {
+    this.setState({
+      topic: this.getTopic(),
+      events: this.timelineWindow.getEvents()
+    }, this.updateReadReceipt)
+  }
 
   async updateReadReceipt() {
     clearTimeout(this.updateReadReceiptDebounce)
@@ -121,6 +132,7 @@ export default class Chat extends Component {
     this.timelinePromise = this.loadTimelineWindow(this.props.focus.roomId)
     await this.timelinePromise
     this.setState({
+      topic: this.getTopic(),
       fullyScrolled: this.scrolledIdents.has(this.props.focus.roomId),
       events: this.timelineWindow.getEvents()
     }, _ => {
@@ -229,7 +241,6 @@ export default class Chat extends Component {
         else reactions[e.getContent()["m.relates_to"].event_id] = [e]
       }
     })
-    // the chat wrapper works around a nasty positioning bug in chrome - it
     // has height set, so that we don't need to set height on the flexbox element
     return (
       <div ref={this.chatWrapper} class={props.class} onscroll={this.handleScroll} id="chat-wrapper">
@@ -239,7 +250,7 @@ export default class Chat extends Component {
             {messagedivs}
             <TypingIndicator typing={this.state.typing} />
           </div>
-          <Anchor ref={this.scrollAnchor} focus={props.focus} fullyScrolled={state.fullyScrolled} />
+          <Anchor ref={this.scrollAnchor} topic={state.topic} focus={props.focus} fullyScrolled={state.fullyScrolled} />
         </div>
       </div>
     )
@@ -281,7 +292,10 @@ class RedactedMessage extends Component {
 }
 
 function Anchor(props) {
-  if (props.fullyScrolled) return <div id="scroll-done">All messages loaded</div>
+  if (props.fullyScrolled) return <div>
+    <div id="anchor-quote">{props.topic}</div>
+    <div id="scroll-done">All messages loaded</div>
+  </div>
   return <div id="scroll-anchor">loading...</div>
 }
 

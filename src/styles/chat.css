@@ -12,6 +12,10 @@
     font-weight:bold;
 }
 
+#anchor-quote {
+  padding:10px;
+}
+
 #messageComposer > textarea,
 .replyComposer > textarea,
 .messageEditor > textarea {
