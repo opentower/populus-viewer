@@ -288,23 +288,34 @@ export default class PdfView extends Component {
           : "" ).join(' ')
     const theDomain = Client.client.getDomain()
 
-    const boundingClientRect = Layout.rectRelativeTo( this.annotationLayerWrapper.current
-      , theRange.getBoundingClientRect()
-      , this.state.pdfFitRatio * this.state.zoomFactor
-    )
-    const clientRects = Array.from(theRange.getClientRects())
-      .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.pdfFitRatio * this.state.zoomFactor))
-      // TODO: room creation is a bit slow, might want to rework this slightly for responsiveness
-      //
-      // TODO: we should set room_alias_name, name, and topic in the options
-      // object, in a useful way based on the selection
+    const clientRects = Layout.sanitizeRects(Array.from(theRange.getClientRects())
+      .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.pdfFitRatio * this.state.zoomFactor)))
+    const boundingClientRect = Layout.unionRects(clientRects)
+    console.log(boundingClientRect)
+    // TODO: room creation is a bit slow, might want to rework this slightly for responsiveness
+    //
+    // TODO: we should set room_alias_name, name, and topic in the options
+    // object, in a useful way based on the selection
     Client.client.createRoom({
       visibility: "public",
       initial_state: [{
         type: "m.room.join_rules",
         state_key: "",
         content: {join_rule: "public"}
-      }]
+      },
+      {
+        type: "m.room.topic",
+        state_key: "",
+        content: {
+          topic: theSelectedText
+        }
+      },
+      {
+        type: spaceParent, // we indicate that the current room is the parent
+        content: { via: [theDomain] },
+        state_key: this.state.roomId
+      }
+      ]
     }).then(roominfo => {
       // set child event in pdfRoom State
       theSelection.removeAllRanges()
@@ -322,12 +333,9 @@ export default class PdfView extends Component {
       }
       Client.client.sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
         .catch(e => alert(e))
-      // set parent event in child room state XXX: should possibly incorporate into creation state
-      Client.client.sendStateEvent(roominfo.room_id, spaceParent, { via: [theDomain] }, this.state.roomId)
-        .catch(e => alert(e))
       this.setFocus(childContent[eventVersion])
       this.setState({ panelVisible: true })
-    })
+    }).catch(e => alert(e))
   }
 
   closeAnnotation = _ => {

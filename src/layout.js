@@ -31,3 +31,21 @@ export function rectRelativeFrom(elt, rect) {
   const eltRect = elt.getBoundingClientRect()
   return new DOMRect(rect.x + eltRect.x, rect.y + eltRect.y, rect.width, rect.height)
 }
+
+// take an array of rects and sanitize them, removing zero width and rounding off decimal pixels
+export function sanitizeRects(rects) {
+  return rects
+    .filter(rect => rect.width > 1)
+    .map(rect => new DOMRect(Math.round(rect.x), Math.round(rect.y), Math.round(rect.width), Math.round(rect.height)))
+}
+
+// take an array of rects and return the minimal rect containing all of them
+export function unionRects(rects) {
+  const xs = rects.map(rect => rect.x)
+  const ys = rects.map(rect => rect.y)
+  const rights = rects.map(rect => rect.right)
+  const bottoms = rects.map(rect => rect.bottom)
+  const theX = Math.min(...xs)
+  const theY = Math.min(...ys)
+  return new DOMRect(theX, theY, Math.max(...rights) - theX, Math.max(...bottoms) - theY)
+}
