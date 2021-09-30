@@ -463,6 +463,10 @@ class MessageEditor extends Component {
     } else this.setState({ value: this.currentContent.body })
   }
 
+  componentDidMount() {
+    this.resize()
+  }
+
   input = createRef()
 
   handleKeydown = e => {
@@ -473,8 +477,9 @@ class MessageEditor extends Component {
     }
   }
 
-  handleInput = (event) => {
-    this.setState({ value: event.target.value })
+  handleInput = (event) => this.setState({ value: event.target.value }, this.resize())
+
+  resize = () => {
     this.input.current.style.height = 'auto';
     this.input.current.style.height = `${this.input.current.scrollHeight}px`;
   }
