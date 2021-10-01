@@ -8,6 +8,7 @@
 }
 
 #scroll-anchor, #scroll-done {
+    user-select:none;
     padding:10px;
     font-weight:bold;
 }
@@ -298,6 +299,7 @@
     font-size:8pt;
     background-color:white;
     border-radius:25px;
+    user-select:none;
     border:2px solid var(--user_light);
 }
 
@@ -323,6 +325,7 @@
     position:relative;
     left:-5px;
     object-fit:cover;
+    user-select:none;
 }
 
 #chat-panel .reply-preface {
