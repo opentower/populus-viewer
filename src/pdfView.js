@@ -148,9 +148,7 @@ export default class PdfView extends Component {
       : null)
   }
 
-  setPdfWidthPx = pdfWidthPx => this.setState({pdfWidthPx})
-
-  setPdfHeightPx = pdfHeightPx => this.setState({pdfHeightPx})
+  setPdfDimensions = (pdfHeightPx, pdfWidthPx) => this.setState({pdfHeightPx, pdfWidthPx})
 
   setPdfFitRatio = pdfFitRatio => this.setState({pdfFitRatio})
 
@@ -459,7 +457,7 @@ export default class PdfView extends Component {
         <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
           <div id="document-wrapper" data-annotations-hidden={!state.annotationsVisible}>
             <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
-              setPdfHeightPx={this.setPdfHeightPx}
+              setPdfDimensions={this.setPdfDimensions}
               setPdfFitRatio={this.setPdfFitRatio}
               annotationLayer={this.annotationLayer}
               textLayer={this.textLayer}

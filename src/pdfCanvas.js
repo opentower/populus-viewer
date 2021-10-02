@@ -137,9 +137,8 @@ export default class PdfCanvas extends Component {
     // pass scaled height in px upwards for css variables
     const pdfWidthPx = Math.min((viewport.width * 1.5) / scale, window.innerWidth)
     const pdfHeightPx = (pdfWidthPx / viewport.width) * viewport.height
-    this.props.setPdfWidthPx(pdfWidthPx)
+    this.props.setPdfDimensions(pdfHeightPx, pdfWidthPx)
     this.props.setPdfFitRatio(Math.min(1, window.innerWidth / ((viewport.width * 1.5) / scale)))
-    this.props.setPdfHeightPx(pdfHeightPx)
 
     // Render PDF page into canvas context
     const canvasContext = theCanvas.getContext('2d')
