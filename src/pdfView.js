@@ -36,8 +36,9 @@ export default class PdfView extends Component {
       pdfWidthPx: null,
       pdfHeightPx: null,
       pdfFitRatio: 1,
-      zoomFactor: 1,
+      zoomFactor: null,
       modalContent: null,
+      pinching: false,
       hideButtons: false // this is for hiding the buttons, but only applies if the buttons overlap the chatbox
     }
     this.prevScrollTop = 0
@@ -153,7 +154,7 @@ export default class PdfView extends Component {
     const height = document.body.clientHeight - this.state.navHeight - 10
     const heightratio = height / pdfHeightPx
     const widthratio = width / pdfWidthPx
-    const zoomFactor = Math.max(Math.min(heightratio, widthratio, 5), 1)
+    const zoomFactor = this.state.zoomFactor || Math.max(Math.min(heightratio, widthratio, 5), 1)
     this.setState({pdfHeightPx, pdfWidthPx, zoomFactor})
   }
 
