@@ -12,7 +12,7 @@ export default class SyncIndicator extends Component {
   }
 
   fromState(syncState) {
-    //TODO Icons?
+    // TODO Icons?
     switch (syncState) {
       case "CATCHUP": return "loading data...";
       case "ERROR": return "connection interrupted";

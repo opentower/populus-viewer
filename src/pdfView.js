@@ -12,6 +12,7 @@ import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
 import { eventVersion, spaceChild, spaceParent, lastViewed } from "./constants.js"
+import { calculateUnread } from './utils/unread.js'
 import SyncIndicator from './syncIndicator.js'
 import Modal from "./modal.js"
 import Toast from "./toast.js"
@@ -43,8 +44,10 @@ export default class PdfView extends Component {
       hideButtons: false // this is for hiding the buttons, but only applies if the buttons overlap the chatbox
     }
     this.prevScrollTop = 0
+    this.unreadCounts = {} // XXX Since we update by mutating, this doesn't belong in state
     this.checkForSelection = this.checkForSelection.bind(this)
     this.handleKeydown = this.handleKeydown.bind(this)
+    this.handleTimeline = this.handleTimeline.bind(this)
     this.handleAccountData = this.handleAccountData.bind(this)
     this.handleStateUpdate = this.handleStateUpdate.bind(this)
     this.userColor = new UserColor(Client.client.getUserId())
@@ -56,6 +59,7 @@ export default class PdfView extends Component {
     document.addEventListener("selectionchange", this.checkForSelection)
     document.addEventListener('keydown', this.handleKeydown)
     this.updateAnnotations()
+    Client.client.on("Room.timeline", this.handleTimeline)
     Client.client.on("RoomState.events", this.handleStateUpdate)
     Client.client.on("Room.accountData", this.handleAccountData)
   }
@@ -63,12 +67,20 @@ export default class PdfView extends Component {
   componentWillUnmount() {
     document.removeEventListener("selectionchange", this.checkForSelection)
     document.removeEventListener('keydown', this.handleKeydown)
+    Client.client.off("Room.timeline", this.handleTimeline)
     Client.client.off("RoomState.events", this.handleStateUpdate)
     Client.client.off("Room.accountData", this.handleAccountData)
   }
 
   handleStateUpdate = e => {
     if (e.getRoomId() === this.state.roomId && e.getType() === spaceChild) {
+      this.updateAnnotations()
+    }
+  }
+
+  handleTimeline (_event, room) {
+    if (room.roomId in this.unreadCounts) {
+      this.unreadCounts[room.roomId] = calculateUnread(room.roomId)
       this.updateAnnotations()
     }
   }
@@ -106,7 +118,10 @@ export default class PdfView extends Component {
   }
 
   handleAccountData = (e, room) => {
-    if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
+    if (room.roomId in this.unreadCounts) {
+      this.unreadCounts[room.roomId] = calculateUnread(room.roomId)
+      this.updateAnnotations()
+    } else if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
       const theContent = e.getContent()
       if (theContent.page !== this.props.pageFocused && theContent.deviceId !== Client.deviceId) {
         this.populateToast(
@@ -407,6 +422,11 @@ export default class PdfView extends Component {
         .map(ev => {
           const content = ev.getContent()
           content.timestamp = ev.getTs()
+          if (!(ev.getStateKey() in this.unreadCounts)) {
+            this.unreadCounts[ev.getStateKey()] = calculateUnread(ev.getStateKey())
+          }
+          content.unread = this.unreadCounts[ev.getStateKey()]
+          console.log(content)
           return content
         })
         .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
@@ -430,6 +450,7 @@ export default class PdfView extends Component {
       if (searchFlags.includes("hour")) { flagged = flagged && (content.timestamp > (Date.now() - 3600000)) }
       if (searchFlags.includes("day")) { flagged = flagged && (content.timestamp > (Date.now() - 86400000)) }
       if (searchFlags.includes("week")) { flagged = flagged && (content.timestamp > (Date.now() - 604800000)) }
+      if (searchFlags.includes("unread")) { flagged = flagged && content.unread }
       return searchText.every(frag => content[eventVersion].selectedText.toLowerCase().includes(frag.toLowerCase())) &&
         searchMembers.every(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase())) &&
         flagged
@@ -519,6 +540,7 @@ export default class PdfView extends Component {
                   handleWidgetScroll={this.handleWidgetScroll}
                   focusByRoomId={this.focusByRoomId}
                   pushHistory={props.pushHistory}
+                  unreadCounts={this.unreadCounts}
                   room={theRoom}
                 />
             }

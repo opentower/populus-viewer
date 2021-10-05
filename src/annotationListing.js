@@ -6,7 +6,6 @@ import Client from './client.js'
 import MemberPill from './memberPill.js'
 import UserColor from './userColors.js'
 import SearchBar from './search.js'
-import { calculateUnread } from './utils/unread.js'
 import * as Icons from './icons.js'
 
 export default class AnnotationListing extends Component {
@@ -49,7 +48,7 @@ export default class AnnotationListing extends Component {
     for (const annot of array) {
       const theId = annot[eventVersion].roomId
       if (reachedFocus) {
-        const unread = calculateUnread(theId)
+        const unread = this.props.unreadCounts?.[theId] || "All"
         if (unread > 0 || unread === "All") {
           this.props.focusByRoomId(theId)
           this.props.pushHistory({ pageFocused: annot[eventVersion].pageNumber })
@@ -156,6 +155,7 @@ export default class AnnotationListing extends Component {
                       : props.filteredAnnotationContents.sort(this.getSortFunc()).map(content =>
                         <AnnotationListingEntry
                             key={content[eventVersion].roomId}
+                            unreadCount={props.unreadCounts[content[eventVersion].roomId]}
                             typing={state.typing[content[eventVersion].roomId]}
                             annotationContent={content[eventVersion]}
                             focusByRoomId={props.focusByRoomId}
@@ -179,22 +179,6 @@ export default class AnnotationListing extends Component {
 
 // XXX: could DRY by making a superclass from this and AnnotationRoomEntry
 class AnnotationListingEntry extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {unreadCount: calculateUnread(this.props.annotationContent.roomId)}
-    this.handleTimeline = this.handleTimeline.bind(this)
-  }
-
-  componentDidMount () {
-    Client.client.on("Room.timeline", this.handleTimeline)
-    Client.client.on("Room.accountData", this.handleTimeline)
-  }
-
-  componentWillUnmount () {
-    Client.client.off("Room.timeline", this.handleTimeline)
-    Client.client.on("Room.accountData", this.handleTimeline)
-  }
-
   handleClick = () => {
     this.props.focusByRoomId(this.props.annotationContent.roomId)
     this.props.pushHistory({
@@ -203,17 +187,11 @@ class AnnotationListingEntry extends Component {
     })
   }
 
-  handleTimeline (_event, room) {
-    if (this.props.annotationContent.roomId === room.roomId) {
-      this.setState({unreadCount: calculateUnread(this.props.annotationContent.roomId)})
-    }
-  }
-
   creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
 
   userColor = new UserColor(this.creator.userId)
 
-  render(props, state) {
+  render(props) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
     const focused = props.focus ? props.focus.roomId === this.props.annotationContent.roomId : false
     return <div style={this.userColor.styleVariables}
@@ -223,7 +201,7 @@ class AnnotationListingEntry extends Component {
       class="annotation-listing-entry">
       <div class="annotation-listing-text">{props.annotationContent.selectedText}</div>
       <div class="annotation-listing-page">page: {props.annotationContent.pageNumber}</div>
-      <div class="annotation-listing-page">unread: {state.unreadCount}</div>
+      <div class="annotation-listing-page">unread: {props.unreadCount}</div>
       <div class="annotation-listing-creator">creator: <MemberPill member={this.creator} /></div>
     </div>
   }
