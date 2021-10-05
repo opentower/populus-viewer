@@ -12,6 +12,7 @@ import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
 import { eventVersion, spaceChild, spaceParent, lastViewed } from "./constants.js"
+import SyncIndicator from './syncIndicator.js'
 import Modal from "./modal.js"
 import Toast from "./toast.js"
 import * as Icons from "./icons.js"
@@ -551,6 +552,7 @@ export default class PdfView extends Component {
             {state.panelVisible ? Icons.close : Icons.menu }
           </button>
         </div>
+        <SyncIndicator class={state.panelVisible ? null : "sync-hidden"} />
       </div>
     )
   }

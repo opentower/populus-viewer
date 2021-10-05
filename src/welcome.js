@@ -8,6 +8,7 @@ import ProfileInformation from './profileInformation.js'
 import * as Icons from './icons.js'
 import Modal from './modal.js'
 import Toast from './toast.js'
+import SyncIndicator from './syncIndicator.js'
 import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
@@ -119,6 +120,7 @@ export default class WelcomeView extends Component {
               </Fragment>
           }
         </div>
+        <SyncIndicator />
       </Fragment>
     )
   }
