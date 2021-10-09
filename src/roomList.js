@@ -301,6 +301,7 @@ class PDFRoomEntry extends Component {
           <a onClick={this.handleLoad}>{props.room.name}</a>
         </div>
         <div class="room-listing-data">
+          <TagList room={props.room} />
           <div class="room-listing-data-row">
             <span class="room-data-icon">{Icons.userMany}</span><Fragment>{memberPills}</Fragment><Fragment>{invitePills}</Fragment>
             { state.memberListOpen || members.length <= props.memberLimit
@@ -310,11 +311,10 @@ class PDFRoomEntry extends Component {
               </button>
             }
           </div>
-          <TagList room={props.room} />
         </div>
         <div class="room-annotation-data">
-          <span onClick={this.handleLoad}><span title="Total conversations" class="small-icon">{Icons.annotation}</span><span>: {this.getTotalCount()}</span></span>
-          <span onClick={this.handleLoadNew}><span title="Unread conversations" class="small-icon">{Icons.inbox}</span><span>: {this.getUnreadCount()}</span></span>
+          <span title="Total conversations" onClick={this.handleLoad}><span class="small-icon">{Icons.annotation}</span><span>: {this.getTotalCount()}</span></span>
+          <span title="Unread conversations" onClick={this.handleLoadNew}><span class="small-icon">{Icons.inbox}</span><span>: {this.getUnreadCount()}</span></span>
         </div>
         <div class="room-listing-entry-buttons">
           { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
