@@ -189,11 +189,35 @@ class PDFRoomEntry extends Component {
       detailsOpen: false,
       annotationContents: []
     }
+    this.handleTimeline = this.handleTimeline.bind(this)
+    this.handleStateUpdate = this.handleStateUpdate.bind(this)
     this.unreadCounts = {}
   }
 
   componentDidMount() {
+    Client.client.on("RoomState.events", this.handleStateUpdate)
+    Client.client.on("Room.accountData", this.handleTimeline)
+    Client.client.on("Room.timeline", this.handleTimeline)
     this.updateAnnotations()
+  }
+
+  componentWillUnmount() {
+    Client.client.off("RoomState.events", this.handleStateUpdate)
+    Client.client.off("Room.accountData", this.handleTimeline)
+    Client.client.off("Room.timeline", this.handleTimeline)
+  }
+
+  handleStateUpdate = e => {
+    if (e.getRoomId() === this.props.room.roomId && e.getType() === spaceChild) {
+      this.updateAnnotations()
+    }
+  }
+
+  handleTimeline (_event, room) {
+    if (room.roomId in this.unreadCounts) {
+      this.unreadCounts[room.roomId] = calculateUnread(room.roomId)
+      this.updateAnnotations()
+    }
   }
 
   getLastViewedPage = _ => this.props.room.getAccountData(lastViewed)
