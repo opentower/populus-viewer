@@ -42,26 +42,29 @@ export default class AnnotationLayer extends Component {
     )
   }
 
-  render(props, state) {
-    // just to get started
-    const theRoom = Client.client.getRoom(props.roomId)
-    const roomId = props.focus ? props.focus.roomId : null
+  getAnnotations() {
+    const theRoom = Client.client.getRoom(this.props.roomId)
+    const roomId = this.props.focus ? this.props.focus.roomId : null
     let annotations = []
     if (theRoom) {
-      annotations = props.filteredAnnotationContents
+      annotations = this.props.filteredAnnotationContents
         .filter(content => this.filterAnnotations(content))
-        .map(content => <Annotation zoomFactor={props.zoomFactor}
+        .map(content => <Annotation zoomFactor={this.props.zoomFactor}
           key={content[eventVersion].roomId}
           focused={roomId === content[eventVersion].roomId}
-          typing={state.typing[content[eventVersion].roomId]}
-          setFocus={props.setFocus}
-          pdfWidthAdjusted={props.pdfWidthAdjusted}
+          typing={this.state.typing[content[eventVersion].roomId]}
+          setFocus={this.props.setFocus}
+          pdfWidthAdjusted={this.props.pdfWidthAdjusted}
           rightSide={content.timestamp % 2 === 1}
           content={content} />)
     }
+    return annotations
+  }
+
+  render(props) {
     return (
       <div ref={props.annotationLayerWrapper} id="annotation-layer">
-        {annotations}
+        {this.getAnnotations()}
       </div>
     )
   }
