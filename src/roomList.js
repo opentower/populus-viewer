@@ -196,20 +196,26 @@ class PDFRoomEntry extends Component {
     this.updateAnnotations()
   }
 
-  totalCount = _ => this.state.annotationContents.length
+  getLastViewedPage = _ => this.props.room.getAccountData(lastViewed)
+    ? this.props.room.getAccountData(lastViewed).getContent().page
+    : 1
 
-  unreadCount = _ => this.state.annotationContents.filter(content => content.unread).length
+  getTotalCount = _ => this.state.annotationContents.length
 
-  newCount = _ => this.state.annotationContents.filter(content => content.unread === "All").length
+  getUnreadCount = _ => this.state.annotationContents.filter(content => content.unread).length
 
   handleLoad = _ => {
-    const lastViewedPage = this.props.room.getAccountData(lastViewed)
-      ? this.props.room.getAccountData(lastViewed).getContent().page
-      : 1
     this.props.pushHistory({
       pdfFocused: this.props.room.getCanonicalAlias(),
-      pageFocused: lastViewedPage || 1
+      pageFocused: this.getLastViewedPage() || 1
     })
+  }
+
+  handleLoadNew = _ => {
+    this.props.pushHistory({
+      pdfFocused: this.props.room.getCanonicalAlias(),
+      pageFocused: this.getLastViewedPage() || 1
+    }, null, {searchString: "~unread"})
   }
 
   toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
@@ -283,10 +289,8 @@ class PDFRoomEntry extends Component {
           <TagList room={props.room} />
         </div>
         <div class="room-annotation-data">
-          <span onClick={this.handleLoad}><span title="Total conversations" class="small-icon">{Icons.annotation}</span><span>: {this.totalCount()}</span></span>
-          <span><span title="Unread conversations" class="small-icon">{Icons.inbox}</span><span>: {this.unreadCount()}</span></span>
-          {/* <span><span> unread:</span> {this.unreadCount()}</span> */}
-          {/*   <span><span>new:</span> {this.newCount()}</span> */}
+          <span onClick={this.handleLoad}><span title="Total conversations" class="small-icon">{Icons.annotation}</span><span>: {this.getTotalCount()}</span></span>
+          <span onClick={this.handleLoadNew}><span title="Unread conversations" class="small-icon">{Icons.inbox}</span><span>: {this.getUnreadCount()}</span></span>
         </div>
         <div class="room-listing-entry-buttons">
           { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }

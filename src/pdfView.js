@@ -32,7 +32,7 @@ export default class PdfView extends Component {
       annotationsVisible: true,
       annotationContents: [],
       filteredAnnotationContents: [],
-      annotationFilter: "",
+      annotationFilter: props?.message?.searchString || "",
       searchString: "",
       loadingStatus: "loading...",
       pdfWidthPx: null,

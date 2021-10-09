@@ -12,7 +12,9 @@ class PopulusViewer extends Component {
   constructor () {
     super()
     this.state = {
-      initializationStage: "connecting to database"
+      initializationStage: "connecting to database",
+      pageFocused: null,
+      pdfFocused: null
     }
 
     this.setLastPage = this.setLastPage.bind(this)
@@ -61,7 +63,8 @@ class PopulusViewer extends Component {
     await Client.client.setRoomAccountData(theId.room_id, lastViewed, { page: this.state.pageFocused, deviceId: Client.deviceId })
   }
 
-  pushHistory = (newState, callback) => {
+  pushHistory = (newState, callback, message) => {
+    this.message = message
     if (newState.pdfFocused) QueryParameters.set('title', newState.pdfFocused)
     if (newState.pdfFocused === null) {
       QueryParameters.delete('title')
@@ -88,12 +91,17 @@ class PopulusViewer extends Component {
       return <SplashView
         initializationStage={state.initializationStage}
         setInitializationStage={this.setInitializationStage}
-        pushHistory={this.pushHistory} />
+        pushHistory={this.pushHistory}
+        message={this.message}
+      />
     }
     if (state.pdfFocused) {
-      return <PdfView pushHistory={this.pushHistory}
+      return <PdfView
+        pushHistory={this.pushHistory}
         pageFocused={this.state.pageFocused}
-        pdfFocused={this.state.pdfFocused} />
+        pdfFocused={this.state.pdfFocused}
+        message={this.message}
+      />
     }
     return <WelcomeView pushHistory={this.pushHistory}
       logoutHandler={this.logoutHandler} />
