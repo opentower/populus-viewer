@@ -426,7 +426,6 @@ export default class PdfView extends Component {
             this.unreadCounts[ev.getStateKey()] = calculateUnread(ev.getStateKey())
           }
           content.unread = this.unreadCounts[ev.getStateKey()]
-          console.log(content)
           return content
         })
         .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")

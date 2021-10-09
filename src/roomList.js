@@ -27,7 +27,7 @@ export default class RoomList extends Component {
 
   roomListener () { this.setState({ rooms: Client.client.getVisibleRooms() }) }
 
-  resizeListener(e) {
+  resizeListener() {
     clearTimeout(this.resizeDebounce)
     this.resizeDebounce = setTimeout(_ => {
       if (document.body.offsetWidth > 400) {
@@ -35,7 +35,7 @@ export default class RoomList extends Component {
       } else {
         if (this.state.memberLimit === 15) this.setState({memberLimit: 5})
       }
-    },500)
+    }, 500)
   }
 
   componentDidMount () {
@@ -131,14 +131,12 @@ export default class RoomList extends Component {
     return rooms.sort(this.getSortFunc())
       .map(room => {
         const pdfEvent = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType, "")
-        const annotations = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
         let result = null
         switch (room.getMyMembership()) {
           case "join" : {
             if (pdfEvent) {
-              result = <PDFRoomEntry 
+              result = <PDFRoomEntry
                 memberLimit={this.state.memberLimit}
-                annotations={annotations}
                 pushHistory={this.props.pushHistory}
                 populateModal={this.props.populateModal}
                 room={room}
@@ -188,9 +186,21 @@ class PDFRoomEntry extends Component {
     this.state = {
       buttonsVisible: false,
       memberListOpen: false,
-      detailsOpen: false
+      detailsOpen: false,
+      annotationContents: []
     }
+    this.unreadCounts = {}
   }
+
+  componentDidMount() {
+    this.updateAnnotations()
+  }
+
+  totalCount = _ => this.state.annotationContents.length
+
+  unreadCount = _ => this.state.annotationContents.filter(content => content.unread).length
+
+  newCount = _ => this.state.annotationContents.filter(content => content.unread === "All").length
 
   handleLoad = _ => {
     const lastViewedPage = this.props.room.getAccountData(lastViewed)
@@ -213,6 +223,22 @@ class PDFRoomEntry extends Component {
   openSettings = _ => this.props.populateModal(
     <RoomSettings populateModal={this.props.populateModal}
                   room={this.props.room} />)
+
+  updateAnnotations = _ => {
+    const annotationContents = this.props.room.getLiveTimeline()
+      .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
+      .map(ev => {
+        const content = ev.getContent()
+        content.timestamp = ev.getTs()
+        if (!(ev.getStateKey() in this.unreadCounts)) {
+          this.unreadCounts[ev.getStateKey()] = calculateUnread(ev.getStateKey())
+        }
+        content.unread = this.unreadCounts[ev.getStateKey()]
+        return content
+      })
+      .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
+    this.setState({annotationContents})
+  }
 
   handleEditTags = _ => this.props.populateModal(
     <TagEditor room={this.props.room} />
@@ -238,13 +264,6 @@ class PDFRoomEntry extends Component {
     const status = memberIds.includes(Client.client.getUserId())
       ? "joined"
       : "invited"
-    const annotations = props.annotations.map(ev => ev.getContent())
-      .filter(content => !!content[eventVersion]) // so that we can bump eventversion
-      .filter(content => content[eventVersion].activityStatus === "open")
-      .map(content => <AnnotationRoomEntry key={content[eventVersion].roomId}
-                                           pushHistory={props.pushHistory}
-                                           annotationContent={content[eventVersion]}
-                                           parentRoom={props.room} />)
     return (
       <div data-room-entry-buttons-visible={state.buttonsVisible} data-room-status={status} class="room-listing-entry" id={props.room.roomId}>
         <div class="room-listing-heading">
@@ -263,17 +282,12 @@ class PDFRoomEntry extends Component {
           </div>
           <TagList room={props.room} />
         </div>
-        {annotations.length > 0
-          ? <div><details>
-            <summary open={state.detailsOpen} ontoggle={this.handleDetailsToggle}>
-              {annotations.length} annotation{annotations.length > 1 ? "s" : null }
-            </summary>
-            <div class="annotation-rooms">
-              {annotations}
-            </div>
-          </details></div>
-          : null
-        }
+        <div class="room-annotation-data">
+          <span onClick={this.handleLoad}><span title="Total conversations" class="small-icon">{Icons.annotation}</span><span>: {this.totalCount()}</span></span>
+          <span><span title="Unread conversations" class="small-icon">{Icons.inbox}</span><span>: {this.unreadCount()}</span></span>
+          {/* <span><span> unread:</span> {this.unreadCount()}</span> */}
+          {/*   <span><span>new:</span> {this.newCount()}</span> */}
+        </div>
         <div class="room-listing-entry-buttons">
           { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
           { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
@@ -358,73 +372,4 @@ class TagEditor extends Component {
 
 function Tag(props) {
   return <span class="room-tag">{props.tag.slice(2)}</span>
-}
-
-class InviteEntry extends Component {
-  accept = _ => {
-    Client.client.joinRoom(this.props.room.roomId)
-    setTimeout(this.props.roomListener, 1000)
-    // XXX the updates get grouped in such a way that the redraw misses the state
-    // update that comes with the join. So we need to do a second update to the
-    // room listing, here.
-  }
-
-  decline = _ => {
-    Client.client.leave(this.props.room.roomId)
-    setTimeout(this.props.roomListener, 1000)
-  }
-
-  render(props) {
-    return <div class="invite-entry">
-      <div class="invite-heading">
-        You are invited to join the discussion {props.room.name}.
-      </div>
-      <div class="invite-buttons">
-        <button class="styled-button" onclick={this.accept}>Accept</button>
-        <button class="styled-button" onclick={this.decline}>Decline</button>
-      </div>
-    </div>
-  }
-}
-
-class AnnotationRoomEntry extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {unreadCount: calculateUnread(this.props.annotationContent.roomId)}
-    this.handleTimeline = this.handleTimeline.bind(this)
-    this.creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
-    this.userColor = new UserColor(this.creator.userId)
-  }
-
-  handleClick = () => {
-    QueryParameters.set("focus", this.props.annotationContent.roomId)
-    this.props.pushHistory({
-      pageFocused: this.props.annotationContent.pageNumber,
-      pdfFocused: this.props.parentRoom.getCanonicalAlias()
-    })
-  }
-
-  componentDidMount () {
-    Client.client.on("Room.timeline", this.handleTimeline)
-  }
-
-  componentWillUnmount () {
-    Client.client.off("Room.timeline", this.handleTimeline)
-  }
-
-  handleTimeline (event) {
-    if (this.props.annotationContent.roomId === event.getRoomId()) {
-      this.setState({unreadCount: calculateUnread(this.props.annotationContent.roomId)})
-    }
-  }
-
-  render (props, state) {
-    return <div style={this.userColor.styleVariables} class="annotation-room-entry">
-      <div class="annotation-room-entry-snip">…&nbsp;<a onClick={this.handleClick}>{props.annotationContent.selectedText}</a>&nbsp;…</div>
-      <div class="annotation-room-entry-data">
-        <div class="annotation-room-page">p: {props.annotationContent.pageNumber}</div>
-        <div class="annotation-room-unread">{Icons.bell}&nbsp;{state.unreadCount}</div>
-      </div>
-    </div>
-  }
 }
