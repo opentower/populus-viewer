@@ -450,7 +450,6 @@ export default class PdfView extends Component {
       if (searchFlags.includes("day")) { flagged = flagged && (content.timestamp > (Date.now() - 86400000)) }
       if (searchFlags.includes("week")) { flagged = flagged && (content.timestamp > (Date.now() - 604800000)) }
       if (searchFlags.includes("unread")) { flagged = flagged && content.unread }
-      console.log(searchMembers.every(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase())))
       return searchText.every(frag => content[eventVersion].selectedText.toLowerCase().includes(frag.toLowerCase())) &&
         searchMembers.every(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase())) &&
         flagged
