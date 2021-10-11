@@ -440,7 +440,7 @@ export default class PdfView extends Component {
     const searchWords = search.split(" ")
     for (const word of searchWords) {
       if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
-      if (word.slice(0, 1) === '~') searchFlags.push(word.slice(1))
+      else if (word.slice(0, 1) === '~') searchFlags.push(word.slice(1))
       else searchText.push(word)
     }
     return annotations.filter(content => {
@@ -450,6 +450,7 @@ export default class PdfView extends Component {
       if (searchFlags.includes("day")) { flagged = flagged && (content.timestamp > (Date.now() - 86400000)) }
       if (searchFlags.includes("week")) { flagged = flagged && (content.timestamp > (Date.now() - 604800000)) }
       if (searchFlags.includes("unread")) { flagged = flagged && content.unread }
+      console.log(searchMembers.every(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase())))
       return searchText.every(frag => content[eventVersion].selectedText.toLowerCase().includes(frag.toLowerCase())) &&
         searchMembers.every(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase())) &&
         flagged
