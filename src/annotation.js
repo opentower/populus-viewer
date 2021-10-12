@@ -34,11 +34,11 @@ export default class AnnotationLayer extends Component {
     }
   }
 
-  filterAnnotations (content) {
+  filterAnnotations (data) {
     return (
-      !!content[eventVersion] && // filter out old eventVersions
-      content[eventVersion].pageNumber === this.props.page &&
-      content[eventVersion].activityStatus !== "closed"
+      !!data && // filter out old eventVersions
+      data.pageNumber === this.props.page &&
+      data.activityStatus !== "closed"
     )
   }
 
@@ -47,16 +47,27 @@ export default class AnnotationLayer extends Component {
     const roomId = this.props.focus ? this.props.focus.roomId : null
     let annotations = []
     if (theRoom) {
-      annotations = this.props.filteredAnnotationContents
-        .filter(content => this.filterAnnotations(content))
-        .map(content => <Annotation zoomFactor={this.props.zoomFactor}
-          key={content[eventVersion].roomId}
-          focused={roomId === content[eventVersion].roomId}
-          typing={this.state.typing[content[eventVersion].roomId]}
-          setFocus={this.props.setFocus}
-          pdfWidthAdjusted={this.props.pdfWidthAdjusted}
-          rightSide={content.timestamp % 2 === 1}
-          content={content} />)
+      // We filter to include only the annotations on the page
+      const annotationData = this.props.filteredAnnotationContents
+        .filter(content =>
+          this.filterAnnotations(content[eventVersion]) &&
+          // We omit the focused annotation, since we're going to add it back in and don't want to double-count.
+          (this.props.focus ? content[eventVersion].roomId !== this.props.focus.roomId : true)
+        )
+        .map(content => content[eventVersion])
+      // We add the focus back in if it's on the page
+      if (this.props.focus && this.filterAnnotations(this.props.focus)) annotationData.push(this.props.focus)
+      // We turn the array into annontation components
+      annotations = annotationData.map(data =>
+        <Annotation zoomFactor={this.props.zoomFactor}
+        key={data.roomId}
+        focused={roomId === data.roomId}
+        typing={this.state.typing[data.roomId]}
+        setFocus={this.props.setFocus}
+        pdfWidthAdjusted={this.props.pdfWidthAdjusted}
+        rightSide={data.roomId.charCodeAt(1) % 2 === 1 }
+        data={data} />
+      )
     }
     return annotations
   }
@@ -71,9 +82,9 @@ export default class AnnotationLayer extends Component {
 }
 
 class Annotation extends Component {
-  setFocus = _ => { this.props.setFocus(this.props.content[eventVersion]) }
+  setFocus = _ => { this.props.setFocus(this.props.data) }
 
-  eventContent = this.props.content[eventVersion]
+  eventContent = this.props.data
 
   roomId = this.eventContent.roomId
 
