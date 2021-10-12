@@ -154,7 +154,8 @@
 }
 
 .room-annotation-data {
-  display:flex
+  display:flex;
+  padding-top:5px;
 }
 
 .room-annotation-data > span {

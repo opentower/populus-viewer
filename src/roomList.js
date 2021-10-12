@@ -224,8 +224,6 @@ class PDFRoomEntry extends Component {
     ? this.props.room.getAccountData(lastViewed).getContent().page
     : 1
 
-  getTotalCount = _ => this.state.annotationContents.length
-
   getUnreadCount = _ => this.state.annotationContents.filter(content => content.unread).length
 
   handleLoad = _ => {
@@ -284,6 +282,7 @@ class PDFRoomEntry extends Component {
   handleDetailsToggle = _ => this.setState({ detailsOpen: !this.state.detailsOpen })
 
   render (props, state) {
+    const unread = this.getUnreadCount()
     const members = props.room.getMembersWithMembership("join")
     const invites = props.room.getMembersWithMembership("invite")
     const memberIds = members.map(member => member.userId)
@@ -313,8 +312,10 @@ class PDFRoomEntry extends Component {
           </div>
         </div>
         <div class="room-annotation-data">
-          <span title="Total conversations" onClick={this.handleLoad}><span class="small-icon">{Icons.annotation}</span><span>: {this.getTotalCount()}</span></span>
-          <span title="Unread conversations" onClick={this.handleLoadNew}><span class="small-icon">{Icons.inbox}</span><span>: {this.getUnreadCount()}</span></span>
+          <span title="Unread conversations" onClick={this.handleLoadNew}>
+            <span class="small-icon">{Icons.annotation}</span>
+            {unread > 0 ? <span class="small-icon-badge">{unread}</span> : null}
+          </span>
         </div>
         <div class="room-listing-entry-buttons">
           { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
