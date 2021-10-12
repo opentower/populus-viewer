@@ -17,6 +17,7 @@
     cursor: text;
     pointer-events:auto;
     transform-origin: 0% 0%;
+    user-select:text;
 }
 
 #text-layer mark {

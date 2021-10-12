@@ -65,6 +65,7 @@
     overflow:visible;
     width: calc(var(--pdfWidthPx) / var(--pdfFitRatio)) ;
     height: calc(var(--pdfHeightPx) / var(--pdfFitRatio));
+    user-select:none;
 }
 
 #pdf-panel-button-wrapper {
