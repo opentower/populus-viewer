@@ -79,13 +79,13 @@ class Annotation extends Component {
 
   boundingRect = JSON.parse(this.eventContent.boundingClientRect)
 
-  spans = JSON.parse(this.eventContent.clientRects).map(
-    rect => <RectSpan key={rect} zoomFactor={this.props.zoomFactor} setFocus={this.setFocus} rect={rect} />
-  )
-
   userColor = new UserColor(this.eventContent.creator)
 
   render(props) {
+    // This is recalculated with every render. Could be memoized on pdfWidthAdjusted
+    const spans = JSON.parse(this.eventContent.clientRects).map(
+      rect => <RectSpan pdfWidthAdjusted={this.props.pdfWidthAdjusted} key={rect} zoomFactor={this.props.zoomFactor} setFocus={this.setFocus} rect={rect} />
+    )
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
     return <div style={this.userColor.styleVariables} data-annotation-typing={typing} data-focused={props.focused} id={this.roomId}>
       <BarTab
@@ -95,7 +95,7 @@ class Annotation extends Component {
         zoomFactor={props.zoomFactor}
         setFocus={this.setFocus} />
       <div class="inline-annotations">
-        {this.spans}
+        {spans}
       </div>
     </div>
   }
@@ -110,7 +110,7 @@ class BarTab extends Component {
   }
 
   componentDidMount() {
-    Layout.positionRelativeAt(this.getTabRect(), this.ref.current, this.props.zoomFactor)
+    Layout.positionRelativeAt(this.getTabRect(), this.ref.current, 1)
     this.scootch()
   }
 
@@ -153,9 +153,13 @@ class BarTab extends Component {
 class RectSpan extends Component {
   ref = createRef()
 
-  componentDidMount() { Layout.positionRelativeAt(this.props.rect, this.ref.current, this.props.zoomFactor) }
+  componentDidMount() { 
+    Layout.positionRelativeAt(this.props.rect, this.ref.current, this.props.zoomFactor) 
+  }
 
-  componentDidUpdate() { Layout.positionRelativeAt(this.props.rect, this.ref.current, this.props.zoomFactor) }
+  componentDidUpdate() { 
+    Layout.positionRelativeAt(this.props.rect, this.ref.current, this.props.zoomFactor) 
+  }
 
   render(props) {
     return <span onclick={props.setFocus} data-annotation ref={this.ref} />
