@@ -186,37 +186,7 @@ class PDFRoomEntry extends Component {
     this.state = {
       buttonsVisible: false,
       memberListOpen: false,
-      detailsOpen: false,
-      annotationContents: []
-    }
-    this.handleTimeline = this.handleTimeline.bind(this)
-    this.handleStateUpdate = this.handleStateUpdate.bind(this)
-    this.unreadCounts = {}
-  }
-
-  componentDidMount() {
-    Client.client.on("RoomState.events", this.handleStateUpdate)
-    Client.client.on("Room.accountData", this.handleTimeline)
-    Client.client.on("Room.timeline", this.handleTimeline)
-    this.updateAnnotations()
-  }
-
-  componentWillUnmount() {
-    Client.client.off("RoomState.events", this.handleStateUpdate)
-    Client.client.off("Room.accountData", this.handleTimeline)
-    Client.client.off("Room.timeline", this.handleTimeline)
-  }
-
-  handleStateUpdate = e => {
-    if (e.getRoomId() === this.props.room.roomId && e.getType() === spaceChild) {
-      this.updateAnnotations()
-    }
-  }
-
-  handleTimeline (_event, room) {
-    if (room.roomId in this.unreadCounts) {
-      this.unreadCounts[room.roomId] = calculateUnread(room.roomId)
-      this.updateAnnotations()
+      detailsOpen: false
     }
   }
 
@@ -224,20 +194,11 @@ class PDFRoomEntry extends Component {
     ? this.props.room.getAccountData(lastViewed).getContent().page
     : 1
 
-  getUnreadCount = _ => this.state.annotationContents.filter(content => content.unread).length
-
   handleLoad = _ => {
     this.props.pushHistory({
       pdfFocused: this.props.room.getCanonicalAlias(),
       pageFocused: this.getLastViewedPage() || 1
     })
-  }
-
-  handleLoadNew = _ => {
-    this.props.pushHistory({
-      pdfFocused: this.props.room.getCanonicalAlias(),
-      pageFocused: this.getLastViewedPage() || 1
-    }, null, {searchString: "~unread"})
   }
 
   toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
@@ -251,22 +212,6 @@ class PDFRoomEntry extends Component {
   openSettings = _ => this.props.populateModal(
     <RoomSettings populateModal={this.props.populateModal}
                   room={this.props.room} />)
-
-  updateAnnotations = _ => {
-    const annotationContents = this.props.room.getLiveTimeline()
-      .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
-      .map(ev => {
-        const content = ev.getContent()
-        content.timestamp = ev.getTs()
-        if (!(ev.getStateKey() in this.unreadCounts)) {
-          this.unreadCounts[ev.getStateKey()] = calculateUnread(ev.getStateKey())
-        }
-        content.unread = this.unreadCounts[ev.getStateKey()]
-        return content
-      })
-      .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
-    this.setState({annotationContents})
-  }
 
   handleEditTags = _ => this.props.populateModal(
     <TagEditor room={this.props.room} />
@@ -282,7 +227,6 @@ class PDFRoomEntry extends Component {
   handleDetailsToggle = _ => this.setState({ detailsOpen: !this.state.detailsOpen })
 
   render (props, state) {
-    const unread = this.getUnreadCount()
     const members = props.room.getMembersWithMembership("join")
     const invites = props.room.getMembersWithMembership("invite")
     const memberIds = members.map(member => member.userId)
@@ -311,12 +255,7 @@ class PDFRoomEntry extends Component {
             }
           </div>
         </div>
-        <div class="room-annotation-data">
-          <span title="Unread conversations" onClick={this.handleLoadNew}>
-            <span class="small-icon">{Icons.annotation}</span>
-            {unread > 0 ? <span class="small-icon-badge">{unread}</span> : null}
-          </span>
-        </div>
+        <AnnotationData pushHistory={props.pushHistory} getLastViewedPage={this.getLastViewedPage} room={props.room} />
         <div class="room-listing-entry-buttons">
           { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
           { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
@@ -328,6 +267,78 @@ class PDFRoomEntry extends Component {
         </div>
       </div>
     )
+  }
+}
+
+class AnnotationData extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      annotationContents: []
+    }
+    this.handleTimeline = this.handleTimeline.bind(this)
+    this.handleStateUpdate = this.handleStateUpdate.bind(this)
+    this.unreadCounts = {}
+  }
+
+  componentDidMount() {
+    Client.client.on("RoomState.events", this.handleStateUpdate)
+    Client.client.on("Room.accountData", this.handleTimeline)
+    Client.client.on("Room.timeline", this.handleTimeline)
+    this.updateAnnotations()
+  }
+
+  componentWillUnmount() {
+    Client.client.off("RoomState.events", this.handleStateUpdate)
+    Client.client.off("Room.accountData", this.handleTimeline)
+    Client.client.off("Room.timeline", this.handleTimeline)
+  }
+
+  updateAnnotations = _ => {
+    const annotationContents = this.props.room.getLiveTimeline()
+      .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
+      .map(ev => {
+        const content = ev.getContent()
+        if (!(ev.getStateKey() in this.unreadCounts)) {
+          this.unreadCounts[ev.getStateKey()] = calculateUnread(ev.getStateKey())
+        }
+        content.unread = this.unreadCounts[ev.getStateKey()]
+        return content
+      })
+      .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
+    this.setState({annotationContents})
+  }
+
+  handleStateUpdate = e => {
+    if (e.getRoomId() === this.props.room.roomId && e.getType() === spaceChild) {
+      this.updateAnnotations()
+    }
+  }
+
+  handleTimeline (_event, room) {
+    if (room.roomId in this.unreadCounts) {
+      this.unreadCounts[room.roomId] = calculateUnread(room.roomId)
+      this.updateAnnotations()
+    }
+  }
+
+  handleLoadNew = _ => {
+    this.props.pushHistory({
+      pdfFocused: this.props.room.getCanonicalAlias(),
+      pageFocused: this.props.getLastViewedPage() || 1
+    }, null, {searchString: "~unread"})
+  }
+
+  getUnreadCount = _ => this.state.annotationContents.filter(content => content.unread).length
+
+  render() {
+    const unread = this.getUnreadCount()
+    return <div class="room-annotation-data">
+      <span title="Unread conversations" onClick={this.handleLoadNew}>
+        <span class="small-icon">{Icons.annotation}</span>
+        {unread > 0 ? <span class="small-icon-badge">{unread}</span> : null}
+      </span>
+    </div>
   }
 }
 
