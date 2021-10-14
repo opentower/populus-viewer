@@ -138,18 +138,20 @@ export default class RoomList extends Component {
                 pushHistory={this.props.pushHistory}
                 populateModal={this.props.populateModal}
                 room={room}
+                key={room.roomId}
                 pdfevent={pdfEvent} />
             }
             break
           }
           case "invite" : {
             result = <InviteEntry room={room}
+              key={room.roomId}
               roomListener={this.roomListener}
             />
           }
         }
         return result
-      })
+      }).filter(room => room !== null)
   }
 
   render(_, state) {
@@ -192,6 +194,10 @@ class PDFRoomEntry extends Component {
   getLastViewedPage = _ => this.props.room.getAccountData(lastViewed)
     ? this.props.room.getAccountData(lastViewed).getContent().page
     : 1
+
+  componentDidMount() {
+    console.log("mounted")
+  }
 
   handleLoad = _ => {
     this.props.pushHistory({
