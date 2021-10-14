@@ -181,7 +181,6 @@ export default class RoomList extends Component {
 }
 
 class PDFRoomEntry extends Component {
-
   constructor(props) {
     super(props)
     this.state = {
@@ -194,10 +193,6 @@ class PDFRoomEntry extends Component {
   getLastViewedPage = _ => this.props.room.getAccountData(lastViewed)
     ? this.props.room.getAccountData(lastViewed).getContent().page
     : 1
-
-  componentDidMount() {
-    console.log("mounted")
-  }
 
   handleLoad = _ => {
     this.props.pushHistory({
@@ -283,6 +278,7 @@ class AnnotationData extends Component {
     }
     this.handleTimeline = this.handleTimeline.bind(this)
     this.handleStateUpdate = this.handleStateUpdate.bind(this)
+    this.handleInitialSync = this.handleInitialSync.bind(this)
     this.unreadCounts = {}
   }
 
@@ -290,13 +286,22 @@ class AnnotationData extends Component {
     Client.client.on("RoomState.events", this.handleStateUpdate)
     Client.client.on("Room.accountData", this.handleTimeline)
     Client.client.on("Room.timeline", this.handleTimeline)
-    this.updateAnnotations()
+    Client.client.on("sync.initial", this.handleInitialSync)
+    // We let the initialSyncHandler manage this if we're not syncing yet.
+    if (Client.client.getSyncState() !== "PREPARED") this.updateAnnotations()
   }
 
   componentWillUnmount() {
     Client.client.off("RoomState.events", this.handleStateUpdate)
     Client.client.off("Room.accountData", this.handleTimeline)
+    Client.client.off("sync.initial", this.handleInitialSync)
     Client.client.off("Room.timeline", this.handleTimeline)
+  }
+
+  handleInitialSync() {
+    // Need this extra step, since I don't think account data update events are
+    // fired by the initial sync
+    this.updateAnnotations()
   }
 
   updateAnnotations = _ => {

@@ -14,6 +14,7 @@ export default class SyncIndicator extends Component {
   fromState(syncState) {
     // TODO Icons?
     switch (syncState) {
+      case "PREPARED": return "loading data...";
       case "CATCHUP": return "loading data...";
       case "ERROR": return "connection interrupted";
       default: return null;
@@ -28,7 +29,8 @@ export default class SyncIndicator extends Component {
     Client.client.off("sync", this.handleSync)
   }
 
-  handleSync(syncState) {
+  handleSync(syncState, prevSyncState) {
+    if (prevSyncState === "PREPARED") Client.client.emit("sync.initial")
     this.setState({syncStatus: this.fromState(syncState)})
   }
 
