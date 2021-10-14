@@ -1,9 +1,7 @@
 import { h, Fragment, Component, createRef } from 'preact';
 import { pdfStateType, eventVersion, spaceChild, lastViewed } from "./constants.js"
 import * as Matrix from "matrix-js-sdk"
-import UserColor from './userColors.js'
 import MemberPill from './memberPill.js'
-import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import Invite from './invite.js'
 import RoomSettings from './roomSettings.js'
@@ -181,6 +179,7 @@ export default class RoomList extends Component {
 }
 
 class PDFRoomEntry extends Component {
+
   constructor(props) {
     super(props)
     this.state = {
@@ -412,4 +411,31 @@ class TagEditor extends Component {
 
 function Tag(props) {
   return <span class="room-tag">{props.tag.slice(2)}</span>
+}
+
+class InviteEntry extends Component {
+  accept = _ => {
+    Client.client.joinRoom(this.props.room.roomId)
+    setTimeout(this.props.roomListener, 1000)
+    // XXX the updates get grouped in such a way that the redraw misses the state
+    // update that comes with the join. So we need to do a second update to the
+    // room listing, here.
+  }
+
+  decline = _ => {
+    Client.client.leave(this.props.room.roomId)
+    setTimeout(this.props.roomListener, 1000)
+  }
+
+  render(props) {
+    return <div class="invite-entry">
+      <div class="invite-heading">
+        You are invited to join the discussion {props.room.name}.
+      </div>
+      <div class="invite-buttons">
+        <button class="styled-button" onclick={this.accept}>Accept</button>
+        <button class="styled-button" onclick={this.decline}>Decline</button>
+      </div>
+    </div>
+  }
 }
