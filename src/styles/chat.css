@@ -325,7 +325,7 @@
     position:relative;
     left:-5px;
     object-fit:cover;
-    user-select:none;
+    user-select: none;
 }
 
 #chat-panel .reply-preface {

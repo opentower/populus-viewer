@@ -79,7 +79,8 @@ export default class PdfView extends Component {
   }
 
   handleTimeline (_event, room) {
-    if (room.roomId in this.unreadCounts) {
+    // room is null if this is a notification timeline event
+    if (room?.roomId in this.unreadCounts) {
       this.unreadCounts[room.roomId] = calculateUnread(room.roomId)
       this.updateAnnotations()
     }
@@ -334,7 +335,9 @@ export default class PdfView extends Component {
       },
       {
         type: spaceParent, // we indicate that the current room is the parent
-        content: { via: [theDomain] },
+        content: { 
+          via: [theDomain]
+        },
         state_key: this.state.roomId
       }
       ]

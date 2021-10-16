@@ -19,14 +19,14 @@
     align-items:center;
 }
 
-#welcome-upload {
+#welcome-upload, #welcome-notifications {
     padding-right:0px;
     padding-top:3px;
     margin-right:13px; 
     flex-shrink:0;
 }
 
-#welcome-upload > svg {
+#welcome-notifications > svg, #welcome-upload > svg {
     cursor: pointer;
 }
 

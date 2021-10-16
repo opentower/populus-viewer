@@ -5,6 +5,7 @@ import RoomList from './roomList.js'
 import Client from './client.js'
 import SearchBar from './search.js'
 import ProfileInformation from './profileInformation.js'
+import NotificationListing from './notifications.js'
 import * as Icons from './icons.js'
 import Modal from './modal.js'
 import Toast from './toast.js'
@@ -19,8 +20,7 @@ export default class WelcomeView extends Component {
     this.userColor = new UserColor(userId)
     this.profileListener = this.profileListener.bind(this)
     this.state = {
-      uploadVisible: false,
-      profileVisible: false,
+      view: null,
       inputFocus: false,
       searchFilter: "",
       avatarUrl: Client.client.getHttpUriForMxcFromHS(this.user.avatarUrl, 30, 30, "crop")
@@ -45,19 +45,26 @@ export default class WelcomeView extends Component {
 
   setFocus = b => this.setState({
     inputFocus: b,
-    uploadVisible: false,
-    profileVisible: false
+    view: null
   })
 
-  toggleUploadVisible = _ => this.setState({
-    uploadVisible: !this.state.uploadVisible,
-    profileVisible: false
-  })
+  toggleUploadVisible = _ => this.setState(oldState =>
+    oldState.view === "UPLOAD"
+      ? { view: null }
+      : { view: "UPLOAD" }
+  )
 
-  toggleProfileVisible = _ => this.setState({
-    uploadVisible: false,
-    profileVisible: !this.state.profileVisible
-  })
+  toggleProfileVisible = _ => this.setState(oldState =>
+    oldState.view === "PROFILE"
+      ? { view: null }
+      : { view: "PROFILE" }
+  )
+
+  toggleNotifVisible = _ => this.setState(oldState =>
+    oldState.view === "NOTIF"
+      ? { view: null }
+      : { view: "NOTIF" }
+  )
 
   emptyModal = _ => this.setState({ modalContent: null })
 
@@ -67,10 +74,7 @@ export default class WelcomeView extends Component {
 
   populateToast = s => this.setState({ toastContent: s })
 
-  showMainView = _ => this.setState({
-    uploadVisible: false,
-    profileVisible: false
-  })
+  showMainView = _ => this.setState({ view: null })
 
   displayInitial = _ => {
     return this.user.displayName.slice(0, 1) === '@'
@@ -91,6 +95,7 @@ export default class WelcomeView extends Component {
               setFocus={this.setFocus} />
             { !state.inputFocus && <Fragment>
               <div id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</div>
+              <div id="welcome-notifications" onClick={this.toggleNotifVisible}>{Icons.bell}</div>
               <div id="welcome-profile" onClick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
                 {state.avatarUrl
                   ? <img id="welcome-img" src={state.avatarUrl} />
@@ -101,23 +106,25 @@ export default class WelcomeView extends Component {
           </div>
         </header>
         <div id="welcome-container">
-          {state.uploadVisible
+          {state.view === "UPLOAD"
             ? <Fragment>
               <h2>Upload a new PDF</h2>
               <PdfUpload showMainView={this.showMainView} />
             </Fragment>
-            : state.profileVisible
+            : state.view === "PROFILE"
               ? <Fragment>
                 <h2>Update Your Profile</h2>
                 <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} />
               </Fragment>
-              : <Fragment>
-                <RoomList
-                  searchFilter={state.searchFilter}
-                  pushHistory={props.pushHistory}
-                  populateModal={this.populateModal}
-                />
-              </Fragment>
+              : state.view === "NOTIF"
+                ? <NotificationListing pushHistory={props.pushHistory} />
+                : <Fragment>
+                    <RoomList
+                      searchFilter={state.searchFilter}
+                      pushHistory={props.pushHistory}
+                      populateModal={this.populateModal}
+                    />
+                  </Fragment>
           }
         </div>
         <SyncIndicator />

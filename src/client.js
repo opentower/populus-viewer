@@ -51,6 +51,12 @@ export default class Client {
     }
     Client.client.getRoomWithState = getRoomWithState.bind(Client.client)
     Client.client.getHttpUriForMxcFromHS = getHttpUriForMxcFromHS.bind(Client.client)
+    const notifTimelineSet = new Matrix.EventTimelineSet(null, { timelineSupport: true });
+    notifTimelineSet.getLiveTimeline().setPaginationToken("", Matrix.EventTimeline.BACKWARDS);
+    // XXX: following
+    // https://github.com/matrix-org/matrix-react-sdk/blob/2d1d42b90e8418017348cae1bd17a8a92340fdfb/src/MatrixClientPeg.ts#L296
+    // for original pagination token though this might not be correct.
+    Client.client.setNotifTimelineSet(notifTimelineSet);
     return Client.client
   }
 

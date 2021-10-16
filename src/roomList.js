@@ -326,7 +326,8 @@ class AnnotationData extends Component {
   }
 
   handleTimeline (_event, room) {
-    if (room.roomId in this.unreadCounts) {
+    // room is null if it's a notification timeline event
+    if (room?.roomId in this.unreadCounts) {
       this.unreadCounts[room.roomId] = calculateUnread(room.roomId)
       this.updateAnnotations()
     }

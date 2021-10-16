@@ -1,0 +1,28 @@
+.notification {
+  margin:10px;
+}
+
+.notification-header > img {
+    width:20px;
+    height:20px;
+    border-radius:30px;
+    position:relative;
+    left:-5px;
+    object-fit:cover;
+    user-select:none;
+}
+
+.notification-header {
+    padding:10px;
+    display:flex;
+    align-items: center;
+    font-size:10pt;
+    font-weight:bold;
+    color: var(--user_dark);
+}
+
+.notification-body {
+    padding:20px;
+    border-left:5px solid var(--user_light);
+    margin-left:12px;
+}
