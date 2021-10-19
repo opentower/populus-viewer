@@ -26,7 +26,7 @@ export default class NotificationListing extends Component {
   }
 
   updateEvents = _ => {
-    this.setState({ events: this.notificationWindow.getEvents() })
+    this.setState({ events: this.notificationWindow.getEvents().reverse() })
   }
 
   tryBackfill = _ => {
@@ -36,7 +36,7 @@ export default class NotificationListing extends Component {
       } else {
         this.notificationWindow.paginate(Matrix.EventTimeline.BACKWARDS, 10)
           .then(_ => setTimeout(_ => {
-            this.setState({events: this.notificationWindow.getEvents()}, this.tryBackfill)
+            this.setState({events: this.notificationWindow.getEvents().reverse()}, this.tryBackfill)
           }, 200))
       }
     }
