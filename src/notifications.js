@@ -105,9 +105,13 @@ class Notification extends Component {
     : null
 
   handleClick = _ => {
-    this.props.pushHistory({ 
+    this.props.pushHistory({
       pdfFocused: this.originAlias,
       pageFocused: this.originAnnotation.getContent()[eventVersion].pageNumber
+    },
+    null,
+    {
+      initialFocus: this.originAnnotation.getContent()[eventVersion]
     })
   }
 

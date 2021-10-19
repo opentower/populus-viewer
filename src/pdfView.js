@@ -32,7 +32,7 @@ export default class PdfView extends Component {
       annotationsVisible: true,
       annotationContents: [],
       filteredAnnotationContents: [],
-      annotationFilter: props?.message?.searchString || "",
+      annotationFilter: props.message?.searchString || "",
       searchString: "",
       loadingStatus: "loading...",
       pdfWidthPx: null,
@@ -59,6 +59,7 @@ export default class PdfView extends Component {
     document.addEventListener("selectionchange", this.checkForSelection)
     document.addEventListener('keydown', this.handleKeydown)
     this.updateAnnotations()
+    if (this.props.message?.initialFocus) this.setFocus(this.props.message.initialFocus)
     Client.client.on("Room.timeline", this.handleTimeline)
     Client.client.on("RoomState.events", this.handleStateUpdate)
     Client.client.on("Room.accountData", this.handleAccountData)
@@ -396,6 +397,7 @@ export default class PdfView extends Component {
   }
 
   setFocus = (content) => {
+    console.log("set")
     QueryParameters.set("focus", content.roomId)
     QueryParameters.replaceHistory({
       pdfFocused: this.props.pdfFocused,
