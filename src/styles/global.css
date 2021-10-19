@@ -98,7 +98,7 @@ button[data-current-button]{
   background:black;
   position:relative;
   bottom:10px;
-  display:flex;
+  display:inline-flex;
   align-items: center;
   justify-content: space-around;
   color:white;
@@ -107,6 +107,11 @@ button[data-current-button]{
   min-width:18px;
   height:18px;
   border-radius:10px;
+}
+
+.small-icon-badge > span {
+  margin-left:3px;
+  margin-right:3px;
 }
 
 .small-icon > svg {

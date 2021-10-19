@@ -95,7 +95,7 @@ export default class WelcomeView extends Component {
               setFocus={this.setFocus} />
             { !state.inputFocus && <Fragment>
               <div id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</div>
-              <div id="welcome-notifications" onClick={this.toggleNotifVisible}>{Icons.bell}</div>
+              <WelcomeIcon toggleNotifVisible={this.toggleNotifVisible} />
               <div id="welcome-profile" onClick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
                 {state.avatarUrl
                   ? <img id="welcome-img" src={state.avatarUrl} />
@@ -130,5 +130,36 @@ export default class WelcomeView extends Component {
         <SyncIndicator />
       </Fragment>
     )
+  }
+}
+
+class WelcomeIcon extends Component {
+  constructor(props) {
+    super(props)
+    const unread = Client.client.getVisibleRooms()
+      .reduce((acc, room) => acc + room.getUnreadNotificationCount("total"), 0)
+    this.state = { unread }
+    this.updateCounts = this.updateCounts.bind(this)
+  }
+
+  componentDidMount() {
+    Client.client.on("sync", this.updateCounts)
+  }
+
+  componentWillUnmount() {
+    Client.client.off("sync", this.updateCounts)
+  }
+
+  updateCounts() {
+    const unread = Client.client.getVisibleRooms()
+      .reduce((acc, room) => acc + room.getUnreadNotificationCount("total"), 0)
+    this.setState({ unread })
+  }
+
+  render(props, state) {
+    return <div id="welcome-notifications" onClick={props.toggleNotifVisible}>
+        {Icons.bell}
+        {state.unread > 0 ? <span class="small-icon-badge"><span>{state.unread}</span></span> : null}
+    </div>
   }
 }

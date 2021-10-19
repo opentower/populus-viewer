@@ -22,12 +22,13 @@
 #welcome-upload, #welcome-notifications {
     padding-right:0px;
     padding-top:3px;
-    margin-right:13px; 
+    margin-right:15px; 
     flex-shrink:0;
 }
 
 #welcome-notifications > svg, #welcome-upload > svg {
     cursor: pointer;
+    vertical-align:top;
 }
 
 #welcome-profile {
