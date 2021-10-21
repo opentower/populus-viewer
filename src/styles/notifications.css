@@ -1,5 +1,16 @@
 .notification {
   margin:10px;
+  border: 1px solid black;
+}
+
+.discussion-intro {
+  padding:10px;
+  font-size:10pt;
+}
+
+.discussion-topic {
+  padding:10px;
+  padding-left:20px
 }
 
 .notification-header > img {
@@ -17,12 +28,17 @@
     display:flex;
     align-items: center;
     font-size:10pt;
+}
+
+.notification-header .sender {
     font-weight:bold;
     color: var(--user_dark);
 }
 
 .notification-body {
     padding:20px;
-    border-left:5px solid var(--user_light);
-    margin-left:12px;
+    padding-top:10px;
+    border-left: 5px solid var(--user_light);
+    margin-left:13px;
+    margin-bottom:10px;
 }

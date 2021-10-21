@@ -129,6 +129,16 @@ class Notification extends Component {
       .getStateEvents(spaceChild, this.originRoom.roomId)
     : null
 
+  originAnnotationRoom = this.originAnnotation
+    ? Client.client.getRoom(this.originAnnotation.getStateKey())
+    : null
+
+  topic = this.originAnnotationRoom
+    ? this.originAnnotationRoom.getLiveTimeline()
+      .getState(Matrix.EventTimeline.FORWARDS)
+      .getStateEvents("m.room.topic", "")?.getContent().topic || ""
+    : ""
+
   handleClick = _ => {
     this.props.pushHistory({
       pdfFocused: this.originAlias,
@@ -145,9 +155,15 @@ class Notification extends Component {
       onclick={this.originAlias ? this.handleClick : null }
       class="notification"
       style={this.userColor.styleVariables}>
+      { Client.client.getRoom(this.originPDF).name 
+        ? <div class="discussion-intro">In <b>{Client.client.getRoom(this.originPDF).name}</b>, discussing</div>
+        : <div class="discussion-intro">Discussing</div>
+      }
+      <div class="discussion-topic">{this.topic}</div>
       <div class="notification-header">
         {this.avatarHttpURI ? <img src={this.avatarHttpURI} /> : null}
-        <span>{this.userDisplayName}</span>
+        <span class="sender">{this.userDisplayName}</span>
+        &nbsp;said:
       </div>
       {props.children}
     </div>
