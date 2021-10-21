@@ -250,7 +250,7 @@ export default class Chat extends Component {
             {messagedivs}
             <TypingIndicator typing={this.state.typing} />
           </div>
-          <Anchor ref={this.scrollAnchor} topic={state.topic} focus={props.focus} fullyScrolled={state.fullyScrolled} />
+          <Anchor ref={this.scrollAnchor} topic={state.topic} fullyScrolled={state.fullyScrolled} />
         </div>
       </div>
     )

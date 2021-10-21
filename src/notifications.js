@@ -1,4 +1,4 @@
-import { h, Fragment, Component } from 'preact';
+import { h, Fragment, Component, createRef } from 'preact';
 import * as Matrix from "matrix-js-sdk"
 import * as Replies from './utils/replies.js'
 import UserColor from './userColors.js'
@@ -14,14 +14,19 @@ export default class NotificationListing extends Component {
       fullyLoaded: false
     }
     this.notificationPromise = this.loadNotificationWindow()
+    this.handleScroll = this.handleScroll.bind(this)
   }
 
+  scrollAnchor = createRef()
+
   componentDidMount() {
+    document.addEventListener("scroll", this.handleScroll)
     Client.client.on("Room.timeline", this.handleTimeline) // this also handles redactions, although they have their own event.
     this.notificationPromise.then(this.updateEvents).then(this.tryBackfill)
   }
 
   componentWillUnmount() {
+    document.removeEventListener("scroll", this.handleScroll)
     Client.client.off("Room.timeline", this.handleTimeline)
   }
 
@@ -30,9 +35,10 @@ export default class NotificationListing extends Component {
   }
 
   tryBackfill = _ => {
-    if (!this.state.fullyScrolled) {
+    const anchor = this.scrollAnchor.current.base
+    if (!this.state.fullyLoaded && (window.innerHeight - anchor.getBoundingClientRect().top) > 0) {
       if (!this.notificationWindow.canPaginate(Matrix.EventTimeline.BACKWARDS)) {
-        this.setState({ fullyScrolled: true })
+        this.setState({ fullyLoaded: true })
       } else {
         this.notificationWindow.paginate(Matrix.EventTimeline.BACKWARDS, 10)
           .then(_ => setTimeout(_ => {
@@ -42,12 +48,20 @@ export default class NotificationListing extends Component {
     }
   }
 
-  handleTimeline = (event, room) => {
+  handleTimeline = (_, room) => {
     if (!room) {
       this.notificationPromise
         .then(_ => this.notificationWindow.paginate(Matrix.EventTimeline.FORWARDS, 1, false))
         .then(this.updateEvents)
     }
+  }
+
+  handleScroll = e => {
+    clearTimeout(this.debounceTimeout)
+    this.debounceTimeout = setTimeout(_ => {
+      this.tryBackfill()
+      if (this.props.handleWidgetScroll) this.props.handleWidgetScroll(e)
+    }, 200)
   }
 
   async loadNotificationWindow () {
@@ -65,8 +79,19 @@ export default class NotificationListing extends Component {
       return accumulator
     }, [])
 
-    return <div>{notifications}</div>
+    return <div class="notifications-wrapper">
+      {notifications}
+      <Anchor ref={this.scrollAnchor} fullyLoaded={state.fullyLoaded} />
+    </div>
   }
+}
+
+function Anchor(props) {
+  return props.fullyLoaded
+    ? <div>
+      <div id="scroll-done">All notifications loaded</div>
+    </div>
+    : <div id="scroll-anchor">loading...</div>
 }
 
 class TextNotification extends Component {

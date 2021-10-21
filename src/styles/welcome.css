@@ -21,7 +21,6 @@
 
 #welcome-upload, #welcome-notifications {
     padding-right:0px;
-    padding-top:3px;
     margin-right:15px; 
     flex-shrink:0;
 }
