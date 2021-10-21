@@ -94,14 +94,12 @@ function Anchor(props) {
     : <div id="scroll-anchor">loading...</div>
 }
 
-class TextNotification extends Component {
-  render(props) {
-    const content = props.event.getContent()
-    const isReply = Replies.isReply(content)
-    return <Notification pushHistory={props.pushHistory} event={props.event}>
-      <div class="notification-body text-notification">{isReply ? Replies.stripFallbackPlain(content.body) : content.body}</div>
-    </Notification>
-  }
+function TextNotification(props) {
+  const content = props.event.getContent()
+  const isReply = Replies.isReply(content)
+  return <Notification pushHistory={props.pushHistory} event={props.event}>
+    <div class="notification-body text-notification">{isReply ? Replies.stripFallbackPlain(content.body) : content.body}</div>
+  </Notification>
 }
 
 class Notification extends Component {
@@ -155,7 +153,7 @@ class Notification extends Component {
       onclick={this.originAlias ? this.handleClick : null }
       class="notification"
       style={this.userColor.styleVariables}>
-      { Client.client.getRoom(this.originPDF).name 
+      { Client.client.getRoom(this.originPDF).name
         ? <div class="discussion-intro">In <b>{Client.client.getRoom(this.originPDF).name}</b>, discussing</div>
         : <div class="discussion-intro">Discussing</div>
       }
