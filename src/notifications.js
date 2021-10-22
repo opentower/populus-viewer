@@ -98,7 +98,7 @@ function TextNotification(props) {
   const content = props.event.getContent()
   const isReply = Replies.isReply(content)
   return <Notification pushHistory={props.pushHistory} event={props.event}>
-    <div class="notification-body text-notification">{isReply ? Replies.stripFallbackPlain(content.body) : content.body}</div>
+    <div class="notification-body text-notification">{isReply ? Replies.stripFallbackPlainString(content.body) : content.body}</div>
   </Notification>
 }
 
