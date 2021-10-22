@@ -137,7 +137,7 @@ class WelcomeIcon extends Component {
   constructor(props) {
     super(props)
     const unread = Client.client.getVisibleRooms()
-      .reduce((acc, room) => acc + room.getUnreadNotificationCount("total"), 0)
+      .reduce((acc, room) => acc + room.getUnreadNotificationCount("highlight"), 0)
     this.state = { unread }
     this.updateCounts = this.updateCounts.bind(this)
   }
@@ -152,7 +152,7 @@ class WelcomeIcon extends Component {
 
   updateCounts() {
     const unread = Client.client.getVisibleRooms()
-      .reduce((acc, room) => acc + room.getUnreadNotificationCount("total"), 0)
+      .reduce((acc, room) => acc + room.getUnreadNotificationCount("highlight"), 0)
     this.setState({ unread })
   }
 
