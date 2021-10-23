@@ -435,7 +435,7 @@ class ReplyPreview extends Component {
     const hasHtml = (content.format === "org.matrix.custom.html") && content.formatted_body
     const style = {'--user_light': 'lightgray'}
     return hasHtml
-      ? <div style={style} class="reply-preview reply-fallback" dangerouslySetInnerHTML={{_html: Replies.getFallbackHtml(content)}} />
+      ? <div style={style} class="reply-preview reply-fallback" dangerouslySetInnerHTML={{__html: Replies.getFallbackHtml(content)}} />
       : <div style={style} class="reply-preview reply-fallback">{Replies.getFallbackPlain(content)}</div>
   }
 

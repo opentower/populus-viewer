@@ -78,7 +78,11 @@ export function getFallbackHtml (content) {
   const html = content.formatted_body
   if (!html) return ''
   const rootNode = new DOMParser().parseFromString(html, 'text/html').body
-  const mxReply = rootNode.querySelector('mx-reply')
+  const mxReply = rootNode.querySelector('mx-reply > blockquote')
+  // remove the usual boilerplate to avoid unwanted redirection to https://matrix.to
+  mxReply.removeChild(rootNode.querySelector('a'))
+  mxReply.removeChild(rootNode.querySelector('a'))
+  mxReply.removeChild(rootNode.querySelector('br'))
   return mxReply ? mxReply.outerHTML : ''
 }
 
