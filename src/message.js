@@ -36,10 +36,11 @@ export class TextMessage extends Component {
             const title = params.get("title") || null
             const focus = params.get("focus") || null
             const page = parseInt(params.get("page"), 10) || null
-            this.props.pushHistory({
-              pdfFocused: title,
-              pageFocused: page
-            }, _ => focus ? this.props.setFocus({ roomId: focus }) : null )
+            this.props.pushHistory(
+              { pdfFocused: title, pageFocused: page }
+              , this.props.setfocus && focus ? _ => this.props.setfocus({ roomId: focus }) : null // callback
+              , focus ? {initialFocus: { roomId: focus }} : null // message in case called outside of the chat box
+            )
           })
         })
     }
