@@ -397,7 +397,6 @@ export default class PdfView extends Component {
   }
 
   setFocus = (content) => {
-    console.log("set")
     QueryParameters.set("focus", content.roomId)
     QueryParameters.replaceHistory({
       pdfFocused: this.props.pdfFocused,

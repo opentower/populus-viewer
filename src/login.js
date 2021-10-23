@@ -156,7 +156,6 @@ class SSO extends Component {
         {state.loading ? <div id="server-loading-message">Loading...</div> : null}
         {state.SSOProviders.map(
           provider => {
-            console.log(provider.icon)
             let iconHttpURI = null
             if (provider.icon) iconHttpURI = Matrix.getHttpUriForMxc(localStorage.getItem("baseUrl"), provider.icon, 40, 40, "crop")
             return <div onclick={_ => this.trySSO(provider.id)} class="login-sso-listing"key={provider.id}>

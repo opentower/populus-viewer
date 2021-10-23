@@ -23,7 +23,6 @@ export function addLatex(string) {
 }
 
 export function renderLatexInElement(element) {
-  console.log(element)
   if (element) {
     const latexArray = Array.from(element.querySelectorAll("[data-mx-maths]"))
     latexArray.forEach(elt => {

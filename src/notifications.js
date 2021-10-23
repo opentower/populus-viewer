@@ -2,6 +2,7 @@ import { h, Fragment, Component, createRef } from 'preact';
 import * as Matrix from "matrix-js-sdk"
 import * as Replies from './utils/replies.js'
 import UserColor from './userColors.js'
+import { TextMessage } from './message.js'
 import { spaceParent, spaceChild, eventVersion } from "./constants.js"
 import './styles/notifications.css'
 import Client from './client.js'
@@ -95,10 +96,12 @@ function Anchor(props) {
 }
 
 function TextNotification(props) {
-  const content = props.event.getContent()
-  const isReply = Replies.isReply(content)
   return <Notification pushHistory={props.pushHistory} event={props.event}>
-    <div class="notification-body text-notification">{isReply ? Replies.stripFallbackPlainString(content.body) : content.body}</div>
+    <TextMessage
+      reactions={{}}
+      displayOnly={true}
+      pushHistory={props.pushHistory}
+      event={props.event} />
   </Notification>
 }
 
@@ -163,7 +166,9 @@ class Notification extends Component {
         <span class="sender">{this.userDisplayName}</span>
         &nbsp;said:
       </div>
-      {props.children}
+      <div class="notification-contents">
+        {props.children}
+      </div>
     </div>
   }
 }

@@ -1,7 +1,10 @@
 .notification {
   margin:10px;
   border: 1px solid black;
-  cursor:pointer;
+}
+
+.notification-contents {
+  padding-bottom:10px;
 }
 
 .discussion-intro {
@@ -41,5 +44,5 @@
     padding-top:10px;
     border-left: 5px solid var(--user_light);
     margin-left:13px;
-    margin-bottom:10px;
+    margin-bottom:13px;
 }
