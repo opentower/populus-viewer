@@ -100,6 +100,7 @@ button[data-current-button]{
   bottom:10px;
   display:inline-flex;
   align-items: center;
+  vertical-align:bottom;
   justify-content: space-around;
   color:white;
   font-size:8pt;

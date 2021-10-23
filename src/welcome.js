@@ -159,7 +159,7 @@ class WelcomeIcon extends Component {
   render(props, state) {
     return <div id="welcome-notifications" onClick={props.toggleNotifVisible}>
         {Icons.bell}
-        {state.unread > 0 ? <span class="small-icon-badge"><span>{state.unread}</span></span> : null}
+        {state.unread > 0 ? <span class="small-icon-badge">{state.unread}</span> : null}
     </div>
   }
 }
