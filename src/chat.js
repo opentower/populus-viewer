@@ -280,13 +280,13 @@ class RedactedMessage extends Component {
 
   render(props) {
     return props.isMe
-      ? <div class="redacted message me" style={this.userColor.styleVariables}>
-        <div class="ident" />
-        <div class="body">{props.count > 1 ? `${props.count} messages deleted` : "message deleted"}</div>
+      ? <div class="redacted message-frame message-from-user" style={this.userColor.styleVariables}>
+        <div class="message-decoration" />
+        <div class="message-body">{props.count > 1 ? `${props.count} messages deleted` : "message deleted"}</div>
       </div>
-      : <div class="redacted message" style={this.userColor.styleVariables}>
-        <div class="ident" />
-        <div class="body">{props.count > 1 ? `${props.count} messages deleted` : "message deleted"}</div>
+      : <div class="redacted message-frame" style={this.userColor.styleVariables}>
+        <div class="message-decoration" />
+        <div class="message-body">{props.count > 1 ? `${props.count} messages deleted` : "message deleted"}</div>
       </div>
   }
 }

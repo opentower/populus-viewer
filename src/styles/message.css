@@ -87,7 +87,7 @@
 
 /* status vanishes on sent. We probably want a warning for a "not_sent" status,
  * whuch means that sending has failed */
-.message[data-event-status] {
+.message-frame[data-event-status] {
     color:gray;
 }
 
