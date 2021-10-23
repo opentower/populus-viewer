@@ -1,0 +1,196 @@
+.message-frame {
+    position:relative;
+    display: grid;
+    width:100%;
+    justify-items: left;
+    grid-template-areas: "ident content";
+    grid-template-columns: fit-content(10%) auto;
+    transition: background-color .2s ease;
+}
+
+.message-from-user {
+    grid-template-columns: auto fit-content(10%);
+    grid-template-areas: "content ident";
+    text-align:right;
+    flex-direction:row-reverse;
+}
+
+.message-decoration {
+    position:relative;
+    grid-area: ident;
+    width:0px;
+    padding-top:10px;
+    padding-bottom:10px;
+    padding-left:12px;
+    margin-right:20px;
+    border-right: 5px solid var(--user_light);
+    background: white;
+}
+
+.message-from-user > .message-decoration {
+    padding-left:0px;
+    margin-right:0px;
+    padding-right:12px;
+    margin-left:15px;
+    border-right: none;
+    border-left: 5px solid var(--user_light);
+}
+
+.message-actions {
+    width:300px;
+    visibility:hidden;
+    position:absolute;
+    top:-27px;
+    left: 12px;
+}
+
+.message-actions > button {
+    cursor: pointer;
+    margin:0px;
+    margin-left:5px;
+    border:2px solid var(--user_light);
+    padding:4px;
+    background-color:white;
+}
+
+.message-actions > button:hover {
+    background-color: var(--user_light);
+}
+
+.message-actions > button > svg {
+  height:16px;
+  width:16px;
+}
+
+.message-actions > button:first-child {
+    margin-left:0px;
+}
+
+.message-actions > button:last-child {
+    margin-right:0px;
+}
+
+.message-from-user .message-actions {
+    left:unset;
+    right: 12px;
+}
+
+.message-frame:hover .message-actions  {
+    visibility:visible;
+}
+
+.file-upload,
+.redacted {
+    font-size:10pt;
+    color:gray;
+}
+
+/* status vanishes on sent. We probably want a warning for a "not_sent" status,
+ * whuch means that sending has failed */
+.message[data-event-status] {
+    color:gray;
+}
+
+.message-frame > .message-body {
+    display: inline-block;
+    text-align:left;
+    margin-top:5px;
+    margin-bottom:5px;
+    grid-area: content;
+    overflow-wrap: anywhere;
+    /* XXX: depreciated, but needed until webkit adds overflow-wrap: anywhere */
+    word-break: break-word;
+    hyphens:auto;
+}
+
+.message-frame:hover {
+    background-color: var(--user_ultralight);
+}
+
+.message-from-user .message-body  {
+    padding-left:15px;
+}
+
+.message-frame div[data-mx-maths] {
+    min-width:300px;
+}
+
+.message-upvotes {
+    position:relative;
+    width:0px;
+    top:8px;
+    right:8px;
+    padding:3px;
+    font-size:8pt;
+    background-color:white;
+    border-radius:25px;
+    user-select:none;
+    border:2px solid var(--user_light);
+}
+
+.reply-sender-info,
+.user-info-message {
+    display:flex;
+    align-items: center;
+    font-size:10pt;
+    font-weight:bold;
+    color: var(--user_dark);
+}
+
+.user-info-message {
+    padding:10px;
+}
+
+.reply-sender-info > img,
+.user-info-message > img {
+    width:20px;
+    height:20px;
+    border-radius:30px;
+    position:relative;
+    left:-5px;
+    object-fit:cover;
+    user-select: none;
+}
+
+.reply-preface {
+    position:relative;
+    left:-5px;
+    color:#ababab;
+    font-size:10pt;
+    padding-bottom:5px;
+}
+
+.reply-preview {
+    border-left:5px solid var(--user_light);
+    padding-left:15px;
+}
+
+.redacted-preview {
+    padding-top:5px;
+    font-size:10pt;
+    color: gray;
+}
+
+.reply-fallback blockquote{
+    margin:0px
+}
+
+.message-from-user > img {
+   left: 5px;
+}
+
+.message-from-user .message-upvotes {
+    right:13px;
+}
+
+.mediaMessageThumbnail {
+  width: calc(100% - 20px);
+  max-width:350px;
+  margin:10px;
+  border-radius:20px;
+}
+
+.mediaMessageThumbnail.awaiting {
+  height:200px;
+  border:3px dashed black;
+}

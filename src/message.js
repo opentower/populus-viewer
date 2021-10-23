@@ -1,38 +1,28 @@
 import { h, createRef, Fragment, Component } from 'preact';
 import sanitizeHtml from 'sanitize-html'
 import * as CommonMark from 'commonmark'
-import { addLatex } from './latex.js'
-import katex from 'katex'
+import { addLatex, renderLatexInElement } from './latex.js'
 import UserColor from './userColors.js'
 import { sanitizeHtmlParams } from './constants.js'
 import Client from './client.js'
 import * as Icons from './icons.js'
 import * as Replies from './utils/replies.js'
+import './styles/message.css'
 
 export class TextMessage extends Component {
   componentDidMount() {
-    this.processLatex()
+    renderLatexInElement(this.messageBody.current)
     this.processLinks()
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.reactions[this.props.event.getId()] !== prevProps.reactions[prevProps.event.getId()]) {
-      this.processLatex()
+      renderLatexInElement(this.messageBody.current)
       this.processLinks()
     }
   }
 
   messageBody = createRef()
-
-  processLatex() {
-    if (this.messageBody.current) {
-      const latexArray = Array.from(this.messageBody.current.querySelectorAll("[data-mx-maths]"))
-      latexArray.forEach(elt => {
-        if (elt.tagName === "DIV") katex.render(elt.dataset.mxMaths, elt, {displayMode: true, throwOnError: false})
-        else katex.render(elt.dataset.mxMaths, elt, {throwOnError: false})
-      })
-    }
-  }
 
   processLinks() {
     if (this.messageBody.current) {
@@ -72,27 +62,27 @@ export class TextMessage extends Component {
   render(props) {
     const content = this.getCurrentEdit()
     const isReply = Replies.isReply(content)
-    const replyPreview = isReply ? <ReplyPreview reactions={props.reactions} event={props.event} /> : null
-    const displayBody = <div ref={this.messageBody} class="body">
-      {replyPreview}
-      <DisplayContent content={content} />
-    </div>
-    return <Message reactions={props.reactions}
+    return <MessageFrame
+      displayOnly={props.displayOnly}
+      reactions={props.reactions}
       event={props.event}
       getCurrentEdit={this.getCurrentEdit}>
-        {displayBody}
-    </Message>
+      <div ref={this.messageBody} class="message-body">
+        {isReply ? <ReplyPreview reactions={props.reactions} event={props.event} /> : null}
+        <DisplayContent content={content} />
+      </div>
+    </MessageFrame>
   }
 }
 
 export class NoticeMessage extends Component {
   componentDidMount() {
-    this.processLatex()
+    renderLatexInElement(this.messageBody.current)
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.reactions[this.props.event.getId()] !== prevProps.reactions[prevProps.event.getId()]) {
-      this.processLatex()
+      renderLatexInElement(this.messageBody.current)
     }
   }
 
@@ -105,31 +95,20 @@ export class NoticeMessage extends Component {
     "--user_dark": "hsl(0,0%, 20%)"
   }
 
-  processLatex() {
-    if (this.messageBody.current) {
-      const latexArray = Array.from(this.messageBody.current.querySelectorAll("[data-mx-maths]"))
-      latexArray.forEach(elt => {
-        if (elt.tagName === "DIV") katex.render(elt.dataset.mxMaths, elt, {displayMode: true, throwOnError: false})
-        else katex.render(elt.dataset.mxMaths, elt, {throwOnError: false})
-      })
-    }
-  }
-
   render(props) {
     const content = props.event.getContent()
     const isReply = Replies.isReply(content)
-    const replyPreview = isReply ? <ReplyPreview reactions={props.reactions} event={props.event} /> : null
-    const displayBody = <div ref={this.messageBody} class="body">
-      {replyPreview}
-      <DisplayContent content={content} />
-    </div>
-    return <Message
+    return <MessageFrame
+      displayOnly={props.displayOnly}
       reactions={props.reactions}
       styleOverride={this.noticeStyle}
       event={props.event}
       getCurrentEdit={this.getCurrentEdit}>
-        {displayBody}
-    </Message>
+      <div ref={this.messageBody} class="message-body">
+        {isReply ? <ReplyPreview reactions={props.reactions} event={props.event} /> : null}
+        <DisplayContent content={content} />
+      </div>
+    </MessageFrame>
   }
 }
 
@@ -137,17 +116,17 @@ function DisplayContent(props) {
   const content = props.content
   const isReply = Replies.isReply(content)
   if ((content.format === "org.matrix.custom.html") && content.formatted_body) {
-    return <div 
-      dangerouslySetInnerHTML={{__html: sanitizeHtml(isReply 
-        ? sanitizeHtml(content.formatted_body, Replies.stripReply) 
+    return <div
+      dangerouslySetInnerHTML={{__html: sanitizeHtml(isReply
+        ? sanitizeHtml(content.formatted_body, Replies.stripReply)
         : content.formatted_body, sanitizeHtmlParams)
-        }} />
+      }} />
   } else {
     return <div>
-      {isReply 
-        ? Replies.stripFallbackPlain(content.body) 
+      {isReply
+        ? Replies.stripFallbackPlain(content.body)
         : content.body}
-      </div>
+    </div>
   }
 }
 
@@ -159,13 +138,15 @@ export class FileMessage extends Component {
   url = Client.client.getHttpUriForMxcFromHS(this.props.event.getContent().url)
 
   render(props) {
-    return <Message reactions={props.reactions}
+    return <MessageFrame
+      displayOnly={props.displayOnly}
+      reactions={props.reactions}
       event={props.event} >
-        <div class="body file-upload">
+        <div class="message-body file-upload">
           file upload:&nbsp;
           <a href={this.url}>{props.event.getContent().filename}</a>
         </div>
-    </Message>
+    </MessageFrame>
   }
 }
 
@@ -180,12 +161,14 @@ export class ImageMessage extends Component {
 
   // TODO need some sort of modal popup providing a preview of the full video
   render(props) {
-    return <Message reactions={props.reactions}
+    return <MessageFrame
+      displayOnly={props.displayOnly}
+      reactions={props.reactions}
       event={props.event}>
-        <div class="body image-upload">
+        <div class="message-body image-upload">
           <img class="mediaMessageThumbnail" src={this.url} />
         </div>
-    </Message>
+    </MessageFrame>
   }
 }
 
@@ -203,16 +186,18 @@ export class VideoMessage extends Component {
   url = Client.client.getHttpUriForMxcFromHS(this.content.url)
 
   render(props) {
-    return <Message reactions={props.reactions}
+    return <MessageFrame
+      displayOnly={props.displayOnly}
+      reactions={props.reactions}
       event={props.event}>
-        <div class="body image-upload">
+        <div class="message-body image-upload">
           <video class="mediaMessageThumbnail"
             controls
             poster={this.poster}
             preload={this.poster ? "none" : "metadata"}
             src={this.url} />
         </div>
-    </Message>
+    </MessageFrame>
   }
 }
 
@@ -226,16 +211,18 @@ export class AudioMessage extends Component {
   url= Client.client.getHttpUriForMxcFromHS(this.content.url)
 
   render(props) {
-    return <Message reactions={props.reactions}
+    return <MessageFrame
+      displayOnly={props.displayOnly}
+      reactions={props.reactions}
       event={props.event}>
-        <div class="body image-upload">
+        <div class="message-body image-upload">
           <audio controls src={this.url} />
         </div>
-    </Message>
+    </MessageFrame>
   }
 }
 
-class Message extends Component {
+class MessageFrame extends Component {
   constructor(props) {
     super(props)
     this.state = ({ responding: false })
@@ -276,49 +263,45 @@ class Message extends Component {
         event => event.getContent()["m.relates_to"].rel_type === "m.annotation"
       ).length
       : 0
-
-    if (Client.client.getUserId() === event.getSender()) {
-      return (
-        <Fragment>
-          <div data-event-status={event.getAssociatedStatus()}
-            id={event.getId()}
-            style={props.styleOverride || this.userColor.styleVariables}
-            class="message me">
-            {props.children}
-            <div class="ident">
-              {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
-              <div class="info">
+    const isUser = Client.client.getUserId() === event.getSender()
+    return <Fragment>
+      <div data-event-status={isUser ? event.getAssociatedStatus() : null}
+        id={event.getId()}
+        style={props.styleOverride || this.userColor.styleVariables}
+        class={isUser ? "message-frame message-from-user" : "message-frame"}>
+        {props.children}
+        <MessageDecoration upvotes={upvotes}>
+          { props.displayOnly
+            ? null
+            : isUser
+              ? <Fragment>
                 {!state.responding && canEdit && <button title="edit this message" onclick={this.openEditor}>{Icons.edit}</button>}
                 <button title="delete this message" onclick={this.redactMessage} class="redact">{Icons.trash}</button>
-              </div>
-            </div>
-          </div>
-          {state.responding && canEdit && <MessageEditor closeEditor={this.closeEditor}
-            getCurrentEdit={props.getCurrentEdit}
-            event={event}
-          />}
-        </Fragment>
-      )
-    }
-    return (
-      <Fragment>
-        <div style={props.styleOverride || this.userColor.styleVariables} id={event.getId()} class="message">
-          <div class="ident">
-            <div class="info">
-              {!state.replying && <button title="reply to this message" onclick={this.openEditor}>{Icons.reply}</button>}
-              <button title="upvote this message" class="reaction" onclick={this.upvote}>{Icons.like}</button>
-            </div>
-            {(upvotes > 0) && <span class="upvotes">+{upvotes}</span>}
-          </div>
-          {props.children}
-        </div>
-        {state.responding && <ReplyComposer closeEditor={this.closeEditor}
-          getCurrentEdit={this.getCurrentEdit}
-          event={event}
-        />}
-      </Fragment>
-    )
+              </Fragment>
+              : <Fragment>
+                {!state.replying && <button title="reply to this message" onclick={this.openEditor}>{Icons.reply}</button>}
+                <button title="upvote this message" class="reaction" onclick={this.upvote}>{Icons.like}</button>
+              </Fragment>
+          }
+        </MessageDecoration>
+      </div>
+      {state.responding
+        ? isUser
+          ? <MessageEditor closeEditor={this.closeEditor} getCurrentEdit={props.getCurrentEdit} event={event} />
+          : <ReplyComposer closeEditor={this.closeEditor} getCurrentEdit={this.getCurrentEdit} event={event} />
+        : null
+      }
+    </Fragment>
   }
+}
+
+function MessageDecoration(props) {
+  return <div class="message-decoration">
+    {(props.upvotes > 0) && <span class="message-upvotes">+{props.upvotes}</span>}
+    <div class="message-actions">
+      {props.children}
+    </div>
+  </div>
 }
 
 class ReplyPreview extends Component {

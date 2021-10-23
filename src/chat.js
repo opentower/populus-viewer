@@ -267,7 +267,7 @@ class UserInfoMessage extends Component {
     userColor = new UserColor(this.props.username)
 
     render(props) {
-      const theClass = props.isMe ? "user-info-message me" : "user-info-message"
+      const theClass = props.isMe ? "user-info-message message-from-user" : "user-info-message"
       return <div class={theClass} style={this.userColor.styleVariables}>
         {this.avatarHttpURI ? <img src={this.avatarHttpURI} /> : null}
         <span>{this.displayName}</span>
