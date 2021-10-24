@@ -323,21 +323,20 @@ class ReplyPreview extends Component {
       if (!theRoom) return // room state not ready
       const inReplyTo = theRoom.findEventById(inReplyToId)
       if (inReplyTo) this.setState({ liveEvent: inReplyTo })
-      // the below uses the event-context route, which isn't implemented yet in Dendrite:
-      //
-      // https://github.com/matrix-org/dendrite/issues/670
-      //
-      // Hence, 404s right now.
-      //
-      // try {
-      //   console.log("trying to retrive")
-      //   await Client.client.getEventTimeline(theRoom.getUnfilteredTimelineSet(), inReplyToId)
-      //   console.log("retrived")
-      // } catch (e) {
-      //   console.log("couldn't retrieve")
-      //   return
-      // }
-      // this.setState({ liveEvent: theRoom.findEventById(inReplyToId) })
+      try {
+        console.log("trying to retrive live event")
+        await Client.client.getEventTimeline(theRoom.getUnfilteredTimelineSet(), inReplyToId)
+        console.log("retrived")
+        this.setState({ liveEvent: theRoom.findEventById(inReplyToId) })
+      } catch (e) {
+        // the above uses the event-context route, which isn't implemented yet in Dendrite:
+        //
+        // https://github.com/matrix-org/dendrite/issues/670
+        //
+        // Hence, 404s right now.
+        console.log("couldn't retrieve - is this a dendrite server? see https://github.com/matrix-org/dendrite/issues/670")
+        console.log(e)
+      }
     }
   }
 
