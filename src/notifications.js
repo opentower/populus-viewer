@@ -5,6 +5,7 @@ import UserColor from './userColors.js'
 import { TextMessage } from './message.js'
 import { spaceParent, spaceChild, eventVersion } from "./constants.js"
 import './styles/notifications.css'
+import QueryParameters from './queryParams.js'
 import Client from './client.js'
 
 export default class NotificationListing extends Component {
@@ -141,13 +142,10 @@ class Notification extends Component {
     : ""
 
   handleClick = _ => {
+    QueryParameters.set("focus", this.originAnnotation.getContent()[eventVersion].roomId)
     this.props.pushHistory({
       pdfFocused: this.originAlias,
       pageFocused: this.originAnnotation.getContent()[eventVersion].pageNumber
-    },
-    null,
-    {
-      initialFocus: this.originAnnotation.getContent()[eventVersion]
     })
   }
 

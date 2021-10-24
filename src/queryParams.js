@@ -5,6 +5,10 @@ export default class QueryParameters {
     return QueryParameters.parameters.get(a)
   }
 
+  static refresh() {
+    QueryParameters.parameters = new URLSearchParams(window.location.search)
+  }
+
   static set(a, b) {
     QueryParameters.parameters.set(a, b)
   }
@@ -14,10 +18,14 @@ export default class QueryParameters {
   }
 
   static pushHistory(obj) {
-    window.history.pushState(obj, '', `?${QueryParameters.parameters.toString()}`)
+    const oldState = window.history.state || {}
+    const newState = Object.assign(oldState, obj) // overwrite old state with new additions
+    window.history.pushState(newState, '', `?${QueryParameters.parameters.toString()}`)
   }
 
   static replaceHistory(obj) {
-    window.history.replaceState(obj, '', `?${QueryParameters.parameters.toString()}`)
+    const oldState = window.history.state || {}
+    const newState = Object.assign(oldState, obj) // overwrite old state with new additions
+    window.history.replaceState(newState, '', `?${QueryParameters.parameters.toString()}`)
   }
 }

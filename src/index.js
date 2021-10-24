@@ -31,9 +31,10 @@ class PopulusViewer extends Component {
   componentDidMount() {
     window.addEventListener('popstate', e => {
       this.setState({
-        pdfFocused: e.state.pdfFocused || false,
-        pageFocused: e.state.pageFocused || 1
+        pdfFocused: e.state?.pdfFocused || false,
+        pageFocused: e.state?.pageFocused || 1
       })
+      QueryParameters.refresh()
     })
   }
 
