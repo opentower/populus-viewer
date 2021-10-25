@@ -38,8 +38,8 @@ export class TextMessage extends Component {
             const page = parseInt(params.get("page"), 10) || null
             this.props.pushHistory(
               { pdfFocused: title, pageFocused: page }
-              , this.props.setfocus && focus ? _ => this.props.setfocus({ roomId: focus }) : null // callback
-              , focus ? {initialFocus: { roomId: focus }} : null // message in case called outside of the chat box
+              , this.props.setfocus && focus ? _ => this.props.setfocus({ roomId: focus }) : null
+              // callback. Should maybe add a QueryParam.set(focus) to perhaps handle the case where the link isn't in the PdfView
             )
           })
         })
@@ -375,6 +375,12 @@ class ReplyPreview extends Component {
             poster={poster}
             preload={poster ? "none" : "metadata"}
             src={Client.client.getHttpUriForMxcFromHS(this.state.liveEvent.getContent().url)} />
+          break;
+        }
+        case "m.image": {
+          const thumbUrl = this.state.liveEvent.getContent().info.thumbnail_url
+          const url = thumbUrl ? Client.client.getHttpUriForMxcFromHS(thumbUrl) : null
+          displayBody = <img class="mediaMessageThumbnail" src={url} />
           break;
         }
         case "m.audio": {
