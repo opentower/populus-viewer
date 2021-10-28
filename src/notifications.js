@@ -72,7 +72,38 @@ export default class NotificationListing extends Component {
   }
 
   render(props, state) {
+    const initialDate = Date.now()
+    let currentDate = initialDate
     const notifications = state.events.reduce((accumulator, ev) => {
+      const age = initialDate - ev.getTs()
+      const dateDelta = currentDate - ev.getTs()
+      let message
+      if (age < 300000 && dateDelta > 60000) {
+        currentDate = ev.getTs()
+        const minutes = Math.floor(age / 60000)
+        const plural = minutes === 1 ? "" : "s"
+        message = `${minutes} minute${plural} ago`
+      } else if (age < 3600000 && dateDelta > 600000) {
+        currentDate = ev.getTs()
+        const minutes = Math.floor(age / 60000)
+        const plural = minutes === 1 ? "" : "s"
+        message = `${minutes} minute${plural} ago`
+      } else if (age < 86400000 && dateDelta > 3600000) {
+        currentDate = ev.getTs()
+        const hours = Math.floor(age / 3600000)
+        const plural = hours === 1 ? "" : "s"
+        message = `${hours} hour${plural} ago`
+      } else if (dateDelta > 86400000) {
+        currentDate = ev.getTs()
+        const dateObject = new Date(currentDate)
+        message = `on ${dateObject.toLocaleDateString('en-US', {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric"
+        })}`
+      }
+      if (message) accumulator.push(<div class="notification-date-indicator">{message}</div>)
       switch (ev.getContent().msgtype) {
         case "m.text": {
           accumulator.push(<TextNotification pushHistory={props.pushHistory} event={ev} key={ev.getId()} />)

@@ -34,6 +34,11 @@
     font-size:10pt;
 }
 
+.notification-date-indicator {
+  font-size:10pt;
+  color:#555555
+}
+
 .notification-header .sender {
     font-weight:bold;
     color: var(--user_dark);
