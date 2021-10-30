@@ -3,6 +3,10 @@
   border: 1px solid black;
 }
 
+.unread-notification {
+  border: 2px solid black;
+}
+
 .notification-contents {
   padding-bottom:10px;
 }

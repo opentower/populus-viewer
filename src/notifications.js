@@ -1,9 +1,9 @@
-import { h, Fragment, Component, createRef } from 'preact';
+import { h, Component, createRef } from 'preact';
 import * as Matrix from "matrix-js-sdk"
-import * as Replies from './utils/replies.js'
 import UserColor from './userColors.js'
 import { TextMessage } from './message.js'
 import { spaceParent, spaceChild, eventVersion } from "./constants.js"
+import { isUnread } from './utils/unread.js'
 import './styles/notifications.css'
 import QueryParameters from './queryParams.js'
 import Client from './client.js'
@@ -138,6 +138,29 @@ function TextNotification(props) {
 }
 
 class Notification extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      unread: isUnread(props.event)
+    }
+    this.checkUnread = this.checkUnread.bind(this)
+  }
+
+  componentDidMount () {
+    Client.client.on("Room.accountData", this.checkUnread)
+    // State events might cause excessive rerendering, but we can optimize for that later
+  }
+
+  componentWillUnmount () {
+    Client.client.off("Room.accountData", this.checkUnread)
+  }
+
+  checkUnread (_event, room) {
+    if (room?.roomId === this.props.event.getRoomId()) {
+      this.setState({unread: isUnread(this.props.event)})
+    }
+  }
+
   userColor = new UserColor(this.props.event.getSender())
 
   userDisplayName = Client.client.getUser(this.props.event.getSender()).displayName
@@ -180,10 +203,10 @@ class Notification extends Component {
     })
   }
 
-  render(props) {
+  render(props, state) {
     return <div
       onclick={this.originAlias ? this.handleClick : null }
-      class="notification"
+      class={state.unread ? "notification unread-notification" : "notification"}
       style={this.userColor.styleVariables}>
       { Client.client.getRoom(this.originPDF).name
         ? <div class="discussion-intro">In <b>{Client.client.getRoom(this.originPDF).name}</b>, discussing</div>
