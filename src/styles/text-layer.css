@@ -8,6 +8,8 @@
     line-height:1;
     opacity: 0.2;
     pointer-events:none;
+    transform: scale(var(--pdfFitRatio)) translate(-5px,-5px);
+    /* a slight skootch here to make up for span padding */
 }
 
 #text-layer > span {
@@ -18,6 +20,8 @@
     pointer-events:auto;
     transform-origin: 0% 0%;
     user-select:text;
+    /* a little padding seems to help with text selection */
+    padding:5px; 
 }
 
 #text-layer mark {
