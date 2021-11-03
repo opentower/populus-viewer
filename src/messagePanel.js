@@ -306,6 +306,7 @@ class TextMessageInput extends Component {
       value={state.value}
       onkeydown={this.handleKeydown}
       oninput={this.handleInput}
+      onblur={this.stopTyping}
       data-gramm="false" // disable grammarly
     />
   }

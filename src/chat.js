@@ -10,28 +10,24 @@ export default class Chat extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      typing: [],
       events: [],
       topic: "",
       fullyScrolled: false
     }
     this.scrolledIdents = new Set()
     this.handleTimeline = this.handleTimeline.bind(this)
-    this.handleTypingNotifications = this.handleTypingNotification.bind(this)
     this.timelinePromise = this.loadTimelineWindow(props.focus.roomId)
   }
 
   componentDidMount() {
     Client.client.on("Room.timeline", this.handleTimeline) // this also handles redactions, although they have their own event.
     Client.client.on("Room.localEchoUpdated", this.updateEvents)
-    Client.client.on("RoomMember.typing", this.handleTypingNotification)
     this.timelinePromise.then(this.updateEvents).then(this.tryBackfill)
   }
 
   componentWillUnmount() {
     Client.client.off("Room.timeline", this.handleTimeline)
     Client.client.off("Room.localEchoUpdated", this.updateEvents)
-    Client.client.off("RoomMember.typing", this.handleTypingNotification)
   }
 
   async componentDidUpdate(prevProps) {
@@ -51,15 +47,6 @@ export default class Chat extends Component {
     }
   }
 
-  handleTypingNotification = (event, member) => {
-    if (member.roomId === this.props.focus.roomId) {
-      // ^^^ we have to check the originating room in an odd way because
-      // the roomId for the typing events isn't set for some reason.
-      const myId = Client.client.getUserId()
-      const typingOtherThanMe = event.getContent().user_ids.filter(x => x !== myId)
-      this.setState({ typing: typingOtherThanMe })
-    }
-  }
 
   handleScroll = e => {
     clearTimeout(this.debounceTimeout)
@@ -248,7 +235,8 @@ export default class Chat extends Component {
           <MessagePanel textarea={this.messageTextarea} focus={props.focus} />
           <div id="messages">
             {messagedivs}
-            <TypingIndicator typing={this.state.typing} />
+            <TypingIndicator key={props.focus.roomId} roomId={props.focus.roomId} />
+            {/* The key prop here ensures that typing state is reset when the room changes */}
           </div>
           <Anchor ref={this.scrollAnchor} topic={state.topic} fullyScrolled={state.fullyScrolled} />
         </div>
@@ -300,11 +288,37 @@ function Anchor(props) {
     : <div id="scroll-anchor">loading...</div>
 }
 
-function TypingIndicator(props) {
-  const displayNames = props.typing.map(typer => Client.client.getUser(typer).displayName)
-  const howMany = displayNames.length
-  if (howMany === 0) return <div class="typingIndicator">&nbsp;</div>
-  else if (howMany === 1) return <div class="typingIndicator">{displayNames[0]} is typing</div>
-  else if (howMany === 2) return <div class="typingIndicator">{displayNames[0]} and {displayNames[1]} are typing</div>
-  return <div class="typingIndicator">several people are typing</div>
+class TypingIndicator extends Component {
+  constructor(props) {
+    super(props)
+    this.handleTypingNotifications = this.handleTypingNotification.bind(this)
+    this.state = { typing: [] }
+  }
+
+  componentDidMount() {
+    Client.client.on("RoomMember.typing", this.handleTypingNotification)
+  }
+
+  componentWillUnmount() {
+    Client.client.off("RoomMember.typing", this.handleTypingNotification)
+  }
+
+  handleTypingNotification = (event, member) => {
+    if (member.roomId === this.props.roomId) {
+      // ^^^ we have to check the originating room in an odd way because
+      // the roomId for the typing events isn't set for some reason.
+      const myId = Client.client.getUserId()
+      const typingOtherThanMe = event.getContent().user_ids.filter(x => x !== myId)
+      this.setState({ typing: typingOtherThanMe })
+    }
+  }
+
+  render(props, state) {
+    const displayNames = state.typing.map(typer => Client.client.getUser(typer).displayName)
+    const howMany = displayNames.length
+    if (howMany === 0) return <div class="typingIndicator">&nbsp;</div>
+    else if (howMany === 1) return <div class="typingIndicator">{displayNames[0]} is typing</div>
+    else if (howMany === 2) return <div class="typingIndicator">{displayNames[0]} and {displayNames[1]} are typing</div>
+    return <div class="typingIndicator">several people are typing</div>
+  }
 }
