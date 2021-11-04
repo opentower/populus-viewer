@@ -7,7 +7,8 @@ export default class PopupMenu extends Component {
     super(props)
     this.state = {
       active: false,
-      popupItems: []
+      popupItems: [],
+      selection: 0
     }
   }
 
@@ -35,6 +36,22 @@ export default class PopupMenu extends Component {
     if (e.key === "@") {
       this.setState({active: true})
     }
+    if (this.state.active && e.key === "ArrowDown") {
+      e.preventDefault()
+      if (this.state.selection + 1 < this.state.popupItems.length) {
+        this.setState(oldState => { return {selection: oldState.selection + 1} })
+      }
+    }
+    if (this.state.active && e.key === "ArrowUp") {
+      e.preventDefault()
+      if (this.state.selection > 0) {
+        this.setState(oldState => { return {selection: oldState.selection - 1} })
+      }
+    }
+    if (this.state.active && e.key === "Enter") {
+      e.preventDefault()
+      this.insertSelection()
+    }
   }
 
   generatePopupItems(value) {
@@ -42,21 +59,48 @@ export default class PopupMenu extends Component {
     if (room) {
       const matchingMembers = room.getMembersWithMembership("join")
         .filter(member => member.userId.includes(value) || member.name.includes(value))
-      console.log(matchingMembers)
       return matchingMembers
-        .map(member => <PopupMenuMember key={member.userId} member={member} />)
+        .map((member, idx) => <PopupMenuMember
+          key={member.userId}
+          selected={this.state.selection === idx}
+          member={member} />
+        )
     }
     return []
   }
 
+  insertSelection() {
+    const userId = this.state.popupItems[this.state.selection].props.member.userId
+    const selstart = this.props.textarea.current.selectionStart
+    const selend = this.props.textarea.current.selectionEnd
+    if (selstart === selend) {
+      const initialSegment = this.props.textValue.slice(0, selend)
+      const terminalSegment = this.props.textValue.slice(selend)
+      const newSegment = initialSegment.replace(/@\S*$/, "@" + userId.split(":")[0].substring(1))
+      this.props.setTextValue(`${newSegment}${terminalSegment}`,
+        _ => {
+          this.props.textarea.current.focus()
+          this.props.textarea.current.selectionEnd = newSegment.length
+        }
+      )
+    }
+    this.setState({active: false})
+  }
+
   handleKeyup = _ => {
+    // TODO: debounce
     if (this.state.active) {
       const selstart = this.props.textarea.current.selectionStart
       const selend = this.props.textarea.current.selectionEnd
       if (selstart === selend) {
-        const matches = this.props.textvalue.slice(0, selend).match(/@\S*$/)
+        const matches = this.props.textValue.slice(0, selend).match(/@\S*$/)
         if (matches) {
-          this.setState({popupItems: this.generatePopupItems(matches[0].substring(1))})
+          const popupItems = this.generatePopupItems(matches[0].substring(1))
+          const newState = {popupItems}
+          if (popupItems.length < this.state.selection + 1) {
+            newState.selection = popupItems.length - 1
+          }
+          this.setState(newState)
           return
         }
       }
@@ -77,7 +121,7 @@ export default class PopupMenu extends Component {
 }
 
 function PopupMenuMember(props) {
-  return <div class="pop-up-menu-item">
+  return <div class={props.selected ? "pop-up-menu-item-selected pop-up-menu-item" : "pop-up-menu-item"}>
     <span> {props.member.userId.split(":")[0].substring(1)} </span>
     <span> ({props.member.name}) </span>
   </div>

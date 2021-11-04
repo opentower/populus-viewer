@@ -267,10 +267,12 @@ class TextMessageInput extends Component {
 
   handleInput = (event) => {
     if (event.target.value === "") this.stopTyping()
-    this.setState({ value: event.target.value })
+    this.setValue(event.target.value)
     this.currentInput.current.style.height = 'auto';
     this.currentInput.current.style.height = `${this.currentInput.current.scrollHeight}px`;
   }
+
+  setValue = (s, cb) => this.setState({value: s}, cb)
 
   handleKeydown = e => {
     e.stopPropagation() // don't propagate to global keypress handlers
@@ -298,7 +300,7 @@ class TextMessageInput extends Component {
         formatted_body: rendered
       })
       this.currentInput.current.style.height = null
-      this.setState({ value: "" })
+      this.setValue("")
     }
   }
 
@@ -306,8 +308,9 @@ class TextMessageInput extends Component {
     return <Fragment>
       <PopUpMenu
         roomId={props.focus.roomId}
-        textvalue={state.value}
+        textValue={state.value}
         textarea={this.currentInput}
+        setTextValue={this.setValue}
       />
       <textarea ref={this.currentInput}
         value={state.value}

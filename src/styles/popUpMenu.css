@@ -15,3 +15,8 @@
   padding:10px;
   background:white;
 }
+
+.pop-up-menu-item-selected {
+  padding:10px;
+  background:#ededed;
+}
