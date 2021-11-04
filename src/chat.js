@@ -47,7 +47,6 @@ export default class Chat extends Component {
     }
   }
 
-
   handleScroll = e => {
     clearTimeout(this.debounceTimeout)
     this.debounceTimeout = setTimeout(_ => {
@@ -232,7 +231,7 @@ export default class Chat extends Component {
     return (
       <div ref={this.chatWrapper} class={props.class} onscroll={this.handleScroll} id="chat-wrapper">
         <div id="chat-panel">
-          <MessagePanel textarea={this.messageTextarea} focus={props.focus} />
+          <MessagePanel focus={props.focus} />
           <div id="messages">
             {messagedivs}
             <TypingIndicator key={props.focus.roomId} roomId={props.focus.roomId} />

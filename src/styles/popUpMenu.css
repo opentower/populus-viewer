@@ -1,0 +1,17 @@
+#pop-up-wrapper {
+  position:relative;
+}
+
+#pop-up-menu {
+  position:absolute;
+  bottom:0px;
+  left:0px;
+  right:0px;
+  border-top: 1px solid #adadad;
+  z-index:10;
+}
+
+.pop-up-menu-item {
+  padding:10px;
+  background:white;
+}
