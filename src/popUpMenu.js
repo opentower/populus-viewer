@@ -35,6 +35,7 @@ export default class PopupMenu extends Component {
 
   cancel = _ => this.setState({active: false})
 
+  // we use this instead of keydown for compatibility with mobile chrome
   handleInput = e => {
     if (e.data === "@") {
       this.setState({active: true})
@@ -67,6 +68,7 @@ export default class PopupMenu extends Component {
         .filter(member => member.userId.includes(value) || member.name.includes(value))
       return matchingMembers
         .map((member, idx) => <PopupMenuMember
+          insert={this.insert}
           key={member.userId}
           selected={this.state.selection === idx}
           member={member} />
@@ -77,12 +79,16 @@ export default class PopupMenu extends Component {
 
   insertSelection() {
     const userId = this.state.popupItems[this.state.selection].props.member.userId
+    this.insert(`@${userId.split(":")[0].substring(1)} `)
+  }
+
+  insert = s => {
     const selstart = this.props.textarea.current.selectionStart
     const selend = this.props.textarea.current.selectionEnd
     if (selstart === selend) {
       const initialSegment = this.props.textValue.slice(0, selend)
       const terminalSegment = this.props.textValue.slice(selend)
-      const newSegment = initialSegment.replace(/@\S*$/, "@" + userId.split(":")[0].substring(1))
+      const newSegment = initialSegment.replace(/@\S*$/, s)
       this.props.setTextValue(`${newSegment}${terminalSegment}`,
         _ => {
           this.props.textarea.current.focus()
@@ -126,11 +132,22 @@ export default class PopupMenu extends Component {
   }
 }
 
-function PopupMenuMember(props) {
-  const colorFromId = new UserColor(props.member.userId)
-  return <div style={colorFromId.styleVariables} class={props.selected ? "popup-menu-item-selected popup-menu-item" : "popup-menu-item"}>
-    <span class="popup-menu-item-userid"> {props.member.userId.split(":")[0].substring(1)} </span>
-    <span>•</span>
-    <span class="popup-menu-item-username"> {props.member.name} </span>
-  </div>
+class PopupMenuMember extends Component {
+  colorFromId = new UserColor(this.props.member.userId)
+
+  insertName = e => {
+    e.preventDefault() // try to prevent textarea losing focus
+    this.props.insert(`@${this.props.member.userId.split(":")[0].substring(1)} `)
+  }
+
+  render(props) {
+    return <div
+      onmousedown={this.insertName}
+      style={this.colorFromId.styleVariables}
+      class={props.selected ? "popup-menu-item-selected popup-menu-item" : "popup-menu-item"}>
+      <span class="popup-menu-item-userid"> {props.member.userId.split(":")[0].substring(1)} </span>
+      <span>•</span>
+      <span class="popup-menu-item-username"> {props.member.name} </span>
+    </div>
+  }
 }
