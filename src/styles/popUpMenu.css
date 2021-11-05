@@ -1,8 +1,8 @@
-#pop-up-wrapper {
+#popup-wrapper {
   position:relative;
 }
 
-#pop-up-menu {
+#popup-menu {
   position:absolute;
   bottom:0px;
   left:0px;
@@ -11,12 +11,17 @@
   z-index:10;
 }
 
-.pop-up-menu-item {
+.popup-menu-item {
   padding:10px;
   background:white;
 }
 
-.pop-up-menu-item-selected {
+.popup-menu-item-selected {
   padding:10px;
-  background:#ededed;
+  background:var(--user_ultralight);
+}
+
+.popup-menu-item-username {
+  font-weight:bold;
+  color:var(--user_dark)
 }

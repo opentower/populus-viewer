@@ -1,5 +1,6 @@
 import { h, Component } from 'preact';
 import Client from './client.js'
+import UserColor from './userColors.js'
 import './styles/popUpMenu.css'
 
 export default class PopupMenu extends Component {
@@ -14,6 +15,7 @@ export default class PopupMenu extends Component {
 
   componentDidMount () {
     if (this.props.textarea) {
+      this.props.textarea.current.addEventListener("input", this.handleInput)
       this.props.textarea.current.addEventListener("keydown", this.handleKeydown)
       this.props.textarea.current.addEventListener("keyup", this.handleKeyup)
       this.props.textarea.current.addEventListener("click", this.cancel)
@@ -23,6 +25,7 @@ export default class PopupMenu extends Component {
 
   componentWillUnmount () {
     if (this.props.textarea) {
+      this.props.textarea.current.removeEventListener("input", this.handleInput)
       this.props.textarea.current.removeEventListener("keydown", this.handleKeydown)
       this.props.textarea.current.removeEventListener("keyup", this.handleKeyup)
       this.props.textarea.current.removeEventListener("click", this.cancel)
@@ -32,10 +35,13 @@ export default class PopupMenu extends Component {
 
   cancel = _ => this.setState({active: false})
 
-  handleKeydown = e => {
-    if (e.key === "@") {
+  handleInput = e => {
+    if (e.data === "@") {
       this.setState({active: true})
     }
+  }
+
+  handleKeydown = e => {
     if (this.state.active && e.key === "ArrowDown") {
       e.preventDefault()
       if (this.state.selection + 1 < this.state.popupItems.length) {
@@ -111,8 +117,8 @@ export default class PopupMenu extends Component {
   render(_props, state) {
     if (state.active) {
       // We use a relatively positioned wrapper to keep the PUM in the document flow
-      return <div id="pop-up-wrapper">
-        <div id="pop-up-menu">
+      return <div id="popup-wrapper">
+        <div id="popup-menu">
           {this.state.popupItems}
         </div>
       </div>
@@ -121,8 +127,10 @@ export default class PopupMenu extends Component {
 }
 
 function PopupMenuMember(props) {
-  return <div class={props.selected ? "pop-up-menu-item-selected pop-up-menu-item" : "pop-up-menu-item"}>
-    <span> {props.member.userId.split(":")[0].substring(1)} </span>
-    <span> ({props.member.name}) </span>
+  const colorFromId = new UserColor(props.member.userId)
+  return <div style={colorFromId.styleVariables} class={props.selected ? "popup-menu-item-selected popup-menu-item" : "popup-menu-item"}>
+    <span class="popup-menu-item-userid"> {props.member.userId.split(":")[0].substring(1)} </span>
+    <span>•</span>
+    <span class="popup-menu-item-username"> {props.member.name} </span>
   </div>
 }
