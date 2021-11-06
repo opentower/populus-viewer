@@ -67,6 +67,7 @@ export default class PopupMenu extends Component {
       const matchingMembers = room.getMembersWithMembership("join")
         .filter(member => member.userId.includes(value) || member.name.includes(value))
       return matchingMembers
+        .slice(0, 3) // top 3
         .map((member, idx) => <PopupMenuMember
           insert={this.insert}
           key={member.userId}
@@ -110,7 +111,7 @@ export default class PopupMenu extends Component {
           const popupItems = this.generatePopupItems(matches[0].substring(1))
           const newState = {popupItems}
           if (popupItems.length < this.state.selection + 1) {
-            newState.selection = popupItems.length - 1
+            newState.selection = Math.max(popupItems.length - 1, 0)
           }
           this.setState(newState)
           return
@@ -123,7 +124,7 @@ export default class PopupMenu extends Component {
   render(_props, state) {
     if (state.active) {
       // We use a relatively positioned wrapper to keep the PUM in the document flow
-      return <div id="popup-wrapper">
+      return <div style={{top: `${state.popupItems.length * 40}px`}} id="popup-wrapper">
         <div id="popup-menu">
           {this.state.popupItems}
         </div>

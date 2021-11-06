@@ -1,5 +1,6 @@
 #popup-wrapper {
-  position:relative;
+  position:sticky;
+  z-index:10;
 }
 
 #popup-menu {
@@ -8,11 +9,12 @@
   left:0px;
   right:0px;
   border-top: 1px solid #adadad;
-  z-index:10;
+  border-bottom: 1px solid #adadad;
 }
 
 .popup-menu-item {
   padding:10px;
+  height:20px;
   background:white;
 }
 
