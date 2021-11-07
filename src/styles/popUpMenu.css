@@ -16,11 +16,15 @@
   padding:10px;
   height:20px;
   background:white;
+  cursor: pointer;
 }
 
-.popup-menu-item-selected {
-  padding:10px;
+.popup-menu-item-selected-user {
   background:var(--user_ultralight);
+}
+
+.popup-menu-item-selected-emoji {
+  background:#eaeaea
 }
 
 .popup-menu-item-username {

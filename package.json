@@ -36,6 +36,7 @@
   "dependencies": {
     "buffer": "^6.0.3",
     "commonmark": "^0.29.3",
+    "emoji-picker-element": "^1.8.2",
     "katex": "^0.13.2",
     "matrix-js-sdk": "^12.5.0",
     "pdfjs-dist": "^2.11.338",
