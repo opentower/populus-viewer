@@ -126,14 +126,18 @@ export class PopupMenuEmojis extends Component {
       const matches = this.props.textValue.slice(0, selend).match(/:\S*$/)
       if (matches) {
         const match = matches[0].slice(1)
-        if (match.length === 0) return
+        if (match.length < 2) return this.setState({ popupItems: [] })
         this.database.getEmojiBySearchQuery(match).then(emojis => {
           this.setState({
             popupItems: emojis
-              .sort((a, b) => a.shortcodes[0].includes(match)
-                ? (b.shortcodes[0].includes(match) ? 0 : -1)
-                : (b.shortcodes[0].includes(match) ? 1 : 0))
-              .slice(0, 3).map((emoji, idx) =>
+              .filter(emoji => emoji.version < 13) // For compatibility with older devices
+              .sort((a, b) => {
+                if (a.shortcodes[0] === match) return -1
+                if (b.shortcodes[0] === match) return 1
+                return a.shortcodes[0].includes(match)
+                  ? (b.shortcodes[0].includes(match) ? 0 : -1)
+                  : (b.shortcodes[0].includes(match) ? 1 : 0)
+              }).slice(0, 3).map((emoji, idx) =>
               <PopupMenuEmoji
                 key={emoji.unicode}
                 emoji={emoji}
