@@ -152,6 +152,8 @@
     user-select: none;
 }
 
+.large-emoji-display { font-size: 36pt }
+
 .reply-preface {
     position:relative;
     left:-5px;

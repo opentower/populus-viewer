@@ -116,14 +116,15 @@ export class NoticeMessage extends Component {
 function DisplayContent(props) {
   const content = props.content
   const isReply = Replies.isReply(content)
+  const isEmoji = /^\s*\p{Extended_Pictographic}\s*$/u.test(content.body)
   if ((content.format === "org.matrix.custom.html") && content.formatted_body) {
-    return <div
+    return <div class={isEmoji ? "large-emoji-display" : null}
       dangerouslySetInnerHTML={{__html: sanitizeHtml(isReply
         ? sanitizeHtml(content.formatted_body, Replies.stripReply)
         : content.formatted_body, sanitizeHtmlParams)
       }} />
   } else {
-    return <div>
+    return <div class={isEmoji ? "large-emoji-display" : null}>
       {isReply
         ? Replies.stripFallbackPlain(content.body)
         : content.body}
