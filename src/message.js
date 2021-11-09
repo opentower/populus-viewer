@@ -7,6 +7,7 @@ import { sanitizeHtmlParams } from './constants.js'
 import Client from './client.js'
 import * as Icons from './icons.js'
 import * as Replies from './utils/replies.js'
+import PopUpMenu from './popUpMenu.js'
 import './styles/message.css'
 
 export class TextMessage extends Component {
@@ -474,7 +475,9 @@ class MessageEditor extends Component {
     }
   }
 
-  handleInput = (event) => this.setState({ value: event.target.value }, this.resize())
+  handleInput = (event) => this.setValue(event.target.value, this.resize())
+
+  setValue = (value, cb) => this.setState({ value }, cb)
 
   resize = () => {
     this.input.current.style.height = 'auto';
@@ -512,6 +515,12 @@ class MessageEditor extends Component {
 
   render(_props, state) {
     return <div class="replyComposer">
+      <PopUpMenu
+        roomId={this.props.event.getRoomId()}
+        textValue={state.value}
+        textarea={this.input}
+        setTextValue={this.setValue}
+      />
       <textarea ref={this.input}
         value={state.value}
         onkeydown={this.handleKeydown}
@@ -536,10 +545,12 @@ class ReplyComposer extends Component {
   }
 
   handleInput = (event) => {
-    this.setState({ value: event.target.value })
+    this.setValue(event.target.value)
     this.input.current.style.height = 'auto';
     this.input.current.style.height = `${this.input.current.scrollHeight}px`;
   }
+
+  setValue = (value, cb) => this.setState({ value }, cb)
 
   sendResponse = () => {
     const reader = new CommonMark.Parser()
@@ -561,6 +572,12 @@ class ReplyComposer extends Component {
 
   render(_props, state) {
     return <div class="replyComposer">
+      <PopUpMenu 
+        roomId={this.props.event.getRoomId()}
+        textValue={state.value}
+        textarea={this.input}
+        setTextValue={this.setValue}
+      />
       <textarea ref={this.input}
         value={state.value}
         onkeydown={this.handleKeydown}
