@@ -117,7 +117,7 @@ export class NoticeMessage extends Component {
 function DisplayContent(props) {
   const content = props.content
   const isReply = Replies.isReply(content)
-  const isEmoji = /^\s*\p{Emoji}\s*$/u.test(content.body)
+  const isEmoji = /^\s*\p{Emoji}{1,3}\s*$/u.test(content.body)
   if ((!isEmoji && content.format === "org.matrix.custom.html") && content.formatted_body) {
     return <div
       dangerouslySetInnerHTML={{__html: sanitizeHtml(isReply
