@@ -272,7 +272,7 @@ class TextMessageInput extends Component {
     this.currentInput.current.style.height = `${this.currentInput.current.scrollHeight}px`;
   }
 
-  setValue = (s, cb) => this.setState({value: s}, cb)
+  setValue = (value, cb) => this.setState({ value }, cb)
 
   handleKeydown = e => {
     e.stopPropagation() // don't propagate to global keypress handlers
