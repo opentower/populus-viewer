@@ -119,13 +119,18 @@
     position:relative;
     width:0px;
     top:8px;
-    right:8px;
-    padding:3px;
-    font-size:8pt;
-    background-color:white;
-    border-radius:25px;
-    user-select:none;
-    border:2px solid var(--user_light);
+    right:10px;
+}
+
+.message-upvotes div {
+  position: absolute;
+  display:flex;
+  font-size:8pt;
+  padding:2px;
+  background-color:white;
+  border-radius:25px;
+  user-select:none;
+  border:2px solid var(--user_light);
 }
 
 .reply-sender-info,
@@ -182,7 +187,11 @@
 }
 
 .message-from-user .message-upvotes {
-    right:13px;
+    right:-10px;
+}
+
+.message-from-user .message-upvotes div{
+    right:0px;
 }
 
 .mediaMessageThumbnail {

@@ -300,7 +300,12 @@ class MessageFrame extends Component {
 
 function MessageDecoration(props) {
   return <div class="message-decoration">
-    {(props.upvotes > 0) && <span class="message-upvotes">+{props.upvotes}</span>}
+    {props.upvotes > 0 
+      ? <div class="message-upvotes">
+        <div><span>{props.upvotes}</span><span>👍️</span></div>
+        </div>
+      : null
+    }
     <div class="message-actions">
       {props.children}
     </div>
