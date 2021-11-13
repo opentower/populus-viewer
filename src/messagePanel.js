@@ -2,6 +2,7 @@ import * as Icons from "./icons.js"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
+import { spaceChild, theDomain, eventVersion } from "./constants.js"
 import { addLatex } from './latex.js'
 import UserColor from './userColors.js'
 import Client from './client.js'
@@ -23,7 +24,7 @@ export default class MessagePanel extends Component {
 
   getInput () {
     switch (this.state.mode) {
-      case 'Default': return <TextMessageInput ref={this.theInput} focus={this.props.focus} />
+      case 'Default': return <TextMessageInput ref={this.theInput} submit={this.submitCurrentInput} focus={this.props.focus} />
       case 'SendFile': return <FileUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
       case 'SendMedia': return <MediaUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
       case 'RecordVideo': return <RecordVideoInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
@@ -54,8 +55,28 @@ export default class MessagePanel extends Component {
   showLess = _ => this.setState({ buttons: this.state.buttons - 1 })
 
   submitCurrentInput = _ => {
-    if (this.theInput.current) this.theInput.current.submitInput()
-    else console.log("no available input")
+    console.log(this.props.focus)
+    if (this.theInput.current) {
+      const theContent = this.theInput.current.submitInput()
+      if (this.props.focus.activityStatus === "pending") {
+        this.openPendingAnnotation(theContent)
+      }
+    }
+  }
+
+  openPendingAnnotation = theContent => {
+    const diff = {
+      activityStatus: "open",
+      rootContent: theContent
+    }
+    const childContent = {
+      via: [theDomain],
+      [eventVersion]: Object.assign(this.props.focus, diff)
+    }
+    console.log(childContent)
+    Client.client
+      .sendStateEvent(this.props.pdfId, spaceChild, childContent, this.props.focus.roomId)
+      .catch(e => alert(e))
   }
 
   render(props, state) {
@@ -108,6 +129,7 @@ class FileUploadInput extends Component {
     }
     await Client.client.sendMessage(this.props.focus.roomId, theContent)
     this.props.done()
+    return theContent
   }
 
   progressHandler = (progress) => this.setState({progress})
@@ -151,13 +173,15 @@ class MediaUploadInput extends Component {
   }
 
   submitInput = async _ => {
+    let theContent
     if (this.mediaPreview.current) {
       switch (this.state.mediaType) {
-        case "image": await this.submitImage(); break
-        case "video": await this.submitVideo(); break
+        case "image": theContent = await this.submitImage(); break
+        case "video": theContent = await this.submitVideo(); break
       }
     }
     this.props.done()
+    return theContent
   }
 
   async submitVideo () {
@@ -187,6 +211,7 @@ class MediaUploadInput extends Component {
     }
     if (duration < Infinity) theContent.duration = duration
     await Client.client.sendMessage(this.props.focus.roomId, theContent)
+    return theContent
   }
 
   async submitImage () {
@@ -215,6 +240,7 @@ class MediaUploadInput extends Component {
       url: imageMxc
     }
     await Client.client.sendMessage(this.props.focus.roomId, theContent)
+    return theContent
   }
 
   progressHandler = (progress) => this.setState({progress})
@@ -281,7 +307,9 @@ class TextMessageInput extends Component {
     // send "stopped typing" after 5 seconds of inactivity
     if (e.code === "Enter" && e.ctrlKey) {
       e.preventDefault()
-      this.submitInput()
+      // the below is a bit indirect, but it lets us use a single method to
+      // capture all the side-effects of sending the message
+      this.props.submit()
     } else if (!this.typingLock) this.startTyping()
   }
 
@@ -293,14 +321,16 @@ class TextMessageInput extends Component {
       // bail out of message is only whitespace
       const parsed = this.reader.parse(addLatex(this.state.value))
       const rendered = this.writer.render(parsed)
-      Client.client.sendMessage(this.props.focus.roomId, {
+      const theContent = {
         body: this.state.value,
         msgtype: "m.text",
         format: "org.matrix.custom.html",
         formatted_body: rendered
-      })
+      }
+      Client.client.sendMessage(this.props.focus.roomId, theContent)
       this.currentInput.current.style.height = null
       this.setValue("")
+      return theContent
     }
   }
 
@@ -443,6 +473,7 @@ class RecordVideoInput extends RecordMediaInput {
     if (duration < Infinity) theContent.info.duration = duration
     await Client.client.sendMessage(this.props.focus.roomId, theContent)
     this.props.done()
+    return theContent
   }
 
   render(props, state) {
@@ -493,6 +524,7 @@ class RecordAudioInput extends RecordMediaInput {
     if (duration < Infinity) theContent.info.duration = duration
     await Client.client.sendMessage(this.props.focus.roomId, theContent)
     this.props.done()
+    return theContent
   }
 
   render(props, state) {

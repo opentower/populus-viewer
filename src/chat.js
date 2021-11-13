@@ -231,7 +231,7 @@ export default class Chat extends Component {
     return (
       <div ref={this.chatWrapper} class={props.class} onscroll={this.handleScroll} id="chat-wrapper">
         <div id="chat-panel">
-          <MessagePanel focus={props.focus} />
+          <MessagePanel pdfId={props.pdfId} focus={props.focus} />
           <div id="messages">
             {messagedivs}
             <TypingIndicator key={props.focus.roomId} roomId={props.focus.roomId} />

@@ -302,7 +302,7 @@ function MessageDecoration(props) {
   return <div class="message-decoration">
     {props.upvotes > 0 
       ? <div class="message-upvotes">
-        <div><span>{props.upvotes}</span><span>👍️</span></div>
+          <div><span>{props.upvotes}</span><span>👍️</span></div>
         </div>
       : null
     }

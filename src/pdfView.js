@@ -348,7 +348,7 @@ export default class PdfView extends Component {
         via: [theDomain],
         [eventVersion]: {
           pageNumber: this.props.pageFocused,
-          activityStatus: "open",
+          activityStatus: "pending",
           boundingClientRect: JSON.stringify(boundingClientRect),
           clientRects: JSON.stringify(clientRects),
           roomId: roominfo.room_id,
@@ -356,7 +356,8 @@ export default class PdfView extends Component {
           selectedText: theSelectedText
         }
       }
-      Client.client.sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
+      Client.client
+        .sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
         .catch(e => alert(e))
       this.setFocus(childContent[eventVersion])
       this.setState({ panelVisible: true })
@@ -431,7 +432,14 @@ export default class PdfView extends Component {
           content.unread = this.unreadCounts[ev.getStateKey()]
           return content
         })
-        .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
+        .filter(content =>
+          content[eventVersion] &&
+          ( content[eventVersion].activityStatus === "open" ||
+            ( content[eventVersion].activityStatus === "pending" &&
+              content[eventVersion].creator === Client.client.getUserId()
+            )
+          )
+        )
       this.setState({annotationContents, filteredAnnotationContents: this.filterAnnotations(this.state.annotationFilter, annotationContents)})
     } else setTimeout(this.updateAnnotations, 500) // keep polling until the room is available
   }
@@ -519,6 +527,7 @@ export default class PdfView extends Component {
             ? <Chat class="panel-widget-1"
                 pushHistory={props.pushHistory}
                 setFocus={this.setFocus}
+                pdfId={state.roomId}
                 handleWidgetScroll={this.handleWidgetScroll}
                 focus={state.focus} />
             : null

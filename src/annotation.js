@@ -38,7 +38,9 @@ export default class AnnotationLayer extends Component {
     return (
       !!data && // filter out old eventVersions
       data.pageNumber === this.props.page &&
-      data.activityStatus !== "closed"
+      ( data.activityStatus === "open" ||
+        (data.activityStatus === "pending" && data.creator === Client.client.getUserId())
+      )
     )
   }
 
