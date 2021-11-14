@@ -24,6 +24,15 @@
     padding:5px; 
 }
 
+#text-layer > br {
+  color: transparent;
+  position: absolute;
+  white-space: pre;
+  cursor: text;
+  transform-origin: 0% 0%;
+  user-select:text;
+}
+
 #text-layer mark {
     color:transparent;
     background:black;
