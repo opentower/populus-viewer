@@ -4,6 +4,7 @@ import * as Matrix from "matrix-js-sdk"
 import { TextMessage, NoticeMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } from './message.js'
 import MessagePanel from './messagePanel.js'
 import UserColor from './userColors.js'
+import UserInfoHeader from './userInfoHeader.js'
 import Client from './client.js'
 
 export default class Chat extends Component {
@@ -145,7 +146,7 @@ export default class Chat extends Component {
     const messagedivs = messages.reduce((accumulator, event) => {
       if (!prev || prev.getSender() !== event.getSender()) {
         accumulator.push(
-          <UserInfoMessage key={`${event.getId()}-userinfo`}
+          <UserInfoHeader key={`${event.getId()}-userinfo`}
             username={event.getSender()}
             isMe={event.getSender() === Client.client.getUserId()} />
         )
@@ -244,23 +245,6 @@ export default class Chat extends Component {
   }
 }
 
-class UserInfoMessage extends Component {
-    displayName = Client.client.getUser(this.props.username).displayName
-
-    avatarUrl = Client.client.getUser(this.props.username).avatarUrl
-
-    avatarHttpURI = Client.client.getHttpUriForMxcFromHS(this.avatarUrl, 20, 20, "crop")
-
-    userColor = new UserColor(this.props.username)
-
-    render(props) {
-      const theClass = props.isMe ? "user-info-message message-from-user" : "user-info-message"
-      return <div class={theClass} style={this.userColor.styleVariables}>
-        {this.avatarHttpURI ? <img src={this.avatarHttpURI} /> : null}
-        <span>{this.displayName}</span>
-      </div>
-    }
-}
 
 class RedactedMessage extends Component {
   userColor = new UserColor(this.props.username)

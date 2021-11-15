@@ -314,7 +314,6 @@ export default class PdfView extends Component {
     const clientRects = Layout.sanitizeRects(Array.from(theRange.getClientRects())
       .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.pdfFitRatio * this.state.zoomFactor)))
     const boundingClientRect = Layout.unionRects(clientRects)
-    console.log(boundingClientRect)
     // TODO: room creation is a bit slow, might want to rework this slightly for responsiveness
     //
     // TODO: we should set room_alias_name, name, and topic in the options

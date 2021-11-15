@@ -36,6 +36,7 @@
     border-bottom: 1px solid #ababab;
     display: flex;
     align-items:center;
+    justify-content: right;
     flex-wrap:wrap;
     transition: background-color 0.5s ease;
 }
@@ -54,12 +55,51 @@
     background: var(--user_ultralight);
 }
 
-.annotation-listing-text {
-    width:100%;
-    padding-bottom:15px;
+.annotation-listing-topic {
+  width:100%;
 }
 
+.annotation-listing-pending {
+  width:100%;
+  padding:10px;
+  font-size:10pt;
+  color:#565656;
+}
+
+.annotation-listing-comment {
+    width:calc(100%);
+    padding-left:10px;
+    border: 2px solid var(--user_light);
+    margin-bottom:10px;
+    margin-top:10px;
+    background:white;
+}
+
+.annotation-listing-creator::before {
+  content: "";
+  position: absolute;
+  bottom:8px;
+  left:-25px;
+  border-right: 10px solid var(--user_light);
+  border-top: 10px solid var(--user_light);
+  border-left: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+}
+
+.annotation-listing-creator::after {
+  content: "";
+  position: absolute;
+  bottom:13px;
+  left:-25px;
+  border-right: 9px solid white;
+  border-top: 9px solid white;
+  border-left: 9px solid transparent;
+  border-bottom: 9px solid transparent;
+}
+
+
 .annotation-listing-page, .annotation-listing-creator {
+    position:relative;
     font-size:10pt;
     color:#565656;
     padding-right:10px;

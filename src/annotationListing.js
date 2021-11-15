@@ -1,11 +1,14 @@
-import { h, Component } from 'preact';
+import { h, Component, createRef, Fragment } from 'preact';
 import './styles/annotationListing.css'
 import * as Matrix from "matrix-js-sdk"
+import { renderLatexInElement } from './latex.js'
 import { eventVersion, spaceChild } from "./constants.js"
 import Client from './client.js'
 import MemberPill from './memberPill.js'
 import UserColor from './userColors.js'
 import SearchBar from './search.js'
+import { DisplayContent } from './message.js'
+import UserInfoHeader from './userInfoHeader.js'
 import * as Icons from './icons.js'
 
 export default class AnnotationListing extends Component {
@@ -177,8 +180,32 @@ export default class AnnotationListing extends Component {
   }
 }
 
-// XXX: could DRY by making a superclass from this and AnnotationRoomEntry
 class AnnotationListingEntry extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      topic: props.annotationContent.selectedText
+    }
+  }
+
+  componentDidMount () {
+    renderLatexInElement(this.comment.current)
+    // links should be processed for internal linking
+    this.setTopic()
+  }
+
+  comment = createRef()
+
+  async setTopic() {
+    this.room = await Client.client.getRoomWithState(this.props.annotationContent.roomId)
+    this.setState({
+      topic: this.room.getLiveTimeline()
+        .getState(Matrix.EventTimeline.FORWARDS)
+        .getStateEvents("m.room.topic", "")
+        ?.getContent().topic || this.props.annotationContent.selectedText
+    })
+  }
+
   handleClick = () => {
     this.props.focusByRoomId(this.props.annotationContent.roomId)
     this.props.pushHistory({
@@ -191,7 +218,7 @@ class AnnotationListingEntry extends Component {
 
   userColor = new UserColor(this.creator.userId)
 
-  render(props) {
+  render(props, state) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
     const focused = props.focus ? props.focus.roomId === this.props.annotationContent.roomId : false
     return <div style={this.userColor.styleVariables}
@@ -199,10 +226,22 @@ class AnnotationListingEntry extends Component {
       data-annotation-entry-focused={focused}
       onclick={this.handleClick}
       class="annotation-listing-entry">
-      <div class="annotation-listing-text">{props.annotationContent.selectedText}</div>
-      <div class="annotation-listing-page">page: {props.annotationContent.pageNumber}</div>
-      <div class="annotation-listing-page">unread: {props.unreadCount}</div>
-      <div class="annotation-listing-creator">creator: <MemberPill member={this.creator} /></div>
+      <div class="annotation-listing-topic">{state.topic}</div>
+      <AnnotationListingComment creator={this.creator} commentRef={this.comment} annotationContent={props.annotationContent} />
+      {/* <div class="annotation-listing-page">page: {props.annotationContent.pageNumber}</div> */}
+      {/* <div class="annotation-listing-page">unread: {props.unreadCount}</div> */}
     </div>
+  }
+}
+
+function AnnotationListingComment(props) {
+  const content = props.annotationContent.rootContent
+  if (content && content.msgtype === "m.text") {
+    return <Fragment>
+      <div ref={props.commentRef} class="annotation-listing-comment"> { DisplayContent({content}) } </div>
+      <div class="annotation-listing-creator"><MemberPill member={props.creator} /></div>
+    </Fragment>
+  } else if (props.annotationContent.activityStatus === "pending") {
+    return <div class="annotation-listing-pending">awaiting your comment... </div>
   }
 }
