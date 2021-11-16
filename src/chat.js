@@ -238,7 +238,7 @@ export default class Chat extends Component {
             <TypingIndicator key={props.focus.roomId} roomId={props.focus.roomId} />
             {/* The key prop here ensures that typing state is reset when the room changes */}
           </div>
-          <Anchor ref={this.scrollAnchor} topic={state.topic} fullyScrolled={state.fullyScrolled} />
+          <Anchor ref={this.scrollAnchor} status={props.focus.activityStatus} topic={state.topic} fullyScrolled={state.fullyScrolled} />
         </div>
       </div>
     )
@@ -266,7 +266,12 @@ function Anchor(props) {
   return props.fullyScrolled
     ? <div>
       <div id="anchor-quote">{props.topic}</div>
-      <div id="scroll-done">All messages loaded</div>
+      <div id="scroll-done">
+        { props.status === "open"
+            ? "All messages loaded"
+            : "Awaiting your comment..."
+        }
+      </div>
     </div>
     : <div id="scroll-anchor">loading...</div>
 }
