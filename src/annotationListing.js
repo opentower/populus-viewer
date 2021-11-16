@@ -229,7 +229,7 @@ class AnnotationListingEntry extends Component {
       <div class="annotation-listing-topic">{state.topic}</div>
       <AnnotationListingComment
         creator={this.creator}
-        unread={props.unreadCount > 0}
+        unread={props.unreadCount}
         commentRef={this.comment}
         annotationContent={props.annotationContent}
       />
