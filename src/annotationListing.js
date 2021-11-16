@@ -227,9 +227,12 @@ class AnnotationListingEntry extends Component {
       onclick={this.handleClick}
       class="annotation-listing-entry">
       <div class="annotation-listing-topic">{state.topic}</div>
-      <AnnotationListingComment creator={this.creator} commentRef={this.comment} annotationContent={props.annotationContent} />
-      {/* <div class="annotation-listing-page">page: {props.annotationContent.pageNumber}</div> */}
-      {/* <div class="annotation-listing-page">unread: {props.unreadCount}</div> */}
+      <AnnotationListingComment
+        creator={this.creator}
+        unread={props.unreadCount > 0}
+        commentRef={this.comment}
+        annotationContent={props.annotationContent}
+      />
     </div>
   }
 }
@@ -238,7 +241,12 @@ function AnnotationListingComment(props) {
   const content = props.annotationContent.rootContent
   if (content && content.msgtype === "m.text") {
     return <Fragment>
-      <div ref={props.commentRef} class="annotation-listing-comment"> { DisplayContent({content}) } </div>
+      <div
+        ref={props.commentRef}
+        class={props.unread
+          ? "annotation-listing-comment-unread"
+          : "annotation-listing-comment"}
+      > { DisplayContent({content}) } </div>
       <div class="annotation-listing-creator"><MemberPill member={props.creator} /></div>
     </Fragment>
   } else if (props.annotationContent.activityStatus === "pending") {
