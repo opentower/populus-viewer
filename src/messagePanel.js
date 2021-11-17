@@ -54,10 +54,11 @@ export default class MessagePanel extends Component {
 
   showLess = _ => this.setState({ buttons: this.state.buttons - 1 })
 
-  submitCurrentInput = _ => {
+  submitCurrentInput = async _ => {
     if (this.theInput.current) {
-      const theContent = this.theInput.current.submitInput()
+      const theContent = await this.theInput.current.submitInput()
       if (this.props.focus.activityStatus === "pending") {
+        console.log(theContent)
         this.openPendingAnnotation(theContent)
       }
     }

@@ -108,10 +108,14 @@
   border-bottom: 15px solid transparent;
 }
 
-
 .annotation-listing-comment-unread + .annotation-listing-creator::after {
   bottom:13px;
   left:-28px;
+}
+
+.annotation-listing-fallback {
+  color:#565656;
+  text-align:center;
 }
 
 .annotation-listing-page, .annotation-listing-creator {

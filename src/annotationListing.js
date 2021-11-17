@@ -239,14 +239,25 @@ class AnnotationListingEntry extends Component {
 
 function AnnotationListingComment(props) {
   const content = props.annotationContent.rootContent
-  if (content && content.msgtype === "m.text") {
+  if (content) {
+    let body
+    switch (content.msgtype) {
+      case "m.text" : body = DisplayContent({content}); break
+      case "m.notice" : body = <div class="annotation-listing-fallback"><p>Sent a notice</p></div>; break
+      case "m.image" : body = <div class="annotation-listing-fallback"><p>Sent a file</p></div>; break
+      case "m.video" : body = <div class="annotation-listing-fallback"><p>Sent a video</p></div>; break
+      case "m.audio" : body = <div class="annotation-listing-fallback"><p>Sent an audio recording</p></div>; break
+      default : 
+        body = <div class="annotation-listing-fallback"><p>Sent a message</p></div>
+        console.log(content)
+    }
     return <Fragment>
       <div
         ref={props.commentRef}
         class={props.unread
           ? "annotation-listing-comment-unread"
           : "annotation-listing-comment"}
-      > { DisplayContent({content}) } </div>
+      > {body} </div>
       <div class="annotation-listing-creator"><MemberPill member={props.creator} /></div>
     </Fragment>
   } else if (props.annotationContent.activityStatus === "pending") {
