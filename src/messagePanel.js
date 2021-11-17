@@ -447,32 +447,35 @@ class RecordVideoInput extends RecordMediaInput {
   captionId = "videoCaption"
 
   async submitInput () {
-    const videoElt = this.mediaPreview.current
-    const thumbContent = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
-    const thumbMxc = await Client.client.uploadContent(thumbContent.thumbnail, {
-      name: `${Client.client.getUserId()}_${Date.now()}_thumbnail`,
-      type: "image/jpeg",
-      progressHandler: this.progressHandler
-    })
-    const videoMxc = await Client.client.uploadContent(this.recordingBlob, { progressHandler: this.progressHandler })
-    const duration = Math.round(videoElt.duration * 1000)
-    const theContent = {
-      body: `${Client.client.getUserId()}_${Date.now()}`,
-      info: {
-        h: thumbContent.info.h,
-        w: thumbContent.info.w,
-        mimetype: "video/webm",
-        size: this.recordingBlob.size,
-        thumbnail_url: thumbMxc,
-        thumbnail_info: thumbContent.info.thumbnail_info
-      },
-      msgtype: "m.video",
-      url: videoMxc
-    }
-    if (duration < Infinity) theContent.info.duration = duration
-    await Client.client.sendMessage(this.props.focus.roomId, theContent)
-    this.props.done()
-    return theContent
+    if (this.state.recording === "done") {
+      const videoElt = this.mediaPreview.current
+      const thumbContent = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
+      const thumbMxc = await Client.client.uploadContent(thumbContent.thumbnail, {
+        name: `${Client.client.getUserId()}_${Date.now()}_thumbnail`,
+        type: "image/jpeg",
+        progressHandler: this.progressHandler
+      })
+      const videoMxc = await Client.client.uploadContent(this.recordingBlob, { progressHandler: this.progressHandler })
+      const duration = Math.round(videoElt.duration * 1000)
+      const theContent = {
+        body: `${Client.client.getUserId()}_${Date.now()}`,
+        info: {
+          h: thumbContent.info.h,
+          w: thumbContent.info.w,
+          mimetype: "video/webm",
+          size: this.recordingBlob.size,
+          thumbnail_url: thumbMxc,
+          thumbnail_info: thumbContent.info.thumbnail_info
+        },
+        msgtype: "m.video",
+        url: videoMxc
+      }
+      if (duration < Infinity) theContent.info.duration = duration
+      await Client.client.sendMessage(this.props.focus.roomId, theContent)
+      this.props.done()
+      return theContent
+    } 
+    alert("Before submitting, you need to record something.")
   }
 
   render(props, state) {
@@ -508,22 +511,24 @@ class RecordAudioInput extends RecordMediaInput {
   captionId = "audioCaption"
 
   async submitInput () {
-    const audioElt = this.mediaPreview.current
-    const duration = Math.round(audioElt.duration * 1000)
-    const audioMxc = await Client.client.uploadContent(this.recordingBlob, { progressHandler: this.progressHandler })
-    const theContent = {
-      body: `${Client.client.getUserId()}_${Date.now()}`,
-      info: {
-        mimetype: "audio/webm",
-        size: this.recordingBlob.size
-      },
-      msgtype: "m.audio",
-      url: audioMxc
-    }
-    if (duration < Infinity) theContent.info.duration = duration
-    await Client.client.sendMessage(this.props.focus.roomId, theContent)
-    this.props.done()
-    return theContent
+    if (this.state.recording === "done") {
+      const audioElt = this.mediaPreview.current
+      const duration = Math.round(audioElt.duration * 1000)
+      const audioMxc = await Client.client.uploadContent(this.recordingBlob, { progressHandler: this.progressHandler })
+      const theContent = {
+        body: `${Client.client.getUserId()}_${Date.now()}`,
+        info: {
+          mimetype: "audio/webm",
+          size: this.recordingBlob.size
+        },
+        msgtype: "m.audio",
+        url: audioMxc
+      }
+      if (duration < Infinity) theContent.info.duration = duration
+      await Client.client.sendMessage(this.props.focus.roomId, theContent)
+      this.props.done()
+      return theContent
+    } else alert("Before submitting, you need to record something")
   }
 
   render(props, state) {
