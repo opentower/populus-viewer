@@ -23,12 +23,18 @@ export default class MessagePanel extends Component {
   theInput = createRef()
 
   getInput () {
+    let theProps = {
+      ref: this.theInput,
+      submit: this.submitCurrentInput,
+      focus: this.props.focus,
+      handlePending: this.openPendingAnnotation,
+    }
     switch (this.state.mode) {
-      case 'Default': return <TextMessageInput ref={this.theInput} submit={this.submitCurrentInput} focus={this.props.focus} />
-      case 'SendFile': return <FileUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
-      case 'SendMedia': return <MediaUploadInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
-      case 'RecordVideo': return <RecordVideoInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
-      case 'RecordAudio': return <RecordAudioInput ref={this.theInput} done={this.setModeDefault} focus={this.props.focus} />
+      case 'Default': return <TextMessageInput {...theProps} />
+      case 'SendFile': return <FileUploadInput {...theProps} />
+      case 'SendMedia': return <MediaUploadInput {...theProps} />
+      case 'RecordVideo': return <RecordVideoInput {...theProps} />
+      case 'RecordAudio': return <RecordAudioInput {...theProps} />
     }
   }
 
@@ -54,28 +60,26 @@ export default class MessagePanel extends Component {
 
   showLess = _ => this.setState({ buttons: this.state.buttons - 1 })
 
-  submitCurrentInput = async _ => {
-    if (this.theInput.current) {
-      const theContent = await this.theInput.current.submitInput()
-      if (this.props.focus.activityStatus === "pending") {
-        console.log(theContent)
-        this.openPendingAnnotation(theContent)
-      }
-    }
+  submitCurrentInput = _ => {
+    if (this.theInput.current) this.theInput.current.submitInput()
   }
 
-  openPendingAnnotation = theContent => {
-    const diff = {
-      activityStatus: "open",
-      rootContent: theContent
+  openPendingAnnotation = (theContent, eventInterface) => {
+    if (this.props.focus.activityStatus === "pending") {
+      const diff = {
+        activityStatus: "open",
+        rootEventId: eventInterface.event_id,
+        rootContent: theContent
+      }
+      const childContent = {
+        via: [theDomain],
+        [eventVersion]: Object.assign(this.props.focus, diff)
+      }
+      console.log(childContent)
+      Client.client
+        .sendStateEvent(this.props.pdfId, spaceChild, childContent, this.props.focus.roomId)
+        .catch(e => alert(e))
     }
-    const childContent = {
-      via: [theDomain],
-      [eventVersion]: Object.assign(this.props.focus, diff)
-    }
-    Client.client
-      .sendStateEvent(this.props.pdfId, spaceChild, childContent, this.props.focus.roomId)
-      .catch(e => alert(e))
   }
 
   render(props, state) {
@@ -97,11 +101,11 @@ export default class MessagePanel extends Component {
                   <button title="record audio message" onclick={this.setModeRecordAudio}>{Icons.mic}</button>
               </Fragment>
             }
-          </Fragment>
-          : <Fragment>
-              <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
-              <button id="cancelButton" onclick={this.setModeDefault}>Cancel</button>
-          </Fragment>
+            </Fragment>
+            : <Fragment>
+                <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
+                <button id="cancelButton" onclick={this.setModeDefault}>Cancel</button>
+            </Fragment>
         }
       </div>
     </div>
@@ -126,9 +130,9 @@ class FileUploadInput extends Component {
       msgtype: "m.file",
       url: mxc
     }
-    await Client.client.sendMessage(this.props.focus.roomId, theContent)
+    const eventI = await Client.client.sendMessage(this.props.focus.roomId, theContent)
+    this.props.handlePending(theContent, eventI)
     this.props.done()
-    return theContent
   }
 
   progressHandler = (progress) => this.setState({progress})
@@ -180,7 +184,6 @@ class MediaUploadInput extends Component {
       }
     }
     this.props.done()
-    return theContent
   }
 
   async submitVideo () {
@@ -209,8 +212,8 @@ class MediaUploadInput extends Component {
       url: videoMxc
     }
     if (duration < Infinity) theContent.duration = duration
-    await Client.client.sendMessage(this.props.focus.roomId, theContent)
-    return theContent
+    const eventI = await Client.client.sendMessage(this.props.focus.roomId, theContent)
+    this.props.handlePending(theContent, eventI)
   }
 
   async submitImage () {
@@ -238,8 +241,8 @@ class MediaUploadInput extends Component {
       msgtype: "m.image",
       url: imageMxc
     }
-    await Client.client.sendMessage(this.props.focus.roomId, theContent)
-    return theContent
+    const eventI = await Client.client.sendMessage(this.props.focus.roomId, theContent)
+    this.props.handlePending(theContent, eventI)
   }
 
   progressHandler = (progress) => this.setState({progress})
@@ -326,10 +329,11 @@ class TextMessageInput extends Component {
         format: "org.matrix.custom.html",
         formatted_body: rendered
       }
-      Client.client.sendMessage(this.props.focus.roomId, theContent)
+      Client.client.sendMessage(this.props.focus.roomId, theContent).then(eventI => {
+        this.props.handlePending(theContent, eventI)
+      })
       this.currentInput.current.style.height = null
       this.setValue("")
-      return theContent
     }
   }
 
@@ -471,9 +475,9 @@ class RecordVideoInput extends RecordMediaInput {
         url: videoMxc
       }
       if (duration < Infinity) theContent.info.duration = duration
-      await Client.client.sendMessage(this.props.focus.roomId, theContent)
+      const eventI = await Client.client.sendMessage(this.props.focus.roomId, theContent)
+      this.props.handlePending(theContent, eventI)
       this.props.done()
-      return theContent
     } 
     alert("Before submitting, you need to record something.")
   }
@@ -525,9 +529,9 @@ class RecordAudioInput extends RecordMediaInput {
         url: audioMxc
       }
       if (duration < Infinity) theContent.info.duration = duration
-      await Client.client.sendMessage(this.props.focus.roomId, theContent)
+      const eventI = await Client.client.sendMessage(this.props.focus.roomId, theContent)
+      this.props.handlePending(theContent, eventI)
       this.props.done()
-      return theContent
     } else alert("Before submitting, you need to record something")
   }
 
