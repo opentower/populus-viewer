@@ -55,7 +55,6 @@ export default class MessagePanel extends Component {
   showLess = _ => this.setState({ buttons: this.state.buttons - 1 })
 
   submitCurrentInput = _ => {
-    console.log(this.props.focus)
     if (this.theInput.current) {
       const theContent = this.theInput.current.submitInput()
       if (this.props.focus.activityStatus === "pending") {
@@ -73,7 +72,6 @@ export default class MessagePanel extends Component {
       via: [theDomain],
       [eventVersion]: Object.assign(this.props.focus, diff)
     }
-    console.log(childContent)
     Client.client
       .sendStateEvent(this.props.pdfId, spaceChild, childContent, this.props.focus.roomId)
       .catch(e => alert(e))
