@@ -49,11 +49,9 @@ export default class Chat extends Component {
   }
 
   handleScroll = e => {
+    if (this.props.handleWidgetScroll) this.props.handleWidgetScroll(e)
     clearTimeout(this.debounceTimeout)
-    this.debounceTimeout = setTimeout(_ => {
-      this.tryBackfill()
-      if (this.props.handleWidgetScroll) this.props.handleWidgetScroll(e)
-    }, 200)
+    this.debounceTimeout = setTimeout(this.tryBackfill, 200)
   }
 
   tryBackfill = _ => {

@@ -113,8 +113,8 @@ export default class PdfView extends Component {
   }
 
   handleWidgetScroll = e => {
-    if (this.prevScrollTop > e.target.scrollTop) this.setState({hideButtons: true})
-    if (this.prevScrollTop < e.target.scrollTop) this.setState({hideButtons: false})
+    if (this.prevScrollTop < e.target.scrollTop && !this.state.hideButtons) this.setState({hideButtons: true})
+    if (this.prevScrollTop > e.target.scrollTop && this.state.hideButtons) this.setState({hideButtons: false})
     this.prevScrollTop = e.target.scrollTop
   }
 
@@ -232,7 +232,8 @@ export default class PdfView extends Component {
       QueryParameters.set("focus", roomId)
       this.setState({
         focus: theAnnotation.getContent()[eventVersion],
-        panelVisible: true
+        panelVisible: true,
+        hideButtons: false
       })
     }
   }

@@ -102,10 +102,10 @@ export default class MessagePanel extends Component {
               </Fragment>
             }
             </Fragment>
-            : <Fragment>
-                <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
-                <button id="cancelButton" onclick={this.setModeDefault}>Cancel</button>
-            </Fragment>
+          : <Fragment>
+              <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
+              <button id="cancelButton" onclick={this.setModeDefault}>Cancel</button>
+          </Fragment>
         }
       </div>
     </div>
