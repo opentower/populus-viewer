@@ -168,7 +168,16 @@ class AnnotationListingEntry extends Component {
     this.setTopic()
   }
 
+  componentDidUpdate(prevProps) {
+    if (prevProps.focus?.roomId !== this.props.annotationContent.roomId &&
+      this.props.focus?.roomId === this.props.annotationContent.roomId) {
+      this.entry.current.scrollIntoView()
+    }
+  }
+
   comment = createRef()
+
+  entry = createRef()
 
   async setTopic() {
     this.room = await Client.client.getRoomWithState(this.props.annotationContent.roomId)
@@ -194,10 +203,11 @@ class AnnotationListingEntry extends Component {
 
   render(props, state) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
-    const focused = props.focus ? props.focus.roomId === this.props.annotationContent.roomId : false
+    const focused = props.focus?.roomId === this.props.annotationContent.roomId
     return <div style={this.userColor.styleVariables}
       data-annotation-entry-typing={typing}
       data-annotation-entry-focused={focused}
+      ref={this.entry}
       onclick={this.handleClick}
       class="annotation-listing-entry">
       <div class="annotation-listing-topic">{state.topic}</div>
