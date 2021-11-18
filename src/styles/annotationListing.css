@@ -64,6 +64,7 @@
   padding:10px;
   font-size:10pt;
   color:#565656;
+  text-align: right;
 }
 
 .annotation-listing-comment, .annotation-listing-comment-unread {
@@ -113,17 +114,16 @@
   left:-28px;
 }
 
+.annotation-listing-creator {
+    position:relative;
+    font-size:10pt;
+    padding-right:10px;
+    user-select: none;
+}
+
 .annotation-listing-fallback {
   color:#565656;
   text-align:center;
-}
-
-.annotation-listing-page, .annotation-listing-creator {
-    position:relative;
-    font-size:10pt;
-    color:#565656;
-    padding-right:10px;
-    user-select: none;
 }
 
 #annotation-panel-button-wrapper {
