@@ -88,8 +88,6 @@ export default class Navbar extends Component {
     });
   }
 
-  firstPage = _ => this.props.pushHistory({pageFocused: 1 })
-
   prevPage = _ => {
     if (this.props.page > 1) {
       this.props.pushHistory({pageFocused: this.props.page - 1}, _ => {
@@ -106,8 +104,6 @@ export default class Navbar extends Component {
       this.props.container.current.scrollTop = 0
     })
   }
-
-  lastPage = _ => this.props.pushHistory({ pageFocused: this.props.total})
 
   openInvite = _ => this.props.populateModal(
     <Invite populateModal={this.props.populateModal}
@@ -138,7 +134,7 @@ export default class Navbar extends Component {
         <div class="nav-button-wrapper top-wrapper">
           <button title="Go to main menu&#013;Shortcut: Esc" onclick={this.mainMenu}>{Icons.home}</button>
           <button title="Add annotation&#013;Shortcut: Alt + a " disabled={props.selected ? null : "disabled"} onclick={props.openAnnotation}>{Icons.addAnnotation}</button>
-          <button title="Go to first page&#013;Shortcut: h" disabled={props.page > 1 ? null : "disabled"} onclick={this.firstPage}>{Icons.chevronsLeft}</button>
+          <button title="Go to previous annotation&#013;Shortcut: Alt + Shift + Tab" onclick={props.focusPrev}>{Icons.chevronsLeft}</button>
           <button title="Go to previous page&#013;Shortcuts: k, &larr;" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
           <form onSubmit={this.handleSubmit}>
             <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="Show page navigation">{Icons.page}</button>
@@ -152,7 +148,7 @@ export default class Navbar extends Component {
             <span ref={this.pageTotal} id="nav-total-pages">{props.total}</span>
           </form>
           <button title="Go to next page&#013;Shortcuts: j, &rarr;" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
-          <button title="Go to last page&#013;Shortcut: l" disabled={props.total > props.page ? null : "disabled"} onclick={this.lastPage}>{Icons.chevronsRight}</button>
+          <button title="Go to next annotation&#013;Shortcut: Alt + Tab" onclick={props.focusNext}>{Icons.chevronsRight}</button>
           <button title="Remove annotation&#013;Shortcut: Alt + r" disabled={props.focus && !props.selected ? null : "disabled"} onclick={props.closeAnnotation}>{Icons.removeAnnotation}</button>
           <button title="More options" onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
         </div>

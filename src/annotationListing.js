@@ -46,32 +46,6 @@ export default class AnnotationListing extends Component {
 
   setFocus = searchFocus => this.setState({searchFocus})
 
-  focusInArray (array) {
-    let reachedFocus = !this.props.focus
-    for (const annot of array) {
-      const theId = annot[eventVersion].roomId
-      if (reachedFocus) {
-        const unread = this.props.unreadCounts?.[theId] || "All"
-        if (unread > 0 || unread === "All") {
-          this.props.focusByRoomId(theId)
-          this.props.pushHistory({ pageFocused: annot[eventVersion].pageNumber })
-          break
-        }
-      } else {
-        reachedFocus = this.props.focus.roomId === theId
-      }
-    }
-  }
-
-  nextUnread = _ => {
-    this.focusInArray(this.props.filteredAnnotationContents)
-  }
-
-  prevUnread = _ => {
-    const clone = [... this.props.filteredAnnotationContents]
-    this.focusInArray(clone.reverse())
-  }
-
   getSortFunc() {
     switch (this.state.sort) {
       case 'Page': return this.byPage
@@ -169,8 +143,8 @@ export default class AnnotationListing extends Component {
                   }
               </div>
               <div id="annotation-panel-button-wrapper" data-mode={state.searchFocus ? "search" : "navigation"}>
-                <button onclick={this.prevUnread} class="styled-button">Prev Unread</button>
-                <button onclick={this.nextUnread} class="styled-button">Next Unread</button>
+                <button onclick={this.props.focusPrev} class="styled-button">Previous</button>
+                <button onclick={this.props.focusNext} class="styled-button">Next</button>
                 <SearchBar
                   search={props.annotationFilter}
                   setSearch={props.setAnnotationFilter}

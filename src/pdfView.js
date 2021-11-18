@@ -238,6 +238,32 @@ export default class PdfView extends Component {
     }
   }
 
+  focusNextInArray = array => {
+    let reachedFocus = !this.state.focus
+    if (!array) return
+    for (const annot of array) {
+      const theId = annot[eventVersion].roomId
+      if (reachedFocus) {
+        this.focusByRoomId(theId)
+        this.props.pushHistory({ pageFocused: annot[eventVersion].pageNumber })
+        return
+      } else {
+        reachedFocus = this.state.focus.roomId === theId
+      }
+    }
+    this.focusByRoomId(array[0][eventVersion].roomId)
+    this.props.pushHistory({ pageFocused: array[0][eventVersion].pageNumber })
+  }
+
+  focusNext = _ => {
+    this.focusNextInArray(this.state.filteredAnnotationContents)
+  }
+
+  focusPrev = _ => {
+    const clone = [... this.state.filteredAnnotationContents]
+    this.focusNextInArray(clone.reverse())
+  }
+
   togglePanel = () => this.setState({panelVisible: !this.state.panelVisible})
 
   checkForSelection () {
@@ -253,16 +279,13 @@ export default class PdfView extends Component {
     if (e.altKey && e.key === 'a') this.openAnnotation()
     if (e.altKey && e.key === 'r') this.closeAnnotation()
     if (e.altKey && e.key === 'v') this.toggleAnnotations()
+    if (e.altKey && !e.shiftKey && e.key === 'Tab') this.focusNext()
+    if (e.altKey && e.shiftKey && e.key === 'Tab') this.focusPrev()
     if (e.ctrlKey || e.altKey || e.metaKey) return // Don't catch browser shortcuts
     if (e.key === '+') this.setZoom(this.state.zoomFactor + 0.1)
     if (e.key === '=') this.setZoom(this.state.zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(this.state.zoomFactor - 0.1)
     if (e.key === "Esc" || e.key === "Escape") this.props.pushHistory({pdfFocused: null, pageFocused: null});
-    if (e.key === 'h') {
-      this.props.pushHistory({pageFocused: 1 }, _ => {
-        this.contentContainer.current.scrollTop = 0
-      })
-    }
     if (e.key === 'j' || e.key === "ArrowRight") {
       if (this.props.pageFocused < this.state.totalPages) {
         this.props.pushHistory({ pageFocused: this.props.pageFocused + 1 }, _ => {
@@ -290,11 +313,6 @@ export default class PdfView extends Component {
           this.contentContainer.current.scrollTop = this.contentContainer.current.scrollHeight
         })
       }
-    }
-    if (e.key === 'l') {
-      this.props.pushHistory({pageFocused: this.state.totalPages}, _ => {
-        this.contentContainer.current.scrollTop = 0
-      })
     }
   }
 
@@ -552,6 +570,8 @@ export default class PdfView extends Component {
                   filteredAnnotationContents={state.filteredAnnotationContents}
                   handleWidgetScroll={this.handleWidgetScroll}
                   focusByRoomId={this.focusByRoomId}
+                  focusNext={this.focusNext}
+                  focusPrev={this.focusPrev}
                   pushHistory={props.pushHistory}
                   unreadCounts={this.unreadCounts}
                   room={theRoom}
@@ -565,6 +585,8 @@ export default class PdfView extends Component {
           total={state.totalPages}
           focus={state.focus}
           roomId={state.roomId}
+          focusNext={this.focusNext}
+          focusPrev={this.focusPrev}
           searchString={state.searchString}
           pdfWidthPx={state.pdfWidthPx}
           container={this.contentContainer}
