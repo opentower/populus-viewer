@@ -24,13 +24,11 @@ export default class PopupMenu extends Component {
   cancel = _ => this.setState({active: null})
 
   // we use this instead of keydown for compatibility with mobile chrome
+  //
+  // TODO For reusability, we'll eventually make this a prop
   handleInput = e => {
-    if (e.data === "@") {
-      this.setState({active: "member"})
-    }
-    if (e.data === ":") {
-      this.setState({active: "emoji"})
-    }
+    if (e.data === "@") this.setState({active: props => <PopupMenuMembers {...props} />})
+    if (e.data === ":") this.setState({active: props => <PopupMenuEmojis {...props} />})
   }
 
   insert = (insertion, regex) => {
@@ -51,22 +49,14 @@ export default class PopupMenu extends Component {
   }
 
   render(props, state) {
-    switch (state.active) {
-      case "emoji" : return <PopupMenuEmojis
-          insert={this.insert}
-          cancel={this.cancel}
-          textarea={props.textarea}
-          textValue={props.textValue}
-          roomId={props.roomId}
-        />
-      case "member" : return <PopupMenuMembers
-          insert={this.insert}
-          cancel={this.cancel}
-          textarea={props.textarea}
-          textValue={props.textValue}
-          roomId={props.roomId}
-        />
-      default: return null
+    if (state.active) {
+      return state.active({
+        insert: this.insert,
+        cancel: this.cancel,
+        textarea: props.textarea,
+        textValue: props.textValue,
+        roomId: props.roomId
+      })
     }
   }
 }
@@ -124,6 +114,7 @@ export class PopupMenuEmojis extends Component {
     const selend = this.props.textarea.current.selectionEnd
     if (selstart === selend) {
       const matches = this.props.textValue.slice(0, selend).match(/:\S*$/)
+      console.log(matches)
       if (matches) {
         const match = matches[0].slice(1)
         if (match.length < 2) return this.setState({ popupItems: [] })
