@@ -29,7 +29,7 @@ export default class AnnotationListing extends Component {
     document.addEventListener('keydown', this.handleKeydown)
   }
 
-  componentDidUnmount () {
+  componentWillUnmount () {
     Client.client.off("RoomMember.typing", this.handleTypingNotification)
     document.removeEventListener('keydown', this.handleKeydown)
   }
