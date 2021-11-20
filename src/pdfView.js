@@ -482,7 +482,7 @@ export default class PdfView extends Component {
       return searchText.every(term =>
         content[eventVersion].selectedText.toLowerCase().includes(term.toLowerCase()) ||
         content[eventVersion]?.rootContent?.body.toLowerCase().includes(term.toLowerCase())) &&
-        searchMembers.every(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase())) &&
+        (!searchMembers.length || searchMembers.some(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase()))) &&
         flagged
     })
   }
