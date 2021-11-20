@@ -109,6 +109,7 @@ export default class PdfCanvas extends Component {
     try { this.pendingRender.cancel() } catch (err) { console.log(err) }
     try { this.pendingTextRender.cancel() } catch (err) { console.log(err) }
     // and we clear the textlayer.
+    this.cleanText = ""
     this.props.textLayer.current.innerHTML = ''
     return controlToken
   }
