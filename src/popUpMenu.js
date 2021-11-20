@@ -23,16 +23,8 @@ export class Menu extends Component {
 
   cancel = _ => this.setState({active: null})
 
-  actions = {
-    "@": props => <Members {...props} />,
-    ":": props => <Emojis {...props} />
-  }
-
-  // we use this instead of keydown for compatibility with mobile chrome
-  //
-  // TODO For reusability, we'll eventually make this a prop
-  handleInput = e => this.actions[e.data]
-    ? this.setState({ active: this.actions[e.data] })
+  handleInput = e => this.props.actions[e.data]
+    ? this.setState({ active: this.props.actions[e.data] })
     : null
 
   insert = (insertion, regex) => {

@@ -518,12 +518,18 @@ class MessageEditor extends Component {
     Client.client.sendEvent(this.props.event.getRoomId(), "m.reaction", theReactionContent).then(_ => this.props.closeEditor())
   }
 
+  popupActions = {
+    "@": props => <PopupMenu.Members {...props} />,
+    ":": props => <PopupMenu.Emojis {...props} />
+  }
+
   render(_props, state) {
     return <div class="replyComposer">
       <PopupMenu.Menu
         roomId={this.props.event.getRoomId()}
         textValue={state.value}
         textarea={this.input}
+        actions={this.popupActions}
         setTextValue={this.setValue}
       />
       <textarea ref={this.input}
@@ -575,6 +581,11 @@ class ReplyComposer extends Component {
     }).then(_ => this.props.closeEditor())
   }
 
+  popupActions = {
+    "@": props => <PopupMenu.Members {...props} />,
+    ":": props => <PopupMenu.Emojis {...props} />
+  }
+
   render(_props, state) {
     return <div class="replyComposer">
       <PopupMenu.Menu
@@ -582,6 +593,7 @@ class ReplyComposer extends Component {
         textValue={state.value}
         textarea={this.input}
         setTextValue={this.setValue}
+        actions={this.popupActions}
       />
       <textarea ref={this.input}
         value={state.value}
