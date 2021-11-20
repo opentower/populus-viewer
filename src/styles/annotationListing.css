@@ -151,7 +151,7 @@
 }
 
 #annotation-panel-button-wrapper[data-mode="navigation"] .search-bar > input {
-  opacity:0;
+  background-color:white;
 }
 
 #annotation-panel-button-wrapper .search-bar > .clear-icon,
