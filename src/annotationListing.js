@@ -26,10 +26,12 @@ export default class AnnotationListing extends Component {
 
   componentDidMount () {
     Client.client.on("RoomMember.typing", this.handleTypingNotification)
+    document.addEventListener('keydown', this.handleKeydown)
   }
 
   componentDidUnmount () {
     Client.client.off("RoomMember.typing", this.handleTypingNotification)
+    document.removeEventListener('keydown', this.handleKeydown)
   }
 
   handleTypingNotification = (event, member) => {
@@ -43,6 +45,11 @@ export default class AnnotationListing extends Component {
         return {typing: { ...prevState.typing, [member.roomId]: typingOtherThanMe}}
       })
     }
+  }
+
+  handleKeydown = e => {
+    if (e.altKey && !e.shiftKey && e.key === 'Tab') this.props.focusNext()
+    if (e.altKey && e.shiftKey && e.key === 'Tab') this.props.focusPrev()
   }
 
   setFocus = searchFocus => this.setState({searchFocus})
