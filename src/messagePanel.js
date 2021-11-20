@@ -7,7 +7,7 @@ import { addLatex } from './latex.js'
 import UserColor from './userColors.js'
 import Client from './client.js'
 import AudioVisualizer from './audioVisualizer.js'
-import PopUpMenu from './popUpMenu.js'
+import * as PopupMenu from './popUpMenu.js'
 
 export default class MessagePanel extends Component {
   constructor (props) {
@@ -339,7 +339,7 @@ class TextMessageInput extends Component {
 
   render (props, state) {
     return <Fragment>
-      <PopUpMenu
+      <PopupMenu.Menu
         roomId={props.focus.roomId}
         textValue={state.value}
         textarea={this.currentInput}

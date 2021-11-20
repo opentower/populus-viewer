@@ -4,7 +4,7 @@ import UserColor from './userColors.js'
 import { Database } from 'emoji-picker-element'
 import './styles/popUpMenu.css'
 
-export default class PopupMenu extends Component {
+export class Menu extends Component {
   componentDidMount () {
     if (this.props.textarea) {
       this.props.textarea.current.addEventListener("input", this.handleInput)
@@ -23,13 +23,17 @@ export default class PopupMenu extends Component {
 
   cancel = _ => this.setState({active: null})
 
+  actions = {
+    "@": props => <Members {...props} />,
+    ":": props => <Emojis {...props} />
+  }
+
   // we use this instead of keydown for compatibility with mobile chrome
   //
   // TODO For reusability, we'll eventually make this a prop
-  handleInput = e => {
-    if (e.data === "@") this.setState({active: props => <PopupMenuMembers {...props} />})
-    if (e.data === ":") this.setState({active: props => <PopupMenuEmojis {...props} />})
-  }
+  handleInput = e => this.actions[e.data]
+    ? this.setState({ active: this.actions[e.data] })
+    : null
 
   insert = (insertion, regex) => {
     const selstart = this.props.textarea.current.selectionStart
@@ -61,7 +65,7 @@ export default class PopupMenu extends Component {
   }
 }
 
-export class PopupMenuEmojis extends Component {
+export class Emojis extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -129,7 +133,7 @@ export class PopupMenuEmojis extends Component {
                   ? (b.shortcodes[0].includes(match) ? 0 : -1)
                   : (b.shortcodes[0].includes(match) ? 1 : 0)
               }).slice(0, 3).map((emoji, idx) =>
-              <PopupMenuEmoji
+              <Emoji
                 key={emoji.unicode}
                 emoji={emoji}
                 insert={this.props.insert}
@@ -160,7 +164,7 @@ export class PopupMenuEmojis extends Component {
   }
 }
 
-class PopupMenuEmoji extends Component {
+class Emoji extends Component {
   insertEmoji = e => {
     e.preventDefault() // try to prevent textarea losing focus
     this.props.insert(this.props.emoji.unicode, /:\S*$/)
@@ -177,7 +181,7 @@ class PopupMenuEmoji extends Component {
   }
 }
 
-export class PopupMenuMembers extends Component {
+export class Members extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -226,7 +230,7 @@ export class PopupMenuMembers extends Component {
         .filter(member => member.userId.includes(value) || member.name.includes(value))
       return matchingMembers
         .slice(0, 3) // top 3
-        .map((member, idx) => <PopupMenuMember
+        .map((member, idx) => <Member
           insert={this.insert}
           key={member.userId}
           selected={this.state.selection === idx}
@@ -271,7 +275,7 @@ export class PopupMenuMembers extends Component {
   }
 }
 
-class PopupMenuMember extends Component {
+class Member extends Component {
   colorFromId = new UserColor(this.props.member.userId)
 
   insertName = e => {

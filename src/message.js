@@ -7,7 +7,7 @@ import { sanitizeHtmlParams } from './constants.js'
 import Client from './client.js'
 import * as Icons from './icons.js'
 import * as Replies from './utils/replies.js'
-import PopUpMenu from './popUpMenu.js'
+import * as PopupMenu from './popUpMenu.js'
 import './styles/message.css'
 
 export class TextMessage extends Component {
@@ -520,7 +520,7 @@ class MessageEditor extends Component {
 
   render(_props, state) {
     return <div class="replyComposer">
-      <PopUpMenu
+      <PopupMenu.Menu
         roomId={this.props.event.getRoomId()}
         textValue={state.value}
         textarea={this.input}
@@ -577,7 +577,7 @@ class ReplyComposer extends Component {
 
   render(_props, state) {
     return <div class="replyComposer">
-      <PopUpMenu 
+      <PopupMenu.Menu
         roomId={this.props.event.getRoomId()}
         textValue={state.value}
         textarea={this.input}
