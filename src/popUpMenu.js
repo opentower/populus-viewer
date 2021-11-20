@@ -51,7 +51,6 @@ export class Menu extends Component {
         cancel: this.cancel,
         textarea: props.textarea,
         textValue: props.textValue,
-        roomId: props.roomId
       })
     }
   }
@@ -139,7 +138,7 @@ export class Emojis extends Component {
     this.props.cancel()
   }
 
-  insertSelection() {
+  insertSelection = _ => {
     const emoji = this.state.popupItems[this.state.selection].props.emoji.unicode
     this.props.insert(emoji, /:\S*$/)
   }
@@ -223,7 +222,7 @@ export class Members extends Component {
       return matchingMembers
         .slice(0, 3) // top 3
         .map((member, idx) => <Member
-          insert={this.insert}
+          insert={this.props.insert}
           key={member.userId}
           selected={this.state.selection === idx}
           member={member} />
@@ -232,7 +231,7 @@ export class Members extends Component {
     return []
   }
 
-  insertSelection() {
+  insertSelection = _ => {
     const userId = this.state.popupItems[this.state.selection].props.member.userId
     this.props.insert(`@${userId.split(":")[0].substring(1)} `, /@\S*$/)
   }

@@ -337,13 +337,18 @@ class TextMessageInput extends Component {
     }
   }
 
+  popupActions = {
+    "@": props => <PopupMenu.Members roomId={this.props.focus.roomId} {...props} />,
+    ":": props => <PopupMenu.Emojis {...props} />
+  }
+
   render (props, state) {
     return <Fragment>
       <PopupMenu.Menu
-        roomId={props.focus.roomId}
         textValue={state.value}
         textarea={this.currentInput}
         setTextValue={this.setValue}
+        actions={this.popupActions}
       />
       <textarea ref={this.currentInput}
         value={state.value}

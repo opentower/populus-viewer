@@ -10,6 +10,7 @@ import SearchBar from './search.js'
 import { DisplayContent } from './message.js'
 import UserInfoHeader from './userInfoHeader.js'
 import * as Icons from './icons.js'
+import * as PopupMenu from './popUpMenu.js'
 
 export default class AnnotationListing extends Component {
   constructor(props) {
@@ -45,6 +46,8 @@ export default class AnnotationListing extends Component {
   }
 
   setFocus = searchFocus => this.setState({searchFocus})
+
+  searchInput = createRef()
 
   getSortFunc() {
     switch (this.state.sort) {
@@ -103,6 +106,10 @@ export default class AnnotationListing extends Component {
 
   flipSort = _ => this.setState(oldState => { return { sortOrder: oldState.sortOrder * -1 } })
 
+  popupActions = {
+    "@": props => <PopupMenu.Members roomId={this.props.roomId} {...props} />,
+  }
+
   render (props, state) {
     return <div id="annotation-panel" class={props.class}>
               <div id="annotation-entries-wrapper" onscroll={props.handleWidgetScroll}>
@@ -143,9 +150,14 @@ export default class AnnotationListing extends Component {
                   }
               </div>
               <div id="annotation-panel-button-wrapper" data-mode={state.searchFocus ? "search" : "navigation"}>
-                <button onclick={this.props.focusPrev} class="styled-button">Previous</button>
-                <button onclick={this.props.focusNext} class="styled-button">Next</button>
+                <PopupMenu.Menu
+                  textValue={props.annotationFilter}
+                  textarea={this.searchInput}
+                  actions={this.popupActions}
+                  setTextValue={props.setAnnotationFilter}
+                />
                 <SearchBar
+                  searchInput={this.searchInput}
                   search={props.annotationFilter}
                   setSearch={props.setAnnotationFilter}
                   setFocus={this.setFocus} />

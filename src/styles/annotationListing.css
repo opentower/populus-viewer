@@ -128,26 +128,16 @@
 
 #annotation-panel-button-wrapper {
   position:absolute;
-  display:grid;
-  column-gap: 0px;
-  grid-template-columns: 1fr 1fr 40px;
   bottom:0px;
   width:100%;
 }
 
-#annotation-panel-button-wrapper[data-mode="navigation"] .search-bar {
-  border: 2px solid black;
-  margin:0px;
-  border-left:none;
-  background-color:white;
-}
-
-#annotation-panel-button-wrapper[data-mode="search"] .search-bar {
-  grid-column: 1/4;
+#annotation-panel-button-wrapper .search-bar {
   margin:0px;
   padding:0px;
   height:36px;
   border: 2px solid black;
+  background-color:white;
 }
 
 #annotation-panel-button-wrapper[data-mode="search"] .search-bar > input {

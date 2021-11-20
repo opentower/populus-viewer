@@ -11,7 +11,7 @@ export default class SearchBar extends Component {
     document.removeEventListener('keydown', this.keydownHandler)
   }
 
-  searchInput = createRef()
+  searchInput = this.props.searchInput || createRef()
 
   keydownHandler = e => {
     const searchPredicate = this.props.searchPredicate ||
