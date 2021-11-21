@@ -61,10 +61,23 @@
     background-color:white;
 }
 
+#submit-button-wrapper > button:focus,
+.replyComposer > button:focus,
+.messageEditor > button:focus {
+    border:3px solid black;
+    border-left:1px solid black;
+}
+
 #submit-button-wrapper > button:first-child,
 .replyComposer > button:first-child,
 .messageEditor > button:first-child {
     border:2px solid black;
+}
+
+#submit-button-wrapper > button:first-child:focus,
+.replyComposer > button:first-child:focus,
+.messageEditor > button:first-child:focus {
+    border:3px solid black;
 }
 
 .replyComposer > button,

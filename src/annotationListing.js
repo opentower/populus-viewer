@@ -119,7 +119,9 @@ export default class AnnotationListing extends Component {
 
   render (props, state) {
     return <div id="annotation-panel" class={props.class}>
-              <div id="annotation-entries-wrapper" onscroll={props.handleWidgetScroll}>
+              <div id="annotation-entries-wrapper" 
+                onscroll={props.handleWidgetScroll}
+                tabindex="-1">
                 <div id="annotation-controls">
                   <span class="small-icon"
                     style="cursor: pointer"

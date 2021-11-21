@@ -43,13 +43,20 @@ body {
     font-weight:bold;
     background-color:white;
     user-select:none;
-    margin:0px;
+    margin:2px;
 }
 
 .styled-button:disabled {
     color:#555555;
     border:2px solid #555555;
     cursor:not-allowed;
+}
+
+.styled-button:focus {
+    border:3px solid black;
+    margin:0px;
+    position:relative;
+    left:-1px;
 }
 
 .styled-progress {

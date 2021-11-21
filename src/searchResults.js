@@ -133,7 +133,7 @@ class SearchResult extends Component {
   result = createRef()
 
   componentDidUpdate(prevProps) {
-    if (this.props.focusedResult !== prevProps.focusedResult && 
+    if (this.props.focusedResult !== prevProps.focusedResult &&
       this.props.index === this.props.focusedResult) {
       this.focus()
     }
