@@ -125,7 +125,7 @@ export default class PdfCanvas extends Component {
     // exit early if someone else has grabbed control
     if (control !== this.controlToken) return
     // Fetch the first page
-    const page = await pdf.getPage(this.props.pageFocused || 1)
+    const page = await pdf.getPage(this.props.pageFocused || 1).catch(console.log)
     console.log('Page loaded');
 
     const scale = 3
@@ -152,7 +152,9 @@ export default class PdfCanvas extends Component {
     canvasContext.clearRect(0, 0, theCanvas.width, theCanvas.height)
     this.pendingRender = page.render(renderContext);
 
-    await this.pendingRender.promise
+    await this.pendingRender.promise.catch(err =>
+      err.name === "RenderingCancelledException" ? console.log(err.message) : console.log(err)
+    )
     console.log('Page rendered');
     const text = await page.getTextContent();
 
