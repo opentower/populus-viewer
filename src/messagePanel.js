@@ -2,7 +2,7 @@ import * as Icons from "./icons.js"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
-import { spaceChild, theDomain, eventVersion } from "./constants.js"
+import { spaceChild, eventVersion } from "./constants.js"
 import { addLatex } from './latex.js'
 import UserColor from './userColors.js'
 import Client from './client.js'
@@ -65,6 +65,7 @@ export default class MessagePanel extends Component {
   }
 
   openPendingAnnotation = (theContent, eventInterface) => {
+    const theDomain = Client.client.getDomain()
     if (this.props.focus.activityStatus === "pending") {
       const diff = {
         activityStatus: "open",
