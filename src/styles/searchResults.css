@@ -23,6 +23,10 @@
     transition: background-color 0.5s ease;
 }
 
+.pdf-search-result[data-focused-result] {
+    background: #efefef;
+}
+
 #pdf-search-result-panel .pdf-search-result {
   cursor: pointer;
   position:relative;

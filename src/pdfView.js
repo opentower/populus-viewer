@@ -351,7 +351,7 @@ export default class PdfView extends Component {
       },
       {
         type: spaceParent, // we indicate that the current room is the parent
-        content: { 
+        content: {
           via: [theDomain]
         },
         state_key: this.state.roomId

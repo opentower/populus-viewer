@@ -7,7 +7,8 @@ export default class SearchResults extends Component {
     super(props)
     this.state = {
       searchResults: [],
-      searchLimit: 20
+      searchLimit: 20,
+      focusedResult: null
     }
   }
 
@@ -15,6 +16,11 @@ export default class SearchResults extends Component {
 
   componentDidMount() {
     this.initializeSearch()
+    document.addEventListener('keydown', this.handleKeydown)
+  }
+
+  componentWillUnmount () {
+    document.removeEventListener('keydown', this.handleKeydown)
   }
 
   componentDidUpdate(prevProps, prevState) {
@@ -35,7 +41,7 @@ export default class SearchResults extends Component {
       if (contexts.length > 0) searchResults.push({ page, contexts })
       if (searchResults.length > 20) break
     }
-    this.setState({searchResults, searchLimit: 20})
+    this.setState({focusedResult: null, searchResults, searchLimit: 20})
   }
 
   expandSearch () {
@@ -61,12 +67,29 @@ export default class SearchResults extends Component {
 
   clearSearch = _ => this.props.setSearch(null)
 
+  setFocus = focus => this.setState({ focusedResult: focus })
+
+  focusNext = _ => {
+    if (this.state.focusedResult === null) this.setFocus(0)
+    else if (this.state.focusedResult <= this.state.searchResults.length) this.setFocus(this.state.focusedResult + 1)
+  }
+
+  focusPrev = _ => {
+    if (this.state.focusedResult === null) return
+    if (this.state.focusedResult > 0) this.setFocus(this.state.focusedResult - 1)
+  }
+
   handleScroll = _ => {
     const toBottom = this.resultListing.current.scrollHeight - this.resultListing.current.clientHeight - this.resultListing.current.scrollTop
     if (toBottom < 100 && !this.limitRaised) {
       this.limitRaised = true
       this.setState(oldState => { return {searchLimit: oldState.searchLimit + 20} })
     }
+  }
+
+  handleKeydown = e => {
+    if (e.altKey && !e.shiftKey && e.key === 'Tab') this.focusNext()
+    if (e.altKey && e.shiftKey && e.key === 'Tab') this.focusPrev()
   }
 
   render(props, state) {
@@ -84,10 +107,13 @@ export default class SearchResults extends Component {
             </div>
             {props.searchString}
           </div>
-          {state.searchResults.map(result => <SearchResult
+          {state.searchResults.map((result, idx) => <SearchResult
             pushHistory={props.pushHistory}
             key={result.page}
             result={result}
+            focusedResult={state.focusedResult}
+            setFocus={this.setFocus}
+            index={idx}
           />
           )}
         </Fragment>
@@ -98,12 +124,23 @@ export default class SearchResults extends Component {
 }
 
 class SearchResult extends Component {
-  handleClick = _ => {
+  focus = _ => {
+    this.props.setFocus(this.props.index)
     this.props.pushHistory({pageFocused: parseInt(this.props.result.page, 10)})
+    this.result.current.scrollIntoView()
+  }
+
+  result = createRef()
+
+  componentDidUpdate(prevProps) {
+    if (this.props.focusedResult !== prevProps.focusedResult && 
+      this.props.index === this.props.focusedResult) {
+      this.focus()
+    }
   }
 
   render(props) {
-    return <div onClick={this.handleClick} class="pdf-search-result">
+    return <div ref={this.result} onClick={this.focus} data-focused-result={props.index === props.focusedResult} class="pdf-search-result">
       {props.result.contexts.map((context, idx) =>
         <div key={`${props.result.page}-${idx}`} class="result-context">… {context} …</div>)
       }
