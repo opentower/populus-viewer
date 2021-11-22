@@ -114,23 +114,23 @@ export default class AnnotationListing extends Component {
   flipSort = _ => this.setState(oldState => { return { sortOrder: oldState.sortOrder * -1 } })
 
   popupActions = {
-    "@": props => <PopupMenu.Members roomId={this.props.roomId} {...props} />,
+    "@": props => <PopupMenu.Members roomId={this.props.roomId} {...props} />
   }
 
   render (props, state) {
     return <div id="annotation-panel" class={props.class}>
-              <div id="annotation-entries-wrapper" 
+              <div id="annotation-entries-wrapper"
                 onscroll={props.handleWidgetScroll}
                 tabindex="-1">
                 <div id="annotation-controls">
-                  <span class="small-icon"
+                  <button class="small-icon"
                     style="cursor: pointer"
                     onClick={this.flipSort}>
                     {state.sortOrder === 1
                       ? Icons.sortDesc
                       : Icons.sortAsc
                     }
-                  </span>
+                  </button>
                   <button data-current-button={state.sort === "Page"}
                           onClick={this.sortByPage}
                           class="styled-button">Page</button>

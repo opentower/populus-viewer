@@ -43,7 +43,6 @@ body {
     font-weight:bold;
     background-color:white;
     user-select:none;
-    margin:2px;
 }
 
 .styled-button:disabled {
@@ -53,10 +52,7 @@ body {
 }
 
 .styled-button:focus {
-    border:3px solid black;
-    margin:0px;
-    position:relative;
-    left:-1px;
+  transform: scale(1.05);
 }
 
 .styled-progress {
@@ -99,7 +95,12 @@ button[data-current-button]{
 .small-icon {
   height: 20px;
   width: 20px;
+  border:none;
+  background:none;
+  padding:0px;
 }
+
+button.small-icon { cursor:pointer }
 
 .small-icon-badge {
   background:black;

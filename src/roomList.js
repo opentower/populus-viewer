@@ -71,7 +71,7 @@ export default class RoomList extends Component {
 
   byFavorite() { return 0 }
 
-  sortByActivity = _ => {
+  sortByActivity = e => {
     this.setState(oldState =>
       oldState.sort === "Activity"
         ? { sortOrder: oldState.sortOrder * -1 }
@@ -79,7 +79,7 @@ export default class RoomList extends Component {
     )
   }
 
-  sortByName = _ => {
+  sortByName = e => {
     this.setState(oldState =>
       oldState.sort === "Name"
         ? { sortOrder: oldState.sortOrder * -1 }
@@ -87,9 +87,11 @@ export default class RoomList extends Component {
     )
   }
 
-  flipSort = _ => this.setState(oldState => {
-    return { sortOrder: oldState.sortOrder * -1 }
-  })
+  flipSort = e => {
+    this.setState(oldState => {
+      return { sortOrder: oldState.sortOrder * -1 }
+    })
+  }
 
   getSortFunc() {
     switch (this.state.sort) {
@@ -158,14 +160,14 @@ export default class RoomList extends Component {
     return (
       <Fragment>
         <div id="select-sort">
-          <span class="small-icon"
+          <button class="small-icon"
             style="cursor: pointer"
             onClick={this.flipSort}>
             {state.sortOrder === 1
               ? Icons.sortDesc
               : Icons.sortAsc
             }
-          </span>
+          </button>
           <button data-current-button={state.sort === "Activity"}
                   onClick={this.sortByActivity}
                   class="styled-button">Activity</button>
@@ -194,7 +196,8 @@ class PDFRoomEntry extends Component {
     ? this.props.room.getAccountData(lastViewed).getContent().page
     : 1
 
-  handleLoad = _ => {
+  handleLoad = e => {
+    e.preventDefault()
     this.props.pushHistory({
       pdfFocused: this.props.room.getCanonicalAlias(),
       pageFocused: this.getLastViewedPage() || 1
@@ -241,7 +244,7 @@ class PDFRoomEntry extends Component {
       <div data-room-entry-buttons-visible={state.buttonsVisible} data-room-status={status} class="room-listing-entry" id={props.room.roomId}>
         <div class="room-listing-heading">
           {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
-          <a onClick={this.handleLoad}>{props.room.name}</a>
+          <a href="#" onClick={this.handleLoad}>{props.room.name}</a>
         </div>
         <div class="room-listing-data">
           <TagList room={props.room} />
@@ -346,7 +349,7 @@ class AnnotationData extends Component {
     const unread = this.getUnreadCount()
     return <div class="room-annotation-data">
       <span title="Unread conversations" onClick={this.handleLoadNew}>
-        <span class="small-icon">{Icons.annotation}</span>
+        <button class="small-icon">{Icons.annotation}</button>
         {unread > 0 ? <span class="small-icon-badge">{unread}</span> : null}
       </span>
     </div>

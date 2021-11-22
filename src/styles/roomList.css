@@ -9,6 +9,10 @@
     margin-left: 1em;
 }
 
+#select-sort > .small-icon {
+    margin-left: 0em;
+}
+
 .invite-entry, .room-listing-entry {
     border: 1px black solid;
     margin: 1em;
@@ -37,6 +41,10 @@
     margin-bottom:1em;
     display:flex;
     align-items:center;
+}
+
+.room-listing-heading a {
+  color:black;
 }
 
 .room-listing-data {

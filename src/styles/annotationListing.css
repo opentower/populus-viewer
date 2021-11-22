@@ -28,6 +28,10 @@
     margin-left: 1em;
 }
 
+#annotation-controls button:first-child {
+    margin-left: 0em;
+}
+
 #annotation-panel .annotation-listing-entry {
     cursor: pointer;
     position:relative;
