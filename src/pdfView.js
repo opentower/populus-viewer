@@ -524,7 +524,9 @@ export default class PdfView extends Component {
       if (searchFlags.includes("day")) { flagged = flagged && (content.timestamp > (Date.now() - 86400000)) }
       if (searchFlags.includes("week")) { flagged = flagged && (content.timestamp > (Date.now() - 604800000)) }
       if (searchFlags.includes("unread")) { flagged = flagged && content.unread }
-      const membered = searchMembers.length ? searchMembers.some(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase())) : true
+      const membered = searchMembers.length
+        ? searchMembers.some(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase()))
+        : true
       return membered && flagged && searchText.every(term =>
         (!content[eventVersion].selectedText && !content[eventVersion].rootContent) ||
         content[eventVersion].selectedText?.toLowerCase().includes(term.toLowerCase()) ||
@@ -555,6 +557,7 @@ export default class PdfView extends Component {
         onPointerUp={this.handlePointerUp}
         onPointerCancel={this.handlePointerUp}
         onPointerLeave={this.handlePointerUp}
+        data-pindrop-mode={state.pindropMode}
         onPointerMove={this.handlePointerMove}>
         <Modal modalVisible={!!state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
         <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
@@ -566,7 +569,6 @@ export default class PdfView extends Component {
               setPdfFitRatio={this.setPdfFitRatio}
               annotationLayer={this.annotationLayer}
               textLayer={this.textLayer}
-              pindropMode={state.pindropMode}
               searchString={state.searchString}
               pdfFocused={props.pdfFocused}
               pageFocused={props.pageFocused}
@@ -577,7 +579,6 @@ export default class PdfView extends Component {
               setPdfLoadingStatus={this.setPdfLoadingStatus}
             />
             <AnnotationLayer ref={this.annotationLayer}
-                  pindropMode={state.pindropMode}
                   annotationLayer={this.annotationLayer}
                   annotationLayerWrapper={this.annotationLayerWrapper}
                   filteredAnnotationContents={state.filteredAnnotationContents}

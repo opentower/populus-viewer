@@ -88,7 +88,6 @@ export default class AnnotationLayer extends Component {
   render(props) {
     return (
       <div
-        data-pindrop-mode={props.pindropMode}
         ref={props.annotationLayerWrapper}
         id="annotation-layer">
         {this.getAnnotations()}
@@ -98,15 +97,16 @@ export default class AnnotationLayer extends Component {
 }
 
 class Pindrop extends Component {
-  setFocus = _ => { this.props.setFocus(this.props.data) }
+  setFocus = _ => this.props.setFocus(this.props.data)
 
   style = {
-    left: `${this.props.data.x}px`,
-    top: `${this.props.data.y}px`
+    left: `${this.props.data.x - 15}px`,
+    top: `${this.props.data.y - 15}px`
   }
+  // we add a slight 15px offset to have it line up more with the cursor
 
-  render(props) {
-    return <span 
+  render() {
+    return <span
       onclick={this.setFocus}
       class="annotation-pindrop"
       data-annotation

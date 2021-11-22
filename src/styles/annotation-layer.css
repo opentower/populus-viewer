@@ -6,10 +6,6 @@
     top: 0;
 }
 
-#annotation-layer[data-pindrop-mode] { 
-  cursor: crosshair;
-}
-
 #annotation-layer span {
     background-color:var(--user_solid);
     position: absolute;
@@ -54,4 +50,12 @@
 #annotation-layer > div[data-focused] > .annotation-bartab,
 #annotation-layer > div[data-focused] > .inline-annotations {
     visibility:visible;
+}
+
+[data-pindrop-mode] #annotation-layer * {
+  cursor:unset !important;
+}
+
+[data-pindrop-mode] #annotation-layer { 
+  cursor: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItbWFwLXBpbiI+PHBhdGggZD0iTTIxIDEwYzAgNy05IDEzLTkgMTNzLTktNi05LTEzYTkgOSAwIDAgMSAxOCAweiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTAiIHI9IjMiPjwvY2lyY2xlPjwvc3ZnPg==) 16 16, pointer !important;
 }

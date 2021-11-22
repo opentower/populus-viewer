@@ -11,6 +11,15 @@
 
 #content-container::-webkit-scrollbar { display: none; }
 
+#content-container[data-pindrop-mode] {
+  cursor:not-allowed;
+}
+
+#content-container[data-pindrop-mode] *:not(#page-nav *, #annotation-layer *) {
+  cursor:not-allowed;
+}
+
+
 #sidepanel {
     display:flex;
     position:fixed;

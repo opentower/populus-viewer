@@ -223,7 +223,7 @@ export default class PdfCanvas extends Component {
     return (
       <Fragment>
         <canvas ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas" />
-        <div style="z-index:3" data-pindrop-mode={props.pindropMode} ref={this.props.textLayer} id="text-layer" />
+        <div style="z-index:3" ref={this.props.textLayer} id="text-layer" />
       </Fragment>
     )
   }
