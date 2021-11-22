@@ -518,18 +518,17 @@ export default class PdfView extends Component {
       else searchText.push(word)
     }
     return annotations.filter(content => {
-      if (content[eventVersion].type === "pindrop") return true // skip filtering for now
       let flagged = true
       if (searchFlags.includes("me")) { flagged = flagged && content[eventVersion].creator === Client.client.getUserId() }
       if (searchFlags.includes("hour")) { flagged = flagged && (content.timestamp > (Date.now() - 3600000)) }
       if (searchFlags.includes("day")) { flagged = flagged && (content.timestamp > (Date.now() - 86400000)) }
       if (searchFlags.includes("week")) { flagged = flagged && (content.timestamp > (Date.now() - 604800000)) }
       if (searchFlags.includes("unread")) { flagged = flagged && content.unread }
-      return searchText.every(term =>
+      const membered = searchMembers.length ? searchMembers.some(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase())) : true
+      return membered && flagged && searchText.every(term =>
+        (!content[eventVersion].selectedText && !content[eventVersion].rootContent) ||
         content[eventVersion].selectedText?.toLowerCase().includes(term.toLowerCase()) ||
-        content[eventVersion].rootContent?.body.toLowerCase().includes(term.toLowerCase())) &&
-        (!searchMembers.length || searchMembers.some(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase()))) &&
-        flagged
+        content[eventVersion].rootContent?.body.toLowerCase().includes(term.toLowerCase()))
     })
   }
 

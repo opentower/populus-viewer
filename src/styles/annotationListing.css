@@ -59,8 +59,19 @@
     background: var(--user_ultralight);
 }
 
-.annotation-listing-topic {
+.annotation-listing-topic,
+.annotation-listing-pin-icon {
   width:100%;
+}
+
+.annotation-listing-pin-icon {
+  display:flex;
+  color:#565656;
+  align-items:center;
+}
+
+.annotation-listing-pin-icon svg {
+  height: 1em;
 }
 
 .annotation-listing-pending {

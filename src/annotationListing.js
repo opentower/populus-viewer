@@ -224,14 +224,19 @@ class AnnotationListingEntry extends Component {
 
   render(props, state) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
-    const focused = props.focus?.roomId === this.props.annotationContent.roomId
+    const focused = props.focus?.roomId === props.annotationContent.roomId
     return <div style={this.userColor.styleVariables}
       data-annotation-entry-typing={typing}
       data-annotation-entry-focused={focused}
       ref={this.entry}
       onclick={this.handleClick}
       class="annotation-listing-entry">
-      <div class="annotation-listing-topic">{state.topic}</div>
+      {props.annotationContent.type === "pindrop" 
+        ? <div class="annotation-listing-pin-icon">
+            {Icons.pin} <span>on page {props.annotationContent.pageNumber}</span>
+          </div>
+        : <div class="annotation-listing-topic">{state.topic}</div>
+      }
       <AnnotationListingComment
         creator={this.creator}
         unread={props.unreadCount}
