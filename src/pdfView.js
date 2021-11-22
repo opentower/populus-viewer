@@ -408,14 +408,10 @@ export default class PdfView extends Component {
       alert("Only moderators can close annotations that they didn't create")
       return
     }
+    const theDiff = { activityStatus: "closed" }
     const theContent = {
       via: [theDomain],
-      [eventVersion]: {
-        pageNumber: this.state.focus.pageNumber,
-        activityStatus: "closed",
-        clientRects: this.state.focus.clientRects,
-        creator: this.state.focus.creator
-      }
+      [eventVersion]: Object.assign(this.state.focus, theDiff)
     }
     Client.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.roomId)
     this.unsetFocus()
