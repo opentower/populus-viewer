@@ -176,8 +176,13 @@ export default class PdfView extends Component {
     this.setState({pindropMode: false})
     if (e.target === this.annotationLayer.current.base) {
       const theDomain = Client.client.getDomain()
-      const theX = e.offsetX
-      const theY = e.offsetY
+      const theX = e.altKey 
+        ? Math.round(e.offsetX / 25) * 25
+        : e.offsetX
+      const theY = e.altKey 
+        ? Math.round(e.offsetY / 25) * 25
+        : e.offsetY
+      console.log(theX)
       Client.client.createRoom({
         visibility: "public",
         initial_state: [{
