@@ -76,7 +76,7 @@ export default class AnnotationLayer extends Component {
 
   render(props) {
     return (
-      <div ref={props.annotationLayerWrapper} id="annotation-layer">
+      <div data-pindrop-mode={props.pindropMode} ref={props.annotationLayerWrapper} id="annotation-layer">
         {this.getAnnotations()}
       </div>
     )

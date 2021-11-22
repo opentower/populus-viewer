@@ -32,6 +32,7 @@ export default class PdfView extends Component {
       annotationsVisible: true,
       annotationContents: [],
       filteredAnnotationContents: [],
+      pindropMode: false,
       annotationFilter: props.message?.searchString || "",
       searchString: "",
       loadingStatus: "loading...",
@@ -164,6 +165,24 @@ export default class PdfView extends Component {
     this.setState({roomId: id}, _ => QueryParameters.get("focus")
       ? this.focusByRoomId(QueryParameters.get("focus"))
       : null)
+  }
+
+  startPindrop = _ => {
+    this.setState({pindropMode: true})
+    document.addEventListener("mouseup", this.releasePin, { once: true })
+  }
+
+  releasePin = e => {
+    this.setState({pindropMode: false})
+    if (e.target === this.annotationLayer.current.base) {
+      console.log(e.offsetX)
+      const elt = document.createElement("span")
+      elt.innerHTML = "derp"
+      elt.style.position = "absolute"
+      elt.style.left = e.offsetX + "px"
+      elt.style.top = e.offsetY + "px"
+      this.annotationLayer.current.base.appendChild(elt)
+    }
   }
 
   setPdfDimensions = (pdfHeightPx, pdfWidthPx) => {
@@ -333,8 +352,7 @@ export default class PdfView extends Component {
     const boundingClientRect = Layout.unionRects(clientRects)
     // TODO: room creation is a bit slow, might want to rework this slightly for responsiveness
     //
-    // TODO: we should set room_alias_name, name, and topic in the options
-    // object, in a useful way based on the selection
+    // TODO: we should set room_alias_name and name object, in a useful way based on the selection
     Client.client.createRoom({
       visibility: "public",
       initial_state: [{
@@ -519,6 +537,7 @@ export default class PdfView extends Component {
               setPdfFitRatio={this.setPdfFitRatio}
               annotationLayer={this.annotationLayer}
               textLayer={this.textLayer}
+              pindropMode={state.pindropMode}
               searchString={state.searchString}
               pdfFocused={props.pdfFocused}
               pageFocused={props.pageFocused}
@@ -529,6 +548,7 @@ export default class PdfView extends Component {
               setPdfLoadingStatus={this.setPdfLoadingStatus}
             />
             <AnnotationLayer ref={this.annotationLayer}
+                  pindropMode={state.pindropMode}
                   annotationLayer={this.annotationLayer}
                   annotationLayerWrapper={this.annotationLayerWrapper}
                   filteredAnnotationContents={state.filteredAnnotationContents}
@@ -594,6 +614,7 @@ export default class PdfView extends Component {
           pushHistory={props.pushHistory}
           setNavHeight={this.setNavHeight}
           setSearch={this.setSearch}
+          startPindrop={this.startPindrop}
           setZoom={this.setZoom}
           zoomFactor={state.zoomFactor} />
         <div data-hide-buttons={state.hideButtons} id="pdf-panel-button-wrapper">

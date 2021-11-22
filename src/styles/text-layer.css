@@ -12,6 +12,8 @@
     /* a slight skootch here to make up for span padding */
 }
 
+#text-layer[data-pindrop-mode] { display:none; }
+
 #text-layer > span {
     color:transparent;
     position: absolute;

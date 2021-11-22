@@ -6,6 +6,10 @@
     top: 0;
 }
 
+#annotation-layer[data-pindrop-mode] { 
+  cursor: crosshair;
+}
+
 #annotation-layer span {
     background-color:var(--user_solid);
     position: absolute;
