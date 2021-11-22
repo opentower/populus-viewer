@@ -19,6 +19,11 @@
     pointer-events: auto !important;
 }
 
+#annotation-layer span.annotation-pindrop { 
+  cursor: pointer;
+}
+
+
 #annotation-layer .inline-annotations {
     opacity:0.2;
 }

@@ -5,6 +5,7 @@ import { eventVersion, spaceChild } from "./constants.js"
 import UserColor from "./userColors.js"
 import Client from './client.js'
 import './styles/annotation-layer.css'
+import * as Icons from './icons.js'
 
 export default class AnnotationLayer extends Component {
   constructor(props) {
@@ -60,26 +61,58 @@ export default class AnnotationLayer extends Component {
       // We add the focus back in if it's on the page
       if (this.props.focus && this.filterAnnotations(this.props.focus)) annotationData.push(this.props.focus)
       // We turn the array into annontation components
-      annotations = annotationData.map(data =>
-        <Annotation zoomFactor={this.props.zoomFactor}
-        key={data.roomId}
-        focused={roomId === data.roomId}
-        typing={this.state.typing[data.roomId]}
-        setFocus={this.props.setFocus}
-        pdfWidthAdjusted={this.props.pdfWidthAdjusted}
-        rightSide={data.roomId.charCodeAt(1) % 2 === 1 }
-        data={data} />
-      )
+      annotations = annotationData.map(data => {
+        switch (data.type) {
+          case 'pindrop': return <Pindrop
+            key={data.roomId}
+            focused={roomId === data.roomId}
+            typing={this.state.typing[data.roomId]}
+            setFocus={this.props.setFocus}
+            data={data} />
+          // default for legacy reasons, could switch to highlight in 2022
+          default: return <Annotation
+            zoomFactor={this.props.zoomFactor}
+            key={data.roomId}
+            focused={roomId === data.roomId}
+            typing={this.state.typing[data.roomId]}
+            setFocus={this.props.setFocus}
+            pdfWidthAdjusted={this.props.pdfWidthAdjusted}
+            rightSide={data.roomId.charCodeAt(1) % 2 === 1 }
+            data={data} />
+        }
+      })
     }
     return annotations
   }
 
   render(props) {
     return (
-      <div data-pindrop-mode={props.pindropMode} ref={props.annotationLayerWrapper} id="annotation-layer">
+      <div
+        data-pindrop-mode={props.pindropMode}
+        ref={props.annotationLayerWrapper}
+        id="annotation-layer">
         {this.getAnnotations()}
       </div>
     )
+  }
+}
+
+class Pindrop extends Component {
+  setFocus = _ => { this.props.setFocus(this.props.data) }
+
+  style = {
+    left: `${this.props.data.x}px`,
+    top: `${this.props.data.y}px`
+  }
+
+  render(props) {
+    return <span 
+      onclick={this.setFocus}
+      class="annotation-pindrop"
+      data-annotation
+      style={this.style}>
+      {Icons.pin}
+    </span>
   }
 }
 
@@ -158,7 +191,8 @@ class BarTab extends Component {
     return <span
       onclick={props.setFocus}
       class="annotation-bartab"
-      data-annotation ref={this.ref}
+      data-annotation
+      ref={this.ref}
     />
   }
 }

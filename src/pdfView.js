@@ -175,13 +175,45 @@ export default class PdfView extends Component {
   releasePin = e => {
     this.setState({pindropMode: false})
     if (e.target === this.annotationLayer.current.base) {
-      console.log(e.offsetX)
-      const elt = document.createElement("span")
-      elt.innerHTML = "derp"
-      elt.style.position = "absolute"
-      elt.style.left = e.offsetX + "px"
-      elt.style.top = e.offsetY + "px"
-      this.annotationLayer.current.base.appendChild(elt)
+      const theDomain = Client.client.getDomain()
+      const theX = e.offsetX
+      const theY = e.offsetY
+      Client.client.createRoom({
+        visibility: "public",
+        initial_state: [{
+          type: "m.room.join_rules",
+          state_key: "",
+          content: {join_rule: "public"}
+        },
+        {
+          type: spaceParent, // we indicate that the current room is the parent
+          content: {
+            via: [theDomain]
+          },
+          state_key: this.state.roomId
+        }
+        ]
+      }).then(roominfo => {
+        // set child event in pdfRoom State
+        const childContent = {
+          via: [theDomain],
+          [eventVersion]: {
+            pageNumber: this.props.pageFocused,
+            activityStatus: "pending",
+            type: "pindrop",
+            x: theX,
+            y: theY,
+            icon: "map-pin",
+            roomId: roominfo.room_id,
+            creator: Client.client.getUserId()
+          }
+        }
+        Client.client
+          .sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
+          .catch(e => alert(e))
+        this.setFocus(childContent[eventVersion])
+        this.setState({ panelVisible: true })
+      }).catch(e => alert(e))
     }
   }
 
@@ -383,6 +415,7 @@ export default class PdfView extends Component {
         [eventVersion]: {
           pageNumber: this.props.pageFocused,
           activityStatus: "pending",
+          type: "highlight",
           boundingClientRect: JSON.stringify(boundingClientRect),
           clientRects: JSON.stringify(clientRects),
           roomId: roominfo.room_id,
@@ -485,6 +518,7 @@ export default class PdfView extends Component {
       else searchText.push(word)
     }
     return annotations.filter(content => {
+      if (content[eventVersion].type === "pindrop") return true // skip filtering for now
       let flagged = true
       if (searchFlags.includes("me")) { flagged = flagged && content[eventVersion].creator === Client.client.getUserId() }
       if (searchFlags.includes("hour")) { flagged = flagged && (content.timestamp > (Date.now() - 3600000)) }
@@ -492,8 +526,8 @@ export default class PdfView extends Component {
       if (searchFlags.includes("week")) { flagged = flagged && (content.timestamp > (Date.now() - 604800000)) }
       if (searchFlags.includes("unread")) { flagged = flagged && content.unread }
       return searchText.every(term =>
-        content[eventVersion].selectedText.toLowerCase().includes(term.toLowerCase()) ||
-        content[eventVersion]?.rootContent?.body.toLowerCase().includes(term.toLowerCase())) &&
+        content[eventVersion].selectedText?.toLowerCase().includes(term.toLowerCase()) ||
+        content[eventVersion].rootContent?.body.toLowerCase().includes(term.toLowerCase())) &&
         (!searchMembers.length || searchMembers.some(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase()))) &&
         flagged
     })
