@@ -6,6 +6,7 @@ import MessagePanel from './messagePanel.js'
 import UserColor from './userColors.js'
 import UserInfoHeader from './userInfoHeader.js'
 import Client from './client.js'
+import * as Icons from './icons.js'
 
 export default class Chat extends Component {
   constructor (props) {
@@ -236,7 +237,7 @@ export default class Chat extends Component {
             <TypingIndicator key={props.focus.roomId} roomId={props.focus.roomId} />
             {/* The key prop here ensures that typing state is reset when the room changes */}
           </div>
-          <Anchor ref={this.scrollAnchor} status={props.focus.activityStatus} topic={state.topic} fullyScrolled={state.fullyScrolled} />
+          <Anchor ref={this.scrollAnchor} focus={props.focus} topic={state.topic} fullyScrolled={state.fullyScrolled} />
         </div>
       </div>
     )
@@ -264,8 +265,14 @@ function Anchor(props) {
   return props.fullyScrolled
     ? <div>
       <div id="anchor-quote">{props.topic}</div>
+      { props.focus.type === "pindrop"
+        ? <div id="anchor-pin">
+            {Icons.pin} <span>on page {props.focus.pageNumber}</span>
+          </div>
+        : null
+      }
       <div id="scroll-done">
-        { props.status === "open"
+        { props.focus.activityStatus === "open"
             ? "All messages loaded"
             : "Awaiting your comment..."
         }

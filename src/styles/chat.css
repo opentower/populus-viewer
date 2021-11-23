@@ -19,6 +19,17 @@
   margin-top:30px;
 }
 
+#anchor-pin {
+  padding:5px;
+  display:flex;
+  color:#565656;
+  align-items:center;
+}
+
+#anchor-pin svg {
+  height: 1em;
+}
+
 #messageComposer > textarea,
 .replyComposer > textarea,
 .messageEditor > textarea {
