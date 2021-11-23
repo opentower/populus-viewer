@@ -8,7 +8,7 @@
     line-height:1;
     opacity: 0.2;
     pointer-events:none;
-    transform: scale(var(--pdfFitRatio)) translate(-5px,-5px);
+    transform: scale(var(--pdfFitRatio)) translate(-7px,-7px);
     /* a slight skootch here to make up for span padding */
 }
 
@@ -23,7 +23,7 @@
     transform-origin: 0% 0%;
     user-select:text;
     /* a little padding seems to help with text selection */
-    padding:5px; 
+    padding:7px; 
 }
 
 #text-layer > br {
