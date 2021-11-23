@@ -32,7 +32,7 @@ export default class PdfView extends Component {
       annotationsVisible: true,
       annotationContents: [],
       filteredAnnotationContents: [],
-      pindropMode: false,
+      pindropMode: null,
       annotationFilter: props.message?.searchString || "",
       searchString: "",
       loadingStatus: "loading...",
@@ -168,21 +168,30 @@ export default class PdfView extends Component {
   }
 
   startPindrop = _ => {
-    this.setState({pindropMode: true})
-    document.addEventListener("mouseup", this.releasePin, { once: true })
+    setTimeout(_ => {
+      this.setState({pindropMode: {}})
+      document.addEventListener("click", this.releasePin)
+    }, 200)
   }
 
   releasePin = e => {
-    this.setState({pindropMode: false})
     if (e.target === this.annotationLayer.current.base) {
-      const theDomain = Client.client.getDomain()
-      const theX = e.altKey 
-        ? Math.round(e.offsetX / 25) * 25
-        : e.offsetX
-      const theY = e.altKey 
-        ? Math.round(e.offsetY / 25) * 25
-        : e.offsetY
-      console.log(theX)
+      const theX = e.altKey
+        ? Math.round((e.offsetX - 15) / 25) * 25
+        : e.offsetX - 15
+      const theY = e.altKey
+        ? Math.round((e.offsetY - 15) / 25) * 25
+        : e.offsetY - 15
+      this.setState({pindropMode: {x: theX, y: theY} })
+    } else {
+      document.removeEventListener("click", this.releasePin)
+      this.setState({pindropMode: null })
+    }
+  }
+
+  commitPin = (theX, theY) => {
+    const theDomain = Client.client.getDomain()
+    if (this.state.pindropMode?.x) {
       Client.client.createRoom({
         visibility: "public",
         initial_state: [{
@@ -218,8 +227,76 @@ export default class PdfView extends Component {
           .catch(e => alert(e))
         this.setFocus(childContent[eventVersion])
         this.setState({ panelVisible: true })
+      }).then(_ => {
+        document.removeEventListener("click", this.releasePin)
+        this.setState({pindropMode: null })
       }).catch(e => alert(e))
     }
+  }
+
+  commitHighlight = _ => {
+    const theSelection = window.getSelection()
+    if (theSelection.isCollapsed) return
+    const theRange = theSelection.getRangeAt(0)
+    const theContents = Array.from(theRange.cloneContents().childNodes)
+    const theSelectedText = theContents.map(child =>
+      child.nodeType === 3 // Text node
+        ? child.data
+        : child.nodeType === 1 // Element Node
+          ? child.innerText
+          : "" ).join(' ').replace(/(.)-\s*/g, "$1") // join with spaces, clean linebreak dashes
+    const theDomain = Client.client.getDomain()
+
+    const clientRects = Layout.sanitizeRects(Array.from(theRange.getClientRects())
+      .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.pdfFitRatio * this.state.zoomFactor)))
+    const boundingClientRect = Layout.unionRects(clientRects)
+    // TODO: room creation is a bit slow, might want to rework this slightly for responsiveness
+    //
+    // TODO: we should set room_alias_name and name object, in a useful way based on the selection
+    Client.client.createRoom({
+      visibility: "public",
+      initial_state: [{
+        type: "m.room.join_rules",
+        state_key: "",
+        content: {join_rule: "public"}
+      },
+      {
+        type: "m.room.topic",
+        state_key: "",
+        content: {
+          topic: theSelectedText
+        }
+      },
+      {
+        type: spaceParent, // we indicate that the current room is the parent
+        content: {
+          via: [theDomain]
+        },
+        state_key: this.state.roomId
+      }
+      ]
+    }).then(roominfo => {
+      // set child event in pdfRoom State
+      theSelection.removeAllRanges()
+      const childContent = {
+        via: [theDomain],
+        [eventVersion]: {
+          pageNumber: this.props.pageFocused,
+          activityStatus: "pending",
+          type: "highlight",
+          boundingClientRect: JSON.stringify(boundingClientRect),
+          clientRects: JSON.stringify(clientRects),
+          roomId: roominfo.room_id,
+          creator: Client.client.getUserId(),
+          selectedText: theSelectedText
+        }
+      }
+      Client.client
+        .sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
+        .catch(e => alert(e))
+      this.setFocus(childContent[eventVersion])
+      this.setState({ panelVisible: true })
+    }).catch(e => alert(e))
   }
 
   setPdfDimensions = (pdfHeightPx, pdfWidthPx) => {
@@ -372,68 +449,8 @@ export default class PdfView extends Component {
 
   openAnnotation = _ => {
     this.setState({ annotationsVisible: true })
-    const theSelection = window.getSelection()
-    if (theSelection.isCollapsed) return
-    const theRange = theSelection.getRangeAt(0)
-    const theContents = Array.from(theRange.cloneContents().childNodes)
-    const theSelectedText = theContents.map(child =>
-      child.nodeType === 3 // Text node
-        ? child.data
-        : child.nodeType === 1 // Element Node
-          ? child.innerText
-          : "" ).join(' ').replace(/(.)-\s*/g, "$1") // join with spaces, clean linebreak dashes
-    const theDomain = Client.client.getDomain()
-
-    const clientRects = Layout.sanitizeRects(Array.from(theRange.getClientRects())
-      .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.pdfFitRatio * this.state.zoomFactor)))
-    const boundingClientRect = Layout.unionRects(clientRects)
-    // TODO: room creation is a bit slow, might want to rework this slightly for responsiveness
-    //
-    // TODO: we should set room_alias_name and name object, in a useful way based on the selection
-    Client.client.createRoom({
-      visibility: "public",
-      initial_state: [{
-        type: "m.room.join_rules",
-        state_key: "",
-        content: {join_rule: "public"}
-      },
-      {
-        type: "m.room.topic",
-        state_key: "",
-        content: {
-          topic: theSelectedText
-        }
-      },
-      {
-        type: spaceParent, // we indicate that the current room is the parent
-        content: {
-          via: [theDomain]
-        },
-        state_key: this.state.roomId
-      }
-      ]
-    }).then(roominfo => {
-      // set child event in pdfRoom State
-      theSelection.removeAllRanges()
-      const childContent = {
-        via: [theDomain],
-        [eventVersion]: {
-          pageNumber: this.props.pageFocused,
-          activityStatus: "pending",
-          type: "highlight",
-          boundingClientRect: JSON.stringify(boundingClientRect),
-          clientRects: JSON.stringify(clientRects),
-          roomId: roominfo.room_id,
-          creator: Client.client.getUserId(),
-          selectedText: theSelectedText
-        }
-      }
-      Client.client
-        .sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
-        .catch(e => alert(e))
-      this.setFocus(childContent[eventVersion])
-      this.setState({ panelVisible: true })
-    }).catch(e => alert(e))
+    if (this.state.pindropMode?.x) this.commitPin(this.state.pindropMode.x, this.state.pindropMode.y)
+    else this.commitHighlight()
   }
 
   closeAnnotation = _ => {
@@ -562,7 +579,10 @@ export default class PdfView extends Component {
         onPointerUp={this.handlePointerUp}
         onPointerCancel={this.handlePointerUp}
         onPointerLeave={this.handlePointerUp}
-        data-pindrop-mode={state.pindropMode}
+        data-pindrop-mode={state.pindropMode
+          ? (state.pindropMode?.x && "placed") || "unplaced"
+          : false
+        }
         onPointerMove={this.handlePointerMove}>
         <Modal modalVisible={!!state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
         <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
@@ -584,6 +604,7 @@ export default class PdfView extends Component {
               setPdfLoadingStatus={this.setPdfLoadingStatus}
             />
             <AnnotationLayer ref={this.annotationLayer}
+                  pindropMode={state.pindropMode}
                   annotationLayer={this.annotationLayer}
                   annotationLayerWrapper={this.annotationLayerWrapper}
                   filteredAnnotationContents={state.filteredAnnotationContents}
@@ -592,7 +613,8 @@ export default class PdfView extends Component {
                   page={props.pageFocused}
                   roomId={state.roomId}
                   setFocus={this.setFocus}
-                  focus={state.focus} />
+                  focus={state.focus}
+            />
           </div>
         </div>
         <div id="sidepanel">
@@ -650,6 +672,7 @@ export default class PdfView extends Component {
           setNavHeight={this.setNavHeight}
           setSearch={this.setSearch}
           startPindrop={this.startPindrop}
+          pindropMode={state.pindropMode}
           setZoom={this.setZoom}
           zoomFactor={state.zoomFactor} />
         <div data-hide-buttons={state.hideButtons} id="pdf-panel-button-wrapper">

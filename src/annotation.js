@@ -91,17 +91,31 @@ export default class AnnotationLayer extends Component {
         ref={props.annotationLayerWrapper}
         id="annotation-layer">
         {this.getAnnotations()}
+        {props.pindropMode?.x ? <PindropPreview data={props.pindropMode} /> : null}
       </div>
     )
   }
+}
+
+function PindropPreview (props) {
+  const style = {
+    left: `${props.data.x}px`,
+    top: `${props.data.y}px`
+  }
+  return <span
+    class="annotation-pindrop annotation-pindrop-preview"
+    data-annotation
+    style={style}>
+    {Icons.pin}
+  </span>
 }
 
 class Pindrop extends Component {
   setFocus = _ => this.props.setFocus(this.props.data)
 
   style = {
-    left: `${this.props.data.x - 15}px`,
-    top: `${this.props.data.y - 15}px`
+    left: `${this.props.data.x}px`,
+    top: `${this.props.data.y}px`
   }
   // we add a slight 15px offset to have it line up more with the cursor
 

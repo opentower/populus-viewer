@@ -19,6 +19,9 @@
   cursor: pointer;
 }
 
+#annotation-layer span.annotation-pindrop-preview { 
+  animation: pulse-opacity 1s infinite;
+}
 
 #annotation-layer .inline-annotations {
     opacity:0.2;

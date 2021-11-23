@@ -133,7 +133,9 @@ export default class Navbar extends Component {
         <div id="nav-background" />
         <div class="nav-button-wrapper top-wrapper">
           <button title="Go to main menu&#013;Shortcut: Esc" onclick={this.mainMenu}>{Icons.home}</button>
-          <button title="Add annotation&#013;Shortcut: Alt + a " disabled={props.selected ? null : "disabled"} onclick={props.openAnnotation}>{Icons.addAnnotation}</button>
+          <button title="Add annotation&#013;Shortcut: Alt + a "
+            disabled={(props.selected || props.pindropMode?.x) ? null : "disabled"}
+            onclick={props.openAnnotation}>{Icons.addAnnotation}</button>
           <button title="Go to previous annotation&#013;Shortcut: Alt + Shift + Tab" onclick={props.focusPrev}>{Icons.chevronsLeft}</button>
           <button title="Go to previous page&#013;Shortcuts: k, &larr;" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
           <form onSubmit={this.handleSubmit}>
@@ -157,7 +159,7 @@ export default class Navbar extends Component {
           <button title="Zoom out&#013;Shortcut: -" onClick={this.zoomOut}>{Icons.zoomout}</button>
           <button title="Zoom in&#013;Shortcut: +" onClick={this.zoomIn}>{Icons.zoomin}</button>
           <button title="Toggle annotation visibility&#013;Shortcut: Alt + v" onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
-          <button title="Add Pin" onMousedown={props.startPindrop}>{Icons.pin}</button>
+          <button title="Add Pin" onClick={props.startPindrop}>{Icons.pin}</button>
           <SearchBar title="Search within PDF&#013;Shortcut: Alt + /" setSearch={props.setSearch} search={props.searchString} searchPredicate={this.searchPredicate} setFocus={this.setSearchFocus} />
         </div>
       </nav>
