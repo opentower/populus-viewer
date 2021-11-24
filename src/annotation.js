@@ -123,10 +123,12 @@ class Pindrop extends Component {
   // we add a slight 15px offset to have it line up more with the cursor
 
   render(props) {
+    const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
     return <span
       onclick={this.setFocus}
       class="annotation-pindrop"
       data-focused={props.focused}
+      data-annotation-typing={typing}
       data-annotation
       style={this.style}>
       {Icons.pin}

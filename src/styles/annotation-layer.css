@@ -15,18 +15,22 @@
 }
 
 #annotation-layer span.annotation-pindrop { 
-  cursor: pointer;
-  padding:5px;
-  border-radius:30px;
-  border: 4px solid transparent;
+    cursor: pointer;
+    padding:5px;
+    border-radius:30px;
+    border: 4px solid transparent;
 }
 
 #annotation-layer span.annotation-pindrop[data-focused] { 
-  border: 4px solid var(--user_light);
+    border: 4px solid var(--user_light);
+}
+
+#annotation-layer span.annotation-pindrop[data-annotation-typing] {
+    animation: pulse-color 1s infinite;
 }
 
 #annotation-layer span.annotation-pindrop-preview { 
-  animation: pulse-opacity 1s infinite;
+    animation: pulse-opacity 1s infinite;
 }
 
 #annotation-layer .inline-annotations {
@@ -57,7 +61,7 @@
 
 [data-annotations-hidden] .annotation-bartab,
 [data-annotations-hidden] .inline-annotations {
-  visibility: hidden;
+    visibility: hidden;
 }
 
 #annotation-layer > div[data-focused] > .annotation-bartab,
@@ -66,9 +70,9 @@
 }
 
 [data-pindrop-mode] #annotation-layer * {
-  cursor:unset !important;
+    cursor:unset !important;
 }
 
 [data-pindrop-mode] #annotation-layer { 
-  cursor: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItbWFwLXBpbiI+PHBhdGggZD0iTTIxIDEwYzAgNy05IDEzLTkgMTNzLTktNi05LTEzYTkgOSAwIDAgMSAxOCAweiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTAiIHI9IjMiPjwvY2lyY2xlPjwvc3ZnPg==) 16 16, pointer !important;
+    cursor: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItbWFwLXBpbiI+PHBhdGggZD0iTTIxIDEwYzAgNy05IDEzLTkgMTNzLTktNi05LTEzYTkgOSAwIDAgMSAxOCAweiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTAiIHI9IjMiPjwvY2lyY2xlPjwvc3ZnPg==) 16 16, pointer !important;
 }
