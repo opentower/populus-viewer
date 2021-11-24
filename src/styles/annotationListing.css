@@ -88,10 +88,32 @@
     border: 2px solid var(--user_light);
     margin-bottom:10px;
     margin-top:10px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
     background:white;
 }
 
 .annotation-listing-comment-unread { border: 5px solid var(--user_light); }
+
+.annotation-listing-info {
+  display: flex;
+  justify-content: space-between;
+  align-content:center;
+  width:100%;
+}
+
+.annotation-listing-features > svg {
+  height:14px;
+  width:14px;
+}
+
+.annotation-listing-features {
+  height:14px;
+  padding-left:5px;
+  color:
+}
+
 
 .annotation-listing-creator::before {
   content: "";
@@ -115,7 +137,7 @@
   border-bottom: 9px solid transparent;
 }
 
-.annotation-listing-comment-unread + .annotation-listing-creator::before {
+.annotation-listing-comment-unread + .annotation-listing-info .annotation-listing-creator::before {
   bottom:1px;
   left:-35px;
   border-right: 15px solid var(--user_light);
@@ -124,7 +146,7 @@
   border-bottom: 15px solid transparent;
 }
 
-.annotation-listing-comment-unread + .annotation-listing-creator::after {
+.annotation-listing-comment-unread + .annotation-listing-info .annotation-listing-creator::after {
   bottom:13px;
   left:-28px;
 }

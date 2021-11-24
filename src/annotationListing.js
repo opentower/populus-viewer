@@ -268,7 +268,12 @@ function AnnotationListingComment(props) {
           ? "annotation-listing-comment-unread"
           : "annotation-listing-comment"}
       > {body} </div>
-      <div class="annotation-listing-creator"><MemberPill member={props.creator} /></div>
+      <div class="annotation-listing-info">
+        <div class="annotation-listing-features">
+          {props.annotationContent.private ? Icons.lock : null}
+        </div>
+        <div class="annotation-listing-creator"><MemberPill member={props.creator} /></div>
+      </div>
     </Fragment>
   } else if (props.annotationContent.activityStatus === "pending") {
     return <div class="annotation-listing-pending">awaiting your comment... </div>
