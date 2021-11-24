@@ -7,7 +7,6 @@
 }
 
 #annotation-layer span {
-    background-color:var(--user_solid);
     position: absolute;
     white-space: pre;
     cursor: text;
@@ -17,6 +16,13 @@
 
 #annotation-layer span.annotation-pindrop { 
   cursor: pointer;
+  padding:5px;
+  border-radius:30px;
+  border: 4px solid transparent;
+}
+
+#annotation-layer span.annotation-pindrop[data-focused] { 
+  border: 4px solid var(--user_light);
 }
 
 #annotation-layer span.annotation-pindrop-preview { 
@@ -25,6 +31,10 @@
 
 #annotation-layer .inline-annotations {
     opacity:0.2;
+}
+
+#annotation-layer .inline-annotations span {
+    background-color:var(--user_solid);
 }
 
 #annotation-layer .annotation-bartab {

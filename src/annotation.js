@@ -113,16 +113,20 @@ function PindropPreview (props) {
 class Pindrop extends Component {
   setFocus = _ => this.props.setFocus(this.props.data)
 
+  userColor = new UserColor(this.props.data.creator)
+
   style = {
     left: `${this.props.data.x}px`,
-    top: `${this.props.data.y}px`
+    top: `${this.props.data.y}px`,
+    ...this.userColor.styleVariables
   }
   // we add a slight 15px offset to have it line up more with the cursor
 
-  render() {
+  render(props) {
     return <span
       onclick={this.setFocus}
       class="annotation-pindrop"
+      data-focused={props.focused}
       data-annotation
       style={this.style}>
       {Icons.pin}

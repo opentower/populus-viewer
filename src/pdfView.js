@@ -177,11 +177,11 @@ export default class PdfView extends Component {
   releasePin = e => {
     if (e.target === this.annotationLayer.current.base) {
       const theX = e.altKey
-        ? Math.round((e.offsetX - 15) / 25) * 25
-        : e.offsetX - 15
+        ? Math.round((e.offsetX - 25) / 25) * 25
+        : e.offsetX - 25
       const theY = e.altKey
-        ? Math.round((e.offsetY - 15) / 25) * 25
-        : e.offsetY - 15
+        ? Math.round((e.offsetY - 25) / 25) * 25
+        : e.offsetY - 25
       this.setState({pindropMode: {x: theX, y: theY} })
     } else {
       document.removeEventListener("click", this.releasePin)
