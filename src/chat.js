@@ -71,7 +71,13 @@ export default class Chat extends Component {
   }
 
   async loadTimelineWindow (roomId) {
-    await Client.client.joinRoom(this.props.focus.roomId)
+    try {
+      await Client.client.joinRoom(this.props.focus.roomId)
+    } catch (err) {
+      alert(err)
+      this.props.unsetFocus()
+      return
+    }
     this.room = await Client.client.getRoomWithState(roomId)
     this.timelineWindow = new Matrix.TimelineWindow(Client.client, this.room.getUnfilteredTimelineSet())
     this.timelineWindow.load()

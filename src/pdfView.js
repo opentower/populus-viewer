@@ -622,6 +622,7 @@ export default class PdfView extends Component {
             ? <Chat class="panel-widget-1"
                 pushHistory={props.pushHistory}
                 setFocus={this.setFocus}
+                unsetFocus={this.unsetFocus}
                 pdfId={state.roomId}
                 populateModal={this.populateModal}
                 handleWidgetScroll={this.handleWidgetScroll}
