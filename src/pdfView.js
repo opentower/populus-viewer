@@ -519,6 +519,7 @@ export default class PdfView extends Component {
         })
         .filter(content =>
           content[eventVersion] &&
+          (!content[eventVersion].private || content.unread !== "All") && // we infer that you are a member if you have unread
           ( content[eventVersion].activityStatus === "open" ||
             ( content[eventVersion].activityStatus === "pending" &&
               content[eventVersion].creator === Client.client.getUserId()

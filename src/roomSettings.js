@@ -1,31 +1,41 @@
 import { h, Component, Fragment } from 'preact';
 import Client from './client.js'
 import * as Matrix from "matrix-js-sdk"
-import { joinRule } from './constants.js';
+import { eventVersion, joinRule, spaceParent, spaceChild } from './constants.js';
 import "./styles/roomSettings.css"
 
 export default class RoomSettings extends Component {
   constructor(props) {
     super(props)
-    const roomState = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    this.initialJoinRule = roomState.getJoinRule()
+    this.roomState = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    this.initialJoinRule = this.roomState.getJoinRule()
     this.initialName = props.room.name
     this.initialVisibility = null
     this.state = {
       joinRule: this.initialJoinRule,
       roomName: this.initialName,
-      visibility: null
+      visibility: null,
+      references: null
     }
   }
 
   componentDidMount () {
-    this.checkVisibility()
+    this.initialize()
   }
 
-  async checkVisibility () {
+  async initialize() {
     const visibility = await Client.client.getRoomDirectoryVisibility(this.props.room.roomId)
     this.initialVisibility = visibility
-    this.setState({visibility: visibility.visibility})
+    const parents = this.roomState.getStateEvents(spaceParent)
+    const references = parents.map(parent => {
+      const parentRoom = Client.client.getRoom(parent.getStateKey())
+      const reference = parentRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild, this.props.room.roomId)
+      return reference
+    })
+    this.setState({
+      references,
+      visibility: visibility.visibility
+    })
   }
 
   handleJoinRuleChange = e => {
@@ -44,14 +54,55 @@ export default class RoomSettings extends Component {
     this.setState({ visibility: e.target.value })
   }
 
+  raiseErr = _ => alert("Something went wrong. You may not have permission to adjust some of these settings.")
+
   handleSubmit = async e => {
     e.preventDefault()
-    const theContent = { join_rule: this.state.joinRule }
-    const raiseErr = _ => alert("Something went wrong. You may not have permission to adjust some of these settings.")
-    if (this.state.visibility !== this.initialVisibility) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.visibility).catch(raiseErr)
-    if (this.state.joinRule !== this.initialJoinRule) await Client.client.sendStateEvent(this.props.room.roomId, joinRule, theContent, "").catch(raiseErr)
-    if (this.state.roomName !== this.initialRoomName) await Client.client.setRoomName(this.props.room.roomId, this.state.roomName).catch(raiseErr)
+    if (this.state.visibility !== this.initialVisibility) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.visibility).catch(this.raiseErr)
+    if (this.state.joinRule !== this.initialJoinRule) await this.updateJoinRule()
+    if (this.state.roomName !== this.initialRoomName) await Client.client.setRoomName(this.props.room.roomId, this.state.roomName).catch(this.raiseErr)
     this.props.populateModal(null)
+  }
+
+  async updateJoinRule() {
+    const theContent = { join_rule: this.state.joinRule }
+    await Client.client.sendStateEvent(this.props.room.roomId, joinRule, theContent, "").catch(this.raiseErr)
+    if (this.state.joinRule === "public") this.publishReferences()
+    if (this.state.joinRule === "invite") this.hideReferences()
+  }
+
+  publishReferences() {
+    const theDomain = Client.client.getDomain()
+    this.state.references.forEach(reference => {
+      const theContent = reference.getContent()
+      if (!theContent[eventVersion]) return
+      if (!theContent[eventVersion].private) return
+      delete theContent[eventVersion].private
+      const childContent = {
+        via: [theDomain],
+        [eventVersion]: theContent[eventVersion]
+      }
+      Client.client
+        .sendStateEvent(reference.getRoomId(), spaceChild, childContent, this.props.room.roomId)
+        .catch(e => alert(e))
+    })
+  }
+
+  hideReferences() {
+    const theDomain = Client.client.getDomain()
+    this.state.references.forEach(reference => {
+      const theContent = reference.getContent()
+      if (!theContent[eventVersion]) return
+      if (theContent[eventVersion].private) return
+      theContent[eventVersion].private = true
+      const childContent = {
+        via: [theDomain],
+        [eventVersion]: theContent[eventVersion]
+      }
+      Client.client
+        .sendStateEvent(reference.getRoomId(), spaceChild, childContent, this.props.room.roomId)
+        .catch(e => alert(e))
+    })
   }
 
   cancel = e => {
