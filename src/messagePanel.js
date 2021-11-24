@@ -8,6 +8,7 @@ import UserColor from './userColors.js'
 import Client from './client.js'
 import AudioVisualizer from './audioVisualizer.js'
 import * as PopupMenu from './popUpMenu.js'
+import RoomSettings from './roomSettings.js'
 
 export default class MessagePanel extends Component {
   constructor (props) {
@@ -23,11 +24,11 @@ export default class MessagePanel extends Component {
   theInput = createRef()
 
   getInput () {
-    let theProps = {
+    const theProps = {
       ref: this.theInput,
       submit: this.submitCurrentInput,
       focus: this.props.focus,
-      handlePending: this.openPendingAnnotation,
+      handlePending: this.openPendingAnnotation
     }
     switch (this.state.mode) {
       case 'Default': return <TextMessageInput {...theProps} />
@@ -83,7 +84,19 @@ export default class MessagePanel extends Component {
     }
   }
 
+  openSettings = _ => {
+    const theRoom = Client.client.getRoom(this.props.focus.roomId)
+    this.props.populateModal(
+      <RoomSettings
+        populateModal={this.props.populateModal}
+        room={theRoom}
+      />)
+  }
+
   render(props, state) {
+    const theRoom = Client.client.getRoom(props.focus.roomId)
+    const userMember = theRoom.getMember(Client.client.getUserId())
+    const isAdmin = userMember.powerLevel >= 100
     return <div style={this.userColor.styleVariables} id="messageComposer">
       {this.getInput()}
       <div id="submit-button-wrapper">
@@ -100,6 +113,7 @@ export default class MessagePanel extends Component {
                   <button title="more options" onclick={this.showLess}>{Icons.moreHorizontal}</button>
                   <button title="record video message" onclick={this.setModeRecordVideo}>{Icons.video}</button>
                   <button title="record audio message" onclick={this.setModeRecordAudio}>{Icons.mic}</button>
+                  {isAdmin ? <button title="configure room settings" onclick={this.openSettings}>{Icons.settings}</button> : null}
               </Fragment>
             }
             </Fragment>

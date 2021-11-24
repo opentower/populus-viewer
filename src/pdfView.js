@@ -623,6 +623,7 @@ export default class PdfView extends Component {
                 pushHistory={props.pushHistory}
                 setFocus={this.setFocus}
                 pdfId={state.roomId}
+                populateModal={this.populateModal}
                 handleWidgetScroll={this.handleWidgetScroll}
                 focus={state.focus} />
             : null
