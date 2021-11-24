@@ -77,16 +77,13 @@ export default class RoomSettings extends Component {
           </div>
           <label htmlFor="joinRule">Join Rule:</label>
           <select class="styled-input" value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
-            <option value="private">Private</option>
             <option value="public">Public</option>
             <option value="invite">Invite-Only</option>
           </select>
           <div id="room-settings-join-info">
             {state.joinRule === "public"
               ? "anyone who can find the room may join"
-              : state.joinRule === "invite"
-                ? "an explicit invitation is required before joining"
-                : "no new members may join the room"
+              : "an explicit invitation is required before joining"
             }
           </div>
           <label htmlFor="room-name">Room Name</label>

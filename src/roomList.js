@@ -232,6 +232,11 @@ class PDFRoomEntry extends Component {
   render (props, state) {
     const members = props.room.getMembersWithMembership("join")
     const invites = props.room.getMembersWithMembership("invite")
+    const userMember = props.room.getMember(Client.client.getUserId())
+    const isAdmin = userMember.powerLevel >= 100
+    const canInvite = props.room.getLiveTimeline()
+      .getState(Matrix.EventTimeline.FORWARDS)
+      .hasSufficientPowerLevelFor("invite", userMember.powerLevel)
     const memberIds = members.map(member => member.userId)
     const memberPills = state.memberListOpen
       ? members.map(member => <MemberPill key={member.userId} member={member} />)
@@ -263,10 +268,10 @@ class PDFRoomEntry extends Component {
           { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
           { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
           { state.buttonsVisible ? <button title="Toggle favorite" onClick={this.toggleFavorite}>{Icons.star}</button> : null }
-          { state.buttonsVisible ? <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button> : null }
-          { state.buttonsVisible ? <button title="Configure room settings" onClick={this.openSettings}>{Icons.settings}</button> : null }
           { state.buttonsVisible ? <button title="Leave conversation" onClick={this.handleClose}>{Icons.exit}</button> : null }
           { state.buttonsVisible ? <button title="Edit room tags" onClick={this.handleEditTags}>{Icons.tag}</button> : null }
+          { state.buttonsVisible && canInvite ? <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button> : null }
+          { state.buttonsVisible && isAdmin ? <button title="Configure room settings" onClick={this.openSettings}>{Icons.settings}</button> : null }
         </div>
       </div>
     )

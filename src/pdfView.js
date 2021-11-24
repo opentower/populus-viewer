@@ -457,7 +457,7 @@ export default class PdfView extends Component {
     const theDomain = Client.client.getDomain()
     const isCreator = Client.client.getUserId() === this.state.focus.creator
     const theRoom = Client.client.getRoom(this.state.roomId)
-    const isMod = theRoom.getMember(Client.client.getUserId()).powerLevel > 50
+    const isMod = theRoom.getMember(Client.client.getUserId()).powerLevel >= 50
     if (!confirm('Are you sure you want to close this annotation?')) return
     if (!isCreator && !isMod) {
       alert("Only moderators can close annotations that they didn't create")
