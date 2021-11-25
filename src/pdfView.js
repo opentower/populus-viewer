@@ -194,6 +194,7 @@ export default class PdfView extends Component {
     if (this.state.pindropMode?.x) {
       Client.client.createRoom({
         visibility: "public",
+        name: `pindrop on page ${this.props.pageFocused}`,
         initial_state: [{
           type: "m.room.join_rules",
           state_key: "",
@@ -244,7 +245,7 @@ export default class PdfView extends Component {
         ? child.data
         : child.nodeType === 1 // Element Node
           ? child.innerText
-          : "" ).join(' ').replace(/(.)-\s*/g, "$1") // join with spaces, clean linebreak dashes
+          : "" ).join(' ').replace(/(.)-\s*/g, "$1") // join nodes with spaces, clean any linebreak dashes
     const theDomain = Client.client.getDomain()
 
     const clientRects = Layout.sanitizeRects(Array.from(theRange.getClientRects())
@@ -255,17 +256,12 @@ export default class PdfView extends Component {
     // TODO: we should set room_alias_name and name object, in a useful way based on the selection
     Client.client.createRoom({
       visibility: "public",
+      name: `highlighted passage on page ${this.props.pageFocused}`,
+      topic: theSelectedText,
       initial_state: [{
         type: "m.room.join_rules",
         state_key: "",
         content: {join_rule: "public"}
-      },
-      {
-        type: "m.room.topic",
-        state_key: "",
-        content: {
-          topic: theSelectedText
-        }
       },
       {
         type: spaceParent, // we indicate that the current room is the parent

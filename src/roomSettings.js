@@ -115,19 +115,14 @@ export default class RoomSettings extends Component {
       return <Fragment>
         <h3 id="modalHeader">Room Settings</h3>
         <form id="room-settings-form">
-          { props.setName
-            ? <Fragment>
-              <label htmlFor="room-name">Room Name</label>
-              <input name="room-name"
-                type="text"
-                class="styled-input"
-                value={state.roomName}
-                onkeydown={this.handleKeydown}
-                onInput={this.handleNameInput} />
-                <div id="room-settings-name-info"></div>
-            </Fragment>
-            : null
-          }
+          <label htmlFor="room-name">Room Name</label>
+          <input name="room-name"
+            type="text"
+            class="styled-input"
+            value={state.roomName}
+            onkeydown={this.handleKeydown}
+            onInput={this.handleNameInput} />
+          <div id="room-settings-name-info" />
           <label htmlFor="visibilty">Visibility:</label>
           <select class="styled-input" value={state.visibility} name="joinRule" onchange={this.handleVisibilityChange}>
             <option value="private">Private</option>
