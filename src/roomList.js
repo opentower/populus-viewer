@@ -213,7 +213,8 @@ class PDFRoomEntry extends Component {
             roomId={this.props.room.roomId} />)
 
   openSettings = _ => this.props.populateModal(
-    <RoomSettings populateModal={this.props.populateModal}
+    <RoomSettings setName
+                  populateModal={this.props.populateModal}
                   room={this.props.room} />)
 
   handleEditTags = _ => this.props.populateModal(

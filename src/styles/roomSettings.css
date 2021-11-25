@@ -5,12 +5,17 @@
   margin-bottom: 40px;
 }
 
+#room-settings-name-info,
 #room-settings-visibility-info,
 #room-settings-join-info {
   grid-column: 2/3;
   padding-top:5px;
-  padding-bottom:15px;
   font-size:10pt;
+}
+
+#room-settings-name-info,
+#room-settings-visibility-info {
+  padding-bottom:15px;
 }
 
 #room-settings-submit-wrapper {

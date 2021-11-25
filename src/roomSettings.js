@@ -110,11 +110,24 @@ export default class RoomSettings extends Component {
     this.props.populateModal(null)
   }
 
-  render(_, state) {
+  render(props, state) {
     if (state.visibility) {
       return <Fragment>
         <h3 id="modalHeader">Room Settings</h3>
         <form id="room-settings-form">
+          { props.setName
+            ? <Fragment>
+              <label htmlFor="room-name">Room Name</label>
+              <input name="room-name"
+                type="text"
+                class="styled-input"
+                value={state.roomName}
+                onkeydown={this.handleKeydown}
+                onInput={this.handleNameInput} />
+                <div id="room-settings-name-info"></div>
+            </Fragment>
+            : null
+          }
           <label htmlFor="visibilty">Visibility:</label>
           <select class="styled-input" value={state.visibility} name="joinRule" onchange={this.handleVisibilityChange}>
             <option value="private">Private</option>
@@ -137,13 +150,6 @@ export default class RoomSettings extends Component {
               : "an explicit invitation is required before joining"
             }
           </div>
-          <label htmlFor="room-name">Room Name</label>
-          <input name="room-name"
-            type="text"
-            class="styled-input"
-            value={state.roomName}
-            onkeydown={this.handleKeydown}
-            onInput={this.handleNameInput} />
           <div id="room-settings-submit-wrapper">
             <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
             <button className="styled-button" onClick={this.cancel} >Cancel</button>
