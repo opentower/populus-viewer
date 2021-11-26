@@ -43,6 +43,7 @@
 
 #annotation-layer .annotation-bartab {
     opacity:0.5;
+    background-color:var(--user_solid);
 }
 
 #annotation-layer .annotation-bartab:hover {
