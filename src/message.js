@@ -141,13 +141,14 @@ export class FileMessage extends Component {
   url = Client.client.getHttpUriForMxcFromHS(this.props.event.getContent().url)
 
   render(props) {
+    const filename = props.event.getContent().filename
     return <MessageFrame
       displayOnly={props.displayOnly}
       reactions={props.reactions}
       event={props.event} >
         <div class="message-body file-upload">
           file upload:&nbsp;
-          <a href={this.url}>{props.event.getContent().filename}</a>
+          <a href={this.url} download={filename}>{filename}</a>
         </div>
     </MessageFrame>
   }
