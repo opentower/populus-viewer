@@ -113,8 +113,17 @@ export default class AnnotationListing extends Component {
 
   flipSort = _ => this.setState(oldState => { return { sortOrder: oldState.sortOrder * -1 } })
 
+  flags = [
+    { keyword: "me", description: "my annotations" },
+    { keyword: "hour", description: "annotations from the last hour" },
+    { keyword: "day", description: "annotations from the last day" },
+    { keyword: "week", description: "annotations from the last week" },
+    { keyword: "unread", description: "unread annotations" }
+  ]
+
   popupActions = {
-    "@": props => <PopupMenu.Members roomId={this.props.roomId} {...props} />
+    "@": props => <PopupMenu.Members roomId={this.props.roomId} {...props} />,
+    "~": props => <PopupMenu.Flags roomId={this.props.roomId} flags={this.flags} {...props} />
   }
 
   render (props, state) {

@@ -217,9 +217,8 @@ export class Members extends Component {
   generatePopupItems(value) {
     const room = Client.client.getRoom(this.props.roomId)
     if (room) {
-      const matchingMembers = room.getMembersWithMembership("join")
+      return room.getMembersWithMembership("join")
         .filter(member => member.userId.includes(value) || member.name.includes(value))
-      return matchingMembers
         .slice(0, 3) // top 3
         .map((member, idx) => <Member
           insert={this.props.insert}
@@ -282,6 +281,112 @@ class Member extends Component {
       <span class="popup-menu-item-userid"> {props.member.userId.split(":")[0].substring(1)} </span>
       <span>•</span>
       <span class="popup-menu-item-username"> {props.member.name} </span>
+    </div>
+  }
+}
+
+export class Flags extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      popupItems: [],
+      selection: 0
+    }
+  }
+
+  componentDidMount () {
+    if (this.props.textarea) {
+      this.props.textarea.current.addEventListener("keydown", this.handleKeydown)
+      this.props.textarea.current.addEventListener("keyup", this.handleKeyup)
+    }
+  }
+
+  componentWillUnmount () {
+    if (this.props.textarea) {
+      this.props.textarea.current.removeEventListener("keydown", this.handleKeydown)
+      this.props.textarea.current.removeEventListener("keyup", this.handleKeyup)
+    }
+  }
+
+  handleKeydown = e => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault()
+      if (this.state.selection + 1 < this.state.popupItems.length) {
+        this.setState(oldState => { return {selection: oldState.selection + 1} })
+      }
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault()
+      if (this.state.selection > 0) {
+        this.setState(oldState => { return {selection: oldState.selection - 1} })
+      }
+    }
+    if (e.key === "Enter") {
+      e.preventDefault()
+      this.insertSelection()
+    }
+  }
+
+  generatePopupItems(value) {
+    return this.props.flags
+      .filter(flag => flag.keyword.includes(value))
+      .slice(0, 3) // top 3
+      .map((flag, idx) => <Flag
+        insert={this.props.insert}
+        key={flag.keyword}
+        selected={this.state.selection === idx}
+        flag={flag} />
+      )
+  }
+
+  insertSelection = _ => {
+    const keyword = this.state.popupItems[this.state.selection].props.flag.keyword
+    this.props.insert(`~${keyword} `, /~\S*$/)
+  }
+
+  handleKeyup = _ => {
+    const selstart = this.props.textarea.current.selectionStart
+    const selend = this.props.textarea.current.selectionEnd
+    if (selstart === selend) {
+      const matches = this.props.textValue.slice(0, selend).match(/~\S*$/)
+      if (matches) {
+        const popupItems = this.generatePopupItems(matches[0].substring(1))
+        const newState = {popupItems}
+        if (popupItems.length < this.state.selection + 1) {
+          newState.selection = Math.max(popupItems.length - 1, 0)
+        }
+        this.setState(newState)
+        return
+      }
+    }
+    this.props.cancel()
+  }
+
+  render(_props, state) {
+    if (this.state.popupItems.length > 0) {
+      // We use a relatively positioned wrapper to keep the PUM in the document flow
+      return <div style={{top: `${state.popupItems.length * 40}px`}} id="popup-wrapper">
+        <div id="popup-menu">
+          {this.state.popupItems}
+        </div>
+      </div>
+    }
+  }
+}
+
+class Flag extends Component {
+  insertFlag = e => {
+    e.preventDefault() // try to prevent textarea losing focus
+    this.props.insert(`~${this.props.flag.keyword} `, /~\S*$/)
+  }
+
+  render(props) {
+    return <div
+      onmousedown={this.insertFlag}
+      class={props.selected ? "popup-menu-item-selected-flag popup-menu-item" : "popup-menu-item"}>
+      <span class="popup-menu-item-flag"> {props.flag.keyword} </span>
+      <span>•</span>
+      <span class="popup-menu-item-flag-description"> {props.flag.description} </span>
     </div>
   }
 }

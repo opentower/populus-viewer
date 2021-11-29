@@ -23,6 +23,7 @@
   background:var(--user_ultralight);
 }
 
+.popup-menu-item-selected-flag,
 .popup-menu-item-selected-emoji {
   background:#eaeaea
 }
