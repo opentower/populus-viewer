@@ -26,10 +26,12 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-react": "^7.23.2",
+    "pdfjs-dist": "^2.11.338",
     "style-loader": "^2.0.0",
     "webpack": "^5.27.1",
     "webpack-cli": "^4.5.0",
-    "webpack-dev-server": "^3.11.2"
+    "webpack-dev-server": "^3.11.2",
+    "worker-loader": "^3.0.8"
   },
   "author": "Graham Leach-Krouse",
   "license": "GPL-3.0-or-later",
@@ -39,7 +41,6 @@
     "emoji-picker-element": "^1.8.2",
     "katex": "^0.13.2",
     "matrix-js-sdk": "^12.5.0",
-    "pdfjs-dist": "^2.11.338",
     "png-chunks-extract": "^1.0.0",
     "preact": "^10.5.12",
     "sanitize-html": "^2.3.3"
