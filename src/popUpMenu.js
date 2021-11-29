@@ -50,7 +50,7 @@ export class Menu extends Component {
         insert: this.insert,
         cancel: this.cancel,
         textarea: props.textarea,
-        textValue: props.textValue,
+        textValue: props.textValue
       })
     }
   }
@@ -278,7 +278,7 @@ class Member extends Component {
       onmousedown={this.insertName}
       style={this.colorFromId.styleVariables}
       class={props.selected ? "popup-menu-item-selected-user popup-menu-item" : "popup-menu-item"}>
-      <span class="popup-menu-item-userid"> {props.member.userId.split(":")[0].substring(1)} </span>
+      <span class="popup-menu-item-userid"> @{props.member.userId.split(":")[0].substring(1)} </span>
       <span>•</span>
       <span class="popup-menu-item-username"> {props.member.name} </span>
     </div>
@@ -384,7 +384,7 @@ class Flag extends Component {
     return <div
       onmousedown={this.insertFlag}
       class={props.selected ? "popup-menu-item-selected-flag popup-menu-item" : "popup-menu-item"}>
-      <span class="popup-menu-item-flag"> {props.flag.keyword} </span>
+      <span class="popup-menu-item-flag"> ~{props.flag.keyword} </span>
       <span>•</span>
       <span class="popup-menu-item-flag-description"> {props.flag.description} </span>
     </div>

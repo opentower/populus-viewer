@@ -245,7 +245,7 @@ export default class PdfView extends Component {
         ? child.data
         : child.nodeType === 1 // Element Node
           ? child.innerText
-          : "" ).join(' ').replace(/(.)-\s*/g, "$1") // join nodes with spaces, clean any linebreak dashes
+          : "" ).join(' ').replace(/(.)-\s+/g, "$1") // join nodes with spaces, clean any linebreak dashes
     const theDomain = Client.client.getDomain()
 
     const clientRects = Layout.sanitizeRects(Array.from(theRange.getClientRects())
