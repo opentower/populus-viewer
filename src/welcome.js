@@ -117,11 +117,10 @@ export default class WelcomeView extends Component {
                 <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} />
               </Fragment>
               : state.view === "NOTIF"
-                ? <NotificationListing pushHistory={props.pushHistory} />
+                ? <NotificationListing />
                 : <Fragment>
                     <RoomList
                       searchFilter={state.searchFilter}
-                      pushHistory={props.pushHistory}
                       populateModal={this.populateModal}
                     />
                   </Fragment>

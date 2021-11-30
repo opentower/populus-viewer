@@ -3,6 +3,7 @@ import './styles/splash.css'
 import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import { lastViewed } from './constants.js'
+import { route } from 'preact-router'
 
 export default class SplashView extends Component {
   pollInitialized = async () => {
@@ -14,10 +15,7 @@ export default class SplashView extends Component {
         const theRoom = Client.client.getRoom(theId.room_id)
         maybePage = (theRoom && theRoom.getAccountData(lastViewed).getContent().page) || 1
       }
-      this.props.pushHistory({
-        pdfFocused: maybeTitle,
-        pageFocused: maybePage
-      })
+      route(`/${maybeTitle}/${maybePage}/`)
       this.props.setInitializationStage("initialized")
       QueryParameters.delete("server") // delete no-longer-needed server param if it's present
     } else {
