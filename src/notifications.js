@@ -106,7 +106,7 @@ export default class NotificationListing extends Component {
       if (message) accumulator.push(<div class="notification-date-indicator">{message}</div>)
       switch (ev.getContent().msgtype) {
         case "m.text": {
-          accumulator.push(<TextNotification pushHistory={props.pushHistory} event={ev} key={ev.getId()} />)
+          accumulator.push(<TextNotification event={ev} key={ev.getId()} />)
         }
       }
       return accumulator
@@ -128,11 +128,10 @@ function Anchor(props) {
 }
 
 function TextNotification(props) {
-  return <Notification pushHistory={props.pushHistory} event={props.event}>
+  return <Notification event={props.event}>
     <TextMessage
       reactions={{}}
       displayOnly={true}
-      pushHistory={props.pushHistory}
       event={props.event} />
   </Notification>
 }
@@ -196,11 +195,8 @@ class Notification extends Component {
     : ""
 
   handleClick = _ => {
-    QueryParameters.set("focus", this.originAnnotation.getContent()[eventVersion].roomId)
-    this.props.pushHistory({
-      pdfFocused: this.originAlias,
-      pageFocused: this.originAnnotation.getContent()[eventVersion].pageNumber
-    })
+    const origin = this.originAnnotation.getContent()[eventVersion]
+    History.push(`/${this.originAlias.slice(1)}/${origin.pageNumber}/${origin.roomId}`)
   }
 
   render(props, state) {

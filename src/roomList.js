@@ -7,6 +7,7 @@ import Invite from './invite.js'
 import RoomSettings from './roomSettings.js'
 import * as Icons from './icons.js'
 import { calculateUnread } from './utils/unread.js'
+import History from './history.js'
 import './styles/roomList.css'
 
 export default class RoomList extends Component {
@@ -262,7 +263,7 @@ class PDFRoomEntry extends Component {
             }
           </div>
         </div>
-        <AnnotationData pushHistory={props.pushHistory} getLastViewedPage={this.getLastViewedPage} room={props.room} />
+        <AnnotationData getLastViewedPage={this.getLastViewedPage} room={props.room} />
         <div class="room-listing-entry-buttons">
           { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
           { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
@@ -341,10 +342,10 @@ class AnnotationData extends Component {
   }
 
   handleLoadNew = _ => {
-    this.props.pushHistory({
-      pdfFocused: this.props.room.getCanonicalAlias(),
-      pageFocused: this.props.getLastViewedPage() || 1
-    }, null, {searchString: "~unread"})
+    History.push(
+      `/${this.props.room.getCanonicalAlias().slice(1)}/${this.props.getLastViewedPage() || 1}/`,
+      {searchString: "~unread"}
+    )
   }
 
   getUnreadCount = _ => this.state.annotationContents.filter(content => content.unread).length

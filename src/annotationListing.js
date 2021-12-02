@@ -11,6 +11,7 @@ import { DisplayContent } from './message.js'
 import UserInfoHeader from './userInfoHeader.js'
 import * as Icons from './icons.js'
 import * as PopupMenu from './popUpMenu.js'
+import History from './history.js'
 
 export default class AnnotationListing extends Component {
   constructor(props) {
@@ -162,7 +163,6 @@ export default class AnnotationListing extends Component {
                             annotationContent={content[eventVersion]}
                             focusByRoomId={props.focusByRoomId}
                             focus={props.focus}
-                            pushHistory={props.pushHistory}
                             parentRoom={props.room}
                         />)
                   }
@@ -221,10 +221,7 @@ class AnnotationListingEntry extends Component {
 
   handleClick = () => {
     this.props.focusByRoomId(this.props.annotationContent.roomId)
-    this.props.pushHistory({
-      pageFocused: this.props.annotationContent.pageNumber,
-      pdfFocused: this.props.parentRoom.getCanonicalAlias()
-    })
+    History.push(`/${this.props.parentRoom.getCanonicalAlias().slice(1)}/${this.props.annotationContent.pageNumber}`)
   }
 
   creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)

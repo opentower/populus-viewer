@@ -132,6 +132,7 @@
     }
 }
 
+.nav-button-wrapper > a,
 .nav-button-wrapper > button {
     cursor:pointer;
     outline:none;
@@ -143,7 +144,6 @@
 .nav-button-wrapper[data-searchFocused] > button {
   display:none;
 }
-
 
 .nav-button-wrapper > button[disabled] {
     color:gray;

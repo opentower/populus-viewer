@@ -8,6 +8,7 @@ import Client from './client.js'
 import * as Icons from './icons.js'
 import * as Replies from './utils/replies.js'
 import * as PopupMenu from './popUpMenu.js'
+import History from './history.js'
 import './styles/message.css'
 
 export class TextMessage extends Component {

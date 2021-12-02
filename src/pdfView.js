@@ -1,4 +1,5 @@
 import { h, createRef, Fragment, Component } from 'preact';
+import Router from 'preact-router';
 import './styles/pdfView.css'
 import './styles/content-container.css'
 import * as Matrix from "matrix-js-sdk"
@@ -9,6 +10,7 @@ import AnnotationListing from "./annotationListing.js"
 import SearchResults from "./searchResults.js"
 import PdfCanvas from "./pdfCanvas.js"
 import QueryParameters from './queryParams.js'
+import History from './history.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
 import { eventVersion, spaceChild, spaceParent, lastViewed } from "./constants.js"
@@ -33,7 +35,7 @@ export default class PdfView extends Component {
       annotationContents: [],
       filteredAnnotationContents: [],
       pindropMode: null,
-      annotationFilter: props.message?.searchString || "",
+      annotationFilter: History.message?.searchString || "",
       searchString: "",
       loadingStatus: "loading...",
       pdfWidthPx: null,
@@ -133,7 +135,7 @@ export default class PdfView extends Component {
             <div style="margin-top:10px">
               <button
                 onclick={_ => {
-                  this.props.pushHistory({pageFocused: theContent.page})
+                  History.push(`/${this.props.pdfFocused}/${theContent.page}/`)
                   this.populateToast(null)
                 }}
                 class="styled-button">
@@ -162,9 +164,16 @@ export default class PdfView extends Component {
 
   setId = id => {
     // sets the roomId after loading a PDF, and also tries to use that information to update the focus.
-    this.setState({roomId: id}, _ => QueryParameters.get("focus")
-      ? this.focusByRoomId(QueryParameters.get("focus"))
+    this.setState({roomId: id}, _ => this.props.roomFocused
+      ? this.focusByRoomId(this.props.roomFocused)
       : null)
+  }
+
+  // sets the last viewed page for later retrieval
+  setLastPage = async _ => {
+    if (!this.props.pageFocused || !this.props.pdfFocused) return
+    const theId = await Client.client.getRoomIdForAlias(`#${this.props.pdfFocused}`)
+    await Client.client.setRoomAccountData(theId.room_id, lastViewed, { page: this.props.pageFocused, deviceId: Client.deviceId })
   }
 
   startPindrop = _ => {
@@ -358,12 +367,9 @@ export default class PdfView extends Component {
     const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
     if (theAnnotation) {
-      QueryParameters.set("focus", roomId)
-      this.setState({
-        focus: theAnnotation.getContent()[eventVersion],
-        panelVisible: true,
-        hideButtons: false
-      })
+      const focus = theAnnotation.getContent()[eventVersion]
+      History.push(`/${this.props.pdfFocused}/${focus.pageNumber || this.props.pageFocused}/${roomId}`)
+      this.setState({ focus, panelVisible: true, hideButtons: false })
     }
   }
 
@@ -374,14 +380,11 @@ export default class PdfView extends Component {
       const theId = annot[eventVersion].roomId
       if (reachedFocus) {
         this.focusByRoomId(theId)
-        this.props.pushHistory({ pageFocused: annot[eventVersion].pageNumber })
         return
-      } else {
-        reachedFocus = this.state.focus.roomId === theId
       }
+      reachedFocus = this.state.focus.roomId === theId
     }
     this.focusByRoomId(array[0][eventVersion].roomId)
-    this.props.pushHistory({ pageFocused: array[0][eventVersion].pageNumber })
   }
 
   focusNext = _ => {
@@ -412,13 +415,9 @@ export default class PdfView extends Component {
     if (e.key === '+') this.setZoom(this.state.zoomFactor + 0.1)
     if (e.key === '=') this.setZoom(this.state.zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(this.state.zoomFactor - 0.1)
-    if (e.key === "Esc" || e.key === "Escape") this.props.pushHistory({pdfFocused: null, pageFocused: null});
-    if (e.key === 'j' || e.key === "ArrowRight") {
-      if (this.props.pageFocused < this.state.totalPages) {
-        this.props.pushHistory({ pageFocused: this.props.pageFocused + 1 }, _ => {
-          this.contentContainer.current.scrollTop = 0
-        })
-      }
+    if (e.key === "Esc" || e.key === "Escape") History.push("/")
+    if ((e.key === 'j' || e.key === "ArrowRight") && this.props.pageFocused < this.state.totalPages) {
+      History.push(`/${this.props.pdfFocused}/${parseInt(this.props.pageFocused, 10) + 1}/`)
     }
     if (e.key === "ArrowUp") {
       e.preventDefault() // block default scrolling behavior
@@ -434,12 +433,8 @@ export default class PdfView extends Component {
         left: this.contentContainer.current.scrollLeft
       })
     }
-    if (e.key === 'k' || e.key === "ArrowLeft") {
-      if (this.props.pageFocused > 1) {
-        this.props.pushHistory({pageFocused: this.props.pageFocused - 1}, _ => {
-          this.contentContainer.current.scrollTop = this.contentContainer.current.scrollHeight
-        })
-      }
+    if ((e.key === 'k' || e.key === "ArrowLeft") && this.props.pageFocused > 1) {
+      History.push(`/${this.props.pdfFocused}/${parseInt(this.props.pageFocused, 10) - 1}/`)
     }
   }
 
@@ -581,6 +576,7 @@ export default class PdfView extends Component {
           : false
         }
         onPointerMove={this.handlePointerMove}>
+        <Router onChange={this.setLastPage} />
         <Modal modalVisible={!!state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
         <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
         {this.getLoadingStatus()}
@@ -617,7 +613,6 @@ export default class PdfView extends Component {
         <div id="sidepanel">
           {state.focus
             ? <Chat class="panel-widget-1"
-                pushHistory={props.pushHistory}
                 setFocus={this.setFocus}
                 unsetFocus={this.unsetFocus}
                 pdfId={state.roomId}
@@ -632,7 +627,6 @@ export default class PdfView extends Component {
                 searchString={state.searchString}
                 setSearch={this.setSearch}
                 pdfText={this.pdfText}
-                pushHistory={props.pushHistory}
               />
             : <AnnotationListing
                   roomId={state.roomId}
@@ -646,7 +640,6 @@ export default class PdfView extends Component {
                   focusByRoomId={this.focusByRoomId}
                   focusNext={this.focusNext}
                   focusPrev={this.focusPrev}
-                  pushHistory={props.pushHistory}
                   unreadCounts={this.unreadCounts}
                   room={theRoom}
                 />
@@ -655,7 +648,8 @@ export default class PdfView extends Component {
         <Navbar selected={state.hasSelection}
           openAnnotation={this.openAnnotation}
           closeAnnotation={this.closeAnnotation}
-          page={props.pageFocused}
+          page={props.pageFocused || 1}
+          pdf={props.pdfFocused}
           total={state.totalPages}
           focus={state.focus}
           roomId={state.roomId}
@@ -667,7 +661,6 @@ export default class PdfView extends Component {
           populateModal={this.populateModal}
           annotationsVisible={state.annotationsVisible}
           toggleAnnotations={this.toggleAnnotations}
-          pushHistory={props.pushHistory}
           setNavHeight={this.setNavHeight}
           setSearch={this.setSearch}
           startPindrop={this.startPindrop}

@@ -1,21 +1,19 @@
 import { h, render, Component } from 'preact'
 import Router from 'preact-router'
-import { createHashHistory } from 'history'
 import WelcomeView from './welcome.js'
 import LoginView from './login.js'
 import PdfView from './pdfView.js'
 import SplashView from './splash.js'
 import QueryParameters from './queryParams.js'
+import History from './history.js'
 import Client from './client.js'
 import './styles/global.css'
-import { lastViewed } from './constants.js'
 
 class PopulusViewer extends Component {
   constructor () {
     super()
     this.state = { initializationStage: "connecting to database" }
 
-    this.setLastPage = this.setLastPage.bind(this)
     this.loginToken = QueryParameters.get('loginToken')
 
     if (Client.isResumable()) Client.initClient().then(this.loginHandler)
@@ -46,14 +44,6 @@ class PopulusViewer extends Component {
     })
   }
 
-  history = createHashHistory()
-
-  setLastPage = async _ => {
-    if (!this.state.pdfFocused || !this.state.pageFocused) return
-    const theId = await Client.client.getRoomIdForAlias(this.state.pdfFocused)
-    await Client.client.setRoomAccountData(theId.room_id, lastViewed, { page: this.state.pageFocused, deviceId: Client.deviceId })
-  }
-
   render (_props, state) {
     if (!(state.initializationStage === "initialized")) {
       return <SplashView
@@ -62,7 +52,7 @@ class PopulusViewer extends Component {
       />
     }
     if (!state.loggedIn) return <LoginView loginHandler={this.loginHandler} />
-    return <Router history={this.history}>
+    return <Router history={History.history}>
       <WelcomeView path="/" logoutHandler={this.logoutHandler} />
       <PdfView path="/:pdfFocused/:pageFocused?/:roomFocused?" />
     </Router>

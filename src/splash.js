@@ -3,19 +3,11 @@ import './styles/splash.css'
 import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import { lastViewed } from './constants.js'
-import { route } from 'preact-router'
+import History from './history.js'
 
 export default class SplashView extends Component {
   pollInitialized = async () => {
     if (Client.client && Client.client.isInitialSyncComplete()) {
-      const maybeTitle = QueryParameters.get("title") || null
-      let maybePage = Number(QueryParameters.get("page")) || null
-      if (maybeTitle && !maybePage) {
-        const theId = await Client.client.getRoomIdForAlias(maybeTitle)
-        const theRoom = Client.client.getRoom(theId.room_id)
-        maybePage = (theRoom && theRoom.getAccountData(lastViewed).getContent().page) || 1
-      }
-      route(`/${maybeTitle}/${maybePage}/`)
       this.props.setInitializationStage("initialized")
       QueryParameters.delete("server") // delete no-longer-needed server param if it's present
     } else {

@@ -5,6 +5,7 @@ import SearchBar from './search.js'
 import UserColor from "./userColors.js"
 import './styles/navbar.css';
 import { spaceChild, eventVersion } from "./constants.js"
+import History from './history.js'
 import Client from './client.js'
 import Invite from './invite.js'
 
@@ -67,11 +68,11 @@ export default class Navbar extends Component {
   handleSubmit = ev => {
     ev.preventDefault();
     const currentPage = Number.isNaN(parseInt(this.state.value, 10)) ? 1 : parseInt(this.state.value, 10)
-    if (currentPage > 0 && currentPage <= this.props.total) this.props.pushHistory({ pageFocused: currentPage })
+    if (currentPage > 0 && currentPage <= this.props.total) History.push(`/${this.props.pdf}/${currentPage}/`)
     else alert("Out of range");
   }
 
-  handleClick = e => this.props.pushHistory({ pageFocused: parseInt(e.target.value, 10) })
+  handleClick = e => History.push(`${this.props.pdf}/${parseInt(e.target.value, 10)}`)
 
   togglePageNav = _ => this.setState({pageViewVisible: !this.state.pageViewVisible})
 
@@ -81,28 +82,18 @@ export default class Navbar extends Component {
     this.setState(oldState => { return {moreOptionsVisible: !oldState.moreOptionsVisible} })
   }
 
-  mainMenu = _ => {
-    this.props.pushHistory({
-      pdfFocused: null,
-      pageFocused: null
-    });
-  }
+  mainMenu = _ => History.push("/")
 
   prevPage = _ => {
     if (this.props.page > 1) {
-      this.props.pushHistory({pageFocused: this.props.page - 1}, _ => {
-        this.props.container.current.scrollTop = this.props.container.current.scrollHeight
-        // this works imperfectly when the page size changes, because
-        // the change in sizes takes place after the PDF render, which
-        // takes place after the page change
-      })
+      History.push(`/${this.props.pdf}/${parseInt(this.props.page, 10) - 1}/`)
+      this.props.container.current.scrollTop = this.props.container.current.scrollHeight
     }
   }
 
   nextPage = _ => {
-    this.props.pushHistory({ pageFocused: this.props.page + 1 }, _ => {
-      this.props.container.current.scrollTop = 0
-    })
+    History.push(`/${this.props.pdf}/${parseInt(this.props.page, 10) + 1}/`,{})
+    this.props.container.current.scrollTop = 0
   }
 
   openInvite = _ => this.props.populateModal(
