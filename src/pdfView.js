@@ -9,7 +9,6 @@ import Chat from "./chat.js"
 import AnnotationListing from "./annotationListing.js"
 import SearchResults from "./searchResults.js"
 import PdfCanvas from "./pdfCanvas.js"
-import QueryParameters from './queryParams.js'
 import History from './history.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
@@ -167,13 +166,6 @@ export default class PdfView extends Component {
     this.setState({roomId: id}, _ => this.props.roomFocused
       ? this.focusByRoomId(this.props.roomFocused)
       : null)
-  }
-
-  // sets the last viewed page for later retrieval
-  setLastPage = async _ => {
-    if (!this.props.pageFocused || !this.props.pdfFocused) return
-    const theId = await Client.client.getRoomIdForAlias(`#${this.props.pdfFocused}`)
-    await Client.client.setRoomAccountData(theId.room_id, lastViewed, { page: this.props.pageFocused, deviceId: Client.deviceId })
   }
 
   startPindrop = _ => {
@@ -407,6 +399,17 @@ export default class PdfView extends Component {
     // timeout to avoid excessive rerendering
   }
 
+  handleRouteChange = _ => {
+    // sets the last viewed page for later retrieval
+    if (!this.props.pageFocused || !this.props.pdfFocused || !this.state.roomId) return
+    Client.client.setRoomAccountData(this.state.roomId, lastViewed, {
+      page: this.props.pageFocused,
+      deviceId: Client.deviceId
+    })
+    if (!this.props.roomFocused) return
+    this.focusByRoomId(this.props.roomFocused)
+  }
+
   handleKeydown = e => {
     if (e.altKey && e.key === 'a') this.openAnnotation()
     if (e.altKey && e.key === 'r') this.closeAnnotation()
@@ -465,20 +468,11 @@ export default class PdfView extends Component {
 
   unsetFocus = _ => {
     this.setState({focus: null})
-    QueryParameters.delete("focus")
-    QueryParameters.replaceHistory({
-      pdfFocused: this.props.pdfFocused,
-      pageFocused: this.props.pageFocused
-    })
+    History.push(`/${this.props.pdfFocused}/${this.props.pageFocused}/`)
   }
 
   setFocus = (content) => {
-    QueryParameters.set("focus", content.roomId)
-    QueryParameters.replaceHistory({
-      pdfFocused: this.props.pdfFocused,
-      pageFocused: this.props.pageFocused,
-      annotationFocused: content.roomId
-    })
+    History.push(`/${this.props.pdfFocused}/${this.props.pageFocused}/${content.roomId}/`)
     this.setState({focus: content})
   }
 
@@ -576,7 +570,7 @@ export default class PdfView extends Component {
           : false
         }
         onPointerMove={this.handlePointerMove}>
-        <Router onChange={this.setLastPage} />
+        <Router onChange={this.handleRouteChange} />
         <Modal modalVisible={!!state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
         <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
         {this.getLoadingStatus()}

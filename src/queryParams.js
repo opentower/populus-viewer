@@ -16,16 +16,4 @@ export default class QueryParameters {
   static delete(a) {
     QueryParameters.parameters.delete(a)
   }
-
-  static pushHistory(obj) {
-    const oldState = window.history.state || {}
-    const newState = Object.assign(oldState, obj) // overwrite old state with new additions
-    window.history.pushState(newState, '', `?${QueryParameters.parameters.toString()}`)
-  }
-
-  static replaceHistory(obj) {
-    const oldState = window.history.state || {}
-    const newState = Object.assign(oldState, obj) // overwrite old state with new additions
-    window.history.replaceState(newState, '', `?${QueryParameters.parameters.toString()}`)
-  }
 }

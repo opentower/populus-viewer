@@ -32,17 +32,10 @@ export class TextMessage extends Component {
       linkArray
         .filter(link => new URL(link.getAttribute("href")).pathname === window.location.pathname)
         .forEach(link => {
-          const params = new URL(link.getAttribute("href")).searchParams
+          const hash = new URL(link.getAttribute("href")).hash
           link.addEventListener("click", e => {
             e.preventDefault()
-            const title = params.get("title") || null
-            const focus = params.get("focus") || null
-            const page = parseInt(params.get("page"), 10) || null
-            this.props.pushHistory(
-              { pdfFocused: title, pageFocused: page }
-              , this.props.setfocus && focus ? _ => this.props.setfocus({ roomId: focus }) : null
-              // callback. Should maybe add a QueryParam.set(focus) to perhaps handle the case where the link isn't in the PdfView
-            )
+            History.push(hash.slice(1))
           })
         })
     }

@@ -219,10 +219,7 @@ class AnnotationListingEntry extends Component {
     })
   }
 
-  handleClick = () => {
-    this.props.focusByRoomId(this.props.annotationContent.roomId)
-    History.push(`/${this.props.parentRoom.getCanonicalAlias().slice(1)}/${this.props.annotationContent.pageNumber}`)
-  }
+  handleClick = () => this.props.focusByRoomId(this.props.annotationContent.roomId)
 
   creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
 
