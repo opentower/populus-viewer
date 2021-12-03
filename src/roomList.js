@@ -70,9 +70,7 @@ export default class RoomList extends Component {
     return 0
   }
 
-  byFavorite() { return 0 }
-
-  sortByActivity = e => {
+  sortByActivity = _ => {
     this.setState(oldState =>
       oldState.sort === "Activity"
         ? { sortOrder: oldState.sortOrder * -1 }
@@ -80,7 +78,7 @@ export default class RoomList extends Component {
     )
   }
 
-  sortByName = e => {
+  sortByName = _ => {
     this.setState(oldState =>
       oldState.sort === "Name"
         ? { sortOrder: oldState.sortOrder * -1 }
@@ -88,7 +86,7 @@ export default class RoomList extends Component {
     )
   }
 
-  flipSort = e => {
+  flipSort = _ => {
     this.setState(oldState => {
       return { sortOrder: oldState.sortOrder * -1 }
     })
@@ -195,14 +193,6 @@ class PDFRoomEntry extends Component {
   getLastViewedPage = _ => this.props.room.getAccountData(lastViewed)
     ? this.props.room.getAccountData(lastViewed).getContent().page
     : 1
-
-  // handleLoad = e => {
-  //   e.preventDefault()
-  //   this.props.pushHistory({
-  //     pdfFocused: this.props.room.getCanonicalAlias(),
-  //     pageFocused: this.getLastViewedPage() || 1
-  //   })
-  // }
 
   toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
 

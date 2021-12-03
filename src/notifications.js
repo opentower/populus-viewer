@@ -5,7 +5,6 @@ import { TextMessage } from './message.js'
 import { spaceParent, spaceChild, eventVersion } from "./constants.js"
 import { isUnread } from './utils/unread.js'
 import './styles/notifications.css'
-import QueryParameters from './queryParams.js'
 import Client from './client.js'
 
 export default class NotificationListing extends Component {
