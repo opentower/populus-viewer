@@ -13,7 +13,7 @@ export default class Navbar extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      value: props.page,
+      value: props.pageFocused,
       pageViewVisible: false,
       moreOptionsVisible: false,
       typing: {},
@@ -56,7 +56,7 @@ export default class Navbar extends Component {
 
   handlePageFocus = _ => this.setState({ pageFocused: true, value: "" })
 
-  handlePageBlur = _ => this.setState({ pageFocused: false, value: this.props.page })
+  handlePageBlur = _ => this.setState({ pageFocused: false, value: this.props.pageFocused })
 
   setSearchFocus = searchFocused => {
     if (searchFocused) {
@@ -68,11 +68,11 @@ export default class Navbar extends Component {
   handleSubmit = ev => {
     ev.preventDefault();
     const currentPage = Number.isNaN(parseInt(this.state.value, 10)) ? 1 : parseInt(this.state.value, 10)
-    if (currentPage > 0 && currentPage <= this.props.total) History.push(`/${this.props.pdf}/${currentPage}/`)
+    if (currentPage > 0 && currentPage <= this.props.total) History.push(`/${this.props.pdfFocused}/${currentPage}/`)
     else alert("Out of range");
   }
 
-  handleClick = e => History.push(`${this.props.pdf}/${parseInt(e.target.value, 10)}`)
+  handleClick = e => History.push(`${this.props.pdfFocused}/${parseInt(e.target.value, 10)}`)
 
   togglePageNav = _ => this.setState({pageViewVisible: !this.state.pageViewVisible})
 
@@ -85,14 +85,14 @@ export default class Navbar extends Component {
   mainMenu = _ => History.push("/")
 
   prevPage = _ => {
-    if (this.props.page > 1) {
-      History.push(`/${this.props.pdf}/${parseInt(this.props.page, 10) - 1}/`)
+    if (this.props.pageFocused > 1) {
+      History.push(`/${this.props.pdfFocused}/${parseInt(this.props.pageFocused, 10) - 1}/`)
       this.props.container.current.scrollTop = this.props.container.current.scrollHeight
     }
   }
 
   nextPage = _ => {
-    History.push(`/${this.props.pdf}/${parseInt(this.props.page, 10) + 1}/`,{})
+    History.push(`/${this.props.pdfFocused}/${parseInt(this.props.pageFocused, 10) + 1}/`,{})
     this.props.container.current.scrollTop = 0
   }
 
@@ -119,7 +119,7 @@ export default class Navbar extends Component {
             currentPageElement={this.currentPageElement}
             visibility={state.pageViewVisible}
             typing={state.typing}
-            current={props.page} />
+            current={props.pageFocused} />
         </div>
         <div id="nav-background" />
         <div class="nav-button-wrapper top-wrapper">
@@ -128,19 +128,19 @@ export default class Navbar extends Component {
             disabled={(props.selected || props.pindropMode?.x) ? null : "disabled"}
             onclick={props.openAnnotation}>{Icons.addAnnotation}</button>
           <button title="Go to previous annotation&#013;Shortcut: Alt + Shift + Tab" onclick={props.focusPrev}>{Icons.chevronsLeft}</button>
-          <button title="Go to previous page&#013;Shortcuts: k, &larr;" disabled={props.page > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
+          <button title="Go to previous page&#013;Shortcuts: k, &larr;" disabled={props.pageFocused > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
           <form onSubmit={this.handleSubmit}>
             <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="Show page navigation">{Icons.page}</button>
             <input type="text"
               ref={this.pageInput}
-              value={state.pageFocused ? state.value : props.page}
+              value={state.pageFocused ? state.value : props.pageFocused}
               onblur={this.handlePageBlur}
               onfocus={this.handlePageFocus}
               oninput={this.handleInput} />
             <span>/</span>
             <span ref={this.pageTotal} id="nav-total-pages">{props.total}</span>
           </form>
-          <button title="Go to next page&#013;Shortcuts: j, &rarr;" disabled={props.total > props.page ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
+          <button title="Go to next page&#013;Shortcuts: j, &rarr;" disabled={props.total > props.pageFocused ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
           <button title="Go to next annotation&#013;Shortcut: Alt + Tab" onclick={props.focusNext}>{Icons.chevronsRight}</button>
           <button title="Remove annotation&#013;Shortcut: Alt + r" disabled={props.focus && !props.selected ? null : "disabled"} onclick={props.closeAnnotation}>{Icons.removeAnnotation}</button>
           <button title="More options" onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>

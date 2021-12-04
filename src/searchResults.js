@@ -1,6 +1,7 @@
 import { h, Fragment, createRef, Component } from 'preact';
 import './styles/searchResults.css'
 import * as Icons from "./icons.js"
+import History from "./history.js"
 
 export default class SearchResults extends Component {
   constructor(props) {
@@ -108,7 +109,8 @@ export default class SearchResults extends Component {
             {props.searchString}
           </div>
           {state.searchResults.map((result, idx) => <SearchResult
-            pushHistory={props.pushHistory}
+            roomFocused={props.roomFocused}
+            pdfFocused={props.pdfFocused}
             key={result.page}
             result={result}
             focusedResult={state.focusedResult}
@@ -126,7 +128,9 @@ export default class SearchResults extends Component {
 class SearchResult extends Component {
   focus = _ => {
     this.props.setFocus(this.props.index)
-    this.props.pushHistory({pageFocused: parseInt(this.props.result.page, 10)})
+    this.props.roomFocused
+      ? History.push(`/${this.props.pdfFocused}/${this.props.result.page}/${this.props.roomFocused}`)
+      : History.push(`/${this.props.pdfFocused}/${this.props.result.page}/`)
     this.result.current.scrollIntoView()
   }
 

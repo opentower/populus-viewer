@@ -621,6 +621,8 @@ export default class PdfView extends Component {
                 searchString={state.searchString}
                 setSearch={this.setSearch}
                 pdfText={this.pdfText}
+                pdfFocused={props.pdfFocused}
+                roomFocused={props.roomFocused}
               />
             : <AnnotationListing
                   roomId={state.roomId}
@@ -642,8 +644,8 @@ export default class PdfView extends Component {
         <Navbar selected={state.hasSelection}
           openAnnotation={this.openAnnotation}
           closeAnnotation={this.closeAnnotation}
-          page={props.pageFocused || 1}
-          pdf={props.pdfFocused}
+          pageFocused={props.pageFocused || 1}
+          pdfFocused={props.pdfFocused}
           total={state.totalPages}
           focus={state.focus}
           roomId={state.roomId}
