@@ -4,7 +4,6 @@ import WelcomeView from './welcome.js'
 import LoginView from './login.js'
 import PdfView from './pdfView.js'
 import SplashView from './splash.js'
-import QueryParameters from './queryParams.js'
 import History from './history.js'
 import Client from './client.js'
 import './styles/global.css'
@@ -12,15 +11,21 @@ import './styles/global.css'
 class PopulusViewer extends Component {
   constructor () {
     super()
-    this.state = { initializationStage: "connecting to database" }
-
-    this.loginToken = QueryParameters.get('loginToken')
+    this.state = {
+      initializationStage: "connecting to database",
+      loggedIn: true
+      // the presumption is that we're logged in until it's clear that we're
+      // not. This avoids flashing the login view while verifying that we're
+      // logged in.
+    }
+    const queryParameters = new URLSearchParams(window.location.search)
+    this.loginToken = queryParameters.get('loginToken')
 
     if (Client.isResumable()) Client.initClient().then(this.loginHandler)
     else if (this.loginToken) {
       Client.initClient()
         .then(_ => Client.client.loginWithToken(this.loginToken, this.loginHandler))
-        .then(_ => QueryParameters.delete('loginToken'))
+        .then(_ => window.history.replaceState({}, '', location.pathname)) // clear query paramters
     } else this.setState({ loggedIn: false })
   }
 
@@ -45,13 +50,13 @@ class PopulusViewer extends Component {
   }
 
   render (_props, state) {
+    if (!state.loggedIn) return <LoginView loginHandler={this.loginHandler} />
     if (!(state.initializationStage === "initialized")) {
       return <SplashView
         initializationStage={state.initializationStage}
         setInitializationStage={this.setInitializationStage}
       />
     }
-    if (!state.loggedIn) return <LoginView loginHandler={this.loginHandler} />
     return <Router history={History.history}>
       <WelcomeView path="/" logoutHandler={this.logoutHandler} />
       <PdfView path="/:pdfFocused/:pageFocused?/:roomFocused?" />

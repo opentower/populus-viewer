@@ -1,6 +1,5 @@
 import { h, Component } from 'preact';
 import './styles/splash.css'
-import QueryParameters from './queryParams.js'
 import Client from './client.js'
 import { lastViewed } from './constants.js'
 import History from './history.js'
@@ -9,7 +8,7 @@ export default class SplashView extends Component {
   pollInitialized = async () => {
     if (Client.client && Client.client.isInitialSyncComplete()) {
       this.props.setInitializationStage("initialized")
-      QueryParameters.delete("server") // delete no-longer-needed server param if it's present
+      window.history.replaceState({}, '', location.pathname) // clear query paramters
     } else {
       setTimeout(this.pollInitialized, 1000)
     }
