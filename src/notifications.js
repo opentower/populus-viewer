@@ -6,6 +6,7 @@ import { spaceParent, spaceChild, eventVersion } from "./constants.js"
 import { isUnread } from './utils/unread.js'
 import './styles/notifications.css'
 import Client from './client.js'
+import History from './history.js'
 
 export default class NotificationListing extends Component {
   constructor(props) {
@@ -195,7 +196,7 @@ class Notification extends Component {
 
   handleClick = _ => {
     const origin = this.originAnnotation.getContent()[eventVersion]
-    History.push(`/${this.originAlias.slice(1)}/${origin.pageNumber}/${origin.roomId}`)
+    History.push(`/${encodeURIComponent(this.originAlias.slice(1))}/${origin.pageNumber}/${origin.roomId}`)
   }
 
   render(props, state) {
