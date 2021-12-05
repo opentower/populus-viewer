@@ -8,7 +8,7 @@ export default class SplashView extends Component {
   pollInitialized = async () => {
     if (Client.client && Client.client.isInitialSyncComplete()) {
       this.props.setInitializationStage("initialized")
-      window.history.replaceState({}, '', location.pathname) // clear query paramters
+      window.history.replaceState({}, '', location.pathname + location.hash) // clear query paramters
     } else {
       setTimeout(this.pollInitialized, 1000)
     }

@@ -25,7 +25,7 @@ class PopulusViewer extends Component {
     else if (this.loginToken) {
       Client.initClient()
         .then(_ => Client.client.loginWithToken(this.loginToken, this.loginHandler))
-        .then(_ => window.history.replaceState({}, '', location.pathname)) // clear query paramters
+        .then(_ => window.history.replaceState({}, '', location.pathname + location.hash)) // clear query parameters
     } else this.setState({ loggedIn: false })
   }
 
