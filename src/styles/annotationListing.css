@@ -36,7 +36,7 @@
     cursor: pointer;
     position:relative;
     width:calc(100% - 20px);
-    padding:10px;
+    padding:20px 10px 20px 10px;
     border-bottom: 1px solid #ababab;
     display: flex;
     align-items:center;
@@ -113,7 +113,6 @@
   padding-left:5px;
   color:
 }
-
 
 .annotation-listing-creator::before {
   content: "";
