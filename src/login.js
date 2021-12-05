@@ -10,7 +10,7 @@ export default class LoginView extends Component {
     super(props)
     const queryParameters = new URLSearchParams(window.location.search)
     this.state = {
-      registering: false,
+      registering: queryParameters.get("sso") ? "SSO" : false,
       name: "",
       password: "",
       server: queryParameters.get('server') || ""
@@ -91,10 +91,12 @@ class Login extends Component {
 class SSO extends Component {
   constructor(props) {
     super(props)
+    const queryParameters = new URLSearchParams(window.location.search)
     this.state = {
       SSOProviders: [],
       loading: false
     }
+    if (props.server && queryParameters.get("sso")) this.trySSO(queryParameters.get("sso"))
   }
 
   handleSubmit = (e) => {
@@ -131,7 +133,7 @@ class SSO extends Component {
   }
 
   trySSO = (idpId, e) => {
-    e.preventDefault()
+    e?.preventDefault()
     const loginUrl = Client.client.getSsoLoginUrl(window.location.href, "sso", idpId)
     window.location.replace(loginUrl)
   }
@@ -157,13 +159,15 @@ class SSO extends Component {
           provider => {
             let iconHttpURI = null
             if (provider.icon) iconHttpURI = Matrix.getHttpUriForMxc(localStorage.getItem("baseUrl"), provider.icon, 40, 40, "crop")
-            return <div onclick={e => this.trySSO(provider.id,e)} class="login-sso-listing"key={provider.id}>
+            return <div onclick={e => this.trySSO(provider.id, e)} class="login-sso-listing"key={provider.id}>
               { iconHttpURI
                 ? <img class="sso-icon" width="40" height="40" src={iconHttpURI} />
                 : Icons.login
               }
-              <a class="sso-name">{provider.name}</a>
-              </div>
+              <a class="sso-name" href={`?server=${encodeURIComponent(props.server)}&sso=${encodeURIComponent(provider.id)}`}>
+                {provider.name}
+              </a>
+            </div>
           }
         )}
         <div>
