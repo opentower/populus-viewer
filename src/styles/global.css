@@ -45,6 +45,7 @@ body {
   cursor:pointer;
   outline:none;
   border:2px solid black;
+  padding:2px 4px 2px 4px;
   color:black;
   font-weight:bold;
   background-color:white;
@@ -58,7 +59,8 @@ body {
 }
 
 .styled-button:focus {
-  transform: scale(1.05);
+  border:3px solid black;
+  padding:1px 3px 1px 3px;
 }
 
 .styled-progress {
