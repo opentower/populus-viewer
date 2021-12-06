@@ -4,42 +4,27 @@ import * as CommonMark from 'commonmark'
 import { addLatex, renderLatexInElement } from './latex.js'
 import UserColor from './userColors.js'
 import { sanitizeHtmlParams } from './constants.js'
+import { processLinks } from './links.js'
 import Client from './client.js'
 import * as Icons from './icons.js'
 import * as Replies from './utils/replies.js'
 import * as PopupMenu from './popUpMenu.js'
-import History from './history.js'
 import './styles/message.css'
 
 export class TextMessage extends Component {
   componentDidMount() {
     renderLatexInElement(this.messageBody.current)
-    this.processLinks()
+    processLinks(this.messageBody.current)
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.reactions[this.props.event.getId()] !== prevProps.reactions[prevProps.event.getId()]) {
       renderLatexInElement(this.messageBody.current)
-      this.processLinks()
+      processLinks(this.messageBody.current)
     }
   }
 
   messageBody = createRef()
-
-  processLinks() {
-    if (this.messageBody.current) {
-      const linkArray = Array.from(this.messageBody.current.querySelectorAll("a[href]"))
-      linkArray
-        .filter(link => new URL(link.getAttribute("href")).pathname === window.location.pathname)
-        .forEach(link => {
-          const hash = new URL(link.getAttribute("href")).hash
-          link.addEventListener("click", e => {
-            e.preventDefault()
-            History.push(hash.slice(1))
-          })
-        })
-    }
-  }
 
   getEdits = () => {
     return this.props.reactions[this.props.event.getId()]

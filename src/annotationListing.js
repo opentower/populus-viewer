@@ -2,16 +2,15 @@ import { h, Component, createRef, Fragment } from 'preact';
 import './styles/annotationListing.css'
 import * as Matrix from "matrix-js-sdk"
 import { renderLatexInElement } from './latex.js'
+import { processLinks } from './links.js'
 import { eventVersion, spaceChild } from "./constants.js"
 import Client from './client.js'
 import MemberPill from './memberPill.js'
 import UserColor from './userColors.js'
 import SearchBar from './search.js'
 import { DisplayContent } from './message.js'
-import UserInfoHeader from './userInfoHeader.js'
 import * as Icons from './icons.js'
 import * as PopupMenu from './popUpMenu.js'
-import History from './history.js'
 
 export default class AnnotationListing extends Component {
   constructor(props) {
@@ -194,7 +193,7 @@ class AnnotationListingEntry extends Component {
 
   componentDidMount () {
     renderLatexInElement(this.comment.current)
-    // links should be processed for internal linking
+    processLinks(this.comment.current)
     this.setTopic()
   }
 
@@ -234,7 +233,7 @@ class AnnotationListingEntry extends Component {
       ref={this.entry}
       onclick={this.handleClick}
       class="annotation-listing-entry">
-      {props.annotationContent.type === "pindrop" 
+      {props.annotationContent.type === "pindrop"
         ? <div class="annotation-listing-pin-icon">
             {Icons.pin} <span>on page {props.annotationContent.pageNumber}</span>
           </div>
@@ -260,7 +259,7 @@ function AnnotationListingComment(props) {
       case "m.image" : body = <div class="annotation-listing-fallback"><p>Sent a file</p></div>; break
       case "m.video" : body = <div class="annotation-listing-fallback"><p>Sent a video</p></div>; break
       case "m.audio" : body = <div class="annotation-listing-fallback"><p>Sent an audio recording</p></div>; break
-      default : 
+      default :
         body = <div class="annotation-listing-fallback"><p>Sent a message</p></div>
         console.log(content)
     }
