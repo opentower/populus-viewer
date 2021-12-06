@@ -32,12 +32,30 @@ export default class SearchResults extends Component {
   initializeSearch () {
     if (this.props.searchString.length < 3) return
     const searchResults = []
+    // We strip out all non-alphanumerics, for fuzzy search
+    const word = this.props.searchString.toLowerCase().replace(/[^a-zA-Z0-9]/gm, "")
     for (const [page, text] of Object.entries(this.props.pdfText)) {
-      let idx = text.toLowerCase().indexOf(this.props.searchString.toLowerCase())
+      const cleantext = text.toLowerCase().replace(/[^a-zA-Z0-9]/gm, "")
       const contexts = []
+      let idx = cleantext.indexOf(word)
+      let idx2 = idx + word.length
       while (idx > -1) {
-        contexts.push(text.slice(Math.max(0, idx - 15), idx + this.props.searchString.length + 15))
-        idx = text.toLowerCase().indexOf(this.props.searchString.toLowerCase(), idx + 1)
+        let before = true
+        let start = 0
+        let end = 0
+        let counter = 0
+        for (const letter of text) {
+          if (before && counter === idx) before = false
+          if (!before && counter === idx2) {
+            contexts.push(text.slice(Math.max(0, start - 15), end + 15))
+            idx = cleantext.indexOf(word, idx + 1)
+            idx2 = idx + word.length
+            break
+          }
+          if (before) start++
+          if (letter.match(/[a-zA-Z0-9]/)) counter++
+          end++
+        }
       }
       if (contexts.length > 0) searchResults.push({ page, contexts })
       if (searchResults.length > 20) break
@@ -49,13 +67,30 @@ export default class SearchResults extends Component {
     if (this.props.searchString.length < 3) return
     const searchResults = this.state.searchResults
     const oldPage = searchResults.slice(-1)[0].page
+    const word = this.props.searchString.toLowerCase().replace(/[^a-zA-Z0-9]/gm, "")
     for (const [page, text] of Object.entries(this.props.pdfText)) {
       if (parseInt(page, 10) > parseInt(oldPage, 10)) {
-        let idx = text.toLowerCase().indexOf(this.props.searchString.toLowerCase())
+        const cleantext = text.toLowerCase().replace(/[^a-zA-Z0-9]/gm, "")
+        let idx = cleantext.indexOf(word)
+        let idx2 = idx + word.length
         const contexts = []
         while (idx > -1) {
-          contexts.push(text.slice(Math.max(0, idx - 15), idx + this.props.searchString.length + 15))
-          idx = text.toLowerCase().indexOf(this.props.searchString.toLowerCase(), idx + 1)
+          let before = true
+          let start = 0
+          let end = 0
+          let counter = 0
+          for (const letter of text) {
+            if (before && counter === idx) before = false
+            if (!before && counter === idx2) {
+              contexts.push(text.slice(Math.max(0, start - 15), end + 15))
+              idx = cleantext.indexOf(word, idx + 1)
+              idx2 = idx + word.length
+              break
+            }
+            if (before) start++
+            if (letter.match(/[a-zA-Z0-9]/)) counter++
+            end++
+          }
         }
         if (contexts.length > 0) searchResults.push({ page, contexts })
         if (searchResults.length > this.state.searchLimit) break
