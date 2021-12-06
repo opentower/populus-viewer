@@ -59,6 +59,10 @@
     animation-timing-function:ease;
 }
 
+#nav-pages > button:focus {
+  font-weight: bold;
+}
+
 .nav-button-wrapper {
     position:relative;
     display: flex;
@@ -132,13 +136,17 @@
     }
 }
 
-.nav-button-wrapper > a,
 .nav-button-wrapper > button {
     cursor:pointer;
     outline:none;
     color:white;
     background:black;
     border:none;
+    margin:2px;
+}
+
+.nav-button-wrapper > button:focus {
+  outline: 1px solid white;
 }
 
 .nav-button-wrapper[data-searchFocused] > button {

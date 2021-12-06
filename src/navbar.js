@@ -72,7 +72,7 @@ export default class Navbar extends Component {
     else alert("Out of range");
   }
 
-  handleClick = e => History.push(`${this.props.pdfFocused}/${parseInt(e.target.value, 10)}`)
+  handleClick = e => History.push(`/${this.props.pdfFocused}/${parseInt(e.target.value, 10)}`)
 
   togglePageNav = _ => this.setState({pageViewVisible: !this.state.pageViewVisible})
 
@@ -176,14 +176,13 @@ class Pages extends Component {
       return <button value={page}
         key={page}
         class={theClass}
+        tabIndex={props.visibility ? 0 : -1}
         style={theUserColor?.styleVariables}
         onclick={props.handleClick}>{page}</button>
     });
-    pages[props.current - 1] = <button ref={this.currentPageElement} class="currentpage">{props.current}</button>
-    return (
-              <Fragment>
-                  {pages}
-              </Fragment>
-    )
+    pages[props.current - 1] = <button ref={this.currentPageElement} tabIndex={props.visibility ? 0 : -1} class="currentpage">{props.current}</button>
+    return <Fragment>
+        {pages}
+    </Fragment>
   }
 }
