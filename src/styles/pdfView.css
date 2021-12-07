@@ -52,9 +52,11 @@
 }
     
 @media only screen and (min-width: 1800px) {
+    .panel-widget-1 { min-width:375px; }
+
     .panel-widget-2 {
         margin-left:50px;
-        width:400px;
+        min-width:375px;
         border: 1px solid #adadad;
         display:inline-flex;
         height:100%;

@@ -550,6 +550,7 @@ export default class PdfView extends Component {
       "--pdfWidthPx": `${state.pdfWidthPx}px`,
       "--pdfHeightPx": `${state.pdfHeightPx}px`,
       "--sidePanelVisible": state.panelVisible ? 1 : 0,
+      "--chatFocused": state.focus ? 1 : 0,
       "--selectColor": this.userColor.solid,
       "touch-action": this.state.pinching ? "none" : null
     }
