@@ -49,8 +49,11 @@
     margin:0px;
     margin-left:5px;
     border:2px solid var(--user_light);
-    padding:4px;
+    padding-left:4px;
+    padding-right:4px;
     background-color:white;
+    min-height:30px;
+    vertical-align:bottom;
 }
 
 .message-actions > button:hover {
@@ -115,22 +118,36 @@
     min-width:300px;
 }
 
-.message-upvotes {
+.message-reactions {
     position:relative;
     width:0px;
-    top:8px;
+    top:0px;
     right:10px;
+    height:100%;
 }
 
-.message-upvotes div {
+.message-reactions > div {
   position: absolute;
+  max-height:100%;
   display:flex;
+  flex-direction:column;
   font-size:8pt;
   padding:2px;
   background-color:white;
   border-radius:25px;
   user-select:none;
   border:2px solid var(--user_light);
+  overflow: scroll;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.message-reactions > div::-webkit-scrollbar { display: none; }
+
+.message-reaction-type {
+  white-space: nowrap;
+  padding-top:1px;
+  padding-bottom:1px;
 }
 
 .reply-sender-info,
@@ -186,11 +203,11 @@
    left: 5px;
 }
 
-.message-from-user .message-upvotes {
+.message-from-user .message-reactions {
     right:-10px;
 }
 
-.message-from-user .message-upvotes div{
+.message-from-user .message-reactions div{
     right:0px;
 }
 

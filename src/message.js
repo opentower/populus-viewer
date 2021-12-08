@@ -213,19 +213,6 @@ class MessageFrame extends Component {
 
   userColor = new UserColor(this.props.event.getSender())
 
-  upvote = () => {
-    const reactions = this.props.reactions[this.props.event.getId()] || []
-    if (reactions.some(react => react.getSender() === Client.client.getUserId() )) return
-    // we bail out if there's already a plus one from me.
-    Client.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
-      "m.relates_to": {
-        rel_type: "m.annotation",
-        event_id: this.props.event.getId(),
-        key: "👍"
-      }
-    })
-  }
-
   openEditor = () => this.setState({ responding: true })
 
   closeEditor = () => this.setState({ responding: false })
@@ -240,12 +227,10 @@ class MessageFrame extends Component {
     // relation aggregation mechanism that we're not taking advantage of
     // here. Element doesn't seem to use this for replacements yet either.
     const event = props.event
-    const canEdit = !!props.getCurrentEdit
-    const upvotes = props.reactions[event.getId()]
-      ? props.reactions[event.getId()].filter(
-        event => event.getContent()["m.relates_to"].rel_type === "m.annotation"
-      ).length
-      : 0
+    const reactions = props.reactions[event.getId()]
+      ? props.reactions[event.getId()]
+        .filter(event => event.getContent()["m.relates_to"].rel_type === "m.annotation")
+      : []
     const isUser = Client.client.getUserId() === event.getSender()
     return <Fragment>
       <div data-event-status={isUser ? event.getAssociatedStatus() : null}
@@ -253,20 +238,15 @@ class MessageFrame extends Component {
         style={props.styleOverride || this.userColor.styleVariables}
         class={isUser ? "message-frame message-from-user" : "message-frame"}>
         {props.children}
-        <MessageDecoration upvotes={upvotes}>
-          { props.displayOnly
-            ? null
-            : isUser
-              ? <Fragment>
-                {!state.responding && canEdit && <button title="edit this message" onclick={this.openEditor}>{Icons.edit}</button>}
-                <button title="delete this message" onclick={this.redactMessage} class="redact">{Icons.trash}</button>
-              </Fragment>
-              : <Fragment>
-                {!state.replying && <button title="reply to this message" onclick={this.openEditor}>{Icons.reply}</button>}
-                <button title="upvote this message" class="reaction" onclick={this.upvote}>{Icons.like}</button>
-              </Fragment>
-          }
-        </MessageDecoration>
+        { props.displayOnly
+          ? null
+          : <MessageDecoration reactions={reactions}>
+            {isUser
+              ? <ActionsOnOwnMessages canEdit={!!props.getCurrentEdit} responding={state.responding} openEditor={this.openEditor} redactMessage={this.redactMessage} />
+              : <ActionsOnOthersMessages responding={state.responding} openEditor={this.openEditor} event={props.event} reactions={reactions} />
+            }
+          </MessageDecoration>
+        }
       </div>
       {state.responding
         ? isUser
@@ -278,17 +258,95 @@ class MessageFrame extends Component {
   }
 }
 
-function MessageDecoration(props) {
-  return <div class="message-decoration">
-    {props.upvotes > 0 
-      ? <div class="message-upvotes">
-          <div><span>{props.upvotes}</span><span>👍️</span></div>
-        </div>
-      : null
+class MessageDecoration extends Component {
+  shouldComponentUpdate(nextProps) {
+    return (this.props.reactions.length !== nextProps.reactions.length)
+  }
+
+  render(props) {
+    const rtable = {}
+    for (const reaction of props.reactions) {
+      const emoji = reaction.getContent()?.["m.relates_to"]?.key
+      if (!emoji) continue
+      rtable[emoji]
+        ? rtable[emoji] = rtable[emoji] + 1
+        : rtable[emoji] = 1
     }
-    <div class="message-actions">
+    const badges = []
+    for (const key in rtable) {
+      badges.push(<div class="message-reaction-type"><span>{rtable[key]}</span><span>{key}</span></div>)
+    }
+    return <div class="message-decoration">
+      {badges.length < 1
+        ? null
+        : <div class="message-reactions">
+          <div>
+            {badges}
+          </div>
+        </div>
+      }
       {props.children}
     </div>
+  }
+}
+
+class ActionsOnOthersMessages extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { selecting: null }
+  }
+
+  checkEmoji = emoji => this.props.reactions.some(react => {
+    return react.getSender() === Client.client.getUserId() &&
+      react.getContent()?.["m.relates_to"]?.key === emoji
+  })
+
+  react = emoji => _ => {
+    this.clearSelecting()
+    if (this.checkEmoji(emoji)) return
+    // we bail out if there's already a reaction from me.
+    Client.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
+      "m.relates_to": {
+        rel_type: "m.annotation",
+        event_id: this.props.event.getId(),
+        key: emoji
+      }
+    })
+  }
+
+  selectEmoji = _ => this.setState({ selecting: "emoji" })
+
+  clearSelecting = _ => this.setState({ selecting: null })
+
+  render(props, state) {
+    switch (state.selecting) {
+      case "emoji" : return <div class="message-actions">
+          <button onclick={this.react("👍")}>👍</button>
+          <button onclick={this.react("❤")}>❤</button>
+          <button onclick={this.react("🤣")}>🤣</button>
+          <button onclick={this.react("🤔")}>🤔</button>
+          <button onclick={this.clearSelecting}>{Icons.close}</button>
+        </div>
+      default : return <div class="message-actions">
+          {!props.responding && <button title="reply to this message" onclick={props.openEditor}>
+            {Icons.reply}
+          </button>}
+          <button title="react to this message" class="reaction" onclick={this.selectEmoji}>
+            {Icons.like}
+          </button>
+        </div>
+    }
+  }
+}
+
+function ActionsOnOwnMessages(props) {
+  return <div class="message-actions">
+    {!props.responding && props.canEdit && <button title="edit this message" onclick={props.openEditor}>
+      {Icons.edit}
+    </button>}
+    <button title="delete this message" onclick={props.redactMessage} class="redact">
+      {Icons.trash}
+    </button>
   </div>
 }
 
