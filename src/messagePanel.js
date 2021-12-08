@@ -28,7 +28,8 @@ export default class MessagePanel extends Component {
       ref: this.theInput,
       submit: this.submitCurrentInput,
       focus: this.props.focus,
-      handlePending: this.openPendingAnnotation
+      handlePending: this.openPendingAnnotation,
+      done: this.setModeDefault
     }
     switch (this.state.mode) {
       case 'Default': return <TextMessageInput {...theProps} />
@@ -498,8 +499,7 @@ class RecordVideoInput extends RecordMediaInput {
       const eventI = await Client.client.sendMessage(this.props.focus.roomId, theContent)
       this.props.handlePending(theContent, eventI)
       this.props.done()
-    } 
-    alert("Before submitting, you need to record something.")
+    } else alert("Before submitting, you need to record something.")
   }
 
   render(props, state) {
