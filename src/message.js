@@ -5,6 +5,7 @@ import { addLatex, renderLatexInElement } from './latex.js'
 import UserColor from './userColors.js'
 import { sanitizeHtmlParams } from './constants.js'
 import { processLinks } from './links.js'
+import 'emoji-picker-element'
 import Client from './client.js'
 import * as Icons from './icons.js'
 import * as Replies from './utils/replies.js'
@@ -314,17 +315,26 @@ class ActionsOnOthersMessages extends Component {
     })
   }
 
+  handleEmojiClick = click => this.react(click.detail.unicode)()
+
   selectEmoji = _ => this.setState({ selecting: "emoji" })
+
+  pickEmoji = _ => this.setState({ selecting: "emoji-picker" })
 
   clearSelecting = _ => this.setState({ selecting: null })
 
   render(props, state) {
     switch (state.selecting) {
-      case "emoji" : return <div class="message-actions">
+      case "emoji-picker" : return <div data-active class="message-actions">
+          <emoji-picker onemoji-click={this.handleEmojiClick} />
+          <button style={{position: "relative", left: "250px"}} onclick={this.clearSelecting}>{Icons.close}</button>
+        </div>
+      case "emoji" : return <div data-active class="message-actions">
           <button onclick={this.react("👍")}>👍</button>
           <button onclick={this.react("❤")}>❤</button>
           <button onclick={this.react("🤣")}>🤣</button>
           <button onclick={this.react("🤔")}>🤔</button>
+          <button onclick={this.pickEmoji}>{Icons.moreHorizontal}</button>
           <button onclick={this.clearSelecting}>{Icons.close}</button>
         </div>
       default : return <div class="message-actions">
