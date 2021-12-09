@@ -302,6 +302,25 @@ class ActionsOnOthersMessages extends Component {
       react.getContent()?.["m.relates_to"]?.key === emoji
   })
 
+  componentDidUpdate(_, prevState) {
+    if (!prevState.selecting && this.state.selecting) {
+      window.addEventListener('click', this.clearCarefully)
+    }
+    if (!prevState.selecting && !this.state.selecting) {
+      window.removeEventListener('click', this.clearCarefully)
+    }
+  }
+
+  actions = createRef()
+
+  // necessary to clear component on mobile
+  clearCarefully = e => {
+    if (e.target === this.actions.current) return
+    if (this.actions.current.contains(e.target)) return
+    if (!document.body.contains(e.target)) return
+    this.clearSelecting()
+  }
+
   react = emoji => _ => {
     this.clearSelecting()
     if (this.checkEmoji(emoji)) return
@@ -325,23 +344,23 @@ class ActionsOnOthersMessages extends Component {
 
   render(props, state) {
     switch (state.selecting) {
-      case "emoji-picker" : return <div data-active class="message-actions">
+      case "emoji-picker" : return <div ref={this.actions} data-active class="message-actions">
           <emoji-picker onemoji-click={this.handleEmojiClick} />
-          <button style={{position: "relative", left: "250px"}} onclick={this.clearSelecting}>{Icons.close}</button>
+          <button key="a" style={{position: "relative", left: "250px"}} onclick={this.clearSelecting}>{Icons.close}</button>
         </div>
-      case "emoji" : return <div data-active class="message-actions">
-          <button onclick={this.react("👍")}>👍</button>
-          <button onclick={this.react("❤")}>❤</button>
-          <button onclick={this.react("🤣")}>🤣</button>
-          <button onclick={this.react("🤔")}>🤔</button>
-          <button onclick={this.pickEmoji}>{Icons.moreHorizontal}</button>
-          <button onclick={this.clearSelecting}>{Icons.close}</button>
+      case "emoji" : return <div ref={this.actions} data-active class="message-actions">
+          <button key="b" onclick={this.react("👍")}>👍</button>
+          <button key="c" onclick={this.react("❤")}>❤</button>
+          <button key="d" onclick={this.react("🤣")}>🤣</button>
+          <button key="e" onclick={this.react("🤔")}>🤔</button>
+          <button key="f" onclick={this.pickEmoji}>{Icons.moreHorizontal}</button>
+          <button key="g" onclick={this.clearSelecting}>{Icons.close}</button>
         </div>
-      default : return <div class="message-actions">
-          {!props.responding && <button title="reply to this message" onclick={props.openEditor}>
+      default : return <div ref={this.actions} class="message-actions">
+          {!props.responding && <button key="h" title="reply to this message" onclick={props.openEditor}>
             {Icons.reply}
           </button>}
-          <button title="react to this message" class="reaction" onclick={this.selectEmoji}>
+          <button key="i" title="react to this message" class="reaction" onclick={this.selectEmoji}>
             {Icons.like}
           </button>
         </div>
