@@ -77,7 +77,6 @@ export default class AnnotationLayer extends Component {
             typing={this.state.typing[data.roomId]}
             setFocus={this.props.setFocus}
             pdfWidthAdjusted={this.props.pdfWidthAdjusted}
-            rightSide={data.roomId.charCodeAt(1) % 2 === 1 }
             data={data} />
         }
       })
@@ -137,18 +136,34 @@ class Pindrop extends Component {
 }
 
 class Annotation extends Component {
+
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.pdfWidthAdjusted === 0) return false
+    if (!this.positioned && nextProps.pdfWidthAdjusted > this.boundingRect.width * 2) {
+      const rightMargin = nextProps.pdfWidthAdjusted - (this.boundingRect.width + this.boundingRect.x)
+      if (rightMargin < this.boundingRect.x) this.rightSide = true
+      if (rightMargin > this.boundingRect.x) this.rightSide = false
+      this.positioned = true //don't recalculate after positioning
+    }
+  }
+
   setFocus = _ => { this.props.setFocus(this.props.data) }
 
   eventContent = this.props.data
 
   roomId = this.eventContent.roomId
 
+  rightSide = this.roomId.charCodeAt(1) % 2 === 1
+
+  positioned = false // whether we've manually positioned the bartab.
+
   boundingRect = JSON.parse(this.eventContent.boundingClientRect)
 
   userColor = new UserColor(this.eventContent.creator)
 
   render(props) {
-    // This is recalculated with every render. Could be memoized on pdfWidthAdjusted
+    if (props.pdfWidthAdjusted === 0) return null
+    // This is recalculated with every render. Could be memoized on pdfWidthAdjusted and zoomfactor
     const spans = JSON.parse(this.eventContent.clientRects).map(
       rect => <RectSpan pdfWidthAdjusted={this.props.pdfWidthAdjusted} key={rect} zoomFactor={this.props.zoomFactor} setFocus={this.setFocus} rect={rect} />
     )
@@ -156,7 +171,7 @@ class Annotation extends Component {
     return <div style={this.userColor.styleVariables} data-annotation-typing={typing} data-focused={props.focused} id={this.roomId}>
       <BarTab
         pdfWidthAdjusted={props.pdfWidthAdjusted}
-        rightSide={props.rightSide}
+        rightSide={this.rightSide}
         rect={this.boundingRect}
         zoomFactor={props.zoomFactor}
         setFocus={this.setFocus} />
