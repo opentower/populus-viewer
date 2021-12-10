@@ -3,7 +3,7 @@ import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
 import { spaceChild, eventVersion } from "./constants.js"
-import { addLatex } from './latex.js'
+import { processRegex } from './processRegex.js'
 import UserColor from './userColors.js'
 import Client from './client.js'
 import AudioVisualizer from './audioVisualizer.js'
@@ -337,7 +337,7 @@ class TextMessageInput extends Component {
       // don't send empty messages
       if (!this.state.value.replace(/\s/g, '').length) return
       // bail out of message is only whitespace
-      const parsed = this.reader.parse(addLatex(this.state.value))
+      const parsed = this.reader.parse(processRegex(this.state.value))
       const rendered = this.writer.render(parsed)
       const theContent = {
         body: this.state.value,

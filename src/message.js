@@ -1,7 +1,8 @@
 import { h, createRef, Fragment, Component } from 'preact';
 import sanitizeHtml from 'sanitize-html'
 import * as CommonMark from 'commonmark'
-import { addLatex, renderLatexInElement } from './latex.js'
+import { renderLatexInElement } from './latex.js'
+import { processRegex } from './processRegex.js'
 import UserColor from './userColors.js'
 import { sanitizeHtmlParams } from './constants.js'
 import { processLinks } from './links.js'
@@ -560,7 +561,7 @@ class MessageEditor extends Component {
   sendResponse = () => {
     const reader = new CommonMark.Parser()
     const writer = new CommonMark.HtmlRenderer()
-    const parsed = reader.parse(addLatex(this.state.value))
+    const parsed = reader.parse(processRegex(this.state.value))
     const rendered = writer.render(parsed)
     const theReplacementContent = {
       body: this.state.value,
@@ -633,7 +634,7 @@ class ReplyComposer extends Component {
   sendResponse = () => {
     const reader = new CommonMark.Parser()
     const writer = new CommonMark.HtmlRenderer()
-    const parsed = reader.parse(addLatex(this.state.value))
+    const parsed = reader.parse(processRegex(this.state.value))
     const rendered = writer.render(parsed)
     Client.client.sendMessage(this.props.event.getRoomId(), {
       body: Replies.generateFallbackPlain(this.props.event) + this.state.value,
