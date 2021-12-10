@@ -38,7 +38,7 @@ export default class AnnotationLayer extends Component {
   filterAnnotations (data) {
     return (
       !!data && // filter out old eventVersions
-      data.pageNumber === this.props.page &&
+      data.pageNumber === parseInt(this.props.page, 10) &&
       ( data.activityStatus === "open" ||
         (data.activityStatus === "pending" && data.creator === Client.client.getUserId())
       )

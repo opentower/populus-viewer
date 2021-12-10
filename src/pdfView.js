@@ -214,7 +214,7 @@ export default class PdfView extends Component {
         const childContent = {
           via: [theDomain],
           [eventVersion]: {
-            pageNumber: this.props.pageFocused,
+            pageNumber: parseInt(this.props.pageFocused, 10),
             activityStatus: "pending",
             type: "pindrop",
             x: theX,
@@ -278,7 +278,7 @@ export default class PdfView extends Component {
       const childContent = {
         via: [theDomain],
         [eventVersion]: {
-          pageNumber: this.props.pageFocused,
+          pageNumber: parseInt(this.props.pageFocused, 10),
           activityStatus: "pending",
           type: "highlight",
           boundingClientRect: JSON.stringify(boundingClientRect),

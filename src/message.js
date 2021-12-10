@@ -239,6 +239,7 @@ class MessageFrame extends Component {
         style={props.styleOverride || this.userColor.styleVariables}
         class={isUser ? "message-frame message-from-user" : "message-frame"}>
         {props.children}
+        {/* XXX Should probably handle action menu visibility in state rather than CSS */}
         { props.displayOnly
           ? null
           : <MessageDecoration reactions={reactions}>
