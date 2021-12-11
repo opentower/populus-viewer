@@ -1,6 +1,5 @@
 import katex from 'katex'
 
-
 export function latexInlineToReplacement(match) {
   const replacement = document.createElement('span')
   replacement.dataset.mxMaths = match

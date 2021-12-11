@@ -232,7 +232,7 @@ export class Members extends Component {
 
   insertSelection = _ => {
     const userId = this.state.popupItems[this.state.selection].props.member.userId
-    this.props.insert(`@${userId.split(":")[0].substring(1)} `, /@\S*$/)
+    this.props.insert(`${userId} `, /@\S*$/)
   }
 
   handleKeyup = _ => {

@@ -146,7 +146,7 @@
 }
 
 .annotation-listing-comment-unread + .annotation-listing-info .annotation-listing-creator::after {
-  bottom:13px;
+  bottom:14px;
   left:-28px;
 }
 

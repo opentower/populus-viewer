@@ -114,6 +114,17 @@
     hyphens:auto;
 }
 
+.message-body a[href^="https://matrix.to/#/@"] {
+  font-weight: bold;
+  color:var(--user_dark);
+  cursor: unset;
+  text-decoration: none;
+}
+
+.message-body a[href^="https://matrix.to/#/@"]::before {
+  content:"@"
+}
+
 .message-frame:hover {
     background-color: var(--user_ultralight);
 }
