@@ -107,11 +107,11 @@ export default class SearchResults extends Component {
 
   focusNext = _ => {
     if (this.state.focusedResult === null) this.setFocus(0)
-    else if (this.state.focusedResult <= this.state.searchResults.length) this.setFocus(this.state.focusedResult + 1)
+    else if (this.state.focusedResult + 1 < this.state.searchResults.length) this.setFocus(this.state.focusedResult + 1)
   }
 
   focusPrev = _ => {
-    if (this.state.focusedResult === null) return
+    if (this.state.focusedResult === null) this.setFocus(this.state.searchResults.length - 1)
     if (this.state.focusedResult > 0) this.setFocus(this.state.focusedResult - 1)
   }
 
