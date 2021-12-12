@@ -127,6 +127,20 @@ export default class AnnotationListing extends Component {
   }
 
   render (props, state) {
+    const theAnnotations = []
+    for (const content of props.filteredAnnotationContents.sort(this.getSortFunc())) {
+      theAnnotations.push(
+        <AnnotationListingEntry
+            key={content[eventVersion].roomId}
+            unreadCount={props.unreadCounts[content[eventVersion].roomId]}
+            typing={state.typing[content[eventVersion].roomId]}
+            annotationContent={content[eventVersion]}
+            focusByRoomId={props.focusByRoomId}
+            focus={props.focus}
+            parentRoom={props.room}
+        />
+      )
+    }
     return <div id="annotation-panel" class={props.class}>
               <div id="annotation-entries-wrapper"
                 onscroll={props.handleWidgetScroll}
@@ -154,16 +168,7 @@ export default class AnnotationListing extends Component {
                     ? <div class="empty-marker"><b>No annotations yet available</b></div>
                     : props.filteredAnnotationContents.length === 0
                       ? <div class="empty-marker"><b>No annotations matching search</b></div>
-                      : props.filteredAnnotationContents.sort(this.getSortFunc()).map(content =>
-                        <AnnotationListingEntry
-                            key={content[eventVersion].roomId}
-                            unreadCount={props.unreadCounts[content[eventVersion].roomId]}
-                            typing={state.typing[content[eventVersion].roomId]}
-                            annotationContent={content[eventVersion]}
-                            focusByRoomId={props.focusByRoomId}
-                            focus={props.focus}
-                            parentRoom={props.room}
-                        />)
+                      : theAnnotations
                   }
               </div>
               <div id="annotation-panel-button-wrapper" data-mode={state.searchFocus ? "search" : "navigation"}>
