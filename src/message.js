@@ -240,16 +240,15 @@ class MessageFrame extends Component {
         style={props.styleOverride || this.userColor.styleVariables}
         class={isUser ? "message-frame message-from-user" : "message-frame"}>
         {props.children}
-        {/* XXX Should probably handle action menu visibility in state rather than CSS */}
-        { props.displayOnly
-          ? null
-          : <MessageDecoration reactions={reactions}>
-            {isUser
-              ? <ActionsOnOwnMessages canEdit={!!props.getCurrentEdit} responding={state.responding} openEditor={this.openEditor} redactMessage={this.redactMessage} />
-              : <ActionsOnOthersMessages responding={state.responding} openEditor={this.openEditor} event={props.event} reactions={reactions} />
+            <MessageDecoration reactions={reactions}>
+            {/* XXX Should probably handle action menu visibility in state rather than CSS */}
+            { props.displayOnly
+              ? null
+              : isUser
+                ? <ActionsOnOwnMessages canEdit={!!props.getCurrentEdit} responding={state.responding} openEditor={this.openEditor} redactMessage={this.redactMessage} />
+                : <ActionsOnOthersMessages responding={state.responding} openEditor={this.openEditor} event={props.event} reactions={reactions} />
             }
           </MessageDecoration>
-        }
       </div>
       {state.responding
         ? isUser
