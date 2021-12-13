@@ -37,12 +37,26 @@
     position:relative;
     width:calc(100% - 20px);
     padding:20px 10px 20px 10px;
-    border-bottom: 1px solid #ababab;
     display: flex;
     align-items:center;
     justify-content: right;
     flex-wrap:wrap;
     transition: background-color 0.5s ease;
+}
+
+#annotation-panel .annotation-listing-divider {
+    border-bottom: 1px solid #dddddd;
+    margin: 20px 60px 20px 60px;
+    text-align:center;
+}
+
+#annotation-panel .annotation-listing-divider > span {
+    color: #ababab;
+    font-size:10pt;
+    background:white;
+    position:relative;
+    padding:10px;
+    top:.5em;
 }
 
 #annotation-panel .annotation-listing-entry[data-annotation-entry-typing] {
@@ -76,10 +90,10 @@
 
 .annotation-listing-pending {
   width:100%;
-  padding:10px;
+  padding-top:10px;
+  padding-left:5px;
   font-size:10pt;
   color:#565656;
-  text-align: right;
 }
 
 .annotation-listing-comment, .annotation-listing-comment-unread {

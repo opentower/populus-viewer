@@ -197,6 +197,5 @@ class Notification extends Component {
           Notification from departed room
         </div>
       </div>
-
   }
 }

@@ -65,14 +65,14 @@ export default class AnnotationListing extends Component {
   }
 
   byCreation = (a, b) => {
-    if (a.timestamp > b.timestamp) return 1 * this.state.sortOrder
-    if (a.timestamp < b.timestamp) return -1 * this.state.sortOrder
+    if (a.timestamp > b.timestamp) return -1
+    if (a.timestamp < b.timestamp) return 1
     return 0
   }
 
   byPage = (a, b) => {
-    if (a[eventVersion].pageNumber > b[eventVersion].pageNumber) return 1 * this.state.sortOrder
-    if (a[eventVersion].pageNumber < b[eventVersion].pageNumber) return -1 * this.state.sortOrder
+    if (a[eventVersion].pageNumber > b[eventVersion].pageNumber) return 1
+    if (a[eventVersion].pageNumber < b[eventVersion].pageNumber) return -1
     return 0
   }
 
@@ -83,12 +83,12 @@ export default class AnnotationListing extends Component {
     if (room1 && room2) {
       const ts1 = room1.getLastActiveTimestamp()
       const ts2 = room2.getLastActiveTimestamp()
-      if (ts1 > ts2) return 1 * this.state.sortOrder
-      else if (ts1 < ts2) return -1 * this.state.sortOrder
+      if (ts1 > ts2) return -1
+      else if (ts1 < ts2) return 1
       return 0
     }
-    if (room1) return -1 * this.state.sortOrder
-    if (room2) return 1 * this.state.sortOrder
+    if (room1) return -1
+    if (room2) return 1
     return 0
     // should warn that unjoined rooms are last
   }
@@ -128,7 +128,107 @@ export default class AnnotationListing extends Component {
 
   render (props, state) {
     const theAnnotations = []
+    const initialDate = Date.now()
+    let currentDate = initialDate
+    let thePage = 1
+    let looped = false
     for (const content of props.filteredAnnotationContents.sort(this.getSortFunc())) {
+      let divider
+      if (looped) {
+        switch (state.sort) {
+          case "Page" : {
+            if (thePage < content[eventVersion].pageNumber) {
+              const newPage = content[eventVersion].pageNumber
+              divider = <div class="annotation-listing-divider">
+                <span>Page {state.sortOrder === 1 ? newPage : thePage}</span>
+              </div>
+              thePage = newPage
+            } else divider = <div class="annotation-listing-divider" />
+            break
+          }
+          case "Activity" : {
+            const room = Client.client.getRoom(content[eventVersion].roomId)
+            if (room && state.sortOrder === 1) { // TODO handle times for reverse sort
+              const age = initialDate - room.getLastActiveTimestamp()
+              const dateDelta = currentDate - room.getLastActiveTimestamp()
+              if (age < 300000 && dateDelta > 60000) {
+                currentDate = room.getLastActiveTimestamp()
+                const minutes = Math.floor(age / 60000)
+                const plural = minutes === 1 ? "" : "s"
+                divider = <div class="annotation-listing-divider">
+                  <span>{`${minutes} minute${plural} ago`}</span>
+                </div>
+              } else if (age < 3600000 && dateDelta > 600000) {
+                currentDate = room.getLastActiveTimestamp()
+                const minutes = Math.floor(age / 60000)
+                const plural = minutes === 1 ? "" : "s"
+                divider = <div class="annotation-listing-divider">
+                  <span>{`${minutes} minute${plural} ago`}</span>
+                </div>
+              } else if (age < 86400000 && dateDelta > 3600000) {
+                currentDate = room.getLastActiveTimestamp()
+                const hours = Math.floor(age / 3600000)
+                const plural = hours === 1 ? "" : "s"
+                divider = <div class="annotation-listing-divider">
+                  <span>{`${hours} hour${plural} ago`}</span>
+                </div>
+              } else if (dateDelta > 86400000) {
+                currentDate = room.getLastActiveTimestamp()
+                const dateObject = new Date(currentDate)
+                divider = <div class="annotation-listing-divider">
+                  <span>{`on ${dateObject.toLocaleDateString('en-US', {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                  })}`}</span></div>
+              } else divider = <div class="annotation-listing-divider" />
+              break
+            }
+          }
+          case "Creation" : {
+            if (state.sortOrder === 1) { // TODO handle times for reverse sort
+              const age = initialDate - content.timestamp
+              const dateDelta = currentDate - content.timestamp
+              if (age < 300000 && dateDelta > 60000) {
+                currentDate = content.timestamp
+                const minutes = Math.floor(age / 60000)
+                const plural = minutes === 1 ? "" : "s"
+                divider = <div class="annotation-listing-divider">
+                  <span>{`${minutes} minute${plural} ago`}</span>
+                </div>
+              } else if (age < 3600000 && dateDelta > 600000) {
+                currentDate = content.timestamp
+                const minutes = Math.floor(age / 60000)
+                const plural = minutes === 1 ? "" : "s"
+                divider = <div class="annotation-listing-divider">
+                  <span>{`${minutes} minute${plural} ago`}</span>
+                </div>
+              } else if (age < 86400000 && dateDelta > 3600000) {
+                currentDate = content.timestamp
+                const hours = Math.floor(age / 3600000)
+                const plural = hours === 1 ? "" : "s"
+                divider = <div class="annotation-listing-divider">
+                  <span>{`${hours} hour${plural} ago`}</span>
+                </div>
+              } else if (dateDelta > 86400000) {
+                currentDate = content.timestamp
+                const dateObject = new Date(currentDate)
+                divider = <div class="annotation-listing-divider">
+                  <span>{`on ${dateObject.toLocaleDateString('en-US', {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric"
+                  })}`}</span></div>
+              } else divider = <div class="annotation-listing-divider" />
+              break
+            }
+          }
+          default : divider = <div class="annotation-listing-divider" />
+        }
+      } else looped = true
+      theAnnotations.push(divider)
       theAnnotations.push(
         <AnnotationListingEntry
             key={content[eventVersion].roomId}
@@ -168,7 +268,7 @@ export default class AnnotationListing extends Component {
                     ? <div class="empty-marker"><b>No annotations yet available</b></div>
                     : props.filteredAnnotationContents.length === 0
                       ? <div class="empty-marker"><b>No annotations matching search</b></div>
-                      : theAnnotations
+                      : state.sortOrder === 1 ? theAnnotations : theAnnotations.reverse()
                   }
               </div>
               <div id="annotation-panel-button-wrapper" data-mode={state.searchFocus ? "search" : "navigation"}>
