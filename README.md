@@ -39,7 +39,9 @@ better social annotation experience, please open an issue or a PR!
 ## Usage
 
 To try out Populus-Viewer, just point your browser at our [github pages
-instance](https://opentower.github.io/populus-viewer).
+instance](https://opentower.github.io/populus-viewer). You're welcome to use
+the default testing server, but be aware that this server may be torn down or
+replaced at any time.
 
 To get started tinkering with the source code, clone this repository and then
 run:
