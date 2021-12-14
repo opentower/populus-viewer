@@ -239,7 +239,7 @@ class PDFRoomEntry extends Component {
       <div data-room-entry-buttons-visible={state.buttonsVisible} data-room-status={status} class="room-listing-entry" id={props.room.roomId}>
         <div class="room-listing-heading">
           {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
-          <a href={`/${encodeURIComponent(props.room.getCanonicalAlias().slice(1))}/${this.getLastViewedPage()}`}>{props.room.name}</a>
+          <a href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.room.getCanonicalAlias().slice(1))}/${this.getLastViewedPage()}`}>{props.room.name}</a>
         </div>
         <div class="room-listing-data">
           <TagList room={props.room} />
