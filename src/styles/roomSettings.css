@@ -5,6 +5,11 @@
   margin-bottom: 40px;
 }
 
+#room-settings-form label {
+  margin:5px;
+  margin-left:0px;
+}
+
 #room-settings-name-info,
 #room-settings-visibility-info,
 #room-settings-join-info {
@@ -26,4 +31,17 @@
 
 #room-settings-submit-wrapper button:not(:first-child) {
   margin-left:10px;
+}
+
+@media only screen and (max-width: 600px) {
+  #room-settings-form {
+    grid-template-columns: 1fr;
+  }
+
+  #room-settings-name-info,
+  #room-settings-visibility-info,
+  #room-settings-submit-wrapper,
+  #room-settings-join-info {
+    grid-column: 1/2;
+  }
 }

@@ -123,7 +123,7 @@ export default class RoomSettings extends Component {
             onkeydown={this.handleKeydown}
             onInput={this.handleNameInput} />
           <div id="room-settings-name-info" />
-          <label htmlFor="visibilty">Visibility:</label>
+          <label htmlFor="visibilty">Visibility</label>
           <select class="styled-input" value={state.visibility} name="joinRule" onchange={this.handleVisibilityChange}>
             <option value="private">Private</option>
             <option value="public">Publically Listed</option>
@@ -134,7 +134,7 @@ export default class RoomSettings extends Component {
               : "the room will be hidden from other users"
             }
           </div>
-          <label htmlFor="joinRule">Join Rule:</label>
+          <label htmlFor="joinRule">Join Rule</label>
           <select class="styled-input" value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
             <option value="public">Public</option>
             <option value="invite">Invite-Only</option>
