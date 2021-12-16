@@ -27,6 +27,7 @@ https://user-images.githubusercontent.com/6383381/146051091-1c1e29b8-0d6c-4b87-9
 
 Populus-Viewer currently supports:
 
+- Highlight and pin-drop annotations
 - Audio and video messages
 - Message edits and redactions
 - Replies and reactions
