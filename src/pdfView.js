@@ -388,6 +388,20 @@ export default class PdfView extends Component {
     this.focusNextInArray(clone.reverse())
   }
 
+  prevPage = _ => {
+    if (this.props.pageFocused > 1) {
+      History.push(`/${this.props.pdfFocused}/${parseInt(this.props.pageFocused, 10) - 1}/`)
+      this.contentContainer.current.scrollTop = this.contentContainer.current.scrollHeight
+    }
+  }
+
+  nextPage = _ => {
+    if (this.props.pageFocused < this.state.totalPages) {
+      History.push(`/${this.props.pdfFocused}/${parseInt(this.props.pageFocused, 10) + 1}/`)
+      this.contentContainer.current.scrollTop = 0
+    }
+  }
+
   togglePanel = () => this.setState({panelVisible: !this.state.panelVisible})
 
   checkForSelection () {
@@ -419,9 +433,8 @@ export default class PdfView extends Component {
     if (e.key === '=') this.setZoom(this.state.zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(this.state.zoomFactor - 0.1)
     if (e.key === "Esc" || e.key === "Escape") History.push("/")
-    if ((e.key === 'j' || e.key === "ArrowRight") && this.props.pageFocused < this.state.totalPages) {
-      History.push(`/${this.props.pdfFocused}/${parseInt(this.props.pageFocused, 10) + 1}/`)
-    }
+    if (e.key === 'j' || e.key === "ArrowRight") this.nextPage()
+    if (e.key === 'k' || e.key === "ArrowLeft") this.prevPage()
     if (e.key === "ArrowUp") {
       e.preventDefault() // block default scrolling behavior
       this.contentContainer.current.scroll({
@@ -435,9 +448,6 @@ export default class PdfView extends Component {
         top: this.contentContainer.current.scrollTop + 100,
         left: this.contentContainer.current.scrollLeft
       })
-    }
-    if ((e.key === 'k' || e.key === "ArrowLeft") && this.props.pageFocused > 1) {
-      History.push(`/${this.props.pdfFocused}/${parseInt(this.props.pageFocused, 10) - 1}/`)
     }
   }
 
@@ -652,6 +662,8 @@ export default class PdfView extends Component {
           roomId={state.roomId}
           focusNext={this.focusNext}
           focusPrev={this.focusPrev}
+          nextPage={this.nextPage}
+          prevPage={this.prevPage}
           searchString={state.searchString}
           pdfWidthPx={state.pdfWidthPx}
           container={this.contentContainer}

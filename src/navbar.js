@@ -1,4 +1,4 @@
-import { h, createRef, Fragment, Component } from 'preact';
+import { h, createRef, Component } from 'preact';
 import * as Icons from './icons.js';
 import * as Matrix from "matrix-js-sdk"
 import SearchBar from './search.js'
@@ -16,19 +16,9 @@ export default class Navbar extends Component {
       value: props.pageFocused,
       pageViewVisible: false,
       moreOptionsVisible: false,
-      typing: {},
       pageFocused: false,
       searchFocused: false
     };
-    this.handleTypingNotifications = this.handleTypingNotification.bind(this)
-  }
-
-  componentDidMount() {
-    Client.client.on("RoomMember.typing", this.handleTypingNotification)
-  }
-
-  componentWillUnmount() {
-    Client.client.off("RoomMember.typing", this.handleTypingNotification)
   }
 
   pageTotal = createRef()
@@ -36,18 +26,6 @@ export default class Navbar extends Component {
   pageInput = createRef()
 
   bottomWrapper = createRef()
-
-  handleTypingNotification = (ev, member) => {
-    const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
-    // We use nested state here because we want to pass this part of the state to a child
-    if (theChildRelation) {
-      this.setState(prevState => {
-        const typingKey = theChildRelation.getContent()[eventVersion].pageNumber
-        return {typing: { ...prevState.typing, [typingKey]: ev.getContent().user_ids}}
-      })
-    }
-  }
 
   handleInput = e => {
     if (/^[0-9]*$/.test(e.target.value)) this.setState({value: e.target.value})
@@ -84,18 +62,6 @@ export default class Navbar extends Component {
 
   mainMenu = _ => History.push("/")
 
-  prevPage = _ => {
-    if (this.props.pageFocused > 1) {
-      History.push(`/${this.props.pdfFocused}/${parseInt(this.props.pageFocused, 10) - 1}/`)
-      this.props.container.current.scrollTop = this.props.container.current.scrollHeight
-    }
-  }
-
-  nextPage = _ => {
-    History.push(`/${this.props.pdfFocused}/${parseInt(this.props.pageFocused, 10) + 1}/`,{})
-    this.props.container.current.scrollTop = 0
-  }
-
   openInvite = _ => this.props.populateModal(
     <Invite populateModal={this.props.populateModal}
             roomId={this.props.roomId} />)
@@ -113,14 +79,13 @@ export default class Navbar extends Component {
   render(props, state) {
     if (props.pdfWidthPx) { // don't render until width is set
       return <nav id="page-nav">
-        <div class={state.pageViewVisible ? null : "nav-hidden"} id="nav-pages">
           <Pages total={props.total}
             handleClick={this.handleClick}
+            roomId={props.roomId}
             currentPageElement={this.currentPageElement}
             visibility={state.pageViewVisible}
             typing={state.typing}
             current={props.pageFocused} />
-        </div>
         <div id="nav-background" />
         <div class="nav-button-wrapper top-wrapper">
           <button title="Go to main menu&#013;Shortcut: Esc" onclick={this.mainMenu}>{Icons.home}</button>
@@ -128,7 +93,7 @@ export default class Navbar extends Component {
             disabled={(props.selected || props.pindropMode?.x) ? null : "disabled"}
             onclick={props.openAnnotation}>{Icons.addAnnotation}</button>
           <button title="Go to previous annotation&#013;Shortcut: Alt + Shift + Tab" onclick={props.focusPrev}>{Icons.chevronsLeft}</button>
-          <button title="Go to previous page&#013;Shortcuts: k, &larr;" disabled={props.pageFocused > 1 ? null : "disabled"} onclick={this.prevPage}>{Icons.chevronLeft}</button>
+          <button title="Go to previous page&#013;Shortcuts: k, &larr;" disabled={props.pageFocused > 1 ? null : "disabled"} onclick={props.prevPage}>{Icons.chevronLeft}</button>
           <form onSubmit={this.handleSubmit}>
             <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="Show page navigation">{Icons.page}</button>
             <input type="text"
@@ -140,7 +105,7 @@ export default class Navbar extends Component {
             <span>/</span>
             <span ref={this.pageTotal} id="nav-total-pages">{props.total}</span>
           </form>
-          <button title="Go to next page&#013;Shortcuts: j, &rarr;" disabled={props.total > props.pageFocused ? null : "disabled"} onclick={this.nextPage}>{Icons.chevronRight}</button>
+          <button title="Go to next page&#013;Shortcuts: j, &rarr;" disabled={props.total > props.pageFocused ? null : "disabled"} onclick={props.nextPage}>{Icons.chevronRight}</button>
           <button title="Go to next annotation&#013;Shortcut: Alt + Tab" onclick={props.focusNext}>{Icons.chevronsRight}</button>
           <button title="Remove annotation&#013;Shortcut: Alt + r" disabled={props.focus && !props.selected ? null : "disabled"} onclick={props.closeAnnotation}>{Icons.removeAnnotation}</button>
           <button title="More options" onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
@@ -159,19 +124,47 @@ export default class Navbar extends Component {
 }
 
 class Pages extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { typing: {} };
+    this.handleTypingNotifications = this.handleTypingNotification.bind(this)
+  }
+
   componentDidUpdate() {
     this.currentPageElement.current.scrollIntoView({inline: "center"})
   }
 
+  componentDidMount() {
+    Client.client.on("RoomMember.typing", this.handleTypingNotification)
+  }
+
+  componentWillUnmount() {
+    Client.client.off("RoomMember.typing", this.handleTypingNotification)
+  }
+
+  handleTypingNotification = (ev, member) => {
+    console.log(ev)
+    console.log(member)
+    const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
+    // We use nested state here because we want to pass this part of the state to a child
+    if (theChildRelation) {
+      this.setState(prevState => {
+        const typingKey = theChildRelation.getContent()[eventVersion].pageNumber
+        return {typing: { ...prevState.typing, [typingKey]: ev.getContent().user_ids}}
+      })
+    }
+  }
+
   currentPageElement = createRef()
 
-  render(props) {
+  render(props, state) {
     const pagenos = Array.from({length: props.total}, (_, index) => index + 1);
     const pages = pagenos.map(page => {
       let theClass, theUserColor
-      if (props.typing[page] && props.typing[page][0]) {
+      if (state.typing[page] && state.typing[page][0]) {
         theClass = "typing"
-        theUserColor = new UserColor(props.typing[page][0])
+        theUserColor = new UserColor(state.typing[page][0])
       }
       return <button value={page}
         key={page}
@@ -181,8 +174,8 @@ class Pages extends Component {
         onclick={props.handleClick}>{page}</button>
     });
     pages[props.current - 1] = <button ref={this.currentPageElement} tabIndex={props.visibility ? 0 : -1} class="currentpage">{props.current}</button>
-    return <Fragment>
+    return <div class={props.visibility ? null : "nav-hidden"} id="nav-pages">
         {pages}
-    </Fragment>
+      </div>
   }
 }
