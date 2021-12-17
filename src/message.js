@@ -4,6 +4,7 @@ import * as CommonMark from 'commonmark'
 import { renderLatexInElement } from './latex.js'
 import { processRegex } from './processRegex.js'
 import UserColor from './userColors.js'
+import UserInfoHeader from './userInfoHeader.js'
 import { sanitizeHtmlParams } from './constants.js'
 import { processLinks } from './links.js'
 import 'emoji-picker-element'
@@ -433,10 +434,7 @@ class ReplyPreview extends Component {
     const content = this.getCurrentEdit()
     const hasHtml = (content.format === "org.matrix.custom.html") && content.formatted_body
     const isReply = Replies.isReply(content)
-    const senderId = this.state.liveEvent.getSender()
-    const sender = Client.client.getUser(senderId)
     const senderColors = new UserColor(this.state.liveEvent.getSender())
-    const avatarHttpURI = Client.client.getHttpUriForMxcFromHS(sender.avatarUrl, 20, 20, "crop")
     let displayBody
     if (!this.state.liveEvent.getContent().msgtype) {
       displayBody = <div class="redacted-preview">Original Message Deleted</div>
@@ -500,14 +498,13 @@ class ReplyPreview extends Component {
         }
       }
     }
-    return <div style={senderColors.styleVariables} class="reply-preview">
+    return <Fragment>
       <div class="reply-preface">In reply to:</div>
-      <div class="reply-sender-info">
-        {avatarHttpURI ? <img src={avatarHttpURI} /> : null}
-        <span>{sender.displayName}</span>
+      <UserInfoHeader isReply userId={this.state.liveEvent.getSender()} />
+      <div style={senderColors.styleVariables} class="reply-preview">
+        {displayBody}
       </div>
-      {displayBody}
-    </div>
+    </Fragment>
   }
 
   fallbackPreview = _ => {

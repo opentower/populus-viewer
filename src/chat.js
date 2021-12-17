@@ -152,7 +152,7 @@ export default class Chat extends Component {
       if (!prev || prev.getSender() !== event.getSender()) {
         accumulator.push(
           <UserInfoHeader key={`${event.getId()}-userinfo`}
-            username={event.getSender()}
+            userId={event.getSender()}
             isMe={event.getSender() === Client.client.getUserId()} />
         )
         prev = event

@@ -3,17 +3,22 @@ import Client from './client.js'
 import UserColor from './userColors.js'
 
 export default class UserInfoHeader extends Component {
-    displayName = Client.client.getUser(this.props.username).displayName
+    displayName = Client.client.getUser(this.props.userId).displayName
 
-    avatarUrl = Client.client.getUser(this.props.username).avatarUrl
+    avatarUrl = Client.client.getUser(this.props.userId).avatarUrl
 
     avatarHttpURI = Client.client.getHttpUriForMxcFromHS(this.avatarUrl, 20, 20, "crop")
 
-    userColor = new UserColor(this.props.username)
+    userColor = new UserColor(this.props.userId)
 
-    render(props) {
-      const theClass = props.isMe ? "user-info-message message-from-user" : "user-info-message"
-      return <div class={theClass} style={this.userColor.styleVariables}>
+    theClass = this.props.isMe
+      ? "user-info-message message-from-user"
+      : this.props.isReply
+        ? "reply-sender-info"
+        : "user-info-message"
+
+    render() {
+      return <div class={this.theClass} style={this.userColor.styleVariables}>
         {this.avatarHttpURI ? <img src={this.avatarHttpURI} /> : null}
         <span>{this.displayName}</span>
       </div>

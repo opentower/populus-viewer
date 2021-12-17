@@ -420,8 +420,7 @@ export default class PdfView extends Component {
       page: this.props.pageFocused,
       deviceId: Client.deviceId
     })
-    if (!this.props.roomFocused) return
-    this.focusByRoomId(this.props.roomFocused)
+    if (this.props.roomFocused) this.focusByRoomId(this.props.roomFocused)
   }
 
   handleKeydown = e => {
@@ -429,8 +428,7 @@ export default class PdfView extends Component {
     if (e.altKey && e.key === 'r') this.closeAnnotation()
     if (e.altKey && e.key === 'v') this.toggleAnnotations()
     if (e.ctrlKey || e.altKey || e.metaKey) return // Don't catch browser shortcuts
-    if (e.key === '+') this.setZoom(this.state.zoomFactor + 0.1)
-    if (e.key === '=') this.setZoom(this.state.zoomFactor + 0.1)
+    if (e.key === '+' || e.key === '=') this.setZoom(this.state.zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(this.state.zoomFactor - 0.1)
     if (e.key === "Esc" || e.key === "Escape") History.push("/")
     if (e.key === 'j' || e.key === "ArrowRight") this.nextPage()
@@ -568,127 +566,125 @@ export default class PdfView extends Component {
       visibility: state.pdfHeightPx ? null : "hidden"
     }
     const theRoom = Client.client.getRoom(state.roomId)
-    return (
-      <div style={dynamicDocumentStyle}
-        id="content-container"
-        ref={this.contentContainer}
-        onPointerDown={this.handlePointerDown}
-        onPointerUp={this.handlePointerUp}
-        onPointerCancel={this.handlePointerUp}
-        onPointerLeave={this.handlePointerUp}
-        data-pindrop-mode={state.pindropMode
-          ? (state.pindropMode?.x && "placed") || "unplaced"
-          : false
-        }
-        onPointerMove={this.handlePointerMove}>
-        <Router onChange={this.handleRouteChange} />
-        <Modal modalVisible={!!state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
-        <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
-        {this.getLoadingStatus()}
-        <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
-          <div id="document-wrapper" data-annotations-hidden={!state.annotationsVisible}>
-            <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
-              setPdfDimensions={this.setPdfDimensions}
-              setPdfFitRatio={this.setPdfFitRatio}
-              annotationLayer={this.annotationLayer}
-              textLayer={this.textLayer}
-              searchString={state.searchString}
-              pdfFocused={props.pdfFocused}
-              pageFocused={props.pageFocused}
-              initFocus={this.initFocus}
-              setId={this.setId}
-              setTotalPages={this.setTotalPages}
-              setPdfText={this.setPdfText}
-              setPdfLoadingStatus={this.setPdfLoadingStatus}
-            />
-            <AnnotationLayer ref={this.annotationLayer}
-                  pindropMode={state.pindropMode}
-                  annotationLayer={this.annotationLayer}
-                  annotationLayerWrapper={this.annotationLayerWrapper}
-                  filteredAnnotationContents={state.filteredAnnotationContents}
-                  pdfWidthAdjusted={state.pdfWidthPx / state.pdfFitRatio}
-                  zoomFactor={state.zoomFactor}
-                  page={props.pageFocused}
-                  roomId={state.roomId}
-                  setFocus={this.setFocus}
-                  focus={state.focus}
-            />
-          </div>
-        </div>
-        <div id="sidepanel">
-          {state.focus
-            ? <Chat class="panel-widget-1"
+    return <div
+      style={dynamicDocumentStyle}
+      id="content-container"
+      ref={this.contentContainer}
+      onPointerDown={this.handlePointerDown}
+      onPointerUp={this.handlePointerUp}
+      onPointerCancel={this.handlePointerUp}
+      onPointerLeave={this.handlePointerUp}
+      data-pindrop-mode={state.pindropMode
+        ? (state.pindropMode?.x && "placed") || "unplaced"
+        : false
+      }
+      onPointerMove={this.handlePointerMove}>
+      <Router onChange={this.handleRouteChange} />
+      <Modal modalVisible={!!state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
+      <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
+      {this.getLoadingStatus()}
+      <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
+        <div id="document-wrapper" data-annotations-hidden={!state.annotationsVisible}>
+          <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
+            setPdfDimensions={this.setPdfDimensions}
+            setPdfFitRatio={this.setPdfFitRatio}
+            annotationLayer={this.annotationLayer}
+            textLayer={this.textLayer}
+            searchString={state.searchString}
+            pdfFocused={props.pdfFocused}
+            pageFocused={props.pageFocused}
+            initFocus={this.initFocus}
+            setId={this.setId}
+            setTotalPages={this.setTotalPages}
+            setPdfText={this.setPdfText}
+            setPdfLoadingStatus={this.setPdfLoadingStatus}
+          />
+          <AnnotationLayer ref={this.annotationLayer}
+                pindropMode={state.pindropMode}
+                annotationLayer={this.annotationLayer}
+                annotationLayerWrapper={this.annotationLayerWrapper}
+                filteredAnnotationContents={state.filteredAnnotationContents}
+                pdfWidthAdjusted={state.pdfWidthPx / state.pdfFitRatio}
+                zoomFactor={state.zoomFactor}
+                page={props.pageFocused}
+                roomId={state.roomId}
                 setFocus={this.setFocus}
-                unsetFocus={this.unsetFocus}
-                pdfId={state.roomId}
-                populateModal={this.populateModal}
-                handleWidgetScroll={this.handleWidgetScroll}
-                focus={state.focus} />
-            : null
-          }
-          { state.searchString
-            ? <SearchResults
-                class={state.focus ? "panel-widget-2" : "panel-widget-1"}
-                searchString={state.searchString}
-                setSearch={this.setSearch}
-                pdfText={this.pdfText}
-                pdfFocused={props.pdfFocused}
-                roomFocused={props.roomFocused}
-              />
-            : <AnnotationListing
-                  roomId={state.roomId}
-                  class={state.focus ? "panel-widget-2" : "panel-widget-1"}
-                  focus={state.focus}
-                  setAnnotationFilter={this.setAnnotationFilter}
-                  annotationFilter={state.annotationFilter}
-                  annotationContents={state.annotationContents}
-                  filteredAnnotationContents={state.filteredAnnotationContents}
-                  handleWidgetScroll={this.handleWidgetScroll}
-                  focusByRoomId={this.focusByRoomId}
-                  focusNext={this.focusNext}
-                  focusPrev={this.focusPrev}
-                  unreadCounts={this.unreadCounts}
-                  room={theRoom}
-                />
-            }
+                focus={state.focus}
+          />
         </div>
-        <Navbar selected={state.hasSelection}
-          openAnnotation={this.openAnnotation}
-          closeAnnotation={this.closeAnnotation}
-          pageFocused={props.pageFocused || 1}
-          pdfFocused={props.pdfFocused}
-          total={state.totalPages}
-          focus={state.focus}
-          roomId={state.roomId}
-          focusNext={this.focusNext}
-          focusPrev={this.focusPrev}
-          nextPage={this.nextPage}
-          prevPage={this.prevPage}
-          searchString={state.searchString}
-          pdfWidthPx={state.pdfWidthPx}
-          container={this.contentContainer}
-          populateModal={this.populateModal}
-          annotationsVisible={state.annotationsVisible}
-          toggleAnnotations={this.toggleAnnotations}
-          setNavHeight={this.setNavHeight}
-          setSearch={this.setSearch}
-          startPindrop={this.startPindrop}
-          pindropMode={state.pindropMode}
-          setZoom={this.setZoom}
-          zoomFactor={state.zoomFactor} />
-        <div data-hide-buttons={state.hideButtons} id="pdf-panel-button-wrapper">
-          {(state.panelVisible && state.focus)
-            ? <button title="focus annotation list" id="show-annotations" onclick={this.clearFocus}>
-              {Icons.list}
-            </button>
-            : null
-          }
-          <button title="toggle sidebar" id="panel-toggle" onclick={this.togglePanel}>
-            {state.panelVisible ? Icons.close : Icons.menu }
-          </button>
-        </div>
-        <SyncIndicator class={state.panelVisible ? null : "sync-hidden"} />
       </div>
-    )
+      <div id="sidepanel">
+        {state.focus
+          ? <Chat class="panel-widget-1"
+              setFocus={this.setFocus}
+              unsetFocus={this.unsetFocus}
+              pdfId={state.roomId}
+              populateModal={this.populateModal}
+              handleWidgetScroll={this.handleWidgetScroll}
+              focus={state.focus} />
+          : null
+        }
+        { state.searchString
+          ? <SearchResults
+              class={state.focus ? "panel-widget-2" : "panel-widget-1"}
+              searchString={state.searchString}
+              setSearch={this.setSearch}
+              pdfText={this.pdfText}
+              pdfFocused={props.pdfFocused}
+              roomFocused={props.roomFocused}
+            />
+          : <AnnotationListing
+                roomId={state.roomId}
+                class={state.focus ? "panel-widget-2" : "panel-widget-1"}
+                focus={state.focus}
+                setAnnotationFilter={this.setAnnotationFilter}
+                annotationFilter={state.annotationFilter}
+                annotationContents={state.annotationContents}
+                filteredAnnotationContents={state.filteredAnnotationContents}
+                handleWidgetScroll={this.handleWidgetScroll}
+                focusByRoomId={this.focusByRoomId}
+                focusNext={this.focusNext}
+                focusPrev={this.focusPrev}
+                unreadCounts={this.unreadCounts}
+                room={theRoom}
+              />
+          }
+      </div>
+      <Navbar selected={state.hasSelection}
+        openAnnotation={this.openAnnotation}
+        closeAnnotation={this.closeAnnotation}
+        pageFocused={props.pageFocused || 1}
+        pdfFocused={props.pdfFocused}
+        total={state.totalPages}
+        focus={state.focus}
+        roomId={state.roomId}
+        focusNext={this.focusNext}
+        focusPrev={this.focusPrev}
+        nextPage={this.nextPage}
+        prevPage={this.prevPage}
+        searchString={state.searchString}
+        pdfWidthPx={state.pdfWidthPx}
+        populateModal={this.populateModal}
+        annotationsVisible={state.annotationsVisible}
+        toggleAnnotations={this.toggleAnnotations}
+        setNavHeight={this.setNavHeight}
+        setSearch={this.setSearch}
+        startPindrop={this.startPindrop}
+        pindropMode={state.pindropMode}
+        setZoom={this.setZoom}
+        zoomFactor={state.zoomFactor} />
+      <div data-hide-buttons={state.hideButtons} id="pdf-panel-button-wrapper">
+        {(state.panelVisible && state.focus)
+          ? <button title="focus annotation list" id="show-annotations" onclick={this.clearFocus}>
+            {Icons.list}
+          </button>
+          : null
+        }
+        <button title="toggle sidebar" id="panel-toggle" onclick={this.togglePanel}>
+          {state.panelVisible ? Icons.close : Icons.menu }
+        </button>
+      </div>
+      <SyncIndicator class={state.panelVisible ? null : "sync-hidden"} />
+    </div>
   }
 }
