@@ -1,6 +1,7 @@
-import { h, Component, Fragment } from 'preact';
+import { h, Component, createRef, Fragment } from 'preact';
 import Client from './client.js'
 import * as Matrix from "matrix-js-sdk"
+import { loadImageElement } from "./utils/media.js"
 import { eventVersion, joinRule, spaceParent, spaceChild } from './constants.js';
 import "./styles/roomSettings.css"
 
@@ -12,6 +13,7 @@ export default class RoomSettings extends Component {
     this.initialName = props.room.name
     this.initialVisibility = null
     this.state = {
+      previewUrl: props.room.getAvatarUrl(`https://${Client.client.getDomain()}`, 300, 300, "crop"),
       joinRule: this.initialJoinRule,
       roomName: this.initialName,
       visibility: null,
@@ -22,6 +24,8 @@ export default class RoomSettings extends Component {
   componentDidMount () {
     this.initialize()
   }
+  
+  avatarImageInput = createRef()
 
   async initialize() {
     const visibility = await Client.client.getRoomDirectoryVisibility(this.props.room.roomId)
@@ -50,6 +54,8 @@ export default class RoomSettings extends Component {
     e.stopPropagation() // don't go to global keypress handler
   }
 
+  handleUploadAvatar = _ => this.avatarImageInput.current.click()
+
   handleVisibilityChange = e => {
     this.setState({ visibility: e.target.value })
   }
@@ -58,10 +64,35 @@ export default class RoomSettings extends Component {
 
   handleSubmit = async e => {
     e.preventDefault()
+    const theImage = this.avatarImageInput.current.files[0]
     if (this.state.visibility !== this.initialVisibility) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.visibility).catch(this.raiseErr)
     if (this.state.joinRule !== this.initialJoinRule) await this.updateJoinRule()
     if (this.state.roomName !== this.initialRoomName) await Client.client.setRoomName(this.props.room.roomId, this.state.roomName).catch(this.raiseErr)
+    if (theImage && /^image/.test(theImage.type)) {
+      const {width, height} = await loadImageElement(theImage)
+      await Client.client.uploadContent(theImage, { progressHandler: this.progressHandler })
+        .then(e => Client.client
+          .sendStateEvent(this.props.room.roomId, "m.room.avatar", {
+            info: {
+              w: width,
+              h: height,
+              mimetype: theImage.type ? theImage.type : "application/octet-stream",
+              size: theImage.size
+            },
+            url: e
+          }, "")
+        )
+    } else if (!this.state.previewUrl) {
+      Client.client.sendStateEvent(this.props.room.roomId, "m.room.avatar", {}, "")
+    }
     this.props.populateModal(null)
+  }
+
+  updatePreview = _ => {
+    const theImage = this.avatarImageInput.current.files[0]
+    if (theImage && /^image/.test(theImage.type)) {
+      this.setState({previewUrl: URL.createObjectURL(this.avatarImageInput.current.files[0]) })
+    }
   }
 
   async updateJoinRule() {
@@ -105,6 +136,10 @@ export default class RoomSettings extends Component {
     })
   }
 
+  uploadAvatar = _ => this.avatarImageInput.current.click()
+
+  removeAvatar = _ => this.setState({ previewUrl: null })
+
   cancel = e => {
     e.preventDefault()
     this.props.populateModal(null)
@@ -115,6 +150,12 @@ export default class RoomSettings extends Component {
       return <Fragment>
         <h3 id="modalHeader">Room Settings</h3>
         <form id="room-settings-form">
+          <label htmlFor="room-avatar">Room Avatar</label>
+          {state.previewUrl
+            ? <img onclick={this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
+            : <div key="roomAvatarSelector" onclick={this.uploadAvatar} id="room-settings-avatar-selector" />}
+          <input name="room-avatar" id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
+          <div id="room-settings-avatar-info" />
           <label htmlFor="room-name">Room Name</label>
           <input name="room-name"
             type="text"
@@ -148,6 +189,7 @@ export default class RoomSettings extends Component {
           <div id="room-settings-submit-wrapper">
             <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
             <button className="styled-button" onClick={this.cancel} >Cancel</button>
+            {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
           </div>
         </form>
       </Fragment>

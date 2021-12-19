@@ -22,7 +22,6 @@
   scrollbar-width: none;  /* Firefox */
 }
 
-
 #profile-advanced-options > div::-webkit-scrollbar { display: none; }
 
 #profileInformationForm label {

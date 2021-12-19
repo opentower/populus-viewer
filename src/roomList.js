@@ -183,10 +183,32 @@ export default class RoomList extends Component {
 class PDFRoomEntry extends Component {
   constructor(props) {
     super(props)
+    const avatarEvent = props.room.getLiveTimeline()
+      .getState(Matrix.EventTimeline.FORWARDS)
+      .getStateEvents("m.room.avatar", "")
     this.state = {
       buttonsVisible: false,
       memberListOpen: false,
-      detailsOpen: false
+      detailsOpen: false,
+      avatarEvent,
+      avatarUrl: avatarEvent?.getContent().url
+        ? Client.client.getHttpUriForMxcFromHS(avatarEvent.getContent().url)
+        : null
+    }
+  }
+
+  componentDidMount () {
+    Client.client.on("RoomState.events", this.handleStateUpdate)
+  }
+
+  handleStateUpdate = e => {
+    if (e.getRoomId() === this.props.room.roomId && e.getType() === "m.room.avatar") {
+      this.setState({
+        avatarEvent: e,
+        avatarUrl: e.getContent().url
+          ? Client.client.getHttpUriForMxcFromHS(e.getContent().url)
+          : null
+      })
     }
   }
 
@@ -232,36 +254,46 @@ class PDFRoomEntry extends Component {
       ? members.map(member => <MemberPill key={member.userId} member={member} />)
       : members.slice(0, props.memberLimit).map(member => <MemberPill key={member.userId} member={member} />)
     const invitePills = invites.map(invite => <span key={invite.userId} class="invite-pill"><MemberPill member={invite} /></span>)
+    const avatarInfo = state.avatarEvent?.getContent()?.info
+    const avatarStyle = avatarInfo ? { "max-height": Math.min(300, avatarInfo.h) } : null
     const status = memberIds.includes(Client.client.getUserId())
       ? "joined"
       : "invited"
     return (
-      <div data-room-entry-buttons-visible={state.buttonsVisible} data-room-status={status} class="room-listing-entry" id={props.room.roomId}>
-        <div class="room-listing-heading">
-          {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
-          <a href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.room.getCanonicalAlias().slice(1))}/${this.getLastViewedPage()}`}>{props.room.name}</a>
-        </div>
-        <div class="room-listing-data">
-          <TagList room={props.room} />
-          <div class="room-listing-data-row">
-            <span class="room-data-icon">{Icons.userMany}</span><Fragment>{memberPills}</Fragment><Fragment>{invitePills}</Fragment>
-            { state.memberListOpen || members.length <= props.memberLimit
-              ? null
-              : <button onclick={this.toggleMemberList}
-                  class="room-more-members">and {members.length - props.memberLimit} more.
-              </button>
-            }
+      <div data-room-status={status} class="room-listing-entry" id={props.room.roomId}>
+        {state.avatarUrl
+          ? <div style={avatarStyle} class="room-listing-avatar">
+            <img src={state.avatarUrl} alt="room avatar" />
           </div>
-        </div>
-        <AnnotationData getLastViewedPage={this.getLastViewedPage} room={props.room} />
-        <div class="room-listing-entry-buttons">
-          { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
-          { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
-          { state.buttonsVisible ? <button title="Toggle favorite" onClick={this.toggleFavorite}>{Icons.star}</button> : null }
-          { state.buttonsVisible ? <button title="Leave conversation" onClick={this.handleClose}>{Icons.exit}</button> : null }
-          { state.buttonsVisible ? <button title="Edit room tags" onClick={this.handleEditTags}>{Icons.tag}</button> : null }
-          { state.buttonsVisible && canInvite ? <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button> : null }
-          { state.buttonsVisible && isAdmin ? <button title="Configure room settings" onClick={this.openSettings}>{Icons.settings}</button> : null }
+          : null
+        }
+        <div data-room-entry-buttons-visible={state.buttonsVisible} class="room-listing-body">
+          <div class="room-listing-heading">
+            {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
+            <a href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.room.getCanonicalAlias().slice(1))}/${this.getLastViewedPage()}`}>{props.room.name}</a>
+          </div>
+          <div class="room-listing-data">
+            <TagList room={props.room} />
+            <div class="room-listing-data-row">
+              <span class="room-data-icon">{Icons.userMany}</span><Fragment>{memberPills}</Fragment><Fragment>{invitePills}</Fragment>
+              { state.memberListOpen || members.length <= props.memberLimit
+                ? null
+                : <button onclick={this.toggleMemberList}
+                    class="room-more-members">and {members.length - props.memberLimit} more.
+                </button>
+              }
+            </div>
+          </div>
+          <AnnotationData getLastViewedPage={this.getLastViewedPage} room={props.room} />
+          <div class="room-listing-entry-buttons">
+            { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
+            { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
+            { state.buttonsVisible ? <button title="Toggle favorite" onClick={this.toggleFavorite}>{Icons.star}</button> : null }
+            { state.buttonsVisible ? <button title="Leave conversation" onClick={this.handleClose}>{Icons.exit}</button> : null }
+            { state.buttonsVisible ? <button title="Edit room tags" onClick={this.handleEditTags}>{Icons.tag}</button> : null }
+            { state.buttonsVisible && canInvite ? <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button> : null }
+            { state.buttonsVisible && isAdmin ? <button title="Configure room settings" onClick={this.openSettings}>{Icons.settings}</button> : null }
+          </div>
         </div>
       </div>
     )

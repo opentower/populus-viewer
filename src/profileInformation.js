@@ -37,7 +37,7 @@ export default class ProfileInfomation extends Component {
     }
   }
 
-  updateProfile = async (e) => {
+  updateProfile = async e => {
     e.preventDefault()
     const theImage = this.avatarImageInput.current.files[0]
     const theDisplayName = this.displayNameInput.current.value
