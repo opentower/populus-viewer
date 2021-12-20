@@ -191,8 +191,8 @@ class PDFRoomEntry extends Component {
       memberListOpen: false,
       detailsOpen: false,
       avatarEvent,
-      avatarUrl: avatarEvent?.getContent().url
-        ? Client.client.getHttpUriForMxcFromHS(avatarEvent.getContent().url)
+      avatarUrl: avatarEvent?.getContent()?.url
+        ? Client.client.mxcUrlToHttp(avatarEvent.getContent().url)
         : null
     }
   }
@@ -255,14 +255,16 @@ class PDFRoomEntry extends Component {
       : members.slice(0, props.memberLimit).map(member => <MemberPill key={member.userId} member={member} />)
     const invitePills = invites.map(invite => <span key={invite.userId} class="invite-pill"><MemberPill member={invite} /></span>)
     const avatarInfo = state.avatarEvent?.getContent()?.info
-    const avatarStyle = avatarInfo ? { "max-height": Math.min(300, avatarInfo.h) } : null
+    // using max/min here rather than setting the height directly so that the height doesn't affect the object-fit: cover of the image,
+    // But so that the div is still the right size prior to image-load
+    const avatarListingStyle = avatarInfo ? { "min-height": Math.min(300, avatarInfo.h), "max-height": Math.min(300, avatarInfo.h) } : null
     const status = memberIds.includes(Client.client.getUserId())
       ? "joined"
       : "invited"
     return (
       <div data-room-status={status} class="room-listing-entry" id={props.room.roomId}>
         {state.avatarUrl
-          ? <div style={avatarStyle} class="room-listing-avatar">
+          ? <div style={avatarListingStyle} class="room-listing-avatar">
             <img src={state.avatarUrl} loading="lazy" alt="room avatar" />
           </div>
           : null

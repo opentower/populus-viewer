@@ -28,7 +28,7 @@
 
 .room-listing-avatar {
   width:100%;
-  background:black;
+  background:#454545;
   display:flex;
   justify-content: center;
   overflow:hidden;
