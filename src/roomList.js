@@ -263,7 +263,7 @@ class PDFRoomEntry extends Component {
       <div data-room-status={status} class="room-listing-entry" id={props.room.roomId}>
         {state.avatarUrl
           ? <div style={avatarStyle} class="room-listing-avatar">
-            <img src={state.avatarUrl} alt="room avatar" />
+            <img src={state.avatarUrl} loading="lazy" alt="room avatar" />
           </div>
           : null
         }

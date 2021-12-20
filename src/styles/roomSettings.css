@@ -15,7 +15,7 @@
     display:block;
     height:180px;
     max-height:180px;
-    width:180px;
+    width:100%;
     object-fit:cover;
     border-radius:10px;
     grid-column: 2 / 3 ;
@@ -60,6 +60,7 @@ div#room-settings-avatar-selector {
   #room-settings-name-info,
   #room-settings-visibility-info,
   #room-settings-submit-wrapper,
+  #room-settings-avatar-info,
   #room-settings-avatar-selector,
   #room-settings-join-info {
     grid-column: 1/2;

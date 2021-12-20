@@ -15,10 +15,10 @@
 
 .invite-entry, .room-listing-entry {
     margin: 1em;
+    border: 1px black solid;
 }
 
 .invite-entry {
-    border: 1px black solid;
     padding: 1em; 
 }
 
@@ -31,18 +31,15 @@
   background:black;
   display:flex;
   justify-content: center;
-  position:relative;
-  top:1px;
   overflow:hidden;
 }
 
 .room-listing-avatar > img:first-child {
   object-fit:cover;
+  max-width:100%;
 }
 
-
 .room-listing-body {
-    border: 1px black solid;
     padding: 1em;
     display: grid;
     grid-template-columns: minmax(0, 1fr) 40px;
