@@ -35,6 +35,11 @@
 
 #annotation-layer .inline-annotations {
     opacity:0.2;
+    transition: opacity 0.25s ease;
+}
+
+#annotation-layer[data-annotation-focused] .inline-annotations {
+  opacity:0.1
 }
 
 #annotation-layer .inline-annotations span {

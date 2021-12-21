@@ -50,16 +50,16 @@ export default class AnnotationLayer extends Component {
     const roomId = this.props.focus ? this.props.focus.roomId : null
     let annotations = []
     if (theRoom) {
+      let didFocus = false
       // We filter to include only the annotations on the page
       const annotationData = this.props.filteredAnnotationContents
-        .filter(content =>
-          this.filterAnnotations(content[eventVersion]) &&
-          // We omit the focused annotation, since we're going to add it back in and don't want to double-count.
-          (this.props.focus ? content[eventVersion].roomId !== this.props.focus.roomId : true)
-        )
+        .filter(content => {
+          if (content[eventVersion].roomId !== this.props?.focus?.roomId) didFocus = true
+          return this.filterAnnotations(content[eventVersion])
+        })
         .map(content => content[eventVersion])
-      // We add the focus back in if it's on the page
-      if (this.props.focus && this.filterAnnotations(this.props.focus)) annotationData.push(this.props.focus)
+      // We add the focus back in if it's on the page but got screened out of filteredAnnotationContents
+      if (this.props.focus && this.filterAnnotations(this.props.focus) && !didFocus) annotationData.push(this.props.focus)
       // We turn the array into annontation components
       annotations = annotationData.map(data => {
         switch (data.type) {
@@ -88,6 +88,7 @@ export default class AnnotationLayer extends Component {
     return (
       <div
         ref={props.annotationLayerWrapper}
+        data-annotation-focused={!!props.focus}
         id="annotation-layer">
         {this.getAnnotations()}
         {props.pindropMode?.x ? <PindropPreview data={props.pindropMode} /> : null}
