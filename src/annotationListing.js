@@ -342,7 +342,9 @@ class AnnotationListingEntry extends Component {
         ? <div class="annotation-listing-pin-icon">
             {Icons.pin} <span>on page {props.annotationContent.pageNumber}</span>
           </div>
-        : <div class="annotation-listing-topic">{state.topic}</div>
+        : <div class="annotation-listing-topic">
+            <span class="annotation-listing-topic-icon">{Icons.quote}</span>{state.topic}
+          </div>
       }
       <AnnotationListingComment
         creator={this.creator}

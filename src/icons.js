@@ -94,3 +94,9 @@ export const inbox = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="
 export const pin = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-map-pin"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
 
 export const lock = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-lock"><rect x="3" y="11" width="18" height="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+
+export const quote = <svg width="24" height="24" version="1.1" viewBox="0 0 6.35 6.35" stroke="currentColor" fill="none" xmlns="http://www.w3.org/2000/svg">
+ <g transform="matrix(.79346 0 0 .79346 -64.91 -71.541)" stroke-width=".66691" aria-label="“">
+  <path d="m84.897 97.735v-3.0819h-1.4224c-0.02963-1.6891 0.41487-2.5188 1.4224-2.667v-1.1261c-1.7484 0.14817-2.7559 1.5409-2.7559 3.882v2.993zm4.6821 0v-3.0819h-1.4224c-0.02963-1.6891 0.41487-2.5188 1.4224-2.667v-1.1261c-1.7484 0.14817-2.7559 1.5409-2.7559 3.882v2.993z" stroke-width=".66691"/>
+ </g>
+</svg>

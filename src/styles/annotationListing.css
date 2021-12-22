@@ -73,19 +73,29 @@
     background: var(--user_ultralight);
 }
 
-.annotation-listing-topic,
 .annotation-listing-pin-icon {
   width:100%;
 }
+
+.annotation-listing-topic {
+  width: 100%
+}
+
+.annotation-listing-topic-icon {
+  color:#565656;
+  padding-right: .25em;
+}
+
+.annotation-listing-pin-icon svg,
+.annotation-listing-topic-icon svg {
+  height:1em;
+}
+
 
 .annotation-listing-pin-icon {
   display:flex;
   color:#565656;
   align-items:center;
-}
-
-.annotation-listing-pin-icon svg {
-  height: 1em;
 }
 
 .annotation-listing-pending {
@@ -125,7 +135,7 @@
 .annotation-listing-features {
   height:14px;
   padding-left:5px;
-  color:
+  color:#565656;
 }
 
 .annotation-listing-creator::before {
