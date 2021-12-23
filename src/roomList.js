@@ -4,6 +4,7 @@ import * as Matrix from "matrix-js-sdk"
 import MemberPill from './memberPill.js'
 import Client from './client.js'
 import Invite from './invite.js'
+import { TagEditor, TagList }from './tagEditor.js'
 import RoomSettings from './roomSettings.js'
 import * as Icons from './icons.js'
 import { calculateUnread } from './utils/unread.js'
@@ -188,8 +189,6 @@ class PDFRoomEntry extends Component {
       .getStateEvents("m.room.avatar", "")
     this.state = {
       buttonsVisible: false,
-      memberListOpen: false,
-      detailsOpen: false,
       avatarEvent,
       avatarUrl: avatarEvent?.getContent()?.url
         ? Client.client.mxcUrlToHttp(avatarEvent.getContent().url)
@@ -218,8 +217,6 @@ class PDFRoomEntry extends Component {
 
   toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
 
-  toggleMemberList = _ => this.setState(oldState => { return { memberListOpen: !oldState.memberListOpen } })
-
   openInvite = _ => this.props.populateModal(
     <Invite populateModal={this.props.populateModal}
             roomId={this.props.room.roomId} />)
@@ -228,9 +225,7 @@ class PDFRoomEntry extends Component {
     <RoomSettings populateModal={this.props.populateModal}
                   room={this.props.room} />)
 
-  handleEditTags = _ => this.props.populateModal(
-    <TagEditor room={this.props.room} />
-  )
+  handleEditTags = _ => this.props.populateModal(<TagEditor room={this.props.room} />)
 
   toggleFavorite = _ => {
     if (this.props.room.tags["m.favourite"]) Client.client.deleteRoomTag(this.props.room.roomId, "m.favourite")
@@ -239,66 +234,81 @@ class PDFRoomEntry extends Component {
 
   handleClose = _ => Client.client.leave(this.props.room.roomId)
 
-  handleDetailsToggle = _ => this.setState({ detailsOpen: !this.state.detailsOpen })
-
   render (props, state) {
-    const members = props.room.getMembersWithMembership("join")
-    const invites = props.room.getMembersWithMembership("invite")
     const userMember = props.room.getMember(Client.client.getUserId())
     const isAdmin = userMember.powerLevel >= 100
     const canInvite = props.room.getLiveTimeline()
       .getState(Matrix.EventTimeline.FORWARDS)
       .hasSufficientPowerLevelFor("invite", userMember.powerLevel)
-    const memberIds = members.map(member => member.userId)
-    const memberPills = state.memberListOpen
-      ? members.map(member => <MemberPill key={member.userId} member={member} />)
-      : members.slice(0, props.memberLimit).map(member => <MemberPill key={member.userId} member={member} />)
-    const invitePills = invites.map(invite => <span key={invite.userId} class="invite-pill"><MemberPill member={invite} /></span>)
     const avatarInfo = state.avatarEvent?.getContent()?.info
     // using max/min here rather than setting the height directly so that the height doesn't affect the object-fit: cover of the image,
     // But so that the div is still the right size prior to image-load
     const avatarListingStyle = avatarInfo ? { "min-height": Math.min(300, avatarInfo.h), "max-height": Math.min(300, avatarInfo.h) } : null
-    const status = memberIds.includes(Client.client.getUserId())
-      ? "joined"
-      : "invited"
-    return (
-      <div data-room-status={status} class="room-listing-entry" id={props.room.roomId}>
-        {state.avatarUrl
-          ? <div style={avatarListingStyle} class="room-listing-avatar">
-            <img src={state.avatarUrl} loading="lazy" alt="room avatar" />
-          </div>
-          : null
-        }
-        <div data-room-entry-buttons-visible={state.buttonsVisible} class="room-listing-body">
-          <div class="room-listing-heading">
-            {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
-            <a href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.room.getCanonicalAlias().slice(1))}/${this.getLastViewedPage()}`}>{props.room.name}</a>
-          </div>
-          <div class="room-listing-data">
-            <TagList room={props.room} />
-            <div class="room-listing-data-row">
-              <span class="room-data-icon">{Icons.userMany}</span><Fragment>{memberPills}</Fragment><Fragment>{invitePills}</Fragment>
-              { state.memberListOpen || members.length <= props.memberLimit
-                ? null
-                : <button onclick={this.toggleMemberList}
-                    class="room-more-members">and {members.length - props.memberLimit} more.
-                </button>
-              }
-            </div>
-          </div>
-          <AnnotationData getLastViewedPage={this.getLastViewedPage} room={props.room} />
-          <div class="room-listing-entry-buttons">
-            { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
-            { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
-            { state.buttonsVisible ? <button title="Toggle favorite" onClick={this.toggleFavorite}>{Icons.star}</button> : null }
-            { state.buttonsVisible ? <button title="Leave conversation" onClick={this.handleClose}>{Icons.exit}</button> : null }
-            { state.buttonsVisible ? <button title="Edit room tags" onClick={this.handleEditTags}>{Icons.tag}</button> : null }
-            { state.buttonsVisible && canInvite ? <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button> : null }
-            { state.buttonsVisible && isAdmin ? <button title="Configure room settings" onClick={this.openSettings}>{Icons.settings}</button> : null }
-          </div>
+    return <div class="room-listing-entry" id={props.room.roomId}>
+      {state.avatarUrl
+        ? <div style={avatarListingStyle} class="room-listing-avatar">
+          <img src={state.avatarUrl} loading="lazy" alt="room avatar" />
+        </div>
+        : null
+      }
+      <div data-room-entry-buttons-visible={state.buttonsVisible} class="room-listing-body">
+        <div class="room-listing-heading">
+          {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
+          <a href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.room.getCanonicalAlias().slice(1))}/${this.getLastViewedPage()}`}>{props.room.name}</a>
+        </div>
+        <div class="room-listing-data">
+          <RoomTagListing room={props.room} />
+          <MemberListing room= {props.room} memberLimit={props.memberLimit} />
+        </div>
+        <AnnotationData getLastViewedPage={this.getLastViewedPage} room={props.room} />
+        <div class="room-listing-entry-buttons">
+          { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
+          { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
+          { state.buttonsVisible ? <button title="Toggle favorite" onClick={this.toggleFavorite}>{Icons.star}</button> : null }
+          { state.buttonsVisible ? <button title="Leave conversation" onClick={this.handleClose}>{Icons.exit}</button> : null }
+          { state.buttonsVisible ? <button title="Edit room tags" onClick={this.handleEditTags}>{Icons.tag}</button> : null }
+          { state.buttonsVisible && canInvite ? <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button> : null }
+          { state.buttonsVisible && isAdmin ? <button title="Configure room settings" onClick={this.openSettings}>{Icons.settings}</button> : null }
         </div>
       </div>
-    )
+    </div>
+  }
+}
+
+function RoomTagListing(props) {
+  const tagCount = Object.keys(props.room.tags).filter(tag => tag.slice(0, 2) === 'u.').length
+  return tagCount > 0
+    ? <div class="room-listing-data-row">
+      <span class="room-data-icon">{Icons.tag}</span>
+      <TagList room={props.room} />
+    </div>
+    : null
+}
+
+class MemberListing extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { open: false }
+  }
+
+  toggleMemberList = _ => this.setState(oldState => { return { open: !oldState.open} })
+
+  render(props, state) {
+    const members = props.room.getMembersWithMembership("join")
+    const invites = props.room.getMembersWithMembership("invite")
+    const memberPills = state.open
+      ? members.map(member => <MemberPill key={member.userId} member={member} />)
+      : members.slice(0, props.memberLimit).map(member => <MemberPill key={member.userId} member={member} />)
+    const invitePills = invites.map(invite => <span key={invite.userId} class="invite-pill"><MemberPill member={invite} /></span>)
+    return <div class="room-listing-data-row">
+      <span class="room-data-icon">{Icons.userMany}</span><Fragment>{memberPills}</Fragment><Fragment>{invitePills}</Fragment>
+      { members.length <= props.memberLimit
+        ? null
+        : state.open
+          ? <button onclick={this.toggleMemberList} class="room-toggle-members">{Icons.close}</button>
+          : <button onclick={this.toggleMemberList} class="room-toggle-members">and {members.length - props.memberLimit} more.</button>
+      }
+    </div>
   }
 }
 
@@ -383,78 +393,6 @@ class AnnotationData extends Component {
       </span>
     </div>
   }
-}
-
-function TagList(props) {
-  const roomTags = Object.keys(props.room.tags)
-    .filter(tag => tag.slice(0, 2) === 'u.')
-    .map(tag => <Tag key={`${props.room.roomId}"-tag-"${props.tag}`} room={props.room} tag={tag} />)
-  return roomTags.length > 0
-    ? <div class="room-listing-data-row">
-      <span class="room-data-icon">{Icons.tag}</span><Fragment>{roomTags}</Fragment>
-    </div>
-    : null
-}
-
-class TagEditor extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      newTag: "",
-      tags: Object.keys(props.room.tags)
-    }
-    this.accountListener = this.accountListener.bind(this)
-  }
-
-  componentDidMount () {
-    Client.client.on("Room.accountData", this.accountListener)
-  }
-
-  componentWillUnmount () {
-    Client.client.off("Room.accountData", this.accountListener)
-  }
-
-  accountListener () {
-    this.setState({tags: Object.keys(this.props.room.tags)})
-  }
-
-  newTagInput = createRef()
-
-  handleBlur = _ => this.setState({newTag: ""})
-
-  handleKeyup = e => {
-    if (e.key === "Enter") {
-      Client.client.setRoomTag(this.props.room.roomId, `u.${this.newTagInput.current.value}`, {order: 0.5})
-      this.setState({newTag: ""})
-    } else this.setState({newTag: this.newTagInput.current.value})
-  }
-
-  handleClick = name => _ => {
-    Client.client.deleteRoomTag(this.props.room.roomId, name)
-  }
-
-  render(props, state) {
-    const roomTags = state.tags
-      .filter(tag => tag.slice(0, 2) === 'u.')
-      .map(tag => <Fragment key={`${props.room.roomId}"-tag-"${tag}`}>
-        <span onclick={this.handleClick(tag)}
-          class="room-tag-delete-icon">{Icons.trash}</span>
-        <Tag room={props.room} tag={tag} />
-      </Fragment>)
-    return <div class="tag-editor">
-        <Fragment>{roomTags}</Fragment>
-        <input ref={this.newTagInput}
-          class="styled-input tag-input"
-          value={state.newTag}
-          onkeyup={this.handleKeyup}
-          onblur={this.handleBlur}
-          placeholder="new tag" />
-      </div>
-  }
-}
-
-function Tag(props) {
-  return <span class="room-tag">{props.tag.slice(2)}</span>
 }
 
 class InviteEntry extends Component {

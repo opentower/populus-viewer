@@ -1,0 +1,31 @@
+.tag-input {
+  width:55px;
+}
+
+.tag-input:focus {
+  width:120px;
+}
+
+.tag-editor {
+    display: flex;
+    padding-bottom:5px;
+    flex-wrap:wrap;
+    align-items: center;
+}
+
+.room-tag {
+  padding-right:5px;
+}
+
+.room-tag::after {
+  content:',';
+}
+
+.room-tag:last-child::after {
+  content:'';
+}
+
+.room-tag-delete-icon svg {
+  height:15px;
+  cursor: pointer;
+}
