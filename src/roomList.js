@@ -243,14 +243,14 @@ class PDFRoomEntry extends Component {
     const avatarInfo = state.avatarEvent?.getContent()?.info
     // using max/min here rather than setting the height directly so that the height doesn't affect the object-fit: cover of the image,
     // But so that the div is still the right size prior to image-load
-    const avatarListingStyle = avatarInfo ? { "min-height": Math.min(300, avatarInfo.h), "max-height": Math.min(300, avatarInfo.h) } : null
+    const avatarListingStyle = avatarInfo 
+      ? { "min-height": Math.min(300, avatarInfo.h), "max-height": Math.min(300, avatarInfo.h) } 
+      : null
     return <div class="room-listing-entry" id={props.room.roomId}>
-      {state.avatarUrl
-        ? <div style={avatarListingStyle} class="room-listing-avatar">
-          <img src={state.avatarUrl} loading="lazy" alt="room avatar" />
+        <div style={avatarListingStyle} class="room-listing-avatar">
+          {state.avatarUrl ? <img src={state.avatarUrl} loading="lazy" alt="room avatar" /> : null}
+          <AnnotationData absolute={!!state.avatarUrl} getLastViewedPage={this.getLastViewedPage} room={props.room} />
         </div>
-        : null
-      }
       <div data-room-entry-buttons-visible={state.buttonsVisible} class="room-listing-body">
         <div class="room-listing-heading">
           {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
@@ -260,7 +260,6 @@ class PDFRoomEntry extends Component {
           <RoomTagListing room={props.room} />
           <MemberListing room= {props.room} memberLimit={props.memberLimit} />
         </div>
-        <AnnotationData getLastViewedPage={this.getLastViewedPage} room={props.room} />
         <div class="room-listing-entry-buttons">
           { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
           { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
@@ -384,13 +383,16 @@ class AnnotationData extends Component {
 
   getUnreadCount = _ => this.state.annotationContents.filter(content => content.unread).length
 
-  render() {
+  render(props) {
     const unread = this.getUnreadCount()
-    return <div class="room-annotation-data">
-      <span title="Unread conversations" onClick={this.handleLoadNew}>
-        <button class="small-icon">{Icons.annotation}</button>
-        {unread > 0 ? <span class="small-icon-badge">{unread}</span> : null}
-      </span>
+    return <div class="room-annotation-data" data-annotation-data-pos={props.absolute ? "absolute" : "relative"}>
+      {unread < 1
+        ? null
+        : <span title="Unread conversations" onClick={this.handleLoadNew}>
+          <button class="small-icon">{Icons.annotation}</button>
+          <span class="small-icon-badge">{unread}</span>
+        </span>
+      }
     </div>
   }
 }
