@@ -268,7 +268,10 @@ class RedactedMessage extends Component {
 function Anchor(props) {
   return props.fullyScrolled
     ? <div>
-      <div id="anchor-quote">{props.topic}</div>
+      <div id="anchor-quote">
+        <span>{Icons.quote}</span>
+        {props.topic}
+      </div>
       { props.focus.type === "pindrop"
         ? <div id="anchor-pin">
             {Icons.pin} <span>on page {props.focus.pageNumber}</span>

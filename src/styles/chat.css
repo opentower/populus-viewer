@@ -19,6 +19,12 @@
   margin-top:30px;
 }
 
+#anchor-quote svg {
+  padding-right: .25em;
+  height: 1em;
+  color:#565656;
+}
+
 #anchor-pin {
   padding:5px;
   display:flex;
