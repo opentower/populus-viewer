@@ -6,7 +6,7 @@ import { processLinks } from './links.js'
 import { eventVersion, spaceChild } from "./constants.js"
 import Client from './client.js'
 import MemberPill from './memberPill.js'
-import UserColor from './userColors.js'
+import { UserColor } from './utils/colors.js'
 import SearchBar from './search.js'
 import { DisplayContent } from './message.js'
 import * as Icons from './icons.js'

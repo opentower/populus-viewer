@@ -6,6 +6,7 @@ import Client from './client.js'
 import Invite from './invite.js'
 import { TagEditor, TagList }from './tagEditor.js'
 import RoomSettings from './roomSettings.js'
+import { RoomColor } from './utils/colors.js'
 import * as Icons from './icons.js'
 import { calculateUnread } from './utils/unread.js'
 import History from './history.js'
@@ -215,6 +216,8 @@ class PDFRoomEntry extends Component {
     ? this.props.room.getAccountData(lastViewed).getContent().page
     : 1
 
+  roomColor = new RoomColor(this.props.room.roomId)
+
   toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
 
   openInvite = _ => this.props.populateModal(
@@ -243,13 +246,13 @@ class PDFRoomEntry extends Component {
     const avatarInfo = state.avatarEvent?.getContent()?.info
     // using max/min here rather than setting the height directly so that the height doesn't affect the object-fit: cover of the image,
     // But so that the div is still the right size prior to image-load
-    const avatarListingStyle = avatarInfo 
-      ? { "min-height": Math.min(300, avatarInfo.h), "max-height": Math.min(300, avatarInfo.h) } 
+    const avatarListingStyle = avatarInfo
+      ? { "min-height": Math.min(300, avatarInfo.h), "max-height": Math.min(300, avatarInfo.h) }
       : null
-    return <div class="room-listing-entry" id={props.room.roomId}>
-        <div style={avatarListingStyle} class="room-listing-avatar">
+    return <div style={this.roomColor.styleVariables} class="room-listing-entry" id={props.room.roomId}>
+        <div style={avatarListingStyle} data-has-avatar={!!state.avatarUrl} class="room-listing-avatar">
           {state.avatarUrl ? <img src={state.avatarUrl} loading="lazy" alt="room avatar" /> : null}
-          <AnnotationData absolute={!!state.avatarUrl} getLastViewedPage={this.getLastViewedPage} room={props.room} />
+          <AnnotationData getLastViewedPage={this.getLastViewedPage} room={props.room} />
         </div>
       <div data-room-entry-buttons-visible={state.buttonsVisible} class="room-listing-body">
         <div class="room-listing-heading">
@@ -383,9 +386,9 @@ class AnnotationData extends Component {
 
   getUnreadCount = _ => this.state.annotationContents.filter(content => content.unread).length
 
-  render(props) {
+  render() {
     const unread = this.getUnreadCount()
-    return <div class="room-annotation-data" data-annotation-data-pos={props.absolute ? "absolute" : "relative"}>
+    return <div class="room-annotation-data">
       {unread < 1
         ? null
         : <span title="Unread conversations" onClick={this.handleLoadNew}>

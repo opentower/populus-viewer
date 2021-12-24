@@ -1,6 +1,6 @@
 import { h, Component, createRef } from 'preact';
 import * as Matrix from "matrix-js-sdk"
-import UserColor from './userColors.js'
+import { UserColor } from './utils/colors.js'
 import { TextMessage } from './message.js'
 import { spaceParent, spaceChild, eventVersion } from "./constants.js"
 import { isUnread } from './utils/unread.js'

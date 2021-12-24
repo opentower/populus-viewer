@@ -4,7 +4,7 @@ import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
 import { spaceChild, eventVersion } from "./constants.js"
 import { processRegex } from './processRegex.js'
-import UserColor from './userColors.js'
+import { UserColor } from './utils/colors.js'
 import Client from './client.js'
 import AudioVisualizer from './audioVisualizer.js'
 import * as PopupMenu from './popUpMenu.js'

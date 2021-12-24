@@ -1,5 +1,5 @@
 import { h, Fragment } from 'preact';
-import UserColor from './userColors.js'
+import { UserColor } from './utils/colors.js'
 import './styles/memberPill.css'
 
 export default function MemberPill(props) {

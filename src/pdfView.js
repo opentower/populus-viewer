@@ -18,7 +18,7 @@ import SyncIndicator from './syncIndicator.js'
 import Modal from "./modal.js"
 import Toast from "./toast.js"
 import * as Icons from "./icons.js"
-import UserColor from "./userColors.js"
+import { UserColor } from "./utils/colors.js"
 
 export default class PdfView extends Component {
   constructor(props) {

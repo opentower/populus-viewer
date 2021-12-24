@@ -2,7 +2,7 @@ import { h, createRef, Component } from 'preact';
 import * as Icons from './icons.js';
 import * as Matrix from "matrix-js-sdk"
 import SearchBar from './search.js'
-import UserColor from "./userColors.js"
+import { UserColor } from "./utils/colors.js"
 import './styles/navbar.css';
 import { spaceChild, eventVersion } from "./constants.js"
 import History from './history.js'

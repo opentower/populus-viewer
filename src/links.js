@@ -1,6 +1,6 @@
 import History from './history.js'
 import Client from './client.js'
-import UserColor from './userColors.js'
+import { UserColor } from './utils/colors.js'
 
 export function processLinks(elt) {
   if (elt) {

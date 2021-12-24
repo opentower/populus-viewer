@@ -1,6 +1,6 @@
 import { h, Component } from 'preact';
 import Client from './client.js'
-import UserColor from './userColors.js'
+import { UserColor } from './utils/colors.js'
 
 export default class UserInfoHeader extends Component {
     displayName = Client.client.getUser(this.props.userId).displayName

@@ -1,6 +1,6 @@
 import { h, Component } from 'preact';
 import Client from './client.js'
-import UserColor from './userColors.js'
+import { UserColor } from './utils/colors.js'
 import { Database } from 'emoji-picker-element'
 import './styles/popUpMenu.css'
 

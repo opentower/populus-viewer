@@ -35,6 +35,10 @@
   position:relative;
 }
 
+.room-listing-avatar:not([data-has-avatar]) {
+  background:#454545;
+}
+
 .room-listing-avatar > img:first-child {
   object-fit:cover;
   max-width:100%;
@@ -147,18 +151,18 @@
     cursor: pointer;
 }
 
-.room-annotation-data[data-annotation-data-pos="relative"] {
+.room-listing-avatar:not([data-has-avatar]) .room-annotation-data {
   position:relative;
   width:100%;
 }
 
-.room-annotation-data[data-annotation-data-pos="absolute"] {
+.room-listing-avatar[data-has-avatar] .room-annotation-data {
   position:absolute;
-  top:10px;
-  left:10px;
+  left:0px;
+  top:0px;
 }
 
-.room-annotation-data[data-annotation-data-pos="relative"] > span{
+.room-annotation-data > span{
   margin:10px;
 }
 

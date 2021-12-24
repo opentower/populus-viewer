@@ -1,5 +1,5 @@
 import { h, Fragment, Component } from 'preact';
-import UserColor from './userColors.js'
+import { UserColor } from './utils/colors.js'
 import PdfUpload from './pdfUpload.js'
 import RoomList from './roomList.js'
 import Client from './client.js'

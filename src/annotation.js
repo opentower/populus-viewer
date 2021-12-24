@@ -2,7 +2,7 @@ import { h, createRef, Component } from 'preact';
 import * as Layout from "./layout.js"
 import * as Matrix from "matrix-js-sdk"
 import { eventVersion, spaceChild } from "./constants.js"
-import UserColor from "./userColors.js"
+import { UserColor } from "./utils/colors.js"
 import Client from './client.js'
 import './styles/annotation-layer.css'
 import * as Icons from './icons.js'

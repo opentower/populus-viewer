@@ -3,7 +3,7 @@ import './styles/chat.css'
 import * as Matrix from "matrix-js-sdk"
 import { TextMessage, NoticeMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } from './message.js'
 import MessagePanel from './messagePanel.js'
-import UserColor from './userColors.js'
+import { UserColor } from './utils/colors.js'
 import UserInfoHeader from './userInfoHeader.js'
 import Client from './client.js'
 import * as Icons from './icons.js'
