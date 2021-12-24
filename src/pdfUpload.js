@@ -1,6 +1,6 @@
 import { h, createRef, Component } from 'preact';
 import './styles/pdfUpload.css'
-import { roomType, pdfStateType, spaceType, spaceChild } from "./constants.js"
+import { resourceData, spaceChild } from "./constants.js"
 import Client from './client.js'
 
 export default class PdfUpload extends Component {
@@ -73,7 +73,15 @@ export default class PdfUpload extends Component {
       topic: theTopic,
       // We declare the room a space
       creation_content: {
-        [roomType]: spaceType
+        type: "m.space",
+        [resourceData]: {
+          "m.file": {
+            url: mxc,
+            name: theFile.name,
+            mimetype: "application/pdf",
+            size: theFile.size
+          }
+        }
       },
       initial_state: [
         // we allow anyone to join, by default, for now
@@ -81,12 +89,6 @@ export default class PdfUpload extends Component {
           type: "m.room.join_rules",
           state_key: "",
           content: {join_rule: "public"}
-        },
-        // we set the initial PDF
-        {
-          type: pdfStateType,
-          state_key: "",
-          content: { mxc }
         }
       ],
       power_level_content_override: {

@@ -3,10 +3,9 @@ export const pdfStateType = "com.open-tower.populus.pdf" // increment to start o
 export const lastViewed = "com.open-tower.populus.lastPageViewed"
 export const serverRoot = `https://populus.open-tower.com`
 export const spaceChild = "m.space.child"
-export const joinRule = "m.room.join_rules"
 export const spaceParent = "m.space.parent"
-export const roomType = "type"
-export const spaceType = "m.space"
+export const joinRule = "m.room.join_rules"
+export const resourceData = "com.open-tower.msc3574.markup.resource"
 
 // based on https://github.com/matrix-org/matrix-react-sdk/blob/78b1f6c0b13efd57031a329a1ac62baba948dad3/src/HtmlUtils.tsx
 const COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;

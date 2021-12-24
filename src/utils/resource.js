@@ -1,22 +1,20 @@
 import * as Matrix from "matrix-js-sdk"
 import Client from '../client.js'
-import { pdfStateType } from "../constants.js"
+import { pdfStateType, resourceData } from "../constants.js"
 
 export default class Resource {
   constructor(theRoom) {
-    this.room = theRoom
+    const roomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const legacyMxc = roomState.getStateEvents(pdfStateType, "")?.getContent()?.mxc
 
-    this.legacyMxc = this.room
-      .getLiveTimeline()
-      .getState(Matrix.EventTimeline.FORWARDS)
-      .getStateEvents(pdfStateType, "")
-      ?.getContent()?.mxc
+    const resourceContent = roomState.getStateEvents("m.room.create", "").getContent()?.[resourceData]
 
-    this.url = this.legacyMxc
-    this.schema = this.url.match(/^\w*/)[0]
+    this.file = resourceContent?.["m.file"]
+
+    this.mimetype = resourceContent?.mimetype || this.file?.mimetype || "application/pdf"
+    this.url = resourceContent?.url || this.file?.url || legacyMxc
+    this.schema = this.url?.match(/^\w*/)[0]
   }
-
-  mimetype = "application/pdf"
 
   get httpUrl() {
     if (this.schema === "mxc") return Client.client.getHttpUriForMxcFromHS(this.url)

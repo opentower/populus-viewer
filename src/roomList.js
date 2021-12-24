@@ -1,5 +1,6 @@
 import { h, Fragment, Component, createRef } from 'preact';
-import { pdfStateType, eventVersion, spaceChild, lastViewed } from "./constants.js"
+import { eventVersion, spaceChild, lastViewed } from "./constants.js"
+import Resource from "./utils/resource.js"
 import * as Matrix from "matrix-js-sdk"
 import MemberPill from './memberPill.js'
 import Client from './client.js'
@@ -131,17 +132,16 @@ export default class RoomList extends Component {
   sortRooms = rooms => {
     return rooms.sort(this.getSortFunc())
       .map(room => {
-        const pdfEvent = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(pdfStateType, "")
+        const resource = new Resource(room)
         let result = null
         switch (room.getMyMembership()) {
           case "join" : {
-            if (pdfEvent) {
+            if (resource.url) {
               result = <PDFRoomEntry
                 memberLimit={this.state.memberLimit}
                 populateModal={this.props.populateModal}
                 room={room}
-                key={room.roomId}
-                pdfevent={pdfEvent} />
+                key={room.roomId} />
             }
             break
           }
