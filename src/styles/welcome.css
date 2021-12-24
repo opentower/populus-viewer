@@ -22,12 +22,28 @@
 #welcome-upload, #welcome-notifications {
     padding-right:0px;
     margin-right:15px; 
-    flex-shrink:0;
 }
 
 #welcome-notifications > svg, #welcome-upload > svg {
     cursor: pointer;
     vertical-align:top;
+    margin-bottom:5px;
+}
+
+#welcome-notifications, 
+#welcome-upload, 
+#welcome-profile {
+  flex-shrink: 0;
+  position:relative;
+  top: 2px;
+  border-bottom: 2px solid white;
+  transition: border .25s ease;
+}
+
+#welcome-notifications[data-welcome-active], 
+#welcome-upload[data-welcome-active], 
+#welcome-profile[data-welcome-active] {
+  border-bottom: 2px solid black;
 }
 
 #welcome-profile {
@@ -35,7 +51,6 @@
     width: 26px;
     height: 26px;
     margin-right: 13px; 
-    flex-shrink: 0;
     overflow: hidden;
 }
 

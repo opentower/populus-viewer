@@ -94,9 +94,9 @@ export default class WelcomeView extends Component {
               setSearch={this.setSearch}
               setFocus={this.setFocus} />
             { !state.inputFocus && <Fragment>
-              <div id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</div>
-              <WelcomeIcon toggleNotifVisible={this.toggleNotifVisible} />
-              <div id="welcome-profile" onClick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
+              <div data-welcome-active={state.view === "UPLOAD"} id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</div>
+              <WelcomeIcon welcomeActive={state.view === "NOTIF"} toggleNotifVisible={this.toggleNotifVisible} />
+              <div data-welcome-active={state.view === "PROFILE"} id="welcome-profile" onClick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
                 {state.avatarUrl
                   ? <img id="welcome-img" src={state.avatarUrl} />
                   : <div id="welcome-initial">{this.displayInitial()}</div>
@@ -156,7 +156,7 @@ class WelcomeIcon extends Component {
   }
 
   render(props, state) {
-    return <div id="welcome-notifications" onClick={props.toggleNotifVisible}>
+    return <div data-welcome-active={props.welcomeActive} id="welcome-notifications" onClick={props.toggleNotifVisible}>
         {Icons.bell}
         {state.unread > 0 ? <span class="small-icon-badge">{state.unread}</span> : null}
     </div>
