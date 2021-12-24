@@ -69,11 +69,15 @@ div#profileSelector {
     margin-right:10px;
 }
 
-#profileInformationFormProgress{
-    text-align:right;
-    grid-column: 2 / 3 ;
+#profileInformationFormProgress {
+    grid-column: 1 / 3 ;
+    padding-top: 10px;
     animation: pulse-opacity 2s infinite; 
     animation-timing-function:ease;
+}
+
+#profileInformationFormProgress > progress {
+  width: 100%
 }
 
 #profileInformationFormHidden {

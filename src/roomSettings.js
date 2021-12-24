@@ -60,7 +60,7 @@ export default class RoomSettings extends Component {
     this.setState({ visibility: e.target.value })
   }
 
-  raiseErr = _ => alert("Something went wrong. You may not have permission to adjust some of these settings.")
+  progressHandler = (progress) => this.setState({progress})
 
   handleSubmit = async e => {
     e.preventDefault()
@@ -87,6 +87,8 @@ export default class RoomSettings extends Component {
     }
     this.props.populateModal(null)
   }
+
+  raiseErr = _ => alert("Something went wrong. You may not have permission to adjust some of these settings.")
 
   updatePreview = _ => {
     const theImage = this.avatarImageInput.current.files[0]
@@ -153,8 +155,8 @@ export default class RoomSettings extends Component {
           <label htmlFor="room-avatar">Room Avatar</label>
           {state.previewUrl
             ? <img onclick={this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
-            : <div key="roomAvatarSelector" onclick={this.uploadAvatar} id="room-settings-avatar-selector" />}
-          <input name="room-avatar" id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
+            : <div key="room-settings-avatar-selector" onclick={this.uploadAvatar} id="room-settings-avatar-selector" />}
+          <input name="room-avatar" id="room-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
           <div id="room-settings-avatar-info" />
           <label htmlFor="room-name">Room Name</label>
           <input name="room-name"
@@ -191,6 +193,12 @@ export default class RoomSettings extends Component {
             <button className="styled-button" onClick={this.cancel} >Cancel</button>
             {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
           </div>
+          {this.state.progress
+            ? <div id="room-settings-progress">
+              <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
+            </div>
+            : null
+          }
         </form>
       </Fragment>
     }
