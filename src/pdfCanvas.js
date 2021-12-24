@@ -1,9 +1,8 @@
 import { h, createRef, Fragment, Component } from 'preact';
 import './styles/pdfView.css'
 import * as PDFJS from "pdfjs-dist/webpack"
-import * as Matrix from "matrix-js-sdk"
 import Client from './client.js'
-import { pdfStateType } from "./constants.js"
+import Resource from "./utils/resource.js"
 import './styles/text-layer.css'
 
 export default class PdfCanvas extends Component {
@@ -55,12 +54,10 @@ export default class PdfCanvas extends Component {
     await Client.client.joinRoom(theId.room_id)
     this.props.setId(theId.room_id)
     const theRoom = await Client.client.getRoomWithState(theId.room_id)
-    const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const pdfIdentifier = theRoomState.getStateEvents(pdfStateType, "").getContent().mxc
-    const pdfPath = Client.client.getHttpUriForMxcFromHS(pdfIdentifier)
-    this.setState({pdfIdentifier})
-    if (!PdfCanvas.PDFStore[pdfIdentifier]) {
-      await window.fetch(pdfPath)
+    const thePdf = new Resource(theRoom)
+    this.setState({pdfIdentifier: thePdf.url})
+    if (!PdfCanvas.PDFStore[thePdf.url]) {
+      await window.fetch(thePdf.httpUrl)
         .then(async response => {
           const theClone = response.clone()
           const contentLength = +response.headers.get('Content-Length')
@@ -75,13 +72,13 @@ export default class PdfCanvas extends Component {
           return theClone.arrayBuffer()
         })
         .then(array => {
-          PdfCanvas.PDFStore[pdfIdentifier] = PDFJS.getDocument(array).promise
+          PdfCanvas.PDFStore[thePdf.url] = PDFJS.getDocument(array).promise
         })
     } else { console.log(`found pdf for ${theRoom.name} in store` ) }
-    PdfCanvas.PDFStore[pdfIdentifier]
+    PdfCanvas.PDFStore[thePdf.url]
       .then(pdf => this.props.setTotalPages(pdf.numPages))
       .then(this.resolveFetch)
-      .then(this.gatherText(pdfIdentifier))
+      .then(this.gatherText(thePdf.url))
   }
 
   async gatherText(pdfIdentifier) {
