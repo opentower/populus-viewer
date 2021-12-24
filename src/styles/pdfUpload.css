@@ -54,6 +54,7 @@
     .pdfupload-form-detail,
     #pdfUploadForm > input, 
     #pdfUploadForm > textarea { 
-        grid-column: 1 / 2 
+        grid-column: 1 / 2;
+        min-width: 0px; /* helps prevent overflow on very narrow viewports */
     }
 } 
