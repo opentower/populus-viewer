@@ -2,7 +2,7 @@ import * as Icons from "./icons.js"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
-import { spaceChild, eventVersion } from "./constants.js"
+import { spaceChild, mscLocation, eventVersion} from "./constants.js"
 import { processRegex } from './processRegex.js'
 import { UserColor } from './utils/colors.js'
 import Client from './client.js'
@@ -27,7 +27,7 @@ export default class MessagePanel extends Component {
     const theProps = {
       ref: this.theInput,
       submit: this.submitCurrentInput,
-      focus: this.props.focus,
+      roomId: this.props.focus.getRoomId(),
       handlePending: this.openPendingAnnotation,
       done: this.setModeDefault
     }
@@ -68,7 +68,7 @@ export default class MessagePanel extends Component {
 
   openPendingAnnotation = (theContent, eventInterface) => {
     const theDomain = Client.client.getDomain()
-    if (this.props.focus.activityStatus === "pending") {
+    if (this.props.focus.location.activityStatus === "pending") {
       const diff = {
         activityStatus: "open",
         rootEventId: eventInterface.event_id,
@@ -76,17 +76,18 @@ export default class MessagePanel extends Component {
       }
       const childContent = {
         via: [theDomain],
-        [eventVersion]: Object.assign(this.props.focus, diff)
+        [mscLocation]: {
+          [eventVersion]: Object.assign(this.props.focus.location, diff)
+        }
       }
-      console.log(childContent)
       Client.client
-        .sendStateEvent(this.props.pdfId, spaceChild, childContent, this.props.focus.roomId)
+        .sendStateEvent(this.props.pdfId, spaceChild, childContent, this.props.focus.getRoomId())
         .catch(e => alert(e))
     }
   }
 
   openSettings = _ => {
-    const theRoom = Client.client.getRoom(this.props.focus.roomId)
+    const theRoom = Client.client.getRoom(this.props.focus.getRoomId())
     this.props.populateModal(
       <RoomSettings
         populateModal={this.props.populateModal}
@@ -95,7 +96,7 @@ export default class MessagePanel extends Component {
   }
 
   render(props, state) {
-    const theRoom = Client.client.getRoom(props.focus.roomId)
+    const theRoom = Client.client.getRoom(props.focus.getRoomId())
     const userMember = theRoom?.getMember(Client.client.getUserId())
     const isAdmin = userMember ? userMember.powerLevel >= 100 : false
     return <div style={this.userColor.styleVariables} id="messageComposer">
@@ -146,7 +147,7 @@ class FileUploadInput extends Component {
       msgtype: "m.file",
       url: mxc
     }
-    const eventI = await Client.client.sendMessage(this.props.focus.roomId, theContent)
+    const eventI = await Client.client.sendMessage(this.props.roomId, theContent)
     this.props.handlePending(theContent, eventI)
     this.props.done()
   }
@@ -228,7 +229,7 @@ class MediaUploadInput extends Component {
       url: videoMxc
     }
     if (duration < Infinity) theContent.duration = duration
-    const eventI = await Client.client.sendMessage(this.props.focus.roomId, theContent)
+    const eventI = await Client.client.sendMessage(this.props.roomId, theContent)
     this.props.handlePending(theContent, eventI)
   }
 
@@ -257,7 +258,7 @@ class MediaUploadInput extends Component {
       msgtype: "m.image",
       url: imageMxc
     }
-    const eventI = await Client.client.sendMessage(this.props.focus.roomId, theContent)
+    const eventI = await Client.client.sendMessage(this.props.roomId, theContent)
     this.props.handlePending(theContent, eventI)
   }
 
@@ -293,7 +294,7 @@ class TextMessageInput extends Component {
 
   startTyping = _ => {
     // send a "typing" notification with a 30 second timeout
-    Client.client.sendTyping(this.props.focus.roomId, true, 30000)
+    Client.client.sendTyping(this.props.roomId, true, 30000)
     // lock sending further typing notifications
     this.typingLock = true
     // Release lock (to allow sending another typing notification) after 10 seconds
@@ -306,7 +307,7 @@ class TextMessageInput extends Component {
     clearTimeout(this.resetLockTimeout)
     clearTimeout(this.typingTimeout)
     // send a "not typing" notification
-    Client.client.sendTyping(this.props.focus.roomId, false)
+    Client.client.sendTyping(this.props.roomId, false)
   }
 
   handleInput = (event) => {
@@ -332,7 +333,7 @@ class TextMessageInput extends Component {
   }
 
   submitInput = _ => {
-    if (this.props.focus.roomId) {
+    if (this.props.roomId) {
       this.stopTyping()
       // don't send empty messages
       if (!this.state.value.replace(/\s/g, '').length) return
@@ -345,7 +346,7 @@ class TextMessageInput extends Component {
         format: "org.matrix.custom.html",
         formatted_body: rendered
       }
-      Client.client.sendMessage(this.props.focus.roomId, theContent).then(eventI => {
+      Client.client.sendMessage(this.props.roomId, theContent).then(eventI => {
         this.props.handlePending(theContent, eventI)
       })
       this.currentInput.current.style.height = null
@@ -354,7 +355,7 @@ class TextMessageInput extends Component {
   }
 
   popupActions = {
-    "@": props => <PopupMenu.Members roomId={this.props.focus.roomId} {...props} />,
+    "@": props => <PopupMenu.Members roomId={this.props.roomId} {...props} />,
     ":": props => <PopupMenu.Emojis {...props} />
   }
 
@@ -496,7 +497,7 @@ class RecordVideoInput extends RecordMediaInput {
         url: videoMxc
       }
       if (duration < Infinity) theContent.info.duration = duration
-      const eventI = await Client.client.sendMessage(this.props.focus.roomId, theContent)
+      const eventI = await Client.client.sendMessage(this.props.roomId, theContent)
       this.props.handlePending(theContent, eventI)
       this.props.done()
     } else alert("Before submitting, you need to record something.")
@@ -549,7 +550,7 @@ class RecordAudioInput extends RecordMediaInput {
         url: audioMxc
       }
       if (duration < Infinity) theContent.info.duration = duration
-      const eventI = await Client.client.sendMessage(this.props.focus.roomId, theContent)
+      const eventI = await Client.client.sendMessage(this.props.roomId, theContent)
       this.props.handlePending(theContent, eventI)
       this.props.done()
     } else alert("Before submitting, you need to record something")

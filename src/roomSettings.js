@@ -2,7 +2,8 @@ import { h, Component, createRef, Fragment } from 'preact';
 import Client from './client.js'
 import * as Matrix from "matrix-js-sdk"
 import { loadImageElement } from "./utils/media.js"
-import { eventVersion, joinRule, spaceParent, spaceChild } from './constants.js';
+import Location from './utils/location.js'
+import { mscLocation, eventVersion, joinRule, spaceParent, spaceChild } from './constants.js';
 import "./styles/roomSettings.css"
 
 export default class RoomSettings extends Component {
@@ -24,7 +25,7 @@ export default class RoomSettings extends Component {
   componentDidMount () {
     this.initialize()
   }
-  
+
   avatarImageInput = createRef()
 
   async initialize() {
@@ -107,13 +108,15 @@ export default class RoomSettings extends Component {
   publishReferences() {
     const theDomain = Client.client.getDomain()
     this.state.references.forEach(reference => {
-      const theContent = reference.getContent()
-      if (!theContent[eventVersion]) return
-      if (!theContent[eventVersion].private) return
-      delete theContent[eventVersion].private
+      const theLocation = new Location(reference)
+      if (!theLocation.location) return
+      if (!theLocation.location.private) return
+      delete theLocation.location.private
       const childContent = {
         via: [theDomain],
-        [eventVersion]: theContent[eventVersion]
+        [mscLocation]: {
+          [eventVersion]: location.location
+        }
       }
       Client.client
         .sendStateEvent(reference.getRoomId(), spaceChild, childContent, this.props.room.roomId)
@@ -124,13 +127,15 @@ export default class RoomSettings extends Component {
   hideReferences() {
     const theDomain = Client.client.getDomain()
     this.state.references.forEach(reference => {
-      const theContent = reference.getContent()
-      if (!theContent[eventVersion]) return
-      if (theContent[eventVersion].private) return
-      theContent[eventVersion].private = true
+      const theLocation = new Location(reference)
+      if (!theLocation.location) return
+      if (theLocation.location.private) return
+      theLocation.location.private = true
       const childContent = {
         via: [theDomain],
-        [eventVersion]: theContent[eventVersion]
+        [mscLocation]: {
+          [eventVersion]: location.location
+        }
       }
       Client.client
         .sendStateEvent(reference.getRoomId(), spaceChild, childContent, this.props.room.roomId)

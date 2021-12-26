@@ -2,9 +2,10 @@ import { h, createRef, Component } from 'preact';
 import * as Icons from './icons.js';
 import * as Matrix from "matrix-js-sdk"
 import SearchBar from './search.js'
+import Location from "./utils/location.js"
 import { UserColor } from "./utils/colors.js"
 import './styles/navbar.css';
-import { spaceChild, eventVersion } from "./constants.js"
+import { spaceChild } from "./constants.js"
 import History from './history.js'
 import Client from './client.js'
 import Invite from './invite.js'
@@ -143,14 +144,13 @@ class Pages extends Component {
   }
 
   handleTypingNotification = (ev, member) => {
-    console.log(ev)
-    console.log(member)
     const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
     // We use nested state here because we want to pass this part of the state to a child
     if (theChildRelation) {
       this.setState(prevState => {
-        const typingKey = theChildRelation.getContent()[eventVersion].pageNumber
+        const location = new Location(theChildRelation)
+        const typingKey = location.location
         return {typing: { ...prevState.typing, [typingKey]: ev.getContent().user_ids}}
       })
     }

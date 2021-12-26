@@ -1,6 +1,6 @@
 import { h, createRef, Component } from 'preact';
 import './styles/pdfUpload.css'
-import { resourceData, spaceChild } from "./constants.js"
+import { mscResourceData, spaceChild } from "./constants.js"
 import Client from './client.js'
 
 export default class PdfUpload extends Component {
@@ -74,7 +74,7 @@ export default class PdfUpload extends Component {
       // We declare the room a space
       creation_content: {
         type: "m.space",
-        [resourceData]: {
+        [mscResourceData]: {
           "m.file": {
             url: mxc,
             name: theFile.name,

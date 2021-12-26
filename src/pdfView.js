@@ -12,8 +12,9 @@ import PdfCanvas from "./pdfCanvas.js"
 import History from './history.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
-import { eventVersion, spaceChild, spaceParent, lastViewed } from "./constants.js"
+import { mscLocation, eventVersion, spaceChild, spaceParent, lastViewed } from "./constants.js"
 import { calculateUnread } from './utils/unread.js'
+import Location from './utils/location.js'
 import SyncIndicator from './syncIndicator.js'
 import Modal from "./modal.js"
 import Toast from "./toast.js"
@@ -213,25 +214,33 @@ export default class PdfView extends Component {
         // set child event in pdfRoom State
         const childContent = {
           via: [theDomain],
-          [eventVersion]: {
-            pageNumber: parseInt(this.props.pageFocused, 10),
-            activityStatus: "pending",
-            type: "pindrop",
-            x: theX,
-            y: theY,
-            icon: "map-pin",
-            roomId: roominfo.room_id,
-            creator: Client.client.getUserId()
+          [mscLocation]: {
+            [eventVersion]: {
+              pageNumber: parseInt(this.props.pageFocused, 10),
+              activityStatus: "pending",
+              type: "pindrop",
+              x: theX,
+              y: theY,
+              icon: "map-pin",
+              creator: Client.client.getUserId()
+            }
           }
         }
-        Client.client
-          .sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
-          .catch(e => alert(e))
-        this.setFocus(childContent[eventVersion])
+        const fakeEvent = new Matrix.MatrixEvent({
+          type: "m.space.child",
+          origin_server_ts: new Date().getTime(),
+          room_id: this.state.roomId,
+          sender: Client.client.getUserId(),
+          state_key: roominfo.room_id,
+          content: childContent
+        })
+        this.setFocus(new Location(fakeEvent))
         this.setState({ panelVisible: true })
-      }).then(_ => {
         document.removeEventListener("click", this.releasePin)
         this.setState({pindropMode: null })
+        return Client.client
+          .sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
+          .then(_ => roominfo)
       }).catch(e => alert(e))
     }
   }
@@ -277,22 +286,29 @@ export default class PdfView extends Component {
       theSelection.removeAllRanges()
       const childContent = {
         via: [theDomain],
-        [eventVersion]: {
-          pageNumber: parseInt(this.props.pageFocused, 10),
-          activityStatus: "pending",
-          type: "highlight",
-          boundingClientRect: JSON.stringify(boundingClientRect),
-          clientRects: JSON.stringify(clientRects),
-          roomId: roominfo.room_id,
-          creator: Client.client.getUserId(),
-          selectedText: theSelectedText
+        [mscLocation]: {
+          [eventVersion]: {
+            pageNumber: parseInt(this.props.pageFocused, 10),
+            activityStatus: "pending",
+            type: "highlight",
+            boundingClientRect: JSON.stringify(boundingClientRect),
+            clientRects: JSON.stringify(clientRects),
+            creator: Client.client.getUserId(),
+            selectedText: theSelectedText
+          }
         }
       }
-      Client.client
-        .sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
-        .catch(e => alert(e))
-      this.setFocus(childContent[eventVersion])
+      const fakeEvent = new Matrix.MatrixEvent({
+        type: "m.space.child",
+        origin_server_ts: new Date().getTime(),
+        room_id: this.state.roomId,
+        sender: Client.client.getUserId(),
+        state_key: roominfo.room_id,
+        content: childContent
+      })
+      this.setFocus(new Location(fakeEvent))
       this.setState({ panelVisible: true })
+      return Client.client.sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
     }).catch(e => alert(e))
   }
 
@@ -359,8 +375,8 @@ export default class PdfView extends Component {
     const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
     if (theAnnotation) {
-      const focus = theAnnotation.getContent()[eventVersion]
-      History.push(`/${this.props.pdfFocused}/${focus.pageNumber || this.props.pageFocused}/${roomId}`)
+      const focus = new Location(theAnnotation)
+      History.push(`/${this.props.pdfFocused}/${focus.location.pageNumber || this.props.pageFocused}/${roomId}`)
       this.setState({ focus, panelVisible: true, hideButtons: false })
     }
   }
@@ -369,14 +385,14 @@ export default class PdfView extends Component {
     let reachedFocus = !this.state.focus
     if (!array) return
     for (const annot of array) {
-      const theId = annot[eventVersion].roomId
+      const theId = annot.getRoomId()
       if (reachedFocus) {
         this.focusByRoomId(theId)
         return
       }
-      reachedFocus = this.state.focus.roomId === theId
+      reachedFocus = this.state.focus.getRoomId() === theId
     }
-    this.focusByRoomId(array[0][eventVersion].roomId)
+    this.focusByRoomId(array[0].getRoomId())
   }
 
   focusNext = _ => {
@@ -457,7 +473,7 @@ export default class PdfView extends Component {
 
   closeAnnotation = _ => {
     const theDomain = Client.client.getDomain()
-    const isCreator = Client.client.getUserId() === this.state.focus.creator
+    const isCreator = Client.client.getUserId() === this.state.focus.location.creator
     const theRoom = Client.client.getRoom(this.state.roomId)
     const isMod = theRoom.getMember(Client.client.getUserId()).powerLevel >= 50
     if (!confirm('Are you sure you want to close this annotation?')) return
@@ -468,9 +484,11 @@ export default class PdfView extends Component {
     const theDiff = { activityStatus: "closed" }
     const theContent = {
       via: [theDomain],
-      [eventVersion]: Object.assign(this.state.focus, theDiff)
+      [mscLocation]: {
+        [eventVersion]: Object.assign(this.state.focus.location, theDiff)
+      }
     }
-    Client.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.roomId)
+    Client.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.getRoomId())
     this.unsetFocus()
   }
 
@@ -479,9 +497,9 @@ export default class PdfView extends Component {
     History.push(`/${this.props.pdfFocused}/${this.props.pageFocused}/`)
   }
 
-  setFocus = (content) => {
-    History.push(`/${this.props.pdfFocused}/${this.props.pageFocused}/${content.roomId}/`)
-    this.setState({focus: content})
+  setFocus = focus => {
+    History.push(`/${this.props.pdfFocused}/${this.props.pageFocused}/${focus.getRoomId()}/`)
+    this.setState({ focus })
   }
 
   getLoadingStatus() {
@@ -501,21 +519,14 @@ export default class PdfView extends Component {
     if (theRoom) {
       const annotationContents = theRoom.getLiveTimeline()
         .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
-        .map(ev => {
-          const content = ev.getContent()
-          content.timestamp = ev.getTs()
-          if (!(ev.getStateKey() in this.unreadCounts)) {
-            this.unreadCounts[ev.getStateKey()] = calculateUnread(ev.getStateKey())
-          }
-          content.unread = this.unreadCounts[ev.getStateKey()]
-          return content
-        })
-        .filter(content =>
-          content[eventVersion] &&
-          (!content[eventVersion].private || content.unread !== "All") && // we infer that you are a member if you have unread
-          ( content[eventVersion].activityStatus === "open" ||
-            ( content[eventVersion].activityStatus === "pending" &&
-              content[eventVersion].creator === Client.client.getUserId()
+        .map(ev => new Location(ev))
+        .filter(loc =>
+          loc.location &&
+          // we infer that you are a member if you have unread. TODO Should do this more directly.
+          (!loc.location.private || location.getUnread() !== "All") &&
+          ( loc.location.activityStatus === "open" ||
+            ( loc.location.activityStatus === "pending" &&
+              loc.location.creator === Client.client.getUserId()
             )
           )
         )
@@ -533,20 +544,20 @@ export default class PdfView extends Component {
       else if (word.slice(0, 1) === '~') searchFlags.push(word.slice(1))
       else searchText.push(word)
     }
-    return annotations.filter(content => {
+    return annotations.filter(loc => {
       let flagged = true
-      if (searchFlags.includes("me")) { flagged = flagged && content[eventVersion].creator === Client.client.getUserId() }
-      if (searchFlags.includes("hour")) { flagged = flagged && (content.timestamp > (Date.now() - 3600000)) }
-      if (searchFlags.includes("day")) { flagged = flagged && (content.timestamp > (Date.now() - 86400000)) }
-      if (searchFlags.includes("week")) { flagged = flagged && (content.timestamp > (Date.now() - 604800000)) }
-      if (searchFlags.includes("unread")) { flagged = flagged && content.unread }
+      if (searchFlags.includes("me")) { flagged = flagged && loc.location.creator === Client.client.getUserId() }
+      if (searchFlags.includes("hour")) { flagged = flagged && (loc.event.getTs() > (Date.now() - 3600000)) }
+      if (searchFlags.includes("day")) { flagged = flagged && (loc.event.getTs() > (Date.now() - 86400000)) }
+      if (searchFlags.includes("week")) { flagged = flagged && (loc.event.getTs() > (Date.now() - 604800000)) }
+      if (searchFlags.includes("unread")) { flagged = flagged && loc.getUnread() }
       const membered = searchMembers.length
-        ? searchMembers.some(member => content[eventVersion].creator.toLowerCase().includes(member.toLowerCase()))
+        ? searchMembers.some(member => loc.location.creator.toLowerCase().includes(member.toLowerCase()))
         : true
       return membered && flagged && searchText.every(term =>
-        (!content[eventVersion].selectedText && !content[eventVersion].rootContent) ||
-        content[eventVersion].selectedText?.toLowerCase().includes(term.toLowerCase()) ||
-        content[eventVersion].rootContent?.body.toLowerCase().includes(term.toLowerCase()))
+        (!loc.location.selectedText && !loc.location.rootContent) ||
+        loc.location.selectedText?.toLowerCase().includes(term.toLowerCase()) ||
+        loc.location.rootContent?.body.toLowerCase().includes(term.toLowerCase()))
     })
   }
 

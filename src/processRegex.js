@@ -11,7 +11,6 @@ export function processRegex(string) {
 }
 
 function mentionToReplacement(match) {
-  console.log(match)
   const user = Client.client.getUser(match)
   if (!user) return match
   const replacement = document.createElement('a')
@@ -21,7 +20,6 @@ function mentionToReplacement(match) {
 }
 
 function matchDispatch(match) {
-  console.log(match)
   // we need to start from te beginning again and transform the first capture group we encounter
   // we need to use fresh RegExp to strip the global flag
   if (latexDisplayRegex.test(match)) return latexDisplayToReplacement(match.match(latexDisplayRegex)[1])

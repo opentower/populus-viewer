@@ -1,6 +1,7 @@
 import { h, Fragment, Component, createRef } from 'preact';
-import { eventVersion, spaceChild, lastViewed } from "./constants.js"
+import { spaceChild, lastViewed } from "./constants.js"
 import Resource from "./utils/resource.js"
+import Location from "./utils/location.js"
 import * as Matrix from "matrix-js-sdk"
 import MemberPill from './memberPill.js'
 import Client from './client.js'
@@ -318,7 +319,7 @@ class AnnotationData extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      annotationContents: []
+      annotations: []
     }
     this.handleTimeline = this.handleTimeline.bind(this)
     this.handleStateUpdate = this.handleStateUpdate.bind(this)
@@ -349,18 +350,11 @@ class AnnotationData extends Component {
   }
 
   updateAnnotations = _ => {
-    const annotationContents = this.props.room.getLiveTimeline()
+    const annotations = this.props.room.getLiveTimeline()
       .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
-      .map(ev => {
-        const content = ev.getContent()
-        if (!(ev.getStateKey() in this.unreadCounts)) {
-          this.unreadCounts[ev.getStateKey()] = calculateUnread(ev.getStateKey())
-        }
-        content.unread = this.unreadCounts[ev.getStateKey()]
-        return content
-      })
-      .filter(content => content[eventVersion] && content[eventVersion].activityStatus === "open")
-    this.setState({annotationContents})
+      .map(ev => new Location(ev))
+      .filter(loc => loc.location?.activityStatus === "open")
+    this.setState({annotations})
   }
 
   handleStateUpdate = e => {
@@ -384,7 +378,7 @@ class AnnotationData extends Component {
     )
   }
 
-  getUnreadCount = _ => this.state.annotationContents.filter(content => content.unread).length
+  getUnreadCount = _ => this.state.annotations.filter(loc => loc.getUnread()).length
 
   render() {
     const unread = this.getUnreadCount()

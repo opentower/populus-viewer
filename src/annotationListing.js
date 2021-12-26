@@ -3,7 +3,7 @@ import './styles/annotationListing.css'
 import * as Matrix from "matrix-js-sdk"
 import { renderLatexInElement } from './latex.js'
 import { processLinks } from './links.js'
-import { eventVersion, spaceChild } from "./constants.js"
+import { spaceChild } from "./constants.js"
 import Client from './client.js'
 import MemberPill from './memberPill.js'
 import { UserColor } from './utils/colors.js'
@@ -65,20 +65,20 @@ export default class AnnotationListing extends Component {
   }
 
   byCreation = (a, b) => {
-    if (a.timestamp > b.timestamp) return -1
-    if (a.timestamp < b.timestamp) return 1
+    if (a.event.getTs() > b.event.getTs()) return -1
+    if (a.event.getTs() < b.event.getTs()) return 1
     return 0
   }
 
   byPage = (a, b) => {
-    if (a[eventVersion].pageNumber > b[eventVersion].pageNumber) return 1
-    if (a[eventVersion].pageNumber < b[eventVersion].pageNumber) return -1
+    if (a.location.pageNumber > b.location.pageNumber) return 1
+    if (a.location.pageNumber < b.location.pageNumber) return -1
     return 0
   }
 
   byActivity = (a, b) => {
-    const room1 = Client.client.getRoom(a[eventVersion].roomId)
-    const room2 = Client.client.getRoom(b[eventVersion].roomId)
+    const room1 = Client.client.getRoom(a.getRoomId())
+    const room2 = Client.client.getRoom(b.getRoomId())
     // XXX might not be a member of both rooms, hence unable to get timestamps
     if (room1 && room2) {
       const ts1 = room1.getLastActiveTimestamp()
@@ -132,13 +132,13 @@ export default class AnnotationListing extends Component {
     let currentDate = initialDate
     let thePage = 1
     let looped = false
-    for (const content of props.filteredAnnotationContents.sort(this.getSortFunc())) {
+    for (const loc of props.filteredAnnotationContents.sort(this.getSortFunc())) {
       let divider
       if (looped) {
         switch (state.sort) {
           case "Page" : {
-            if (thePage < content[eventVersion].pageNumber) {
-              const newPage = content[eventVersion].pageNumber
+            if (thePage < loc.location.pageNumber) {
+              const newPage = loc.location.pageNumber
               divider = <div class="annotation-listing-divider">
                 <span>Page {state.sortOrder === 1 ? newPage : thePage}</span>
               </div>
@@ -147,7 +147,7 @@ export default class AnnotationListing extends Component {
             break
           }
           case "Activity" : {
-            const room = Client.client.getRoom(content[eventVersion].roomId)
+            const room = Client.client.getRoom(loc.getRoomId())
             if (room && state.sortOrder === 1) { // TODO handle times for reverse sort
               const age = initialDate - room.getLastActiveTimestamp()
               const dateDelta = currentDate - room.getLastActiveTimestamp()
@@ -188,31 +188,31 @@ export default class AnnotationListing extends Component {
           }
           case "Creation" : {
             if (state.sortOrder === 1) { // TODO handle times for reverse sort
-              const age = initialDate - content.timestamp
-              const dateDelta = currentDate - content.timestamp
+              const age = initialDate - loc.event.getTs()
+              const dateDelta = currentDate - loc.event.getTs()
               if (age < 300000 && dateDelta > 60000) {
-                currentDate = content.timestamp
+                currentDate = loc.event.getTs()
                 const minutes = Math.floor(age / 60000)
                 const plural = minutes === 1 ? "" : "s"
                 divider = <div class="annotation-listing-divider">
                   <span>{`${minutes} minute${plural} ago`}</span>
                 </div>
               } else if (age < 3600000 && dateDelta > 600000) {
-                currentDate = content.timestamp
+                currentDate = loc.event.getTs()
                 const minutes = Math.floor(age / 60000)
                 const plural = minutes === 1 ? "" : "s"
                 divider = <div class="annotation-listing-divider">
                   <span>{`${minutes} minute${plural} ago`}</span>
                 </div>
               } else if (age < 86400000 && dateDelta > 3600000) {
-                currentDate = content.timestamp
+                currentDate = loc.event.getTs()
                 const hours = Math.floor(age / 3600000)
                 const plural = hours === 1 ? "" : "s"
                 divider = <div class="annotation-listing-divider">
                   <span>{`${hours} hour${plural} ago`}</span>
                 </div>
               } else if (dateDelta > 86400000) {
-                currentDate = content.timestamp
+                currentDate = loc.event.getTs()
                 const dateObject = new Date(currentDate)
                 divider = <div class="annotation-listing-divider">
                   <span>{`on ${dateObject.toLocaleDateString('en-US', {
@@ -231,10 +231,10 @@ export default class AnnotationListing extends Component {
       theAnnotations.push(divider)
       theAnnotations.push(
         <AnnotationListingEntry
-            key={content[eventVersion].roomId}
-            unreadCount={props.unreadCounts[content[eventVersion].roomId]}
-            typing={state.typing[content[eventVersion].roomId]}
-            annotationContent={content[eventVersion]}
+            key={loc.getRoomId()}
+            unreadCount={props.unreadCounts[loc.getRoomId()]}
+            typing={state.typing[loc.getRoomId()]}
+            annotationLocation={loc}
             focusByRoomId={props.focusByRoomId}
             focus={props.focus}
             parentRoom={props.room}
@@ -292,7 +292,7 @@ class AnnotationListingEntry extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      topic: props.annotationContent.selectedText
+      topic: props.annotationLocation.location.selectedText
     }
   }
 
@@ -303,8 +303,8 @@ class AnnotationListingEntry extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.focus?.roomId !== this.props.annotationContent.roomId &&
-      this.props.focus?.roomId === this.props.annotationContent.roomId) {
+    if (prevProps.focus?.getRoomId() !== this.props.annotationLocation.getRoomId() &&
+      this.props.focus?.getRoomId() === this.props.annotationLocation.getRoomId()) {
       this.entry.current.scrollIntoView()
     }
   }
@@ -314,33 +314,35 @@ class AnnotationListingEntry extends Component {
   entry = createRef()
 
   async setTopic() {
-    this.room = await Client.client.getRoomWithState(this.props.annotationContent.roomId)
+    this.room = await Client.client.getRoomWithState(this.props.annotationLocation.getRoomId())
     this.setState({
       topic: this.room.getLiveTimeline()
         .getState(Matrix.EventTimeline.FORWARDS)
         .getStateEvents("m.room.topic", "")
-        ?.getContent().topic || this.props.annotationContent.selectedText
+        ?.getContent().topic || this.props.annotationLocation.location.selectedText
     })
   }
 
-  handleClick = () => this.props.focusByRoomId(this.props.annotationContent.roomId)
+  handleClick = () => {
+    this.props.focusByRoomId(this.props.annotationLocation.getRoomId())
+  }
 
-  creator = this.props.parentRoom.getMember(this.props.annotationContent.creator)
+  creator = this.props.parentRoom.getMember(this.props.annotationLocation.location.creator)
 
   userColor = new UserColor(this.creator.userId)
 
   render(props, state) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
-    const focused = props.focus?.roomId === props.annotationContent.roomId
+    const focused = props.focus?.getRoomId() === props.annotationLocation.getRoomId()
     return <div style={this.userColor.styleVariables}
       data-annotation-entry-typing={typing}
       data-annotation-entry-focused={focused}
       ref={this.entry}
       onclick={this.handleClick}
       class="annotation-listing-entry">
-      {props.annotationContent.type === "pindrop"
+      {props.annotationLocation.location.type === "pindrop"
         ? <div class="annotation-listing-pin-icon">
-            {Icons.pin} <span>on page {props.annotationContent.pageNumber}</span>
+            {Icons.pin} <span>on page {props.annotationLocation.location.pageNumber}</span>
           </div>
         : <div class="annotation-listing-topic">
             <span class="annotation-listing-topic-icon">{Icons.quote}</span>{state.topic}
@@ -350,14 +352,14 @@ class AnnotationListingEntry extends Component {
         creator={this.creator}
         unread={props.unreadCount}
         commentRef={this.comment}
-        annotationContent={props.annotationContent}
+        annotationLocation={props.annotationLocation}
       />
     </div>
   }
 }
 
 function AnnotationListingComment(props) {
-  const content = props.annotationContent.rootContent
+  const content = props.annotationLocation.location.rootContent
   if (content) {
     let body
     switch (content.msgtype) {
@@ -368,7 +370,6 @@ function AnnotationListingComment(props) {
       case "m.audio" : body = <div class="annotation-listing-fallback"><p>Sent an audio recording</p></div>; break
       default :
         body = <div class="annotation-listing-fallback"><p>Sent a message</p></div>
-        console.log(content)
     }
     return <Fragment>
       <div
@@ -379,12 +380,12 @@ function AnnotationListingComment(props) {
       > {body} </div>
       <div class="annotation-listing-info">
         <div class="annotation-listing-features">
-          {props.annotationContent.private ? Icons.lock : null}
+          {props.annotationLocation.location.private ? Icons.lock : null}
         </div>
         <div class="annotation-listing-creator"><MemberPill member={props.creator} /></div>
       </div>
     </Fragment>
-  } else if (props.annotationContent.activityStatus === "pending") {
+  } else if (props.annotationLocation.location.activityStatus === "pending") {
     return <div class="annotation-listing-pending">awaiting your comment... </div>
   }
 }

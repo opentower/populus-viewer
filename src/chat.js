@@ -18,7 +18,7 @@ export default class Chat extends Component {
     }
     this.scrolledIdents = new Set()
     this.handleTimeline = this.handleTimeline.bind(this)
-    this.timelinePromise = this.loadTimelineWindow(props.focus.roomId)
+    this.timelinePromise = this.loadTimelineWindow(props.focus.getRoomId())
   }
 
   componentDidMount() {
@@ -33,7 +33,7 @@ export default class Chat extends Component {
   }
 
   async componentDidUpdate(prevProps) {
-    if (prevProps.focus !== this.props.focus) this.resetFocus()
+    if (prevProps.focus.getRoomId() !== this.props.focus.getRoomId()) this.resetFocus()
   }
 
   chatWrapper = createRef()
@@ -42,7 +42,7 @@ export default class Chat extends Component {
 
   // Room.timeline passes in more params
   handleTimeline = (event) => {
-    if (this.props.focus && this.props.focus.roomId === event.getRoomId()) {
+    if (this.props.focus?.getRoomId() === event.getRoomId()) {
       this.timelinePromise
         .then(_ => this.timelineWindow.paginate(Matrix.EventTimeline.FORWARDS, 1, false))
         .then(this.updateEvents)
@@ -72,7 +72,7 @@ export default class Chat extends Component {
 
   async loadTimelineWindow (roomId) {
     try {
-      await Client.client.joinRoom(this.props.focus.roomId)
+      await Client.client.joinRoom(this.props.focus.getRoomId())
     } catch (err) {
       alert(err)
       this.props.unsetFocus()
@@ -121,11 +121,11 @@ export default class Chat extends Component {
   }
 
   async resetFocus () {
-    this.timelinePromise = this.loadTimelineWindow(this.props.focus.roomId)
+    this.timelinePromise = this.loadTimelineWindow(this.props.focus.getRoomId())
     await this.timelinePromise
     this.setState({
       topic: this.getTopic(),
-      fullyScrolled: this.scrolledIdents.has(this.props.focus.roomId),
+      fullyScrolled: this.scrolledIdents.has(this.props.focus.getRoomId()),
       events: this.timelineWindow.getEvents()
     }, _ => {
       this.updateReadReceipt()
@@ -239,7 +239,7 @@ export default class Chat extends Component {
           <MessagePanel populateModal={props.populateModal} pdfId={props.pdfId} focus={props.focus} />
           <div id="messages">
             {messagedivs}
-            <TypingIndicator key={props.focus.roomId} roomId={props.focus.roomId} />
+            <TypingIndicator key={props.focus.getRoomId()} roomId={props.focus.getRoomId()} />
             {/* The key prop here ensures that typing state is reset when the room changes */}
           </div>
           <Anchor ref={this.scrollAnchor} focus={props.focus} topic={state.topic} fullyScrolled={state.fullyScrolled} />
@@ -272,14 +272,14 @@ function Anchor(props) {
         <span>{Icons.quote}</span>
         {props.topic}
       </div>
-      { props.focus.type === "pindrop"
+      { props.focus.location.type === "pindrop"
         ? <div id="anchor-pin">
-            {Icons.pin} <span>on page {props.focus.pageNumber}</span>
+            {Icons.pin} <span>on page {props.focus.location.pageNumber}</span>
           </div>
         : null
       }
       <div id="scroll-done">
-        { props.focus.activityStatus === "open"
+        { props.focus.location.activityStatus === "open"
             ? "All messages loaded"
             : "Awaiting your comment..."
         }

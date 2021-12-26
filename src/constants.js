@@ -5,7 +5,8 @@ export const serverRoot = `https://populus.open-tower.com`
 export const spaceChild = "m.space.child"
 export const spaceParent = "m.space.parent"
 export const joinRule = "m.room.join_rules"
-export const resourceData = "com.open-tower.msc3574.markup.resource"
+export const mscResourceData = "com.open-tower.msc3574.markup.resource"
+export const mscLocation = "com.open-tower.msc3574.markup.resource"
 
 // based on https://github.com/matrix-org/matrix-react-sdk/blob/78b1f6c0b13efd57031a329a1ac62baba948dad3/src/HtmlUtils.tsx
 const COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;

@@ -2,7 +2,7 @@ import { h, Component, createRef } from 'preact';
 import * as Matrix from "matrix-js-sdk"
 import { UserColor } from './utils/colors.js'
 import { TextMessage } from './message.js'
-import { spaceParent, spaceChild, eventVersion } from "./constants.js"
+import { spaceParent, spaceChild } from "./constants.js"
 import { isUnread } from './utils/unread.js'
 import { dateReducer } from './utils/dates.js'
 import './styles/notifications.css'
@@ -165,8 +165,8 @@ class Notification extends Component {
     : ""
 
   handleClick = _ => {
-    const origin = this.originAnnotation.getContent()[eventVersion]
-    History.push(`/${encodeURIComponent(this.originAlias.slice(1))}/${origin.pageNumber}/${origin.roomId}`)
+    const origin = new Location(this.originAnnotation)
+    History.push(`/${encodeURIComponent(this.originAlias.slice(1))}/${origin.location.pageNumber}/${origin.event.getStateKey()}`)
   }
 
   render(props, state) {

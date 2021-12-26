@@ -109,7 +109,6 @@ export class Emojis extends Component {
     const selend = this.props.textarea.current.selectionEnd
     if (selstart === selend) {
       const matches = this.props.textValue.slice(0, selend).match(/:\S*$/)
-      console.log(matches)
       if (matches) {
         const match = matches[0].slice(1)
         if (match.length < 2) return this.setState({ popupItems: [] })

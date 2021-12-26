@@ -1,7 +1,7 @@
 import { h, createRef, Component } from 'preact';
 import * as Layout from "./layout.js"
 import * as Matrix from "matrix-js-sdk"
-import { eventVersion, spaceChild } from "./constants.js"
+import { spaceChild } from "./constants.js"
 import { UserColor } from "./utils/colors.js"
 import Client from './client.js'
 import './styles/annotation-layer.css'
@@ -35,49 +35,49 @@ export default class AnnotationLayer extends Component {
     }
   }
 
-  filterAnnotations (data) {
+  filterAnnotations (loc) {
     return (
-      !!data && // filter out old eventVersions
-      data.pageNumber === parseInt(this.props.page, 10) &&
-      ( data.activityStatus === "open" ||
-        (data.activityStatus === "pending" && data.creator === Client.client.getUserId())
+      !!loc.location && // filter out old eventVersions
+      loc.location.pageNumber === parseInt(this.props.page, 10) &&
+      ( loc.location.activityStatus === "open" ||
+        (loc.location.activityStatus === "pending" && loc.event.getSender() === Client.client.getUserId())
       )
     )
   }
 
   getAnnotations() {
     const theRoom = Client.client.getRoom(this.props.roomId)
-    const roomId = this.props.focus ? this.props.focus.roomId : null
+    const focusId = this.props.focus ? this.props.focus.getRoomId() : null
     let annotations = []
     if (theRoom) {
       let didFocus = false
       // We filter to include only the annotations on the page
       const annotationData = this.props.filteredAnnotationContents
-        .filter(content => {
-          if (content[eventVersion].roomId !== this.props?.focus?.roomId) didFocus = true
-          return this.filterAnnotations(content[eventVersion])
+        .filter(loc => {
+          if (loc.getRoomId() !== this.props?.focus?.getRoomId()) didFocus = true
+          return this.filterAnnotations(loc)
         })
-        .map(content => content[eventVersion])
       // We add the focus back in if it's on the page but got screened out of filteredAnnotationContents
       if (this.props.focus && this.filterAnnotations(this.props.focus) && !didFocus) annotationData.push(this.props.focus)
       // We turn the array into annontation components
-      annotations = annotationData.map(data => {
-        switch (data.type) {
+      annotations = annotationData.map(loc => {
+        const annotationId = loc.getRoomId()
+        switch (loc.location.type) {
           case 'pindrop': return <Pindrop
-            key={data.roomId}
-            focused={roomId === data.roomId}
-            typing={this.state.typing[data.roomId]}
+            key={annotationId}
+            focused={focusId === annotationId}
+            typing={this.state.typing[annotationId]}
             setFocus={this.props.setFocus}
-            data={data} />
+            location={loc} />
           // default for legacy reasons, could switch to highlight in 2022
           default: return <Annotation
             zoomFactor={this.props.zoomFactor}
-            key={data.roomId}
-            focused={roomId === data.roomId}
-            typing={this.state.typing[data.roomId]}
+            key={annotationId}
+            focused={focusId === annotationId}
+            typing={this.state.typing[annotationId]}
             setFocus={this.props.setFocus}
             pdfWidthAdjusted={this.props.pdfWidthAdjusted}
-            data={data} />
+            location={loc} />
         }
       })
     }
@@ -91,7 +91,7 @@ export default class AnnotationLayer extends Component {
         data-annotation-focused={!!props.focus}
         id="annotation-layer">
         {this.getAnnotations()}
-        {props.pindropMode?.x ? <PindropPreview data={props.pindropMode} /> : null}
+        {props.pindropMode?.x ? <PindropPreview coordinates={props.pindropMode} /> : null}
       </div>
     )
   }
@@ -99,8 +99,8 @@ export default class AnnotationLayer extends Component {
 
 function PindropPreview (props) {
   const style = {
-    left: `${props.data.x}px`,
-    top: `${props.data.y}px`
+    left: `${props.coordinates.x}px`,
+    top: `${props.coordinates.y}px`
   }
   return <span
     class="annotation-pindrop annotation-pindrop-preview"
@@ -111,13 +111,13 @@ function PindropPreview (props) {
 }
 
 class Pindrop extends Component {
-  setFocus = _ => this.props.setFocus(this.props.data)
+  setFocus = _ => this.props.setFocus(this.props.location)
 
-  userColor = new UserColor(this.props.data.creator)
+  userColor = new UserColor(this.props.location.location.creator)
 
   style = {
-    left: `${this.props.data.x}px`,
-    top: `${this.props.data.y}px`,
+    left: `${this.props.location.location.x}px`,
+    top: `${this.props.location.location.y}px`,
     ...this.userColor.styleVariables
   }
   // we add a slight 15px offset to have it line up more with the cursor
@@ -148,11 +148,11 @@ class Annotation extends Component {
     }
   }
 
-  setFocus = _ => { this.props.setFocus(this.props.data) }
+  setFocus = _ => { this.props.setFocus(this.props.location) }
 
-  eventContent = this.props.data
+  eventContent = this.props.location.location
 
-  roomId = this.eventContent.roomId
+  roomId = this.props.location.getRoomId()
 
   rightSide = this.roomId.charCodeAt(1) % 2 === 1
 
