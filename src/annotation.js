@@ -54,7 +54,7 @@ export default class AnnotationLayer extends Component {
       // We filter to include only the annotations on the page
       const annotationData = this.props.filteredAnnotationContents
         .filter(loc => {
-          if (loc.getRoomId() !== this.props?.focus?.getRoomId()) didFocus = true
+          if (loc.getRoomId() === this.props.focus?.getRoomId()) didFocus = true
           return this.filterAnnotations(loc)
         })
       // We add the focus back in if it's on the page but got screened out of filteredAnnotationContents

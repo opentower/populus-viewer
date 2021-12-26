@@ -232,7 +232,6 @@ export default class AnnotationListing extends Component {
       theAnnotations.push(
         <AnnotationListingEntry
             key={loc.getRoomId()}
-            unreadCount={props.unreadCounts[loc.getRoomId()]}
             typing={state.typing[loc.getRoomId()]}
             annotationLocation={loc}
             focusByRoomId={props.focusByRoomId}
@@ -350,7 +349,7 @@ class AnnotationListingEntry extends Component {
       }
       <AnnotationListingComment
         creator={this.creator}
-        unread={props.unreadCount}
+        unread={props.annotationLocation.getUnread()}
         commentRef={this.comment}
         annotationLocation={props.annotationLocation}
       />

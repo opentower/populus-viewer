@@ -9,7 +9,7 @@ export default class Location {
   }
 
   getUnread() {
-    const room = Client.client.getRoom(this.event.getStateKey().roomId)
+    const room = Client.client.getRoom(this.event.getStateKey())
     if (room) return room.getUnreadNotificationCount()
     return "All"
   }
