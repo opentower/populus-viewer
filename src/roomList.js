@@ -324,7 +324,6 @@ class AnnotationData extends Component {
     this.handleTimeline = this.handleTimeline.bind(this)
     this.handleStateUpdate = this.handleStateUpdate.bind(this)
     this.handleInitialSync = this.handleInitialSync.bind(this)
-    this.unreadCounts = {}
   }
 
   componentDidMount() {
@@ -364,11 +363,8 @@ class AnnotationData extends Component {
   }
 
   handleTimeline (_event, room) {
-    // room is null if it's a notification timeline event
-    if (room?.roomId in this.unreadCounts) {
-      this.unreadCounts[room.roomId] = calculateUnread(room.roomId)
-      this.updateAnnotations()
-    }
+    const childIds = this.state.annotations.map(loc => loc.getRoomId())
+    if (room?.roomId in childIds) this.updateAnnotations()
   }
 
   handleLoadNew = _ => {

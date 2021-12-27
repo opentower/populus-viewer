@@ -47,7 +47,6 @@ export default class PdfView extends Component {
       hideButtons: false // this is for hiding the buttons, but only applies if the buttons overlap the chatbox
     }
     this.prevScrollTop = 0
-    this.unreadCounts = {} // XXX Since we update by mutating, this doesn't belong in state
     this.checkForSelection = this.checkForSelection.bind(this)
     this.handleKeydown = this.handleKeydown.bind(this)
     this.handleTimeline = this.handleTimeline.bind(this)
@@ -82,10 +81,33 @@ export default class PdfView extends Component {
   }
 
   handleTimeline (_event, room) {
-    // room is null if this is a notification timeline event
-    if (room?.roomId in this.unreadCounts) {
-      this.unreadCounts[room.roomId] = calculateUnread(room.roomId)
-      this.updateAnnotations()
+    const childIds = this.state.annotationContents.map(loc => loc.getRoomId())
+    if (room?.roomId in childIds) this.updateAnnotations()
+  }
+
+  handleAccountData = (e, room) => {
+    const childIds = this.state.annotationContents.map(loc => loc.getRoomId())
+    if (room?.roomId in childIds) this.updateAnnotations()
+    else if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
+      const theContent = e.getContent()
+      if (theContent.page !== this.props.pageFocused && theContent.deviceId !== Client.deviceId) {
+        this.populateToast(
+          <Fragment>
+            <h3 id="toast-header">Hey!</h3>
+            <div>Another device is viewing a different page.</div>
+            <div style="margin-top:10px">
+              <button
+                onclick={_ => {
+                  History.push(`/${this.props.pdfFocused}/${theContent.page}/`)
+                  this.populateToast(null)
+                }}
+                class="styled-button">
+                Jump to there →
+              </button>
+            </div>
+          </Fragment>
+        )
+      }
     }
   }
 
@@ -119,33 +141,6 @@ export default class PdfView extends Component {
     if (this.prevScrollTop < e.target.scrollTop && !this.state.hideButtons) this.setState({hideButtons: true})
     if (this.prevScrollTop > e.target.scrollTop && this.state.hideButtons) this.setState({hideButtons: false})
     this.prevScrollTop = e.target.scrollTop
-  }
-
-  handleAccountData = (e, room) => {
-    if (room.roomId in this.unreadCounts) {
-      this.unreadCounts[room.roomId] = calculateUnread(room.roomId)
-      this.updateAnnotations()
-    } else if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
-      const theContent = e.getContent()
-      if (theContent.page !== this.props.pageFocused && theContent.deviceId !== Client.deviceId) {
-        this.populateToast(
-          <Fragment>
-            <h3 id="toast-header">Hey!</h3>
-            <div>Another device is viewing a different page.</div>
-            <div style="margin-top:10px">
-              <button
-                onclick={_ => {
-                  History.push(`/${this.props.pdfFocused}/${theContent.page}/`)
-                  this.populateToast(null)
-                }}
-                class="styled-button">
-                Jump to there →
-              </button>
-            </div>
-          </Fragment>
-        )
-      }
-    }
   }
 
   annotationLayer = createRef()
@@ -656,7 +651,6 @@ export default class PdfView extends Component {
                 focusByRoomId={this.focusByRoomId}
                 focusNext={this.focusNext}
                 focusPrev={this.focusPrev}
-                unreadCounts={this.unreadCounts}
                 room={theRoom}
               />
           }
