@@ -116,10 +116,6 @@ export class AnnotationMessage extends Component {
 
   pageNumber = this.props.event.getContent()[mscMarkupMsgKey]?.[mscLocation]?.[eventVersion]?.pageNumber
 
-  jumpToPage = _ => {
-    History.push(`/${this.props.pdfFocused}/${this.pageNumber}/`)
-  }
-
   render(props) {
     if (!this.text) return
     return <MessageFrame
@@ -127,9 +123,14 @@ export class AnnotationMessage extends Component {
       reactions={props.reactions}
       event={props.event}
       getCurrentEdit={this.getCurrentEdit}>
-      <div onClick={this.jumpToPage} ref={this.messageBody} class="message-body">
+      <div ref={this.messageBody} class="message-body">
+        <span class="annotation-banner">
+          On&nbsp;
+          <a href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.pdfFocused)}/${this.pageNumber}/`} >
+            page {this.pageNumber}
+          </a>:
+        </span>
         <blockquote>
-          <span class="annotation-quote">{Icons.quote}</span>
           {this.text}
         </blockquote>
       </div>

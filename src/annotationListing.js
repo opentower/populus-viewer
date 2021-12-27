@@ -3,7 +3,7 @@ import './styles/annotationListing.css'
 import * as Matrix from "matrix-js-sdk"
 import { renderLatexInElement } from './latex.js'
 import { processLinks } from './links.js'
-import { spaceChild } from "./constants.js"
+import { spaceChild, mscMarkupMsgKey } from "./constants.js"
 import Client from './client.js'
 import MemberPill from './memberPill.js'
 import { UserColor } from './utils/colors.js'
@@ -367,6 +367,11 @@ function AnnotationListingComment(props) {
       case "m.image" : body = <div class="annotation-listing-fallback"><p>Sent a file</p></div>; break
       case "m.video" : body = <div class="annotation-listing-fallback"><p>Sent a video</p></div>; break
       case "m.audio" : body = <div class="annotation-listing-fallback"><p>Sent an audio recording</p></div>; break
+      case "m.emote" : {
+        if (content[mscMarkupMsgKey]) body = <div class="annotation-listing-fallback"><p>Sent an annotation</p></div>
+        else body = <div class="annotation-listing-fallback"><p>Sent a message</p></div>
+        break
+      }
       default :
         body = <div class="annotation-listing-fallback"><p>Sent a message</p></div>
     }

@@ -118,6 +118,15 @@
   margin-left: 1em;
 }
 
+.message-body a {
+  color:black;
+}
+
+.message-body a:hover {
+  text-underline-offset: 0.1em;
+  text-decoration-thickness: 0.125em;
+}
+
 .message-body a[href^="https://matrix.to/#/@"] {
   font-weight: bold;
   color:var(--user_dark);
@@ -142,10 +151,9 @@
   font-weight:bold;
 }
 
-.annotation-quote svg {
-  padding-right: .25em;
-  height: 1em;
-  color:#565656;
+.annotation-banner {
+  font-size:10pt;
+  font-weight: bold;
 }
 
 .message-frame div[data-mx-maths] {

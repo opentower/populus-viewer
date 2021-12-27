@@ -88,7 +88,7 @@ export default class MessagePanel extends Component {
     }
   }
 
-  sendSelection = _ => {
+  sendSelection = async _ => {
     const theSelection = window.getSelection()
     if (theSelection.isCollapsed) return
     const theSelectedText = textFromPdfSelection(theSelection)
@@ -112,7 +112,8 @@ export default class MessagePanel extends Component {
         }
       }
     }
-    Client.client.sendMessage(this.props.focus.getRoomId(), theContent)
+    const eventI = await Client.client.sendMessage(this.props.focus.getRoomId(), theContent)
+    this.openPendingAnnotation(theContent, eventI)
   }
 
   openSettings = _ => {
