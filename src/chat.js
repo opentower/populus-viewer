@@ -1,4 +1,4 @@
-import { h, createRef, Component } from 'preact';
+import { h, createRef, Fragment, Component } from 'preact';
 import './styles/chat.css'
 import * as Matrix from "matrix-js-sdk"
 import { TextMessage, NoticeMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } from './message.js'
@@ -269,8 +269,13 @@ function Anchor(props) {
   return props.fullyScrolled
     ? <div>
       <div id="anchor-quote">
-        <span>{Icons.quote}</span>
-        {props.topic}
+        {props.topic
+          ? <Fragment>
+            <span>{Icons.quote}</span>
+            {props.topic}
+          </Fragment>
+          : null
+        }
       </div>
       { props.focus.location.type === "pindrop"
         ? <div id="anchor-pin">
@@ -280,8 +285,8 @@ function Anchor(props) {
       }
       <div id="scroll-done">
         { props.focus.location.activityStatus === "open"
-            ? "All messages loaded"
-            : "Awaiting your comment..."
+          ? "All messages loaded"
+          : "Awaiting your comment..."
         }
       </div>
     </div>
