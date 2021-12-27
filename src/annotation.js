@@ -38,7 +38,7 @@ export default class AnnotationLayer extends Component {
   filterAnnotations (loc) {
     return (
       !!loc.location && // filter out old eventVersions
-      loc.location.pageNumber === parseInt(this.props.page, 10) &&
+      loc.location.pageNumber === parseInt(this.props.pageFocused, 10) &&
       ( loc.location.activityStatus === "open" ||
         (loc.location.activityStatus === "pending" && loc.event.getSender() === Client.client.getUserId())
       )

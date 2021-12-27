@@ -2,7 +2,9 @@ import * as Icons from "./icons.js"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
-import { spaceChild, mscLocation, eventVersion} from "./constants.js"
+import { spaceChild, mscLocation, mscParent, mscMarkupMsgKey, eventVersion} from "./constants.js"
+import { unionRects } from "./layout.js"
+import { textFromPdfSelection } from './utils/selection.js'
 import { processRegex } from './processRegex.js'
 import { UserColor } from './utils/colors.js'
 import Client from './client.js'
@@ -86,6 +88,33 @@ export default class MessagePanel extends Component {
     }
   }
 
+  sendSelection = _ => {
+    const theSelection = window.getSelection()
+    if (theSelection.isCollapsed) return
+    const theSelectedText = textFromPdfSelection(theSelection)
+    const clientRects = this.props.rectsFromPdfSelection(theSelection)
+    const boundingClientRect = unionRects(clientRects)
+    const theContent = {
+      body: "created an annotation",
+      msgtype: "m.emote",
+      [mscMarkupMsgKey]: {
+        [mscParent]: this.props.pdfId,
+        [mscLocation]: {
+          [eventVersion]: {
+            pageNumber: parseInt(this.props.pageFocused, 10),
+            activityStatus: "open",
+            type: "highlight",
+            boundingClientRect: JSON.stringify(boundingClientRect),
+            clientRects: JSON.stringify(clientRects),
+            creator: Client.client.getUserId(),
+            selectedText: theSelectedText
+          }
+        }
+      }
+    }
+    Client.client.sendMessage(this.props.focus.getRoomId(), theContent)
+  }
+
   openSettings = _ => {
     const theRoom = Client.client.getRoom(this.props.focus.getRoomId())
     this.props.populateModal(
@@ -107,14 +136,15 @@ export default class MessagePanel extends Component {
             { state.buttons === 1
               ? <Fragment>
                   <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
-                  <button title="upload file" onclick={this.setModeSendFile}>{Icons.upload}</button>
-                  <button title="upload image" onclick={this.setModeSendImage}>{Icons.image}</button>
+                  <button title="record audio message" onclick={this.setModeRecordAudio}>{Icons.mic}</button>
+                  <button title="record video message" onclick={this.setModeRecordVideo}>{Icons.video}</button>
                   <button title="more options" onclick={this.showMore}>{Icons.moreHorizontal}</button>
               </Fragment>
               : <Fragment>
                   <button title="more options" onclick={this.showLess}>{Icons.moreHorizontal}</button>
-                  <button title="record video message" onclick={this.setModeRecordVideo}>{Icons.video}</button>
-                  <button title="record audio message" onclick={this.setModeRecordAudio}>{Icons.mic}</button>
+                  <button id="quote-button" disabled={!props.hasSelection} title="quote highlighted" onclick={this.sendSelection}>{Icons.quote}</button>
+                  <button title="upload image" onclick={this.setModeSendImage}>{Icons.image}</button>
+                  <button title="upload file" onclick={this.setModeSendFile}>{Icons.upload}</button>
                   {isAdmin ? <button title="configure room settings" onclick={this.openSettings}>{Icons.settings}</button> : null}
               </Fragment>
             }

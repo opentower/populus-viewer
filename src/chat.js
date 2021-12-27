@@ -1,9 +1,10 @@
 import { h, createRef, Fragment, Component } from 'preact';
 import './styles/chat.css'
 import * as Matrix from "matrix-js-sdk"
-import { TextMessage, NoticeMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } from './message.js'
+import { TextMessage, AnnotationMessage, EmoteMessage, NoticeMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } from './message.js'
 import MessagePanel from './messagePanel.js'
 import { UserColor } from './utils/colors.js'
+import { mscMarkupMsgKey } from './constants.js'
 import UserInfoHeader from './userInfoHeader.js'
 import Client from './client.js'
 import * as Icons from './icons.js'
@@ -139,6 +140,7 @@ export default class Chat extends Component {
     const messages = state.events.filter(
       e => e.getType() === "m.room.message" &&
         (e.getContent().msgtype === "m.text" ||
+        e.getContent().msgtype === "m.emote" ||
         e.getContent().msgtype === "m.notice" ||
         e.getContent().msgtype === "m.file" ||
         e.getContent().msgtype === "m.image" ||
@@ -181,6 +183,23 @@ export default class Chat extends Component {
               key={event.getId()}
               event={event} />
           )
+          break;
+        }
+        case "m.emote": {
+          if (event.getContent()[mscMarkupMsgKey]) {
+            accumulator.push(
+              <AnnotationMessage reactions={reactions}
+                pdfFocused={props.pdfFocused}
+                key={event.getId()}
+                event={event} />
+            )
+          } else {
+            accumulator.push(
+              <EmoteMessage reactions={reactions}
+                key={event.getId()}
+                event={event} />
+            )
+          }
           break;
         }
         case "m.image": {
@@ -236,7 +255,13 @@ export default class Chat extends Component {
     return (
       <div ref={this.chatWrapper} class={props.class} onscroll={this.handleScroll} id="chat-wrapper">
         <div id="chat-panel">
-          <MessagePanel populateModal={props.populateModal} pdfId={props.pdfId} focus={props.focus} />
+          <MessagePanel
+            hasSelection={props.hasSelection}
+            rectsFromPdfSelection={props.rectsFromPdfSelection}
+            populateModal={props.populateModal}
+            pdfId={props.pdfId}
+            pageFocused={props.pageFocused}
+            focus={props.focus} />
           <div id="messages">
             {messagedivs}
             <TypingIndicator key={props.focus.getRoomId()} roomId={props.focus.getRoomId()} />

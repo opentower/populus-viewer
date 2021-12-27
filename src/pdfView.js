@@ -3,7 +3,7 @@ import Router from 'preact-router';
 import './styles/pdfView.css'
 import './styles/content-container.css'
 import * as Matrix from "matrix-js-sdk"
-import * as Layout from "./layout.js"
+import { unionRects } from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
 import AnnotationListing from "./annotationListing.js"
@@ -13,8 +13,8 @@ import History from './history.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
 import { mscLocation, eventVersion, spaceChild, spaceParent, lastViewed } from "./constants.js"
-import { calculateUnread } from './utils/unread.js'
 import Location from './utils/location.js'
+import { textFromPdfSelection, rectsFromPdfSelection } from './utils/selection.js'
 import SyncIndicator from './syncIndicator.js'
 import Modal from "./modal.js"
 import Toast from "./toast.js"
@@ -240,22 +240,15 @@ export default class PdfView extends Component {
     }
   }
 
+  rectsFromPdfSelection = sel => rectsFromPdfSelection(sel,this.annotationLayerWrapper.current, this.state.pdfFitRatio * this.state.zoomFactor)
+
   commitHighlight = _ => {
     const theSelection = window.getSelection()
     if (theSelection.isCollapsed) return
-    const theRange = theSelection.getRangeAt(0)
-    const theContents = Array.from(theRange.cloneContents().childNodes)
-    const theSelectedText = theContents.map(child =>
-      child.nodeType === 3 // Text node
-        ? child.data
-        : child.nodeType === 1 // Element Node
-          ? child.innerText
-          : "" ).join(' ').replace(/(.)-\s+/g, "$1") // join nodes with spaces, clean any linebreak dashes
+    const theSelectedText = textFromPdfSelection(theSelection)
+    const clientRects = this.rectsFromPdfSelection(theSelection)
+    const boundingClientRect = unionRects(clientRects)
     const theDomain = Client.client.getDomain()
-
-    const clientRects = Layout.sanitizeRects(Array.from(theRange.getClientRects())
-      .map(rect => Layout.rectRelativeTo(this.annotationLayerWrapper.current, rect, this.state.pdfFitRatio * this.state.zoomFactor)))
-    const boundingClientRect = Layout.unionRects(clientRects)
     // TODO: room creation is a bit slow, might want to rework this slightly for responsiveness
     //
     // TODO: we should set room_alias_name and name object, in a useful way based on the selection
@@ -612,7 +605,7 @@ export default class PdfView extends Component {
                 filteredAnnotationContents={state.filteredAnnotationContents}
                 pdfWidthAdjusted={state.pdfWidthPx / state.pdfFitRatio}
                 zoomFactor={state.zoomFactor}
-                page={props.pageFocused}
+                pageFocused={props.pageFocused}
                 roomId={state.roomId}
                 setFocus={this.setFocus}
                 focus={state.focus}
@@ -625,7 +618,11 @@ export default class PdfView extends Component {
               setFocus={this.setFocus}
               unsetFocus={this.unsetFocus}
               pdfId={state.roomId}
+              pdfFocused={props.pdfFocused}
+              pageFocused={props.pageFocused}
               populateModal={this.populateModal}
+              hasSelection={state.hasSelection}
+              rectsFromPdfSelection={this.rectsFromPdfSelection}
               handleWidgetScroll={this.handleWidgetScroll}
               focus={state.focus} />
           : null
@@ -655,7 +652,7 @@ export default class PdfView extends Component {
               />
           }
       </div>
-      <Navbar selected={state.hasSelection}
+      <Navbar hasSelection={state.hasSelection}
         openAnnotation={this.openAnnotation}
         closeAnnotation={this.closeAnnotation}
         pageFocused={props.pageFocused || 1}

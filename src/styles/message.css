@@ -114,6 +114,10 @@
     hyphens:auto;
 }
 
+.message-body blockquote {
+  margin-left: 1em;
+}
+
 .message-body a[href^="https://matrix.to/#/@"] {
   font-weight: bold;
   color:var(--user_dark);
@@ -131,6 +135,17 @@
 
 .message-from-user .message-body  {
     padding-left:15px;
+}
+
+.emote-banner {
+  color: var(--user_dark);
+  font-weight:bold;
+}
+
+.annotation-quote svg {
+  padding-right: .25em;
+  height: 1em;
+  color:#565656;
 }
 
 .message-frame div[data-mx-maths] {

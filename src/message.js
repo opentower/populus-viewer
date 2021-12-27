@@ -2,12 +2,14 @@ import { h, createRef, Fragment, Component } from 'preact';
 import sanitizeHtml from 'sanitize-html'
 import { renderLatexInElement } from './latex.js'
 import { UserColor } from './utils/colors.js'
-import { sanitizeHtmlParams } from './constants.js'
+import { sanitizeHtmlParams, mscMarkupMsgKey, mscLocation, eventVersion } from './constants.js'
 import { processLinks } from './links.js'
 import UserInfoHeader from './userInfoHeader.js'
 import MessageFrame from './messageFrame.js'
 import 'emoji-picker-element'
+import History from './history.js'
 import Client from './client.js'
+import * as Icons from './icons.js'
 import * as Replies from './utils/replies.js'
 import './styles/message.css'
 
@@ -51,6 +53,85 @@ export class TextMessage extends Component {
       <div ref={this.messageBody} class="message-body">
         {isReply ? <ReplyPreview reactions={props.reactions} event={props.event} /> : null}
         <DisplayContent content={content} />
+      </div>
+    </MessageFrame>
+  }
+}
+
+export class EmoteMessage extends Component {
+  componentDidMount() {
+    renderLatexInElement(this.messageBody.current)
+    processLinks(this.messageBody.current)
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.reactions[this.props.event.getId()] !== prevProps.reactions[prevProps.event.getId()]) {
+      renderLatexInElement(this.messageBody.current)
+      processLinks(this.messageBody.current)
+    }
+  }
+
+  messageBody = createRef()
+
+  sender = Client.client.getUser(this.props.event.getSender())
+
+  userColor = new UserColor(this.props.event.getSender())
+
+  render(props) {
+    const content = props.event.getContent()
+    return <MessageFrame
+      displayOnly={props.displayOnly}
+      reactions={props.reactions}
+      event={props.event}>
+      <div ref={this.messageBody} class="message-body">
+        <div class="emote-banner" style={this.userColor.styleVariables}>
+          {this.sender.displayName}:
+        </div>
+        <DisplayContent content={content} />
+      </div>
+    </MessageFrame>
+  }
+}
+
+export class AnnotationMessage extends Component {
+  componentDidMount() {
+    renderLatexInElement(this.messageBody.current)
+    processLinks(this.messageBody.current)
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.reactions[this.props.event.getId()] !== prevProps.reactions[prevProps.event.getId()]) {
+      renderLatexInElement(this.messageBody.current)
+      processLinks(this.messageBody.current)
+    }
+  }
+
+  messageBody = createRef()
+
+  sender = Client.client.getUser(this.props.event.getSender())
+
+  userColor = new UserColor(this.props.event.getSender())
+
+  text = this.props.event.getContent()[mscMarkupMsgKey]?.[mscLocation]?.[eventVersion]?.selectedText
+
+  pageNumber = this.props.event.getContent()[mscMarkupMsgKey]?.[mscLocation]?.[eventVersion]?.pageNumber
+
+  jumpToPage = _ => {
+    History.push(`/${this.props.pdfFocused}/${this.pageNumber}/`)
+  }
+
+  render(props) {
+    if (!this.text) return
+    return <MessageFrame
+      displayOnly={props.displayOnly}
+      reactions={props.reactions}
+      event={props.event}
+      getCurrentEdit={this.getCurrentEdit}>
+      <div onClick={this.jumpToPage} ref={this.messageBody} class="message-body">
+        <blockquote>
+          <span class="annotation-quote">{Icons.quote}</span>
+          {this.text}
+        </blockquote>
       </div>
     </MessageFrame>
   }

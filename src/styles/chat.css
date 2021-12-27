@@ -120,6 +120,10 @@
 
 #submitButton { grid-column:1/4; }
 
+#quote-button > svg  {
+  width:20px;
+}
+
 #cancelButton { grid-column:4/7; }
 
 #submit-button-wrapper > button:hover,
@@ -127,6 +131,12 @@
 .messageEditor > button:hover {
     transition: background-color 0.5s ease;
     background-color: var(--user_light);
+}
+
+#submit-button-wrapper > button:disabled {
+  background-color: white;
+  cursor: not-allowed;
+  color:grey;
 }
 
 #messageComposer > button:active {
