@@ -1,8 +1,3 @@
-export function matchSize(rect, elt) {
-  elt.style.height = `${rect.height}px`
-  elt.style.width = `${rect.width}px`
-}
-
 export function positionRelativeAt(rect, elt, zoomFactor) {
   const parent = elt.offsetParent
 
@@ -23,13 +18,6 @@ export function rectRelativeTo(elt, rect, zoomFactor) {
     rect.width / zoomFactor,
     rect.height / zoomFactor
   )
-}
-
-// take a rect in coordinates relative to the given element, and produce
-// a boundingClientRect, in coordinates relative to the viewport
-export function rectRelativeFrom(elt, rect) {
-  const eltRect = elt.getBoundingClientRect()
-  return new DOMRect(rect.x + eltRect.x, rect.y + eltRect.y, rect.width, rect.height)
 }
 
 // take an array of rects and sanitize them, removing zero width and rounding off decimal pixels
