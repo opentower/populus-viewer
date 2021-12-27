@@ -42,6 +42,12 @@
 .room-listing-avatar > img:first-child {
   object-fit:cover;
   max-width:100%;
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+
+.room-listing-avatar > img:first-child[data-avatar-loaded] {
+  opacity: 1
 }
 
 .room-listing-body {

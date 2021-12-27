@@ -238,6 +238,8 @@ class PDFRoomEntry extends Component {
 
   handleClose = _ => Client.client.leave(this.props.room.roomId)
 
+  handleLoad = _ => this.setState({ avatarLoaded: true })
+
   render (props, state) {
     const userMember = props.room.getMember(Client.client.getUserId())
     const isAdmin = userMember.powerLevel >= 100
@@ -252,7 +254,14 @@ class PDFRoomEntry extends Component {
       : null
     return <div style={this.roomColor.styleVariables} class="room-listing-entry" id={props.room.roomId}>
         <div style={avatarListingStyle} data-has-avatar={!!state.avatarUrl} class="room-listing-avatar">
-          {state.avatarUrl ? <img src={state.avatarUrl} loading="lazy" alt="room avatar" /> : null}
+          {state.avatarUrl
+            ? <img src={state.avatarUrl}
+                onLoad={this.handleLoad}
+                data-avatar-loaded={state.avatarLoaded}
+                loading="lazy"
+                alt="room avatar" />
+            : null
+          }
           <AnnotationData getLastViewedPage={this.getLastViewedPage} room={props.room} />
         </div>
       <div data-room-entry-buttons-visible={state.buttonsVisible} class="room-listing-body">
