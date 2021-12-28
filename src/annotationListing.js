@@ -297,8 +297,15 @@ class AnnotationListingEntry extends Component {
 
   componentDidMount () {
     renderLatexInElement(this.comment.current)
+    Client.client.on("Room.timeline", this.handleTimeline)
+    Client.client.on("Room.accountData", this.handleTimeline)
     processLinks(this.comment.current)
     this.setTopic()
+  }
+
+  componentWillUnmount () {
+    Client.client.off("Room.timeline", this.handleTimeline)
+    Client.client.off("Room.accountData", this.handleTimeline)
   }
 
   componentDidUpdate(prevProps) {
@@ -306,6 +313,10 @@ class AnnotationListingEntry extends Component {
       this.props.focus?.getChild() === this.props.annotationLocation.getChild()) {
       this.entry.current.scrollIntoView()
     }
+  }
+
+  handleTimeline = (_event, room) => {
+    if (room.roomId === this.room.roomId) this.setState({})
   }
 
   comment = createRef()
