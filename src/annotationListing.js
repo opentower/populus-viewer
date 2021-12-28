@@ -77,8 +77,8 @@ export default class AnnotationListing extends Component {
   }
 
   byActivity = (a, b) => {
-    const room1 = Client.client.getRoom(a.getRoomId())
-    const room2 = Client.client.getRoom(b.getRoomId())
+    const room1 = Client.client.getRoom(a.getChild())
+    const room2 = Client.client.getRoom(b.getChild())
     // XXX might not be a member of both rooms, hence unable to get timestamps
     if (room1 && room2) {
       const ts1 = room1.getLastActiveTimestamp()
@@ -147,7 +147,7 @@ export default class AnnotationListing extends Component {
             break
           }
           case "Activity" : {
-            const room = Client.client.getRoom(loc.getRoomId())
+            const room = Client.client.getRoom(loc.getChild())
             if (room && state.sortOrder === 1) { // TODO handle times for reverse sort
               const age = initialDate - room.getLastActiveTimestamp()
               const dateDelta = currentDate - room.getLastActiveTimestamp()
@@ -231,8 +231,8 @@ export default class AnnotationListing extends Component {
       theAnnotations.push(divider)
       theAnnotations.push(
         <AnnotationListingEntry
-            key={loc.getRoomId()}
-            typing={state.typing[loc.getRoomId()]}
+            key={loc.getChild()}
+            typing={state.typing[loc.getChild()]}
             annotationLocation={loc}
             focusByRoomId={props.focusByRoomId}
             focus={props.focus}
@@ -302,8 +302,8 @@ class AnnotationListingEntry extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.focus?.getRoomId() !== this.props.annotationLocation.getRoomId() &&
-      this.props.focus?.getRoomId() === this.props.annotationLocation.getRoomId()) {
+    if (prevProps.focus?.getChild() !== this.props.annotationLocation.getChild() &&
+      this.props.focus?.getChild() === this.props.annotationLocation.getChild()) {
       this.entry.current.scrollIntoView()
     }
   }
@@ -313,7 +313,7 @@ class AnnotationListingEntry extends Component {
   entry = createRef()
 
   async setTopic() {
-    this.room = await Client.client.getRoomWithState(this.props.annotationLocation.getRoomId())
+    this.room = await Client.client.getRoomWithState(this.props.annotationLocation.getChild())
     this.setState({
       topic: this.room.getLiveTimeline()
         .getState(Matrix.EventTimeline.FORWARDS)
@@ -323,7 +323,7 @@ class AnnotationListingEntry extends Component {
   }
 
   handleClick = () => {
-    this.props.focusByRoomId(this.props.annotationLocation.getRoomId())
+    this.props.focusByRoomId(this.props.annotationLocation.getChild())
   }
 
   creator = this.props.parentRoom.getMember(this.props.annotationLocation.location.creator)
@@ -332,7 +332,7 @@ class AnnotationListingEntry extends Component {
 
   render(props, state) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
-    const focused = props.focus?.getRoomId() === props.annotationLocation.getRoomId()
+    const focused = props.focus?.getChild() === props.annotationLocation.getChild()
     return <div style={this.userColor.styleVariables}
       data-annotation-entry-typing={typing}
       data-annotation-entry-focused={focused}

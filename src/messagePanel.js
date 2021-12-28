@@ -29,7 +29,7 @@ export default class MessagePanel extends Component {
     const theProps = {
       ref: this.theInput,
       submit: this.submitCurrentInput,
-      roomId: this.props.focus.getRoomId(),
+      roomId: this.props.focus.getChild(),
       handlePending: this.openPendingAnnotation,
       done: this.setModeDefault
     }
@@ -83,7 +83,7 @@ export default class MessagePanel extends Component {
         }
       }
       Client.client
-        .sendStateEvent(this.props.pdfId, spaceChild, childContent, this.props.focus.getRoomId())
+        .sendStateEvent(this.props.pdfId, spaceChild, childContent, this.props.focus.getChild())
         .catch(e => alert(e))
     }
   }
@@ -112,12 +112,12 @@ export default class MessagePanel extends Component {
         }
       }
     }
-    const eventI = await Client.client.sendMessage(this.props.focus.getRoomId(), theContent)
+    const eventI = await Client.client.sendMessage(this.props.focus.getChild(), theContent)
     this.openPendingAnnotation(theContent, eventI)
   }
 
   openSettings = _ => {
-    const theRoom = Client.client.getRoom(this.props.focus.getRoomId())
+    const theRoom = Client.client.getRoom(this.props.focus.getChild())
     this.props.populateModal(
       <RoomSettings
         populateModal={this.props.populateModal}
@@ -126,7 +126,7 @@ export default class MessagePanel extends Component {
   }
 
   render(props, state) {
-    const theRoom = Client.client.getRoom(props.focus.getRoomId())
+    const theRoom = Client.client.getRoom(props.focus.getChild())
     const userMember = theRoom?.getMember(Client.client.getUserId())
     const isAdmin = userMember ? userMember.powerLevel >= 100 : false
     return <div style={this.userColor.styleVariables} id="messageComposer">

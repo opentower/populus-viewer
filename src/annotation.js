@@ -47,21 +47,21 @@ export default class AnnotationLayer extends Component {
 
   getAnnotations() {
     const theRoom = Client.client.getRoom(this.props.roomId)
-    const focusId = this.props.focus ? this.props.focus.getRoomId() : null
+    const focusId = this.props.focus?.getChild()
     let annotations = []
     if (theRoom) {
       let didFocus = false
       // We filter to include only the annotations on the page
       const annotationData = this.props.filteredAnnotationContents
         .filter(loc => {
-          if (loc.getRoomId() === this.props.focus?.getRoomId()) didFocus = true
+          if (loc.getChild() === this.props.focus?.getChild()) didFocus = true
           return this.filterAnnotations(loc)
         })
       // We add the focus back in if it's on the page but got screened out of filteredAnnotationContents
       if (this.props.focus && this.filterAnnotations(this.props.focus) && !didFocus) annotationData.push(this.props.focus)
       // We turn the array into annontation components
       annotations = annotationData.map(loc => {
-        const annotationId = loc.getRoomId()
+        const annotationId = loc.getChild()
         switch (loc.location.type) {
           case 'pindrop': return <Pindrop
             key={annotationId}
@@ -152,7 +152,7 @@ class Annotation extends Component {
 
   eventContent = this.props.location.location
 
-  roomId = this.props.location.getRoomId()
+  roomId = this.props.location.getChild()
 
   rightSide = this.roomId.charCodeAt(1) % 2 === 1
 

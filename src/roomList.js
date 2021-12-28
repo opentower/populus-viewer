@@ -1,4 +1,4 @@
-import { h, Fragment, Component, createRef } from 'preact';
+import { h, Fragment, Component } from 'preact';
 import { spaceChild, lastViewed } from "./constants.js"
 import Resource from "./utils/resource.js"
 import Location from "./utils/location.js"
@@ -6,11 +6,10 @@ import * as Matrix from "matrix-js-sdk"
 import MemberPill from './memberPill.js'
 import Client from './client.js'
 import Invite from './invite.js'
-import { TagEditor, TagList }from './tagEditor.js'
+import { TagEditor, TagList } from './tagEditor.js'
 import RoomSettings from './roomSettings.js'
 import { RoomColor } from './utils/colors.js'
 import * as Icons from './icons.js'
-import { calculateUnread } from './utils/unread.js'
 import History from './history.js'
 import './styles/roomList.css'
 
@@ -387,7 +386,7 @@ class AnnotationData extends Component {
   }
 
   handleTimeline (_event, room) {
-    const childIds = this.state.annotations.map(loc => loc.getRoomId())
+    const childIds = this.state.annotations.map(loc => loc.getChild())
     if (room?.roomId in childIds) this.updateAnnotations()
   }
 

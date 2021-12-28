@@ -35,10 +35,6 @@
   position:relative;
 }
 
-.room-listing-avatar:not([data-has-avatar]) {
-  background:#454545;
-}
-
 .room-listing-avatar > img:first-child {
   object-fit:cover;
   max-width:100%;

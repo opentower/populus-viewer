@@ -1,5 +1,5 @@
 import Client from '../client.js'
-import { eventVersion, mscLocation } from "../constants.js"
+import { eventVersion, spaceParent, spaceChild, mscLocation } from "../constants.js"
 
 export default class Location {
   constructor(theEvent) {
@@ -9,12 +9,18 @@ export default class Location {
   }
 
   getUnread() {
-    const room = Client.client.getRoom(this.event.getStateKey())
+    const room = Client.client.getRoom(this.getChild())
     if (room) return room.getUnreadNotificationCount()
     return "All"
   }
 
-  getRoomId() {
-    return this.event.getStateKey()
+  getParent() {
+    if (this.event.getType() === spaceParent) return this.event.getStateKey()
+    if (this.event.getType() === spaceChild) return this.event.getRoomId()
+  }
+
+  getChild() {
+    if (this.event.getType() === spaceParent) return this.event.getRoomId()
+    if (this.event.getType() === spaceChild) return this.event.getStateKey()
   }
 }

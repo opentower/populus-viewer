@@ -19,7 +19,7 @@ export default class Chat extends Component {
     }
     this.scrolledIdents = new Set()
     this.handleTimeline = this.handleTimeline.bind(this)
-    this.timelinePromise = this.loadTimelineWindow(props.focus.getRoomId())
+    this.timelinePromise = this.loadTimelineWindow(props.focus.getChild())
   }
 
   componentDidMount() {
@@ -34,7 +34,7 @@ export default class Chat extends Component {
   }
 
   async componentDidUpdate(prevProps) {
-    if (prevProps.focus.getRoomId() !== this.props.focus.getRoomId()) this.resetFocus()
+    if (prevProps.focus.getChild() !== this.props.focus.getChild()) this.resetFocus()
   }
 
   chatWrapper = createRef()
@@ -43,7 +43,7 @@ export default class Chat extends Component {
 
   // Room.timeline passes in more params
   handleTimeline = (event) => {
-    if (this.props.focus?.getRoomId() === event.getRoomId()) {
+    if (this.props.focus?.getChild() === event.getRoomId()) {
       this.timelinePromise
         .then(_ => this.timelineWindow.paginate(Matrix.EventTimeline.FORWARDS, 1, false))
         .then(this.updateEvents)
@@ -73,7 +73,7 @@ export default class Chat extends Component {
 
   async loadTimelineWindow (roomId) {
     try {
-      await Client.client.joinRoom(this.props.focus.getRoomId())
+      await Client.client.joinRoom(this.props.focus.getChild())
     } catch (err) {
       alert(err)
       this.props.unsetFocus()
@@ -122,11 +122,11 @@ export default class Chat extends Component {
   }
 
   async resetFocus () {
-    this.timelinePromise = this.loadTimelineWindow(this.props.focus.getRoomId())
+    this.timelinePromise = this.loadTimelineWindow(this.props.focus.getChild())
     await this.timelinePromise
     this.setState({
       topic: this.getTopic(),
-      fullyScrolled: this.scrolledIdents.has(this.props.focus.getRoomId()),
+      fullyScrolled: this.scrolledIdents.has(this.props.focus.getChild()),
       events: this.timelineWindow.getEvents()
     }, _ => {
       this.updateReadReceipt()
@@ -264,7 +264,7 @@ export default class Chat extends Component {
             focus={props.focus} />
           <div id="messages">
             {messagedivs}
-            <TypingIndicator key={props.focus.getRoomId()} roomId={props.focus.getRoomId()} />
+            <TypingIndicator key={props.focus.getChild()} roomId={props.focus.getChild()} />
             {/* The key prop here ensures that typing state is reset when the room changes */}
           </div>
           <Anchor ref={this.scrollAnchor} focus={props.focus} topic={state.topic} fullyScrolled={state.fullyScrolled} />

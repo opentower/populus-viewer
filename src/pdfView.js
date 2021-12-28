@@ -81,12 +81,12 @@ export default class PdfView extends Component {
   }
 
   handleTimeline (_event, room) {
-    const childIds = this.state.annotationContents.map(loc => loc.getRoomId())
+    const childIds = this.state.annotationContents.map(loc => loc.getChild())
     if (room?.roomId in childIds) this.updateAnnotations()
   }
 
   handleAccountData = (e, room) => {
-    const childIds = this.state.annotationContents.map(loc => loc.getRoomId())
+    const childIds = this.state.annotationContents.map(loc => loc.getChild())
     if (room?.roomId in childIds) this.updateAnnotations()
     else if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
       const theContent = e.getContent()
@@ -373,14 +373,14 @@ export default class PdfView extends Component {
     let reachedFocus = !this.state.focus
     if (!array) return
     for (const annot of array) {
-      const theId = annot.getRoomId()
+      const theId = annot.getChild()
       if (reachedFocus) {
         this.focusByRoomId(theId)
         return
       }
-      reachedFocus = this.state.focus.getRoomId() === theId
+      reachedFocus = this.state.focus.getChild() === theId
     }
-    this.focusByRoomId(array[0].getRoomId())
+    this.focusByRoomId(array[0].getChild())
   }
 
   focusNext = _ => {
@@ -476,7 +476,7 @@ export default class PdfView extends Component {
         [eventVersion]: Object.assign(this.state.focus.location, theDiff)
       }
     }
-    Client.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.getRoomId())
+    Client.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.getChild())
     this.unsetFocus()
   }
 
@@ -486,7 +486,7 @@ export default class PdfView extends Component {
   }
 
   setFocus = focus => {
-    History.push(`/${this.props.pdfFocused}/${this.props.pageFocused}/${focus.getRoomId()}/`)
+    History.push(`/${this.props.pdfFocused}/${this.props.pageFocused}/${focus.getChild()}/`)
     this.setState({ focus })
   }
 
