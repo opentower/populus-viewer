@@ -186,31 +186,7 @@ export default class RoomList extends Component {
 class PDFRoomEntry extends Component {
   constructor(props) {
     super(props)
-    const avatarEvent = props.room.getLiveTimeline()
-      .getState(Matrix.EventTimeline.FORWARDS)
-      .getStateEvents("m.room.avatar", "")
-    this.state = {
-      buttonsVisible: false,
-      avatarEvent,
-      avatarUrl: avatarEvent?.getContent()?.url
-        ? Client.client.mxcUrlToHttp(avatarEvent.getContent().url)
-        : null
-    }
-  }
-
-  componentDidMount () {
-    Client.client.on("RoomState.events", this.handleStateUpdate)
-  }
-
-  handleStateUpdate = e => {
-    if (e.getRoomId() === this.props.room.roomId && e.getType() === "m.room.avatar") {
-      this.setState({
-        avatarEvent: e,
-        avatarUrl: e.getContent().url
-          ? Client.client.getHttpUriForMxcFromHS(e.getContent().url)
-          : null
-      })
-    }
+    this.state = { buttonsVisible: false }
   }
 
   getLastViewedPage = _ => this.props.room.getAccountData(lastViewed)
@@ -238,32 +214,14 @@ class PDFRoomEntry extends Component {
 
   handleClose = _ => Client.client.leave(this.props.room.roomId)
 
-  handleLoad = _ => this.setState({ avatarLoaded: true })
-
   render (props, state) {
     const userMember = props.room.getMember(Client.client.getUserId())
     const isAdmin = userMember.powerLevel >= 100
     const canInvite = props.room.getLiveTimeline()
       .getState(Matrix.EventTimeline.FORWARDS)
       .hasSufficientPowerLevelFor("invite", userMember.powerLevel)
-    const avatarInfo = state.avatarEvent?.getContent()?.info
-    // using max/min here rather than setting the height directly so that the height doesn't affect the object-fit: cover of the image,
-    // But so that the div is still the right size prior to image-load
-    const avatarListingStyle = avatarInfo
-      ? { "min-height": Math.min(300, avatarInfo.h), "max-height": Math.min(300, avatarInfo.h) }
-      : null
     return <div style={this.roomColor.styleVariables} class="room-listing-entry" id={props.room.roomId}>
-        <div style={avatarListingStyle} data-has-avatar={!!state.avatarUrl} class="room-listing-avatar">
-          {state.avatarUrl
-            ? <img src={state.avatarUrl}
-                onLoad={this.handleLoad}
-                data-avatar-loaded={state.avatarLoaded}
-                loading="lazy"
-                alt="room avatar" />
-            : null
-          }
-          <AnnotationData getLastViewedPage={this.getLastViewedPage} room={props.room} />
-        </div>
+      <AvatarPanel getLastViewedPage={this.getLastViewedPage} room={props.room} />
       <div data-room-entry-buttons-visible={state.buttonsVisible} class="room-listing-body">
         <div class="room-listing-heading">
           {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
@@ -283,6 +241,63 @@ class PDFRoomEntry extends Component {
           { state.buttonsVisible && isAdmin ? <button title="Configure room settings" onClick={this.openSettings}>{Icons.settings}</button> : null }
         </div>
       </div>
+    </div>
+  }
+}
+
+class AvatarPanel extends Component {
+  constructor(props) {
+    super(props)
+    const avatarEvent = props.room.getLiveTimeline()
+      .getState(Matrix.EventTimeline.FORWARDS)
+      .getStateEvents("m.room.avatar", "")
+    this.state = {
+      avatarEvent,
+      loaded: false,
+      avatarUrl: avatarEvent?.getContent()?.url
+        ? Client.client.mxcUrlToHttp(avatarEvent.getContent().url)
+        : null
+    }
+  }
+
+  componentDidMount () {
+    Client.client.on("RoomState.events", this.handleStateUpdate)
+  }
+
+  componentWillUnmount () {
+    Client.client.off("RoomState.events", this.handleStateUpdate)
+  }
+
+  handleStateUpdate = e => {
+    if (e.getRoomId() === this.props.room.roomId && e.getType() === "m.room.avatar") {
+      this.setState({
+        avatarEvent: e,
+        avatarUrl: e.getContent().url
+          ? Client.client.getHttpUriForMxcFromHS(e.getContent().url)
+          : null
+      })
+    }
+  }
+
+  handleLoad = _ => this.setState({ loaded: true })
+
+  render(props, state) {
+    const avatarInfo = state.avatarEvent?.getContent()?.info
+    // using max/min here rather than setting the height directly so that the height doesn't affect the object-fit: cover of the image,
+    // But so that the div is still the right size prior to image-load
+    const avatarListingStyle = avatarInfo
+      ? { "min-height": Math.min(300, avatarInfo.h), "max-height": Math.min(300, avatarInfo.h) }
+      : null
+    return <div style={avatarListingStyle} data-has-avatar={!!state.avatarUrl} class="room-listing-avatar">
+      {state.avatarUrl
+        ? <img src={state.avatarUrl}
+            onLoad={this.handleLoad}
+            data-avatar-loaded={state.loaded}
+            loading="lazy"
+            alt="room avatar" />
+        : null
+      }
+      <AnnotationData getLastViewedPage={props.getLastViewedPage} room={props.room} />
     </div>
   }
 }
