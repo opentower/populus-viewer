@@ -95,7 +95,11 @@ export class EmoteMessage extends Component {
 export class AnnotationMessage extends Component {
   handleClick = _ => {
     if (this.hasFocus()) this.props.setSecondaryFocus(null)
-    else this.props.setSecondaryFocus(this.location)
+  }
+
+  handleLinkClick = e => {
+    e.stopPropagation()
+    if (!this.hasFocus()) this.props.setSecondaryFocus(this.location)
   }
 
   sender = Client.client.getUser(this.props.event.getSender())
@@ -120,7 +124,8 @@ export class AnnotationMessage extends Component {
       <div onClick={this.handleClick} class="message-body">
         <span class="annotation-banner">
           On&nbsp;
-          <a href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.pdfFocused)}/${this.pageNumber}/`} >
+          <a onClick={this.handleLinkClick}
+            href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.pdfFocused)}/${this.pageNumber}/`} >
             page {this.pageNumber}
           </a>:
         </span>

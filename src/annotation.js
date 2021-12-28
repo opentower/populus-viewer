@@ -57,7 +57,8 @@ export default class AnnotationLayer extends Component {
           if (loc.getChild() === this.props.focus?.getChild()) didFocus = true
           return this.filterAnnotations(loc)
         })
-      if (this.props.secondaryFocus) annotationData.push(this.props.secondaryFocus)
+      // We add the secondary focus
+      if (this.props.secondaryFocus && this.filterAnnotations(this.props.secondaryFocus)) annotationData.push(this.props.secondaryFocus)
       // We add the focus back in if it's on the page but got screened out of filteredAnnotationContents
       if (this.props.focus && this.filterAnnotations(this.props.focus) && !didFocus) annotationData.push(this.props.focus)
       // We turn the array into annontation components
