@@ -190,6 +190,8 @@ export default class Chat extends Component {
             accumulator.push(
               <AnnotationMessage reactions={reactions}
                 pdfFocused={props.pdfFocused}
+                secondaryFocus={props.secondaryFocus}
+                setSecondaryFocus={props.setSecondaryFocus}
                 key={event.getId()}
                 event={event} />
             )

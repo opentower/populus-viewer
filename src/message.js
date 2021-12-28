@@ -7,9 +7,8 @@ import { processLinks } from './links.js'
 import UserInfoHeader from './userInfoHeader.js'
 import MessageFrame from './messageFrame.js'
 import 'emoji-picker-element'
-import History from './history.js'
+import Location from './utils/location.js'
 import Client from './client.js'
-import * as Icons from './icons.js'
 import * as Replies from './utils/replies.js'
 import './styles/message.css'
 
@@ -94,36 +93,31 @@ export class EmoteMessage extends Component {
 }
 
 export class AnnotationMessage extends Component {
-  componentDidMount() {
-    renderLatexInElement(this.messageBody.current)
-    processLinks(this.messageBody.current)
+  handleClick = _ => {
+    if (this.hasFocus()) this.props.setSecondaryFocus(null)
+    else this.props.setSecondaryFocus(this.location)
   }
-
-  componentDidUpdate(prevProps) {
-    if (this.props.reactions[this.props.event.getId()] !== prevProps.reactions[prevProps.event.getId()]) {
-      renderLatexInElement(this.messageBody.current)
-      processLinks(this.messageBody.current)
-    }
-  }
-
-  messageBody = createRef()
 
   sender = Client.client.getUser(this.props.event.getSender())
 
   userColor = new UserColor(this.props.event.getSender())
 
-  text = this.props.event.getContent()[mscMarkupMsgKey]?.[mscLocation]?.[eventVersion]?.selectedText
+  location = new Location(this.props.event)
 
-  pageNumber = this.props.event.getContent()[mscMarkupMsgKey]?.[mscLocation]?.[eventVersion]?.pageNumber
+  text = this.location.location.selectedText
+
+  pageNumber = this.location.location.pageNumber
+
+  hasFocus = _ => this.location === this.props.secondaryFocus
 
   render(props) {
     if (!this.text) return
     return <MessageFrame
-      displayOnly={props.displayOnly}
+      styleOverride={this.hasFocus() ? {background: this.userColor.ultralight, ... this.userColor.styleVariables} : null }
       reactions={props.reactions}
       event={props.event}
       getCurrentEdit={this.getCurrentEdit}>
-      <div ref={this.messageBody} class="message-body">
+      <div onClick={this.handleClick} class="message-body">
         <span class="annotation-banner">
           On&nbsp;
           <a href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.pdfFocused)}/${this.pageNumber}/`} >

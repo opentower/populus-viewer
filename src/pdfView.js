@@ -27,6 +27,7 @@ export default class PdfView extends Component {
     this.state = {
       roomId: null,
       focus: null,
+      secondaryFocus: null, //for temporarily focusing an extra location
       totalPages: null,
       navHeight: 75,
       panelVisible: false,
@@ -365,7 +366,7 @@ export default class PdfView extends Component {
     if (theAnnotation) {
       const focus = new Location(theAnnotation)
       History.push(`/${this.props.pdfFocused}/${focus.location.pageNumber || this.props.pageFocused}/${roomId}`)
-      this.setState({ focus, panelVisible: true, hideButtons: false })
+      this.setState({ focus, secondaryFocus: null, panelVisible: true, hideButtons: false })
     }
   }
 
@@ -481,14 +482,16 @@ export default class PdfView extends Component {
   }
 
   unsetFocus = _ => {
-    this.setState({focus: null})
+    this.setState({secondaryFocus: null, focus: null})
     History.push(`/${this.props.pdfFocused}/${this.props.pageFocused}/`)
   }
 
   setFocus = focus => {
     History.push(`/${this.props.pdfFocused}/${this.props.pageFocused}/${focus.getChild()}/`)
-    this.setState({ focus })
+    this.setState({secondaryFocus: null, focus })
   }
+
+  setSecondaryFocus = secondaryFocus => this.setState({ secondaryFocus })
 
   getLoadingStatus() {
     if (this.state.pdfHeightPx) return null
@@ -609,6 +612,7 @@ export default class PdfView extends Component {
                 roomId={state.roomId}
                 setFocus={this.setFocus}
                 focus={state.focus}
+                secondaryFocus={state.secondaryFocus}
           />
         </div>
       </div>
@@ -616,6 +620,7 @@ export default class PdfView extends Component {
         {state.focus
           ? <Chat class="panel-widget-1"
               setFocus={this.setFocus}
+              setSecondaryFocus={this.setSecondaryFocus}
               unsetFocus={this.unsetFocus}
               pdfId={state.roomId}
               pdfFocused={props.pdfFocused}
@@ -624,6 +629,7 @@ export default class PdfView extends Component {
               hasSelection={state.hasSelection}
               rectsFromPdfSelection={this.rectsFromPdfSelection}
               handleWidgetScroll={this.handleWidgetScroll}
+              secondaryFocus={state.secondaryFocus}
               focus={state.focus} />
           : null
         }

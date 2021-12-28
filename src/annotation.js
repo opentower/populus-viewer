@@ -57,6 +57,7 @@ export default class AnnotationLayer extends Component {
           if (loc.getChild() === this.props.focus?.getChild()) didFocus = true
           return this.filterAnnotations(loc)
         })
+      if (this.props.secondaryFocus) annotationData.push(this.props.secondaryFocus)
       // We add the focus back in if it's on the page but got screened out of filteredAnnotationContents
       if (this.props.focus && this.filterAnnotations(this.props.focus) && !didFocus) annotationData.push(this.props.focus)
       // We turn the array into annontation components
@@ -64,7 +65,7 @@ export default class AnnotationLayer extends Component {
         const annotationId = loc.getChild()
         switch (loc.location.type) {
           case 'pindrop': return <Pindrop
-            key={annotationId}
+            key={loc.event.getId()}
             focused={focusId === annotationId}
             typing={this.state.typing[annotationId]}
             setFocus={this.props.setFocus}
@@ -72,8 +73,8 @@ export default class AnnotationLayer extends Component {
           // default for legacy reasons, could switch to highlight in 2022
           default: return <Annotation
             zoomFactor={this.props.zoomFactor}
-            key={annotationId}
-            focused={focusId === annotationId}
+            key={loc.event.getId()}
+            focused={focusId === loc.getChild()}
             typing={this.state.typing[annotationId]}
             setFocus={this.props.setFocus}
             pdfWidthAdjusted={this.props.pdfWidthAdjusted}
