@@ -5,6 +5,7 @@ import { TextMessage } from './message.js'
 import { spaceParent, spaceChild } from "./constants.js"
 import { isUnread } from './utils/unread.js'
 import { dateReducer } from './utils/dates.js'
+import Location from './utils/location.js'
 import './styles/notifications.css'
 import Client from './client.js'
 import History from './history.js'
@@ -166,7 +167,7 @@ class Notification extends Component {
 
   handleClick = _ => {
     const origin = new Location(this.originAnnotation)
-    History.push(`/${encodeURIComponent(this.originAlias.slice(1))}/${origin.location.pageNumber}/${origin.event.getStateKey()}`)
+    History.push(`/${encodeURIComponent(this.originAlias.slice(1))}/${origin.location.pageNumber}/${origin.getChild()}`)
   }
 
   render(props, state) {
