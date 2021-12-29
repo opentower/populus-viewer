@@ -57,7 +57,7 @@ export default class PdfCanvas extends Component {
     const thePdf = new Resource(theRoom)
     this.setState({pdfIdentifier: thePdf.url})
     if (!PdfCanvas.PDFStore[thePdf.url]) {
-      await window.fetch(thePdf.httpUrl)
+      PdfCanvas.PDFStore[thePdf.url] = window.fetch(thePdf.httpUrl)
         .then(async response => {
           const theClone = response.clone()
           const contentLength = +response.headers.get('Content-Length')
@@ -71,9 +71,7 @@ export default class PdfCanvas extends Component {
           }
           return theClone.arrayBuffer()
         })
-        .then(array => {
-          PdfCanvas.PDFStore[thePdf.url] = PDFJS.getDocument(array).promise
-        })
+        .then(array => PDFJS.getDocument(array).promise)
     } else { console.log(`found pdf for ${theRoom.name} in store` ) }
     PdfCanvas.PDFStore[thePdf.url]
       .then(pdf => this.props.setTotalPages(pdf.numPages))
@@ -122,7 +120,7 @@ export default class PdfCanvas extends Component {
     // exit early if someone else has grabbed control
     if (control !== this.controlToken) return
     // Fetch the first page
-    const page = await pdf.getPage(parseInt(this.props.pageFocused,10) || 1).catch(console.log)
+    const page = await pdf.getPage(parseInt(this.props.pageFocused, 10) || 1).catch(console.log)
     console.log('Page loaded');
 
     const scale = 3
