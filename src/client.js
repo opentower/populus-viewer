@@ -10,7 +10,7 @@ function getRoomWithState(roomId) {
 }
 
 function getHttpUriForMxcFromHS(...theArgs) {
-  return Matrix.getHttpUriForMxc(`https://${this.getDomain()}`, ...theArgs)
+  return Matrix.getHttpUriForMxc(this.getHomeserverUrl(), ...theArgs)
 }
 
 export default class Client {
