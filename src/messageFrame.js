@@ -152,10 +152,10 @@ class ActionsOnOthersMessages extends Component {
       case "emoji" : return <div ref={this.actions} data-active class="message-actions">
           <button key="b" onclick={this.react("👍")}>👍</button>
           <button key="c" onclick={this.react("❤")}>❤</button>
+          <button key="f" onclick={this.react("😲")}>😲</button>
           <button key="d" onclick={this.react("🤣")}>🤣</button>
           <button key="e" onclick={this.react("🤔")}>🤔</button>
-          <button key="f" onclick={this.pickEmoji}>{Icons.moreHorizontal}</button>
-          <button key="g" onclick={this.clearSelecting}>{Icons.close}</button>
+          <button key="g" onclick={this.pickEmoji}>{Icons.moreHorizontal}</button>
         </div>
       default : return <div ref={this.actions} class="message-actions">
           {!props.responding && <button key="h" title="reply to this message" onclick={props.openEditor}>
