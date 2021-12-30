@@ -134,23 +134,12 @@ export default class RoomList extends Component {
       .map(room => {
         const resource = new Resource(room)
         let result = null
-        switch (room.getMyMembership()) {
-          case "join" : {
-            if (resource.url) {
-              result = <PDFRoomEntry
-                memberLimit={this.state.memberLimit}
-                populateModal={this.props.populateModal}
-                room={room}
-                key={room.roomId} />
-            }
-            break
-          }
-          case "invite" : {
-            result = <InviteEntry room={room}
-              key={room.roomId}
-              roomListener={this.roomListener}
-            />
-          }
+        if (room.getMyMembership() === "join" && resource.url) {
+          result = <PDFRoomEntry
+            memberLimit={this.state.memberLimit}
+            populateModal={this.props.populateModal}
+            room={room}
+            key={room.roomId} />
         }
         return result
       }).filter(room => room !== null)
@@ -409,33 +398,6 @@ class AnnotationData extends Component {
           <span class="small-icon-badge">{unread}</span>
         </span>
       }
-    </div>
-  }
-}
-
-class InviteEntry extends Component {
-  accept = _ => {
-    Client.client.joinRoom(this.props.room.roomId)
-    setTimeout(this.props.roomListener, 1000)
-    // XXX the updates get grouped in such a way that the redraw misses the state
-    // update that comes with the join. So we need to do a second update to the
-    // room listing, here.
-  }
-
-  decline = _ => {
-    Client.client.leave(this.props.room.roomId)
-    setTimeout(this.props.roomListener, 1000)
-  }
-
-  render(props) {
-    return <div class="invite-entry">
-      <div class="invite-heading">
-        You are invited to join the discussion {props.room.name}.
-      </div>
-      <div class="invite-buttons">
-        <button class="styled-button" onclick={this.accept}>Accept</button>
-        <button class="styled-button" onclick={this.decline}>Decline</button>
-      </div>
     </div>
   }
 }

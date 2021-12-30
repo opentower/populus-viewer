@@ -7,7 +7,7 @@ export default class Resource {
     const roomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const legacyMxc = roomState.getStateEvents(pdfStateType, "")?.getContent()?.mxc
 
-    const resourceContent = roomState.getStateEvents("m.room.create", "").getContent()?.[mscResourceData]
+    const resourceContent = roomState.getStateEvents("m.room.create", "")?.getContent()?.[mscResourceData]
 
     this.file = resourceContent?.["m.file"]
 

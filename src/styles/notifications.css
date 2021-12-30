@@ -1,10 +1,14 @@
-.notification {
+.notification, .invite-entry {
   margin:10px;
   border: 1px solid black;
 }
 
-.unread-notification {
+.unread-notification, .invite-entry {
   border: 2px solid black;
+}
+
+.invite-entry {
+    padding: 1em; 
 }
 
 .notification-contents {
@@ -18,7 +22,7 @@
 
 .discussion-topic {
   padding:10px;
-  padding-left:20px
+  padding-left:20px;
 }
 
 .notification-header > img {

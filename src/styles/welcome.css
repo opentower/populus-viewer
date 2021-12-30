@@ -30,6 +30,12 @@
     margin-bottom:5px;
 }
 
+#welcome-notifications > .small-icon-badge {
+  position:absolute;
+  bottom:19px;
+  left:12px;
+}
+
 #welcome-notifications, 
 #welcome-upload, 
 #welcome-profile {
@@ -49,6 +55,7 @@
 #welcome-profile {
     cursor: pointer;
     width: 26px;
+    padding-bottom: 2px;
     height: 26px;
     margin-right: 13px; 
     overflow: hidden;

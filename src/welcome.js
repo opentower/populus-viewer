@@ -1,4 +1,5 @@
 import { h, Fragment, Component } from 'preact';
+import * as Matrix from "matrix-js-sdk"
 import { UserColor } from './utils/colors.js'
 import PdfUpload from './pdfUpload.js'
 import RoomList from './roomList.js'
@@ -10,6 +11,7 @@ import * as Icons from './icons.js'
 import Modal from './modal.js'
 import Toast from './toast.js'
 import SyncIndicator from './syncIndicator.js'
+import { mscResourceData } from "./constants.js"
 import './styles/welcome.css'
 
 export default class WelcomeView extends Component {
@@ -136,29 +138,48 @@ class WelcomeIcon extends Component {
   constructor(props) {
     super(props)
     const unread = Client.client.getVisibleRooms()
-      .reduce((acc, room) => acc + room.getUnreadNotificationCount("highlight"), 0)
-    this.state = { unread }
-    this.updateCounts = this.updateCounts.bind(this)
+      .reduce((acc, room) => acc + (room.getUnreadNotificationCount("highlight") || 0), 0)
+    const invites = Client.client.getVisibleRooms()
+      .filter(room => room.getMyMembership() === "invite")
+      .filter(room => room
+        .getLiveTimeline()
+        .getState(Matrix.EventTimeline.FORWARDS)
+        .getStateEvents("m.room.create", "")
+        ?.getContent()?.[mscResourceData])
+      .length
+    console.log(unread)
+    this.state = { count: unread + invites}
+    this.updateCount = this.updateCount.bind(this)
   }
 
   componentDidMount() {
-    Client.client.on("sync", this.updateCounts)
+    Client.client.on("sync", this.updateCount)
+    Client.client.on("RoomState.events", this.updateCount) // needed to update when creation event arrives
   }
 
   componentWillUnmount() {
-    Client.client.off("sync", this.updateCounts)
+    Client.client.off("sync", this.updateCount)
+    Client.client.off("RoomState.events", this.updateCount) // needed to update when creation event arrives
   }
 
-  updateCounts() {
+  updateCount() {
     const unread = Client.client.getVisibleRooms()
-      .reduce((acc, room) => acc + room.getUnreadNotificationCount("highlight"), 0)
-    this.setState({ unread })
+      .reduce((acc, room) => acc + (room.getUnreadNotificationCount("highlight") || 0), 0)
+    const invites = Client.client.getVisibleRooms()
+      .filter(room => room.getMyMembership() === "invite")
+      .filter(room => room
+        .getLiveTimeline()
+        .getState(Matrix.EventTimeline.FORWARDS)
+        .getStateEvents("m.room.create", "")
+        ?.getContent()?.[mscResourceData])
+      .length
+    this.setState({ count: unread + invites})
   }
 
   render(props, state) {
     return <div data-welcome-active={props.welcomeActive} id="welcome-notifications" onClick={props.toggleNotifVisible}>
         {Icons.bell}
-        {state.unread > 0 ? <span class="small-icon-badge">{state.unread}</span> : null}
+        {state.count > 0 ? <span class="small-icon-badge">{state.count}</span> : null}
     </div>
   }
 }

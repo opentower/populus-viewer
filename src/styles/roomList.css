@@ -13,13 +13,9 @@
     margin-left: 0em;
 }
 
-.invite-entry, .room-listing-entry {
+.room-listing-entry {
     margin: 1em;
     border: 1px black solid;
-}
-
-.invite-entry {
-    padding: 1em; 
 }
 
 .invite-buttons button {

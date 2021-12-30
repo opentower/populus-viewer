@@ -2,7 +2,7 @@ import { h, Component, createRef } from 'preact';
 import * as Matrix from "matrix-js-sdk"
 import { UserColor } from './utils/colors.js'
 import { TextMessage } from './message.js'
-import { spaceParent, spaceChild } from "./constants.js"
+import { spaceParent, spaceChild, mscResourceData } from "./constants.js"
 import { isUnread } from './utils/unread.js'
 import { dateReducer } from './utils/dates.js'
 import Location from './utils/location.js'
@@ -15,6 +15,7 @@ export default class NotificationListing extends Component {
     super(props)
     this.state = {
       events: [],
+      invites: this.getInvites(),
       fullyLoaded: false
     }
     this.notificationPromise = this.loadNotificationWindow()
@@ -25,18 +26,20 @@ export default class NotificationListing extends Component {
 
   componentDidMount() {
     document.addEventListener("scroll", this.handleScroll)
+    Client.client.on("Room", this.handleRoom)
+    Client.client.on("RoomState.events", this.handleRoom) // needed to update when creation event arrives
     Client.client.on("Room.timeline", this.handleTimeline) // this also handles redactions, although they have their own event.
     this.notificationPromise.then(this.updateEvents).then(this.tryBackfill)
   }
 
   componentWillUnmount() {
     document.removeEventListener("scroll", this.handleScroll)
+    Client.client.off("Room", this.handleRoom)
+    Client.client.off("RoomState.events", this.handleRoom)
     Client.client.off("Room.timeline", this.handleTimeline)
   }
 
-  updateEvents = _ => {
-    this.setState({ events: this.notificationWindow.getEvents().reverse() })
-  }
+  updateEvents = _ => this.setState({ events: this.notificationWindow.getEvents().reverse() })
 
   tryBackfill = _ => {
     const anchor = this.scrollAnchor.current.base
@@ -60,9 +63,16 @@ export default class NotificationListing extends Component {
     }
   }
 
+  handleRoom = _ => {
+    clearTimeout(this.inviteDebounceTimeout)
+    this.inviteDebounceTimeout = setTimeout(_ => {
+      this.setState({ invites: this.getInvites() })
+    }, 500)
+  }
+
   handleScroll = e => {
-    clearTimeout(this.debounceTimeout)
-    this.debounceTimeout = setTimeout(_ => {
+    clearTimeout(this.scrollDebounceTimeout)
+    this.scrollDebounceTimeout = setTimeout(_ => {
       this.tryBackfill()
       if (this.props.handleWidgetScroll) this.props.handleWidgetScroll(e)
     }, 200)
@@ -78,12 +88,24 @@ export default class NotificationListing extends Component {
   toNotification = ev => {
     switch (ev.getContent().msgtype) {
       case "m.text" : return <TextNotification event={ev} key={ev.getId()} />
-      default : null 
+      default : return null
     }
   }
 
-  render(props, state) {
+  getInvites() {
+    const invites = Client.client.getVisibleRooms().filter(room => room.getMyMembership() === "invite")
+    return invites
+      .filter(room => room
+        .getLiveTimeline()
+        .getState(Matrix.EventTimeline.FORWARDS)
+        .getStateEvents("m.room.create", "")
+        ?.getContent()?.[mscResourceData])
+      .map(room => <InviteEntry handleRoom={this.handleRoom} key={room.roomId} room={room} />)
+  }
+
+  render(_props, state) {
     return <div class="notifications-wrapper">
+      {state.invites}
       {dateReducer(state.events, this.toMilestone, this.toNotification)}
       <Anchor ref={this.scrollAnchor} fullyLoaded={state.fullyLoaded} />
     </div>
@@ -198,5 +220,33 @@ class Notification extends Component {
           Notification from departed room
         </div>
       </div>
+  }
+}
+
+class InviteEntry extends Component {
+  accept = _ => {
+    Client.client.joinRoom(this.props.room.roomId)
+    setTimeout(this.props.handleRoom, 1000)
+    // XXX the updates get grouped in such a way that the redraw misses the state
+    // update that comes with the join. So we need to do a second update to the
+    // room listing, here.
+  }
+
+  decline = _ => {
+    Client.client.leave(this.props.room.roomId)
+    setTimeout(this.props.handleRoom, 1000)
+  }
+
+  render(props) {
+    // TODO We can also get the room avatar, we should use that.
+    return <div class="invite-entry">
+      <div class="invite-heading">
+        You are invited to join the discussion {props.room.name}.
+      </div>
+      <div class="invite-buttons">
+        <button class="styled-button" onclick={this.accept}>Accept</button>
+        <button class="styled-button" onclick={this.decline}>Decline</button>
+      </div>
+    </div>
   }
 }
