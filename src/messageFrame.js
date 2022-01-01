@@ -28,19 +28,18 @@ export default class MessageFrame extends Component {
     // there's some cleverness involving involving the unstable clientside
     // relation aggregation mechanism that we're not taking advantage of
     // here. Element doesn't seem to use this for replacements yet either.
-    const event = props.event
-    const reactions = props.reactions[event.getId()]
-      ? props.reactions[event.getId()]
+    const reactions = props.reactions[props.event.getId()]
+      ? props.reactions[props.event.getId()]
         .filter(event => event.getContent()["m.relates_to"].rel_type === "m.annotation")
       : []
-    const isUser = Client.client.getUserId() === event.getSender()
+    const isUser = Client.client.getUserId() === props.event.getSender()
     return <Fragment>
-      <div data-event-status={isUser ? event.getAssociatedStatus() : null}
-        id={event.getId()}
+      <div data-event-status={isUser ? props.event.getAssociatedStatus() : null}
+        id={props.event.getId()}
         style={props.styleOverride || this.userColor.styleVariables}
         class={isUser ? "message-frame message-from-user" : "message-frame"}>
         {props.children}
-            <MessageDecoration reactions={reactions}>
+            <MessageDecoration event={props.event} reactions={reactions}>
             {/* XXX Should probably handle action menu visibility in state rather than CSS */}
             { props.displayOnly
               ? null
@@ -52,8 +51,8 @@ export default class MessageFrame extends Component {
       </div>
       {state.responding
         ? isUser
-          ? <MessageEditor closeEditor={this.closeEditor} getCurrentEdit={props.getCurrentEdit} event={event} />
-          : <ReplyComposer closeEditor={this.closeEditor} getCurrentEdit={this.getCurrentEdit} event={event} />
+          ? <MessageEditor closeEditor={this.closeEditor} getCurrentEdit={props.getCurrentEdit} event={props.event} />
+          : <ReplyComposer closeEditor={this.closeEditor} getCurrentEdit={this.getCurrentEdit} event={props.event} />
         : null
       }
     </Fragment>
@@ -75,8 +74,8 @@ class MessageDecoration extends Component {
         : rtable[emoji] = 1
     }
     const badges = []
-    for (const key in rtable) {
-      badges.push(<div class="message-reaction-type"><span>{rtable[key]}</span><span>{key}</span></div>)
+    for (const rkey in rtable) {
+      badges.push(<Badge reactions={props.reactions} event={props.event} rtable={rtable} rkey={rkey} />)
     }
     return <div class="message-decoration">
       {badges.length < 1
@@ -89,6 +88,37 @@ class MessageDecoration extends Component {
       }
       {props.children}
     </div>
+  }
+}
+
+class Badge extends Component {
+  checkEmoji = _ => this.props.reactions.find(react =>
+    react.getSender() === Client.client.getUserId() &&
+    react.getContent()?.["m.relates_to"]?.key === this.props.rkey
+  )
+
+  increment = _ => {
+    Client.client.sendEvent(this.props.event.getRoomId(), "m.reaction", {
+      "m.relates_to": {
+        rel_type: "m.annotation",
+        event_id: this.props.event.getId(),
+        key: this.props.rkey
+      }
+    })
+  }
+
+  decrement = reaction => {
+    Client.client.redactEvent(reaction.getRoomId(), reaction.getId())
+  }
+
+  onClick = _ => {
+    const isMarked = this.checkEmoji()
+    if (isMarked) this.decrement(isMarked)
+    else this.increment()
+  }
+
+  render(props) {
+    return <div onClick={this.onClick} class="emoji-badge"><span>{props.rtable[props.rkey]}</span><span>{props.rkey}</span></div>
   }
 }
 

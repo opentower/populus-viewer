@@ -248,7 +248,7 @@ export default class Chat extends Component {
     }, [])
     // sort reactions by event reacted-to
     state.events.forEach(e => {
-      if (e.getType() === "m.reaction") {
+      if (e.getType() === "m.reaction" && e.getContent()?.["m.relates_to"]?.event_id) { // content might be redacted
         if (reactions[e.getContent()["m.relates_to"].event_id]) reactions[e.getContent()["m.relates_to"].event_id].push(e)
         else reactions[e.getContent()["m.relates_to"].event_id] = [e]
       }

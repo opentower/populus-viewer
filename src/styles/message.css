@@ -186,10 +186,11 @@
 
 .message-reactions > div::-webkit-scrollbar { display: none; }
 
-.message-reaction-type {
+.emoji-badge {
   white-space: nowrap;
   padding-top:1px;
   padding-bottom:1px;
+  cursor: pointer;
 }
 
 .reply-sender-info,
