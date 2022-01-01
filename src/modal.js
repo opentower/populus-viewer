@@ -1,17 +1,29 @@
-import { h } from 'preact'
+import { h, Component } from 'preact'
 import './styles/modal.css'
 import * as Icons from './icons.js'
 
-export default function Modal(props) {
-  return props.modalVisible
-    ? <div id="modalPopup">
-      <div id="modalBackground" onclick={props.hideModal} />
-      <div id="modalContent">
-        <button id="dismissModal" onclick={props.hideModal}>
-          {Icons.close}
-        </button>
-        {props.children}
+export default class Modal extends Component {
+  constructor(props) {
+    super(props)
+    Modal.set = this.setContent
+    Modal.hide = this.hideModal
+  }
+
+  hideModal = _ => this.setState({content: null})
+
+  setContent = content => this.setState({content})
+
+  render(_, state) {
+    return state.content
+      ? <div id="modalPopup">
+        <div id="modalBackground" onclick={this.hideModal} />
+        <div id="modalContent">
+          <button id="dismissModal" onclick={this.hideModal}>
+            {Icons.close}
+          </button>
+          {state.content}
+        </div>
       </div>
-    </div>
-    : null
+      : null
+  }
 }

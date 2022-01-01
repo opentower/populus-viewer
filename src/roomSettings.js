@@ -3,6 +3,7 @@ import Client from './client.js'
 import * as Matrix from "matrix-js-sdk"
 import { loadImageElement } from "./utils/media.js"
 import Location from './utils/location.js'
+import Modal from './modal.js'
 import { mscLocation, eventVersion, joinRule, spaceParent, spaceChild } from './constants.js';
 import "./styles/roomSettings.css"
 
@@ -86,7 +87,7 @@ export default class RoomSettings extends Component {
     } else if (!this.state.previewUrl) {
       Client.client.sendStateEvent(this.props.room.roomId, "m.room.avatar", {}, "")
     }
-    this.props.populateModal(null)
+    Modal.hide()
   }
 
   raiseErr = _ => alert("Something went wrong. You may not have permission to adjust some of these settings.")
@@ -149,7 +150,7 @@ export default class RoomSettings extends Component {
 
   cancel = e => {
     e.preventDefault()
-    this.props.populateModal(null)
+    Modal.hide()
   }
 
   render(props, state) {

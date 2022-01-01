@@ -8,8 +8,6 @@ import SearchBar from './search.js'
 import ProfileInformation from './profileInformation.js'
 import NotificationListing from './notifications.js'
 import * as Icons from './icons.js'
-import Modal from './modal.js'
-import Toast from './toast.js'
 import SyncIndicator from './syncIndicator.js'
 import { mscResourceData } from "./constants.js"
 import './styles/welcome.css'
@@ -68,14 +66,6 @@ export default class WelcomeView extends Component {
       : { view: "NOTIF" }
   )
 
-  emptyModal = _ => this.setState({ modalContent: null })
-
-  populateModal = s => this.setState({ modalContent: s })
-
-  emptyToast = _ => this.setState({ toastContent: null })
-
-  populateToast = s => this.setState({ toastContent: s })
-
   showMainView = _ => this.setState({ view: null })
 
   displayInitial = _ => {
@@ -85,52 +75,45 @@ export default class WelcomeView extends Component {
   }
 
   render(props, state) {
-    return (
-      <Fragment key="welcome-fragment">
-        <Modal modalVisible={!!state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
-        <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
-        <header id="welcome-header">
-          <div id="welcome-header-content">
-            <SearchBar
-              search={state.searchFilter}
-              setSearch={this.setSearch}
-              setFocus={this.setFocus} />
-            { !state.inputFocus && <Fragment>
-              <div data-welcome-active={state.view === "UPLOAD"} id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</div>
-              <WelcomeIcon welcomeActive={state.view === "NOTIF"} toggleNotifVisible={this.toggleNotifVisible} />
-              <div data-welcome-active={state.view === "PROFILE"} id="welcome-profile" onClick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
-                {state.avatarUrl
-                  ? <img id="welcome-img" src={state.avatarUrl} />
-                  : <div id="welcome-initial">{this.displayInitial()}</div>
-                }
-              </div>
-            </Fragment>}
-          </div>
-        </header>
-        <div id="welcome-container">
-          {state.view === "UPLOAD"
-            ? <Fragment>
-              <h2>Upload a new PDF</h2>
-              <PdfUpload showMainView={this.showMainView} />
-            </Fragment>
-            : state.view === "PROFILE"
-              ? <Fragment>
-                <h2>Update Your Profile</h2>
-                <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} />
-              </Fragment>
-              : state.view === "NOTIF"
-                ? <NotificationListing />
-                : <Fragment>
-                    <RoomList
-                      searchFilter={state.searchFilter}
-                      populateModal={this.populateModal}
-                    />
-                  </Fragment>
-          }
+    return <Fragment key="welcome-fragment">
+      <header id="welcome-header">
+        <div id="welcome-header-content">
+          <SearchBar
+            search={state.searchFilter}
+            setSearch={this.setSearch}
+            setFocus={this.setFocus} />
+          { !state.inputFocus && <Fragment>
+            <div data-welcome-active={state.view === "UPLOAD"} id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</div>
+            <WelcomeIcon welcomeActive={state.view === "NOTIF"} toggleNotifVisible={this.toggleNotifVisible} />
+            <div data-welcome-active={state.view === "PROFILE"} id="welcome-profile" onClick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
+              {state.avatarUrl
+                ? <img id="welcome-img" src={state.avatarUrl} />
+                : <div id="welcome-initial">{this.displayInitial()}</div>
+              }
+            </div>
+          </Fragment>}
         </div>
-        <SyncIndicator />
-      </Fragment>
-    )
+      </header>
+      <div id="welcome-container">
+        {state.view === "UPLOAD"
+          ? <Fragment>
+            <h2> Upload a new PDF</h2>
+            <PdfUpload showMainView={this.showMainView} />
+          </Fragment>
+          : state.view === "PROFILE"
+            ? <Fragment>
+              <h2>Update Your Profile</h2>
+              <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} />
+            </Fragment>
+            : state.view === "NOTIF"
+              ? <NotificationListing />
+              : <Fragment>
+                  <RoomList searchFilter={state.searchFilter} />
+                </Fragment>
+        }
+      </div>
+      <SyncIndicator />
+    </Fragment>
   }
 }
 
@@ -147,7 +130,6 @@ class WelcomeIcon extends Component {
         .getStateEvents("m.room.create", "")
         ?.getContent()?.[mscResourceData])
       .length
-    console.log(unread)
     this.state = { count: unread + invites}
     this.updateCount = this.updateCount.bind(this)
   }

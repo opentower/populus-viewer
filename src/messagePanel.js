@@ -8,6 +8,7 @@ import { textFromPdfSelection } from './utils/selection.js'
 import { processRegex } from './processRegex.js'
 import { UserColor } from './utils/colors.js'
 import Client from './client.js'
+import Modal from './modal.js'
 import AudioVisualizer from './audioVisualizer.js'
 import * as PopupMenu from './popUpMenu.js'
 import RoomSettings from './roomSettings.js'
@@ -118,11 +119,7 @@ export default class MessagePanel extends Component {
 
   openSettings = _ => {
     const theRoom = Client.client.getRoom(this.props.focus.getChild())
-    this.props.populateModal(
-      <RoomSettings
-        populateModal={this.props.populateModal}
-        room={theRoom}
-      />)
+    Modal.set(<RoomSettings room={theRoom} />)
   }
 
   render(props, state) {

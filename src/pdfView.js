@@ -16,7 +16,6 @@ import { mscLocation, eventVersion, spaceChild, spaceParent, lastViewed } from "
 import Location from './utils/location.js'
 import { textFromPdfSelection, rectsFromPdfSelection } from './utils/selection.js'
 import SyncIndicator from './syncIndicator.js'
-import Modal from "./modal.js"
 import Toast from "./toast.js"
 import * as Icons from "./icons.js"
 import { UserColor } from "./utils/colors.js"
@@ -27,7 +26,7 @@ export default class PdfView extends Component {
     this.state = {
       roomId: null,
       focus: null,
-      secondaryFocus: null, //for temporarily focusing an extra location
+      secondaryFocus: null, // for temporarily focusing an extra location
       totalPages: null,
       navHeight: 75,
       panelVisible: false,
@@ -43,7 +42,6 @@ export default class PdfView extends Component {
       pdfHeightPx: null,
       pdfFitRatio: 1,
       zoomFactor: null,
-      modalContent: null,
       pinching: false,
       hideButtons: false // this is for hiding the buttons, but only applies if the buttons overlap the chatbox
     }
@@ -92,7 +90,7 @@ export default class PdfView extends Component {
     else if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
       const theContent = e.getContent()
       if (theContent.page !== this.props.pageFocused && theContent.deviceId !== Client.deviceId) {
-        this.populateToast(
+        Toast.set(
           <Fragment>
             <h3 id="toast-header">Hey!</h3>
             <div>Another device is viewing a different page.</div>
@@ -100,7 +98,7 @@ export default class PdfView extends Component {
               <button
                 onclick={_ => {
                   History.push(`/${this.props.pdfFocused}/${theContent.page}/`)
-                  this.populateToast(null)
+                  Toast.set(null)
                 }}
                 class="styled-button">
                 Jump to there →
@@ -333,14 +331,6 @@ export default class PdfView extends Component {
   toggleAnnotations = _ => this.setState(oldState => {
     return { annotationsVisible: !oldState.annotationsVisible }
   })
-
-  emptyModal = _ => this.setState({ modalContent: null })
-
-  populateModal = s => this.setState({ modalContent: s })
-
-  emptyToast = _ => this.setState({ toastContent: null })
-
-  populateToast = s => this.setState({ toastContent: s })
 
   setZoom = zoomFactor => {
     if (zoomFactor < 1) this.setState({zoomFactor: 1})
@@ -582,8 +572,6 @@ export default class PdfView extends Component {
       }
       onPointerMove={this.handlePointerMove}>
       <Router onChange={this.handleRouteChange} />
-      <Modal modalVisible={!!state.modalContent} hideModal={this.emptyModal}>{state.modalContent}</Modal>
-      <Toast toastVisible={!!state.toastContent} hideToast={this.emptyToast}>{state.toastContent}</Toast>
       {this.getLoadingStatus()}
       <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
         <div id="document-wrapper" data-annotations-hidden={!state.annotationsVisible}>
@@ -625,7 +613,6 @@ export default class PdfView extends Component {
               pdfId={state.roomId}
               pdfFocused={props.pdfFocused}
               pageFocused={props.pageFocused}
-              populateModal={this.populateModal}
               hasSelection={state.hasSelection}
               rectsFromPdfSelection={this.rectsFromPdfSelection}
               handleWidgetScroll={this.handleWidgetScroll}
@@ -672,7 +659,6 @@ export default class PdfView extends Component {
         prevPage={this.prevPage}
         searchString={state.searchString}
         pdfWidthPx={state.pdfWidthPx}
-        populateModal={this.populateModal}
         annotationsVisible={state.annotationsVisible}
         toggleAnnotations={this.toggleAnnotations}
         setNavHeight={this.setNavHeight}

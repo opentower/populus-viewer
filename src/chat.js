@@ -260,7 +260,6 @@ export default class Chat extends Component {
           <MessagePanel
             hasSelection={props.hasSelection}
             rectsFromPdfSelection={props.rectsFromPdfSelection}
-            populateModal={props.populateModal}
             pdfId={props.pdfId}
             pageFocused={props.pageFocused}
             focus={props.focus} />

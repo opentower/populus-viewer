@@ -8,6 +8,7 @@ import './styles/navbar.css';
 import { spaceChild } from "./constants.js"
 import History from './history.js'
 import Client from './client.js'
+import Modal from './modal.js'
 import Invite from './invite.js'
 
 export default class Navbar extends Component {
@@ -63,9 +64,7 @@ export default class Navbar extends Component {
 
   mainMenu = _ => History.push("/")
 
-  openInvite = _ => this.props.populateModal(
-    <Invite populateModal={this.props.populateModal}
-            roomId={this.props.roomId} />)
+  openInvite = _ => Modal.set(<Invite roomId={this.props.roomId} />)
 
   zoomOut = _ => this.props.setZoom(this.props.zoomFactor - 0.1)
 

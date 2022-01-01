@@ -5,6 +5,7 @@ import Location from "./utils/location.js"
 import * as Matrix from "matrix-js-sdk"
 import MemberPill from './memberPill.js'
 import Client from './client.js'
+import Modal from './modal.js'
 import Invite from './invite.js'
 import { TagEditor, TagList } from './tagEditor.js'
 import RoomSettings from './roomSettings.js'
@@ -137,7 +138,6 @@ export default class RoomList extends Component {
         if (room.getMyMembership() === "join" && resource.url) {
           result = <PDFRoomEntry
             memberLimit={this.state.memberLimit}
-            populateModal={this.props.populateModal}
             room={room}
             key={room.roomId} />
         }
@@ -185,15 +185,11 @@ class PDFRoomEntry extends Component {
 
   toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
 
-  openInvite = _ => this.props.populateModal(
-    <Invite populateModal={this.props.populateModal}
-            roomId={this.props.room.roomId} />)
+  openInvite = _ => Modal.set(<Invite roomId={this.props.room.roomId} />)
 
-  openSettings = _ => this.props.populateModal(
-    <RoomSettings populateModal={this.props.populateModal}
-                  room={this.props.room} />)
+  openSettings = _ => Modal.set(<RoomSettings room={this.props.room} />)
 
-  handleEditTags = _ => this.props.populateModal(<TagEditor room={this.props.room} />)
+  handleEditTags = _ => Modal.set(<TagEditor room={this.props.room} />)
 
   toggleFavorite = _ => {
     if (this.props.room.tags["m.favourite"]) Client.client.deleteRoomTag(this.props.room.roomId, "m.favourite")

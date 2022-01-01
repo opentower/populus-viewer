@@ -1,9 +1,11 @@
-import { h, render, Component } from 'preact'
+import { h, render, Fragment, Component } from 'preact'
 import Router from 'preact-router'
 import WelcomeView from './welcome.js'
 import LoginView from './login.js'
 import PdfView from './pdfView.js'
 import SplashView from './splash.js'
+import Modal from "./modal.js"
+import Toast from "./toast.js"
 import History from './history.js'
 import Client from './client.js'
 import './styles/global.css'
@@ -57,10 +59,14 @@ class PopulusViewer extends Component {
         setInitializationStage={this.setInitializationStage}
       />
     }
-    return <Router history={History.history}>
-      <WelcomeView path="/" logoutHandler={this.logoutHandler} />
-      <PdfView path="/:pdfFocused/:pageFocused?/:roomFocused?" />
-    </Router>
+    return <Fragment>
+        <Modal />
+        <Toast />
+        <Router history={History.history}>
+          <WelcomeView path="/" logoutHandler={this.logoutHandler} />
+          <PdfView path="/:pdfFocused/:pageFocused?/:roomFocused?" />
+        </Router>
+    </Fragment>
   }
 }
 

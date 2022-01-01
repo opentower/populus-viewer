@@ -1,6 +1,7 @@
 import { h, Fragment, Component } from 'preact';
 import UserPill from './userPill.js'
 import Client from './client.js'
+import Modal from './modal.js'
 
 export default class Invite extends Component {
   constructor(props) {
@@ -37,7 +38,7 @@ export default class Invite extends Component {
         Client.client.invite(this.props.roomId, userId).catch(alert)
       }
     }
-    this.props.populateModal(null)
+    Modal.hide()
   }
 
   render() {
