@@ -228,8 +228,8 @@
   background:white;
 }
 
-.nav-button-wrapper .search-bar > input:focus + .clear-icon,
-.nav-button-wrapper .search-bar > input:focus + .search-icon {
+.nav-button-wrapper .search-bar > input:focus ~ .clear-icon,
+.nav-button-wrapper .search-bar > input:focus ~ .search-icon {
   color:black;
 }
 

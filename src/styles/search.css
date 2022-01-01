@@ -16,18 +16,34 @@
     cursor: pointer;
 }
 
-.search-bar > .search-icon,
-.search-bar > .clear-icon {
+.search-bar > .search-icon {
+    position:absolute;
+    left:5px;
+    align-items:center;
+    display:flex;
+}
+
+
+.search-bar > .right-decoration {
     position:absolute;
     right:5px;
     align-items:center;
     display:flex;
 }
 
+.search-bar > .right-decoration > .search-hint {
+  border-radius:5px;
+  border: solid 1px #ababab;
+  padding-left:5px;
+  padding-right:5px;
+  color:#ababab;
+}
+
 .search-bar > input {
     width:100%;
     margin:auto;
     padding:7px;
+    padding-left:35px;
     border:none;
     background:#ededed;
 }

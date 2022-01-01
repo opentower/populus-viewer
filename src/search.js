@@ -46,10 +46,14 @@ export default class SearchBar extends Component {
         onInput={this.handleInput}
         onBlur={this.handleInputBlur}
         onFocus={this.handleInputFocus} />
+      <div class={"search-icon"}>{Icons.search }</div>
       <div onmousedown={this.handleClear}
         title={props.search ? "Clear current search" : null}
-        class={props.search ? "clear-icon" : "search-icon"}>
-        {props.search ? Icons.close : Icons.search }
+        class={"right-decoration"}>
+        {props.search
+          ? Icons.close
+          : props.hint ? <span class="search-hint">{props.hint}</span> : null
+        }
       </div>
     </div>
   }
