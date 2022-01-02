@@ -3,6 +3,7 @@ import * as Matrix from "matrix-js-sdk"
 import Client from './client.js'
 import './styles/spacesManager.css'
 import Modal from './modal.js'
+import * as Icons from './icons.js'
 import { RoomColor } from './utils/colors.js'
 import { pdfStateType, spaceChild, mscResourceData } from "./constants.js"
 
@@ -145,6 +146,7 @@ class SpaceListing extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      actionsVisible: false,
       children: Client.client.getVisibleRooms()
         .filter(this.isChild)
         .map(room => <SpaceListingChild key={room.roomId} room={room} />)
@@ -169,6 +171,8 @@ class SpaceListing extends Component {
     }
   }
 
+  toggleActions = _ => this.setState(oldState => { return { actionsVisible: !oldState.actionsVisible } })
+
   isChild = room => {
     const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const spaceState = this.props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
@@ -179,7 +183,10 @@ class SpaceListing extends Component {
     return isDescendent && (isResource || isLegacy)
   }
 
-  addChild = _ => Modal.set(<AddChild room={this.props.room} />)
+  addChild = _ => {
+    this.setState({ actionsVisible: false })
+    Modal.set(<AddChild room={this.props.room} />)
+  }
 
   roomColor = new RoomColor(this.props.room.name)
 
@@ -188,10 +195,23 @@ class SpaceListing extends Component {
     const isAdmin = userMember.powerLevel >= 100
     // should do this in a more fine-grained way with hasSufficientPowerLevelFor
     return <div style={this.roomColor.styleVariables} class="space-listing">
-      <h3> {props.room.name} </h3>
+      <h3>
+        {props.room.name}
+        {isAdmin
+          ? <button data-narrow-view={document.body.offsetWidth < 400} onclick={this.toggleActions}>{Icons.moreVertical}</button>
+          : null
+        }
+      </h3>
+      { state.actionsVisible
+        ? <div class="space-listing-actions">
+            <button class="small-icon" onclick={this.addChild}>{ Icons.newDiscussion }</button>
+            <button class="small-icon">{ Icons.settings }</button>
+          </div>
+        : null
+      }
       <div class="space-listing-children">
         {state.children}
-        {isAdmin && props.dragging ? <button onclick={this.addChild} class="add-child-to-collection">+</button> : null }
+        {isAdmin && props.dragging ? <button ondrop={_ => alert('drop not implemented!')} class="add-child-to-collection">+</button> : null }
       </div>
     </div>
   }
