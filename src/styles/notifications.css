@@ -1,3 +1,8 @@
+#notifications-listing {
+  width: 90vw;
+  max-width: 800px;
+}
+
 .notification, .invite-entry {
   margin:10px;
   border: 1px solid black;

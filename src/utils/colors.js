@@ -34,11 +34,13 @@ export class RoomColor {
     this.light = `hsl(${this.hue},100%, 80%)`
     this.solid = `hsl(${this.hue},100%, 50%)`
     this.dark = `hsl(${this.hue},100%, 20%)`
+    this.ultradark = `hsl(${this.hue},100%, 10%)`
     this.styleVariables = {
       "--room_ultralight": this.ultralight,
       "--room_light": this.light,
       "--room_solid": this.solid,
       "--room_dark": this.dark,
+      "--room_ultradark": this.ultradark
     }
   }
 }

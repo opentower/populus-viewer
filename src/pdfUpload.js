@@ -103,37 +103,40 @@ export default class PdfUpload extends Component {
   }
 
   render (_, state) {
-    return <form id="pdfUploadForm" ref={this.mainForm} onsubmit={this.uploadFile}>
-      <label> Pdf to discuss</label>
-      <input oninput={this.validatePdf} ref={this.fileLoader} accept="application/pdf" type="file" />
-      <label>Name for Discussion</label>
-      <input onkeydown={this.keydownHandler} oninput={this.validateName} ref={this.roomNameInput} type="text" />
-      <div class="pdfupload-form-detail">{
-        state.querying
-          ? "querying..."
-          : state.nameavailable
-            ? "name available"
-            : "name unavailable"
-        }
-      </div>
-      <label>Topic of Discussion</label>
-      <textarea
-        onkeydown={this.keydownHandler}
-        ref={this.roomTopicInput}
-        type="text"
-        data-gramm="false" // disable grammarly
-      />
-      <div id="pdfUploadFormSubmit">
-        <button disabled={state.progress || state.querying || !state.nameavailable || !state.pdfvalid} class="styled-button" ref={this.submitButton} type="submit">
-          { state.progress ? "Uploading..." : "Create Discussion" }
-        </button>
-      </div>
-      {state.progress
-        ? <div id="pdfUploadFormProgress">
-          <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
+    return <div id="pdf-upload">
+      <h2> Upload a new PDF</h2>
+      <form id="pdfUploadForm" ref={this.mainForm} onsubmit={this.uploadFile}>
+        <label> Pdf to discuss</label>
+        <input oninput={this.validatePdf} ref={this.fileLoader} accept="application/pdf" type="file" />
+        <label>Name for Discussion</label>
+        <input onkeydown={this.keydownHandler} oninput={this.validateName} ref={this.roomNameInput} type="text" />
+        <div class="pdfupload-form-detail">{
+          state.querying
+            ? "querying..."
+            : state.nameavailable
+              ? "name available"
+              : "name unavailable"
+          }
         </div>
-        : null
-      }
-    </form>
+        <label>Topic of Discussion</label>
+        <textarea
+          onkeydown={this.keydownHandler}
+          ref={this.roomTopicInput}
+          type="text"
+          data-gramm="false" // disable grammarly
+        />
+        <div id="pdfUploadFormSubmit">
+          <button disabled={state.progress || state.querying || !state.nameavailable || !state.pdfvalid} class="styled-button" ref={this.submitButton} type="submit">
+            { state.progress ? "Uploading..." : "Create Discussion" }
+          </button>
+        </div>
+        {state.progress
+          ? <div id="pdfUploadFormProgress">
+            <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
+          </div>
+          : null
+        }
+      </form>
+    </div>
   }
 }

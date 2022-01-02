@@ -104,7 +104,7 @@ export default class NotificationListing extends Component {
   }
 
   render(_props, state) {
-    return <div class="notifications-wrapper">
+    return <div id="notifications-listing">
       {state.invites}
       {dateReducer(state.events, this.toMilestone, this.toNotification)}
       <Anchor ref={this.scrollAnchor} fullyLoaded={state.fullyLoaded} />

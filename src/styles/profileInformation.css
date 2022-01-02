@@ -1,3 +1,8 @@
+#profile-information {
+  width:90vw;
+  max-width:800px;
+}
+
 #profileInformationForm {
     border: 1px black solid;
     margin: 1em;

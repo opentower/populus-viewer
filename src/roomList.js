@@ -146,28 +146,26 @@ export default class RoomList extends Component {
   }
 
   render(_, state) {
-    return (
-      <Fragment>
-        <div id="select-sort">
-          <button class="small-icon"
-            style="cursor: pointer"
-            onClick={this.flipSort}>
-            {state.sortOrder === 1
-              ? Icons.sortDesc
-              : Icons.sortAsc
-            }
-          </button>
-          <button data-current-button={state.sort === "Activity"}
-                  onClick={this.sortByActivity}
-                  class="styled-button">Activity</button>
-          <button data-current-button={state.sort === "Name"}
-                  onClick={this.sortByName}
-                  class="styled-button">Name</button>
-        </div>
-        {/* TODO: We're probably going to need to debounce this rather than searching with each render, for longer lists of rooms */}
-        <div>{this.sortRooms(this.searchRooms())}</div>
-      </Fragment>
-    )
+    return <div id="room-list">
+      <div id="select-sort">
+        <button class="small-icon"
+          style="cursor: pointer"
+          onClick={this.flipSort}>
+          {state.sortOrder === 1
+            ? Icons.sortDesc
+            : Icons.sortAsc
+          }
+        </button>
+        <button data-current-button={state.sort === "Activity"}
+                onClick={this.sortByActivity}
+                class="styled-button">Activity</button>
+        <button data-current-button={state.sort === "Name"}
+                onClick={this.sortByName}
+                class="styled-button">Name</button>
+      </div>
+      {/* TODO: We're probably going to need to debounce this rather than searching with each render, for longer lists of rooms */}
+      <div>{this.sortRooms(this.searchRooms())}</div>
+    </div>
   }
 }
 

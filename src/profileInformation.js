@@ -58,32 +58,35 @@ export default class ProfileInfomation extends Component {
     // We include some key attributes here, because the removal and
     // insertion of divs causes click events to get handled by the wrong
     // elements as they bubble up through the DOM otherwise
-    return <form id="profileInformationForm" ref={this.mainForm} onsubmit={this.updateProfile}>
-      <label>My Display Name</label>
-      <input onkeydown={this.handleKeydown} placeholder={state.displayName} ref={this.displayNameInput} type="text" />
-      <label>My Avatar</label>
-      {state.previewUrl
-        ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl} />
-        : <div key="profileSelector" onclick={this.uploadAvatar} id="profileSelector" />}
-      <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
-      <details>
-        <summary>Advanced Options</summary>
-        <div id="profile-advanced-options">
-          <label>My Access Token</label>
-          <div>{Client.client.getAccessToken()}</div>
+    return <div id="profile-information">
+       <h2>Update Your Profile</h2>
+      <form id="profileInformationForm" ref={this.mainForm} onsubmit={this.updateProfile}>
+        <label>My Display Name</label>
+        <input onkeydown={this.handleKeydown} placeholder={state.displayName} ref={this.displayNameInput} type="text" />
+        <label>My Avatar</label>
+        {state.previewUrl
+          ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl} />
+          : <div key="profileSelector" onclick={this.uploadAvatar} id="profileSelector" />}
+        <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
+        <details>
+          <summary>Advanced Options</summary>
+          <div id="profile-advanced-options">
+            <label>My Access Token</label>
+            <div>{Client.client.getAccessToken()}</div>
+          </div>
+        </details>
+        <div key="profileInformationFormSubmit" id="profileInformationFormSubmit">
+          <button class="styled-button" ref={this.submitButton} type="submit">Update Profile</button>
+          {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
+          <button class="styled-button" type="button" onclick={props.logoutHandler}>Logout</button>
         </div>
-      </details>
-      <div key="profileInformationFormSubmit" id="profileInformationFormSubmit">
-        <button class="styled-button" ref={this.submitButton} type="submit">Update Profile</button>
-        {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
-        <button class="styled-button" type="button" onclick={props.logoutHandler}>Logout</button>
-      </div>
-      {this.state.progress
-        ? <div id="profileInformationFormProgress">
-          <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
-        </div>
-        : null
-      }
-    </form>
+        {this.state.progress
+          ? <div id="profileInformationFormProgress">
+            <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
+          </div>
+          : null
+        }
+      </form>
+    </div>
   }
 }

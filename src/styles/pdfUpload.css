@@ -1,3 +1,8 @@
+#pdf-upload {
+  max-width: 800px;
+  width: 90vw;
+}
+
 #pdfUploadForm {
     border: 1px black solid;
     margin: 1em;

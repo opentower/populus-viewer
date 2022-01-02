@@ -81,12 +81,18 @@
 
 #welcome-container {
     margin-top:50px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90vw;
-    max-width: 800px;
+    width: 100%;
     position: absolute;
     padding:1em;
+    display:flex;
+    justify-content:center;
+}
+
+#welcome-split {
+  display:grid;
+  width: 90vw;
+  grid-template-columns: 1fr 1fr;
+  max-width:1600px;
 }
 
 #welcome-container h2 {

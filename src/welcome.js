@@ -3,6 +3,7 @@ import * as Matrix from "matrix-js-sdk"
 import { UserColor } from './utils/colors.js'
 import PdfUpload from './pdfUpload.js'
 import RoomList from './roomList.js'
+import SpacesManager from './spacesManager.js'
 import Client from './client.js'
 import SearchBar from './search.js'
 import ProfileInformation from './profileInformation.js'
@@ -96,20 +97,15 @@ export default class WelcomeView extends Component {
       </header>
       <div id="welcome-container">
         {state.view === "UPLOAD"
-          ? <Fragment>
-            <h2> Upload a new PDF</h2>
-            <PdfUpload showMainView={this.showMainView} />
-          </Fragment>
+          ? <PdfUpload showMainView={this.showMainView} />
           : state.view === "PROFILE"
-            ? <Fragment>
-              <h2>Update Your Profile</h2>
-              <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} />
-            </Fragment>
+            ? <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} />
             : state.view === "NOTIF"
               ? <NotificationListing />
-              : <Fragment>
+              : <div id="welcome-split">
+                  <SpacesManager />
                   <RoomList searchFilter={state.searchFilter} />
-                </Fragment>
+                </div>
         }
       </div>
       <SyncIndicator />

@@ -1,0 +1,31 @@
+#spaces-list {
+  margin: 15px;
+}
+
+#create-space {
+  background:white;
+  border: 2px #cdcdcd dashed;
+  padding:10px;
+  border-radius:15px;
+  font-size:12pt;
+  font-weight:bold;
+  color: #cdcdcd;
+  margin-top:30px;
+}
+
+.space-listing h4 {
+  color: var(--room_dark);
+  margin-bottom:12px;
+}
+
+.space-listing-child {
+  background: var(--room_light);
+  display:inline-block;
+  border:2px solid black;
+  border-radius:5px;
+  width:35px;
+  height:35px;
+  margin-left:10px;
+  font-size:18pt;
+  text-align:center;
+}
