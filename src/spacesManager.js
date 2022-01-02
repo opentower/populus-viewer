@@ -151,6 +151,24 @@ class SpaceListing extends Component {
     }
   }
 
+  componentDidMount() {
+    Client.client.on("RoomState.events", this.handleStateUpdate)
+  }
+
+  componentWillUnmount() {
+    Client.client.off("RoomState.events", this.handleStateUpdate)
+  }
+
+  handleStateUpdate = e => {
+    if (e.getRoomId() === this.props.room.roomId && e.getType() === spaceChild) {
+      this.setState({
+        children: Client.client.getVisibleRooms()
+          .filter(this.isChild)
+          .map(room => <SpaceListingChild key={room.roomId} room={room} />)
+      })
+    }
+  }
+
   isChild = room => {
     const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const spaceState = this.props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)

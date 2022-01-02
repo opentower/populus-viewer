@@ -4,10 +4,11 @@
 
 #create-space {
   background:white;
-  border: 2px #cdcdcd dashed;
-  padding:10px;
+  /* border: 2px #cdcdcd dashed; */
+  border:none;
+  padding:0px;
   border-radius:15px;
-  font-size:12pt;
+  font-size:14pt;
   font-weight:bold;
   color: #cdcdcd;
   margin-top:30px;
