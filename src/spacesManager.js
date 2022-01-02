@@ -4,7 +4,7 @@ import Client from './client.js'
 import './styles/spacesManager.css'
 import Modal from './modal.js'
 import { RoomColor } from './utils/colors.js'
-import { pdfStateType, mscResourceData } from "./constants.js"
+import { pdfStateType, spaceChild, mscResourceData } from "./constants.js"
 
 export default class SpacesManager extends Component {
   constructor(props) {
@@ -41,13 +41,13 @@ export default class SpacesManager extends Component {
     return isSpace && !isResource && !isLegacy
   }
 
-  createCollection() {
+  createCollection = _ => {
     Modal.set(<CreateCollection />)
   }
 
   render(_props, state) {
     return <div id="spaces-manager">
-      <h2>Collections</h2>
+      <h1>Collections</h1>
       <div id="spaces-list">
         {state.spaces}
         <button onclick={this.createCollection} id="create-space">+ Create New Collection</button>
@@ -61,7 +61,7 @@ class CreateCollection extends Component {
     super(props)
     this.state = {
       querying: false,
-      nameavailable: false,
+      nameavailable: false
     }
   }
 
@@ -142,25 +142,107 @@ class CreateCollection extends Component {
 }
 
 class SpaceListing extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      children: Client.client.getVisibleRooms()
+        .filter(this.isChild)
+        .map(room => <SpaceListingChild key={room.roomId} room={room} />)
+    }
+  }
+
+  isChild = room => {
+    const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const spaceState = this.props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const creation = roomState.getStateEvents("m.room.create", "")
+    const isLegacy = roomState.getStateEvents(pdfStateType, "")
+    const isResource = creation.getContent()?.[mscResourceData]
+    const isDescendent = spaceState.getStateEvents("m.space.child", room.roomId)
+    return isDescendent && (isResource || isLegacy)
+  }
+
+  addChild = _ => Modal.set(<AddChild room={this.props.room} />)
+
   roomColor = new RoomColor(this.props.room.name)
 
-  dummyChildren = ["A", "Z", "R"]
-    .map(name => <SpaceListingChild key={name} name={name} />)
-
-  render(props) {
+  render(props, state) {
+    const userMember = props.room.getMember(Client.client.getUserId())
+    const isAdmin = userMember.powerLevel >= 100
+    // should do this in a more fine-grained way with hasSufficientPowerLevelFor
     return <div style={this.roomColor.styleVariables} class="space-listing">
-      <h4> {props.room.name} </h4>
+      <h3> {props.room.name} </h3>
       <div class="space-listing-children">
-        {this.dummyChildren}
+        {state.children}
+        {isAdmin ? <button onclick={this.addChild} class="add-child-to-collection">+</button> : null }
       </div>
     </div>
   }
 }
 
-class SpaceListingChild extends Component {
-  roomColor = new RoomColor(this.props.name)
+class AddChild extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      discussions: Client.client.getVisibleRooms()
+        .filter(this.isDiscussion)
+        .map(room => <DiscussionListing room={room} collection={props.room} />)
+    }
+  }
+
+  isDiscussion = room => {
+    const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const creation = roomState.getStateEvents("m.room.create", "")
+    const isLegacy = roomState.getStateEvents(pdfStateType, "")
+    const isResource = creation.getContent()?.[mscResourceData]
+    return isResource || isLegacy
+  }
+
+  render(_props, state) {
+    return <Fragment>
+      <h3 id="modalHeader">Add Discussion to Collection</h3>
+      {state.discussions}
+    </Fragment>
+  }
+}
+
+class DiscussionListing extends Component {
+  addMe = async _ => {
+    const theDomain = Client.client.getDomain()
+    const childContent = { via: [theDomain] }
+    await Client.client
+      .sendStateEvent(this.props.collection.roomId, spaceChild, childContent, this.props.room.roomId)
+      .catch(e => alert(e))
+    Modal.hide()
+  }
 
   render(props) {
-    return <div class="space-listing-child" style={this.roomColor.styleVariables}>{props.name}</div>
+    return <div onclick={this.addMe}>{props.room.name}</div>
+  }
+}
+
+class SpaceListingChild extends Component {
+  constructor(props) {
+    super(props)
+    const avatarEvent = props.room.getLiveTimeline()
+      .getState(Matrix.EventTimeline.FORWARDS)
+      .getStateEvents("m.room.avatar", "")
+    this.state = {
+      avatarEvent,
+      loaded: false,
+      avatarUrl: avatarEvent?.getContent()?.url
+        ? Client.client.mxcUrlToHttp(avatarEvent.getContent().url, 35, 35, "crop")
+        : null
+    }
+  }
+
+  roomColor = new RoomColor(this.props.room.name)
+
+  render(props, state) {
+    return <div data-has-avatar={!!state.avatarUrl} class="space-listing-child" style={this.roomColor.styleVariables}>
+        { state.avatarUrl
+          ? <img src={state.avatarUrl} />
+          : props.room.name.slice(0, 1)
+        }
+      </div>
   }
 }
