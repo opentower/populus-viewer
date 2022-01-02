@@ -11,6 +11,12 @@
   font-weight:bold;
   color: #cdcdcd;
   margin-top:30px;
+  cursor:pointer;
+  transition: color .5s ease;
+}
+
+#create-space:hover {
+  color: black;
 }
 
 .space-listing h4 {
@@ -29,3 +35,42 @@
   font-size:18pt;
   text-align:center;
 }
+
+#create-collection {
+    display:grid;
+    grid-template-columns: 180px 1fr;
+}
+
+#create-collection > label {
+    grid-column: 1 / 2 ;
+}
+
+#create-collection > input, #create-collection > textarea {
+    grid-column: 2 / 3 ;
+    margin-bottom:.5em;
+    border:none;
+    background:#ededed
+}
+
+.name-validation-detail {
+    color:#ababab;
+    grid-column: 2 / 3 ;
+    font-size:10pt;
+    position:relative;
+    top:-8px;
+}
+
+#create-collection-submit {
+    grid-column: 1 / 2 ;
+}
+
+@media only screen and (max-width: 600px) {
+    #create-collection { grid-template-columns: 1fr; }
+
+    .name-validation-detail,
+    #create-collection > input, 
+    #create-collection > textarea { 
+        grid-column: 1 / 2;
+        min-width: 0px; /* helps prevent overflow on very narrow viewports */
+    }
+} 

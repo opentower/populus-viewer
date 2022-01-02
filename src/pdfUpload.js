@@ -106,10 +106,10 @@ export default class PdfUpload extends Component {
     return <div id="pdf-upload">
       <h2> Upload a new PDF</h2>
       <form id="pdfUploadForm" ref={this.mainForm} onsubmit={this.uploadFile}>
-        <label> Pdf to discuss</label>
-        <input oninput={this.validatePdf} ref={this.fileLoader} accept="application/pdf" type="file" />
-        <label>Name for Discussion</label>
-        <input onkeydown={this.keydownHandler} oninput={this.validateName} ref={this.roomNameInput} type="text" />
+        <label for="pdf"> Pdf to discuss</label>
+        <input name="pdf" oninput={this.validatePdf} ref={this.fileLoader} accept="application/pdf" type="file" />
+        <label for="discussion" >Name for Discussion</label>
+        <input name="discussion" onkeydown={this.keydownHandler} oninput={this.validateName} ref={this.roomNameInput} type="text" />
         <div class="pdfupload-form-detail">{
           state.querying
             ? "querying..."
@@ -118,8 +118,9 @@ export default class PdfUpload extends Component {
               : "name unavailable"
           }
         </div>
-        <label>Topic of Discussion</label>
+        <label for="topic">Topic of Discussion</label>
         <textarea
+          name="topic"
           onkeydown={this.keydownHandler}
           ref={this.roomTopicInput}
           type="text"
