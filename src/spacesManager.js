@@ -130,7 +130,7 @@ class CreateCollection extends Component {
           }
         </div>
         <label for="topic" >Collection Topic</label>
-        <textarea name="topic" ref={this.collectionTopicInput}/>
+        <textarea name="topic" ref={this.collectionTopicInput} />
         <div id="create-collection-submit">
           <button disabled={state.querying || !state.nameavailable} class="styled-button" ref={this.submitButton} type="submit">
             Create Collection
@@ -191,7 +191,7 @@ class SpaceListing extends Component {
       <h3> {props.room.name} </h3>
       <div class="space-listing-children">
         {state.children}
-        {isAdmin ? <button onclick={this.addChild} class="add-child-to-collection">+</button> : null }
+        {isAdmin && props.dragging ? <button onclick={this.addChild} class="add-child-to-collection">+</button> : null }
       </div>
     </div>
   }

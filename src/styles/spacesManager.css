@@ -2,6 +2,10 @@
   margin: 15px;
 }
 
+#spaces-manager h1 {
+  margin:0px
+}
+
 #create-space {
   background:white;
   /* border: 2px #cdcdcd dashed; */
@@ -20,8 +24,11 @@
   color: black;
 }
 
+.space-listing {
+  margin-top:24px;
+}
+
 .space-listing h3 {
-  color: var(--room_dark);
   margin-bottom:12px;
 }
 
@@ -43,9 +50,10 @@
 
 .space-listing-child:not([data-has-avatar]) {
   background: var(--room_light);
-  border:2px solid black;
-  font-size:18pt;
+  color: var(--room_dark);
+  font-size:24pt;
   text-align:center;
+  line-height:50px;
 }
 
 .add-child-to-collection {
