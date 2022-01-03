@@ -25,24 +25,11 @@ export default class RoomList extends Component {
     }
     // need to do this to bind "this" as refering to the RoomList component in the listener
     this.roomListener = this.roomListener.bind(this)
-    this.resizeListener = this.resizeListener.bind(this)
   }
 
   roomListener () { this.setState({ rooms: Client.client.getVisibleRooms() }) }
 
-  resizeListener() {
-    clearTimeout(this.resizeDebounce)
-    this.resizeDebounce = setTimeout(_ => {
-      if (document.body.offsetWidth > 400) {
-        if (this.state.memberLimit === 5) this.setState({memberLimit: 15})
-      } else {
-        if (this.state.memberLimit === 15) this.setState({memberLimit: 5})
-      }
-    }, 500)
-  }
-
   componentDidMount () {
-    window.addEventListener("resize", this.resizeListener)
     Client.client.on("Room", this.roomListener)
     Client.client.on("Room.name", this.roomListener)
     Client.client.on("RoomState.events", this.roomListener)
@@ -51,7 +38,6 @@ export default class RoomList extends Component {
   }
 
   componentWillUnmount () {
-    window.removeEventListener("resize", this.resizeListener)
     Client.client.off("Room", this.roomListener)
     Client.client.off("Room.name", this.roomListener)
     Client.client.off("RoomState.events", this.roomListener)
@@ -137,7 +123,7 @@ export default class RoomList extends Component {
         let result = null
         if (room.getMyMembership() === "join" && resource.url) {
           result = <PDFRoomEntry
-            memberLimit={this.state.memberLimit}
+            memberLimit={this.props.narrow ? 5 : 15}
             room={room}
             key={room.roomId} />
         }

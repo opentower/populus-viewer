@@ -24,16 +24,27 @@ export default class WelcomeView extends Component {
       view: null,
       inputFocus: false,
       searchFilter: "",
+      narrow: document.body.offsetWidth <= 600,
       avatarUrl: Client.client.getHttpUriForMxcFromHS(this.user.avatarUrl, 30, 30, "crop")
     }
   }
 
   componentDidMount () {
     this.user.on("User.avatarUrl", this.profileListener)
+    window.addEventListener("resize", this.resizeListener)
   }
 
   componentWillUnmount () {
     this.user.off("User.avatarUrl", this.profileListener)
+    window.removeEventListener("resize", this.resizeListener)
+  }
+
+  resizeListener = _ => {
+    clearTimeout(this.resizeDebounce)
+    this.resizeDebounce = setTimeout(_ => document.body.offsetWidth > 600
+      ? this.state.narrow ? this.setState({narrow: false}) : null
+      : !this.state.narrow ? this.setState({narrow: true}) : null
+    , 500)
   }
 
   profileListener () {
@@ -76,6 +87,7 @@ export default class WelcomeView extends Component {
   }
 
   render(props, state) {
+    console.log(state.narrow)
     return <Fragment key="welcome-fragment">
       <header id="welcome-header">
         <div id="welcome-header-content">
@@ -102,9 +114,11 @@ export default class WelcomeView extends Component {
             ? <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} />
             : state.view === "NOTIF"
               ? <NotificationListing />
-              : <div id="welcome-split">
+              : state.narrow
+                ? <RoomList narrow={state.narrow} searchFilter={state.searchFilter} />
+                : <div id="welcome-split">
                   <SpacesManager />
-                  <RoomList searchFilter={state.searchFilter} />
+                  <RoomList narrow={state.narrow} searchFilter={state.searchFilter} />
                 </div>
         }
       </div>

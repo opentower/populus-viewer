@@ -1,6 +1,7 @@
 #notifications-listing {
   width: 90vw;
   max-width: 800px;
+  padding-top:1em;
 }
 
 .notification, .invite-entry {

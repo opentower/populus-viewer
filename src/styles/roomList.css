@@ -1,3 +1,7 @@
+#room-list {
+  padding-top: 1em
+}
+
 #select-sort {
     user-select:none;
     display:flex;

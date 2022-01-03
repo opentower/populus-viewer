@@ -1,6 +1,7 @@
 #pdf-upload {
   max-width: 800px;
   width: 90vw;
+  padding-top:1em;
 }
 
 #pdfUploadForm {
