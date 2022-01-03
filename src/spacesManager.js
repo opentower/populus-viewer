@@ -3,6 +3,7 @@ import * as Matrix from "matrix-js-sdk"
 import Client from './client.js'
 import './styles/spacesManager.css'
 import Modal from './modal.js'
+import Invite from './invite.js'
 import * as Icons from './icons.js'
 import { RoomColor } from './utils/colors.js'
 import { pdfStateType, spaceChild, mscResourceData } from "./constants.js"
@@ -11,12 +12,16 @@ export default class SpacesManager extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      spaces: Client.client.getVisibleRooms().filter(this.isCollection)
+      spaces: Client.client.getVisibleRooms()
+        .filter(room => room.getMyMembership() === "join")
+        .filter(this.isCollection)
     }
   }
 
   handleRoom = _ => this.setState({
-    spaces: Client.client.getVisibleRooms().filter(this.isCollection)
+    spaces: Client.client.getVisibleRooms()
+      .filter(room => room.getMyMembership() === "join")
+      .filter(this.isCollection)
   })
 
   componentDidMount () {
@@ -47,6 +52,8 @@ export default class SpacesManager extends Component {
       <h1>Collections</h1>
       <div id="spaces-list">
         {state.spaces.map(room => <SpaceListing narrow={props.narrow} key={room.roomId} room={room} />)}
+      </div>
+      <div>
         <button onclick={this.createCollection} id="create-space">+ Create New Collection</button>
       </div>
     </div>
@@ -179,6 +186,8 @@ class SpaceListing extends Component {
     Modal.set(<AddChild room={this.props.room} />)
   }
 
+  openInvite = _ => Modal.set(<Invite roomId={this.props.room.roomId} />)
+
   roomColor = new RoomColor(this.props.room.name)
 
   render(props, state) {
@@ -196,6 +205,7 @@ class SpaceListing extends Component {
       { state.actionsVisible
         ? <div class="space-listing-actions">
             <button class="small-icon" onclick={this.addChild}>{ Icons.newDiscussion }</button>
+            <button class="small-icon" onclick={this.openInvite}>{ Icons.userPlus }</button>
             <button class="small-icon">{ Icons.settings }</button>
           </div>
         : null

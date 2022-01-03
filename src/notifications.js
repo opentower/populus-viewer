@@ -99,7 +99,7 @@ export default class NotificationListing extends Component {
         .getLiveTimeline()
         .getState(Matrix.EventTimeline.FORWARDS)
         .getStateEvents("m.room.create", "")
-        ?.getContent()?.[mscResourceData])
+        ?.getContent()?.type === "m.space")
       .map(room => <InviteEntry handleRoom={this.handleRoom} key={room.roomId} room={room} />)
   }
 

@@ -159,7 +159,7 @@ class WelcomeIcon extends Component {
         .getLiveTimeline()
         .getState(Matrix.EventTimeline.FORWARDS)
         .getStateEvents("m.room.create", "")
-        ?.getContent()?.[mscResourceData])
+        ?.getContent()?.type === "m.space")
       .length
     this.state = { count: unread + invites}
     this.updateCount = this.updateCount.bind(this)

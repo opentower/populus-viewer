@@ -23,11 +23,12 @@ export default class RoomList extends Component {
       memberLimit: document.body.offsetWidth > 400 ? 15 : 5,
       sortOrder: 1
     }
-    // need to do this to bind "this" as refering to the RoomList component in the listener
-    this.roomListener = this.roomListener.bind(this)
   }
 
-  roomListener () { this.setState({ rooms: Client.client.getVisibleRooms() }) }
+  roomListener = _ => this.setState({
+    rooms: Client.client.getVisibleRooms()
+      .filter(room => room.getMyMembership() === "join")
+  })
 
   componentDidMount () {
     Client.client.on("Room", this.roomListener)
