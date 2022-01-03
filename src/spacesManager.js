@@ -18,11 +18,16 @@ export default class SpacesManager extends Component {
     }
   }
 
-  handleRoom = _ => this.setState({
-    spaces: Client.client.getVisibleRooms()
-      .filter(room => room.getMyMembership() === "join")
-      .filter(this.isCollection)
-  })
+  handleRoom = _ => {
+    clearTimeout(this.roomDebounceTimeout)
+    this.roomDebounceTimeout = setTimeout(_ => {
+      this.setState({
+        spaces: Client.client.getVisibleRooms()
+          .filter(room => room.getMyMembership() === "join")
+          .filter(this.isCollection)
+      })
+    })
+  }
 
   componentDidMount () {
     Client.client.on("Room", this.handleRoom)
@@ -257,7 +262,7 @@ class SpaceListingChild extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      joined: !!Client.client.getRoom(this.props.child.room_id),
+      joined: this.amJoined(),
       loaded: false,
       avatarUrl: props.child.avatar_url
         ? Client.client.mxcUrlToHttp(props.child.avatar_url, 35, 35, "crop")
@@ -265,10 +270,38 @@ class SpaceListingChild extends Component {
     }
   }
 
+  amJoined = _ => !!(Client.client.getRoom(this.props.child.room_id)?.getMyMembership() === "join")
+    
+
+  componentDidMount () {
+    Client.client.on("Room", this.handleRoom)
+    Client.client.on("RoomState.events", this.handleRoom)
+  }
+
+  componentDidUnmount () {
+    Client.client.on("Room", this.handleRoom)
+    Client.client.on("RoomState.events", this.handleRoom)
+  }
+
+  handleRoom = (e, r) => {
+    if (e.roomId === this.props.child.room_id || r?.roomId === this.props.child.room_id) {
+      clearTimeout(this.roomDebounceTimeout)
+      this.roomDebounceTimeout = setTimeout(_ => {
+        this.setState({ joined: this.amJoined() })
+      })
+    }
+  }
+
+  joinRoom = _ => Client.client.joinRoom(this.props.child.room_id)
+
   roomColor = new RoomColor(this.props.child.name)
 
   render(props, state) {
-    return <div data-joined={state.joined} data-has-avatar={!!state.avatarUrl} class="space-listing-child" style={this.roomColor.styleVariables}>
+    return <div onclick={this.joinRoom}
+      data-joined={state.joined}
+      data-has-avatar={!!state.avatarUrl}
+      class="space-listing-child"
+      style={this.roomColor.styleVariables}>
         { state.avatarUrl
           ? <img src={state.avatarUrl} />
           : props.child.name.slice(0, 1)

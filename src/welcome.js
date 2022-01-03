@@ -100,7 +100,6 @@ export default class WelcomeView extends Component {
   }
 
   render(props, state) {
-    console.log(state.narrow)
     return <Fragment key="welcome-fragment">
       <header id="welcome-header">
         <div id="welcome-header-content">

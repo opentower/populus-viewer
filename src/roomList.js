@@ -25,10 +25,15 @@ export default class RoomList extends Component {
     }
   }
 
-  roomListener = _ => this.setState({
-    rooms: Client.client.getVisibleRooms()
-      .filter(room => room.getMyMembership() === "join")
-  })
+  roomListener = _ => {
+    clearTimeout(this.roomDebounceTimeout)
+    this.roomDebounceTimeout = setTimeout(_ => {
+      this.setState({
+        rooms: Client.client.getVisibleRooms()
+          .filter(room => room.getMyMembership() === "join")
+      })
+    })
+  }
 
   componentDidMount () {
     Client.client.on("Room", this.roomListener)
