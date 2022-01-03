@@ -102,3 +102,7 @@ export const quote = <svg width="24" height="24" version="1.1" viewBox="0 0 6.35
   <path d="m84.897 97.735v-3.0819h-1.4224c-0.02963-1.6891 0.41487-2.5188 1.4224-2.667v-1.1261c-1.7484 0.14817-2.7559 1.5409-2.7559 3.882v2.993zm4.6821 0v-3.0819h-1.4224c-0.02963-1.6891 0.41487-2.5188 1.4224-2.667v-1.1261c-1.7484 0.14817-2.7559 1.5409-2.7559 3.882v2.993z" stroke-width=".66691" />
  </g>
 </svg>
+
+export const collection = <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+  </svg>

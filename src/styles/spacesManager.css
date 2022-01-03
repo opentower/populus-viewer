@@ -1,7 +1,7 @@
 #spaces-manager {
   padding-top:1em;
 }
- 
+
 #spaces-list {
   margin: 15px;
 }
@@ -48,7 +48,7 @@
   border:none;
   cursor: pointer;
 }
-
+.space-listing h3 button[data-narrow-view],
 .space-listing h3:hover button {
   visibility: visible;
 }

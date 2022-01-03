@@ -11,16 +11,12 @@ export default class SpacesManager extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      spaces: Client.client.getVisibleRooms()
-        .filter(this.isCollection)
-        .map(room => <SpaceListing key={room.roomId} room={room} />)
+      spaces: Client.client.getVisibleRooms().filter(this.isCollection)
     }
   }
 
   handleRoom = _ => this.setState({
-    spaces: Client.client.getVisibleRooms()
-      .filter(this.isCollection)
-      .map(room => <SpaceListing key={room.roomId} room={room} />)
+    spaces: Client.client.getVisibleRooms().filter(this.isCollection)
   })
 
   componentDidMount () {
@@ -46,11 +42,11 @@ export default class SpacesManager extends Component {
     Modal.set(<CreateCollection />)
   }
 
-  render(_props, state) {
+  render(props, state) {
     return <div id="spaces-manager">
       <h1>Collections</h1>
       <div id="spaces-list">
-        {state.spaces}
+        {state.spaces.map(room => <SpaceListing narrow={props.narrow} key={room.roomId} room={room} />)}
         <button onclick={this.createCollection} id="create-space">+ Create New Collection</button>
       </div>
     </div>
@@ -193,7 +189,7 @@ class SpaceListing extends Component {
       <h3>
         {props.room.name}
         {isAdmin
-          ? <button data-narrow-view={document.body.offsetWidth < 400} onclick={this.toggleActions}>{Icons.moreVertical}</button>
+          ? <button data-narrow-view={props.narrow} onclick={this.toggleActions}>{Icons.moreVertical}</button>
           : null
         }
       </h3>

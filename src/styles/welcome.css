@@ -19,12 +19,14 @@
     align-items:center;
 }
 
-#welcome-upload, #welcome-notifications {
+#welcome-collection, #welcome-upload, #welcome-notifications {
     padding-right:0px;
     margin-right:15px; 
 }
 
-#welcome-notifications > svg, #welcome-upload > svg {
+#welcome-collection > svg, 
+#welcome-notifications > svg, 
+#welcome-upload > svg {
     cursor: pointer;
     vertical-align:top;
     margin-bottom:5px;
@@ -38,6 +40,7 @@
 
 #welcome-notifications, 
 #welcome-upload, 
+#welcome-collection, 
 #welcome-profile {
   flex-shrink: 0;
   position:relative;
@@ -46,6 +49,7 @@
   transition: border .25s ease;
 }
 
+#welcome-collection[data-welcome-active], 
 #welcome-notifications[data-welcome-active], 
 #welcome-upload[data-welcome-active], 
 #welcome-profile[data-welcome-active] {
@@ -92,6 +96,11 @@
   width: 90vw;
   grid-template-columns: 1fr 1fr;
   max-width:1600px;
+}
+
+.welcome-column {
+  width: 90vw;
+  max-width:800px;
 }
 
 #welcome-container h2 {

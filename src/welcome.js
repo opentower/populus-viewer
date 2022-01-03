@@ -42,8 +42,15 @@ export default class WelcomeView extends Component {
   resizeListener = _ => {
     clearTimeout(this.resizeDebounce)
     this.resizeDebounce = setTimeout(_ => document.body.offsetWidth > 600
-      ? this.state.narrow ? this.setState({narrow: false}) : null
-      : !this.state.narrow ? this.setState({narrow: true}) : null
+      ? this.state.narrow
+        ? this.setState({
+          view: this.state.view === "COLLECTION" ? null : this.state.view,
+          narrow: false
+        })
+        : null
+      : !this.state.narrow
+          ? this.setState({narrow: true})
+          : null
     , 500)
   }
 
@@ -78,6 +85,12 @@ export default class WelcomeView extends Component {
       : { view: "NOTIF" }
   )
 
+  toggleCollectionVisible = _ => this.setState(oldState =>
+    oldState.view === "COLLECTION"
+      ? { view: null }
+      : { view: "COLLECTION" }
+  )
+
   showMainView = _ => this.setState({ view: null })
 
   displayInitial = _ => {
@@ -96,6 +109,10 @@ export default class WelcomeView extends Component {
             setSearch={this.setSearch}
             setFocus={this.setFocus} />
           { !state.inputFocus && <Fragment>
+            {state.narrow 
+              ? <div data-welcome-active={state.view === "COLLECTION"} id="welcome-collection" onClick={this.toggleCollectionVisible}>{Icons.collection}</div>
+              : null
+            }
             <div data-welcome-active={state.view === "UPLOAD"} id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</div>
             <WelcomeIcon welcomeActive={state.view === "NOTIF"} toggleNotifVisible={this.toggleNotifVisible} />
             <div data-welcome-active={state.view === "PROFILE"} id="welcome-profile" onClick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
@@ -114,12 +131,16 @@ export default class WelcomeView extends Component {
             ? <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} />
             : state.view === "NOTIF"
               ? <NotificationListing />
-              : state.narrow
-                ? <RoomList narrow={state.narrow} searchFilter={state.searchFilter} />
-                : <div id="welcome-split">
-                  <SpacesManager />
-                  <RoomList narrow={state.narrow} searchFilter={state.searchFilter} />
+              : state.view === "COLLECTION"
+                ? <div class="welcome-column">
+                    <SpacesManager narrow={state.narrow} />
                 </div>
+                : state.narrow
+                  ? <RoomList narrow={state.narrow} searchFilter={state.searchFilter} />
+                  : <div id="welcome-split">
+                    <SpacesManager narrow={state.narrow} />
+                    <RoomList narrow={state.narrow} searchFilter={state.searchFilter} />
+                  </div>
         }
       </div>
       <SyncIndicator />
