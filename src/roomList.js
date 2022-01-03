@@ -102,7 +102,14 @@ export default class RoomList extends Component {
     const searchTags = []
     const searchMembers = []
     const searchFlags = []
-    const searchWords = this.props.searchFilter.split(" ")
+    const regex = /[^\s"]+|"([^"]*)"/gi
+    const searchWords = []
+    let match
+    do {
+      match = regex.exec(this.props.searchFilter)
+      if (match != null) searchWords.push(match[1] ? match[1] : match[0])
+    } while (match != null)
+    this.props.searchFilter.split(" ")
     for (const word of searchWords) {
       if (word.slice(0, 1) === '#') searchTags.push(word.slice(1))
       else if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
