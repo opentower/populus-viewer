@@ -257,6 +257,7 @@ class SpaceListingChild extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      joined: !!Client.client.getRoom(this.props.child.room_id),
       loaded: false,
       avatarUrl: props.child.avatar_url
         ? Client.client.mxcUrlToHttp(props.child.avatar_url, 35, 35, "crop")
@@ -267,7 +268,7 @@ class SpaceListingChild extends Component {
   roomColor = new RoomColor(this.props.child.name)
 
   render(props, state) {
-    return <div data-has-avatar={!!state.avatarUrl} class="space-listing-child" style={this.roomColor.styleVariables}>
+    return <div data-joined={state.joined} data-has-avatar={!!state.avatarUrl} class="space-listing-child" style={this.roomColor.styleVariables}>
         { state.avatarUrl
           ? <img src={state.avatarUrl} />
           : props.child.name.slice(0, 1)

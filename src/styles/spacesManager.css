@@ -75,6 +75,7 @@
   margin-bottom:10px;
   overflow:hidden;
   vertical-align:bottom;
+  transition: opacity 0.5s ease;
 }
 
 .space-listing-child img {
@@ -89,6 +90,14 @@
   font-size:24pt;
   text-align:center;
   line-height:50px;
+}
+
+.space-listing-child:not([data-joined]) {
+  opacity: 0.5
+}
+
+.space-listing-child:hover {
+  opacity: 1
 }
 
 .add-child-to-collection {
