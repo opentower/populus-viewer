@@ -147,41 +147,36 @@ class SpaceListing extends Component {
     super(props)
     this.state = {
       actionsVisible: false,
-      children: Client.client.getVisibleRooms()
-        .filter(this.isChild)
-        .map(room => <SpaceListingChild key={room.roomId} room={room} />)
+      children: null
     }
   }
 
   componentDidMount() {
     Client.client.on("RoomState.events", this.handleStateUpdate)
+    this.loadChildren()
   }
 
   componentWillUnmount() {
     Client.client.off("RoomState.events", this.handleStateUpdate)
   }
 
+  async loadChildren() {
+    // dendrite will still use the fallback route, which can't restrict depth
+    const children = await Client.client.getRoomHierarchy(this.props.room.roomId, 15, 1)
+      .then(response => response.rooms.map(child => <SpaceListingChild key={child.roomId} child={child} />))
+      .then(allrooms => allrooms.slice(1)) // the root is always first in the listing
+    // going to have to handle pagination eventually
+    this.setState({children})
+  }
+
   handleStateUpdate = e => {
     if (e.getRoomId() === this.props.room.roomId && e.getType() === spaceChild) {
-      this.setState({
-        children: Client.client.getVisibleRooms()
-          .filter(this.isChild)
-          .map(room => <SpaceListingChild key={room.roomId} room={room} />)
-      })
+      this.loadChildren()
+      // going to have to handle pagination eventually, insert this rather than redo the whole listing.
     }
   }
 
   toggleActions = _ => this.setState(oldState => { return { actionsVisible: !oldState.actionsVisible } })
-
-  isChild = room => {
-    const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const spaceState = this.props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const creation = roomState.getStateEvents("m.room.create", "")
-    const isLegacy = roomState.getStateEvents(pdfStateType, "")
-    const isResource = creation.getContent()?.[mscResourceData]
-    const isDescendent = spaceState.getStateEvents("m.space.child", room.roomId)
-    return isDescendent && (isResource || isLegacy)
-  }
 
   addChild = _ => {
     this.setState({ actionsVisible: false })
@@ -222,18 +217,12 @@ class AddChild extends Component {
     super(props)
     this.state = {
       discussions: Client.client.getVisibleRooms()
-        .filter(this.isDiscussion)
-        .map(room => <DiscussionListing room={room} collection={props.room} />)
+        .filter(this.isSpace)
+        .map(room => <DiscussionListing key={room.room_id} room={room} collection={props.room} />)
     }
   }
 
-  isDiscussion = room => {
-    const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const creation = roomState.getStateEvents("m.room.create", "")
-    const isLegacy = roomState.getStateEvents(pdfStateType, "")
-    const isResource = creation.getContent()?.[mscResourceData]
-    return isResource || isLegacy
-  }
+  isSpace = room => room.room_type === "m.space"
 
   render(_props, state) {
     return <Fragment>
@@ -261,25 +250,21 @@ class DiscussionListing extends Component {
 class SpaceListingChild extends Component {
   constructor(props) {
     super(props)
-    const avatarEvent = props.room.getLiveTimeline()
-      .getState(Matrix.EventTimeline.FORWARDS)
-      .getStateEvents("m.room.avatar", "")
     this.state = {
-      avatarEvent,
       loaded: false,
-      avatarUrl: avatarEvent?.getContent()?.url
-        ? Client.client.mxcUrlToHttp(avatarEvent.getContent().url, 35, 35, "crop")
+      avatarUrl: props.child.avatar_url
+        ? Client.client.mxcUrlToHttp(props.child.avatar_url, 35, 35, "crop")
         : null
     }
   }
 
-  roomColor = new RoomColor(this.props.room.name)
+  roomColor = new RoomColor(this.props.child.name)
 
   render(props, state) {
     return <div data-has-avatar={!!state.avatarUrl} class="space-listing-child" style={this.roomColor.styleVariables}>
         { state.avatarUrl
           ? <img src={state.avatarUrl} />
-          : props.room.name.slice(0, 1)
+          : props.child.name.slice(0, 1)
         }
       </div>
   }
