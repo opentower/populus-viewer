@@ -4,6 +4,7 @@ import Client from './client.js'
 import './styles/spacesManager.css'
 import Modal from './modal.js'
 import Invite from './invite.js'
+import RoomSettings from './roomSettings.js'
 import * as Icons from './icons.js'
 import { RoomColor } from './utils/colors.js'
 import { pdfStateType, spaceChild, mscResourceData } from "./constants.js"
@@ -191,6 +192,8 @@ class SpaceListing extends Component {
     Modal.set(<AddChild room={this.props.room} />)
   }
 
+  openSettings = _ => Modal.set(<RoomSettings room={this.props.room} />)
+
   openInvite = _ => Modal.set(<Invite roomId={this.props.room.roomId} />)
 
   roomColor = new RoomColor(this.props.room.name)
@@ -211,7 +214,7 @@ class SpaceListing extends Component {
         ? <div class="space-listing-actions">
             <button class="small-icon" onclick={this.addChild}>{ Icons.newDiscussion }</button>
             <button class="small-icon" onclick={this.openInvite}>{ Icons.userPlus }</button>
-            <button class="small-icon">{ Icons.settings }</button>
+            <button class="small-icon" onclick={this.openSettings}>{ Icons.settings }</button>
           </div>
         : null
       }
