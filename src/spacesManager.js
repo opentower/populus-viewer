@@ -4,10 +4,11 @@ import Client from './client.js'
 import './styles/spacesManager.css'
 import Modal from './modal.js'
 import Invite from './invite.js'
+import Resource from './utils/resource.js'
 import RoomSettings from './roomSettings.js'
 import * as Icons from './icons.js'
 import { RoomColor } from './utils/colors.js'
-import { pdfStateType, spaceChild, mscResourceData } from "./constants.js"
+import { pdfStateType, spaceChild, spaceParent, mscResourceData } from "./constants.js"
 
 export default class SpacesManager extends Component {
   constructor(props) {
@@ -44,9 +45,7 @@ export default class SpacesManager extends Component {
     const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const creation = roomState.getStateEvents("m.room.create", "")
     const isSpace = creation.getContent()?.type === "m.space"
-    const isLegacy = roomState.getStateEvents(pdfStateType, "")
-    const isResource = creation.getContent()?.[mscResourceData]
-    return isSpace && !isResource && !isLegacy
+    return isSpace && !Resource.hasResource(room)
   }
 
   createCollection = _ => {
@@ -231,12 +230,10 @@ class AddChild extends Component {
     super(props)
     this.state = {
       discussions: Client.client.getVisibleRooms()
-        .filter(this.isSpace)
+        .filter(Resource.hasResource)
         .map(room => <DiscussionListing key={room.room_id} room={room} collection={props.room} />)
     }
   }
-
-  isSpace = room => room.room_type === "m.space"
 
   render(_props, state) {
     return <Fragment>
@@ -250,8 +247,12 @@ class DiscussionListing extends Component {
   addMe = async _ => {
     const theDomain = Client.client.getDomain()
     const childContent = { via: [theDomain] }
+    const parentContent = { via: [theDomain] }
     await Client.client
       .sendStateEvent(this.props.collection.roomId, spaceChild, childContent, this.props.room.roomId)
+      .catch(e => alert(e))
+    await Client.client
+      .sendStateEvent(this.props.room.roomId, spaceParent, parentContent, this.props.collection.roomId)
       .catch(e => alert(e))
     Modal.hide()
   }
@@ -274,7 +275,6 @@ class SpaceListingChild extends Component {
   }
 
   amJoined = _ => !!(Client.client.getRoom(this.props.child.room_id)?.getMyMembership() === "join")
-    
 
   componentDidMount () {
     Client.client.on("Room", this.handleRoom)

@@ -18,7 +18,7 @@ export default class RoomList extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      rooms: Client.client.getVisibleRooms(),
+      rooms: Client.client.getVisibleRooms().filter(Resource.hasResource),
       sort: "Activity",
       memberLimit: document.body.offsetWidth > 400 ? 15 : 5,
       sortOrder: 1
@@ -30,6 +30,7 @@ export default class RoomList extends Component {
     this.roomDebounceTimeout = setTimeout(_ => {
       this.setState({
         rooms: Client.client.getVisibleRooms()
+          .filter(Resource.hasResource)
           .filter(room => room.getMyMembership() === "join")
       })
     })
@@ -102,17 +103,18 @@ export default class RoomList extends Component {
     const searchTags = []
     const searchMembers = []
     const searchFlags = []
-    const regex = /[^\s"]+|"([^"]*)"/gi
+    const searchParents = []
     const searchWords = []
+    const regex = /[^\s"]+|"([^"]*)"/gi
     let match
     do {
       match = regex.exec(this.props.searchFilter)
       if (match != null) searchWords.push(match[1] ? match[1] : match[0])
     } while (match != null)
-    this.props.searchFilter.split(" ")
     for (const word of searchWords) {
       if (word.slice(0, 1) === '#') searchTags.push(word.slice(1))
       else if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
+      else if (word.slice(0, 1) === '*') searchParents.push(word.slice(1))
       else if (word.slice(0, 1) === '~') searchFlags.push(word.slice(1))
       else searchNames.push(word)
     }
@@ -120,11 +122,14 @@ export default class RoomList extends Component {
       let flagged = true
       if (searchFlags.includes("fav")) { flagged = flagged && !!room.tags["m.favourite"] }
       const tags = Object.keys(room.tags).filter(tag => tag.slice(0, 2) === 'u.')
+      const state = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
       // TODO: could make the below smarter to search by displayname as well as userID.
-      const roomMembers = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getMembers().map(m => m.userId)
+      const roomMembers = state.getMembers().map(m => m.userId)
+      const parents = state.getStateEvents("m.space.parent").map(e => Client.client.getRoom(e.getStateKey())?.name).filter(e => e)
       return searchNames.every(name => room.name.toLowerCase().includes(name.toLowerCase())) &&
         searchMembers.every(member => roomMembers.some(roomMember => roomMember.toLowerCase().includes(member.toLowerCase()))) &&
         searchTags.every(searchTag => tags.some(tag => tag.toLowerCase().includes(searchTag.toLowerCase()))) &&
+        searchParents.every(searchParent => parents.some(parent => parent.toLowerCase().includes(searchParent.toLowerCase()))) &&
         flagged
     })
   }
@@ -135,7 +140,7 @@ export default class RoomList extends Component {
         const resource = new Resource(room)
         let result = null
         if (room.getMyMembership() === "join" && resource.url) {
-          result = <PDFRoomEntry
+          result = <RoomEntry
             memberLimit={this.props.narrow ? 5 : 15}
             room={room}
             key={room.roomId} />
@@ -168,7 +173,7 @@ export default class RoomList extends Component {
   }
 }
 
-class PDFRoomEntry extends Component {
+class RoomEntry extends Component {
   constructor(props) {
     super(props)
     this.state = { buttonsVisible: false }

@@ -3,6 +3,13 @@ import Client from '../client.js'
 import { pdfStateType, mscResourceData } from "../constants.js"
 
 export default class Resource {
+  static hasResource(theRoom) {
+    const roomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const resourceContent = roomState.getStateEvents("m.room.create", "")?.getContent()?.[mscResourceData]
+    const legacyMxc = roomState.getStateEvents(pdfStateType, "")?.getContent()?.mxc
+    return !!(resourceContent || legacyMxc)
+  }
+
   constructor(theRoom) {
     const roomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const legacyMxc = roomState.getStateEvents(pdfStateType, "")?.getContent()?.mxc
