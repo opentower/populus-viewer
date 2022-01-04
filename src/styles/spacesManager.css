@@ -3,7 +3,7 @@
 }
 
 #spaces-list {
-  margin: 15px;
+  margin-left: 16px;
 }
 
 #spaces-manager h1 {
@@ -26,10 +26,6 @@
 
 #create-space:hover {
   color: black;
-}
-
-.space-listing {
-  margin-top:16px
 }
 
 .space-listing h3 {
