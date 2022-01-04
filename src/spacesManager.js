@@ -41,6 +41,8 @@ export default class SpacesManager extends Component {
     Client.client.off("Room.name", this.handleRoom)
   }
 
+  searchPush = s => this.props.setSearch(`${this.props.searchFilter} "${s}"`)
+
   isCollection(room) {
     const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const creation = roomState.getStateEvents("m.room.create", "")
@@ -56,7 +58,7 @@ export default class SpacesManager extends Component {
     return <div id="spaces-manager">
       <h1>Collections</h1>
       <div id="spaces-list">
-        {state.spaces.map(room => <SpaceListing narrow={props.narrow} key={room.roomId} room={room} />)}
+        {state.spaces.map(room => <SpaceListing searchPush={this.searchPush} narrow={props.narrow} key={room.roomId} room={room} />)}
       </div>
       <div>
         <button onclick={this.createCollection} id="create-space">+ Create New Collection</button>
@@ -184,6 +186,8 @@ class SpaceListing extends Component {
     }
   }
 
+  searchMe = _ => this.props.searchPush(`*${this.props.room.name}`)
+
   toggleActions = _ => this.setState(oldState => { return { actionsVisible: !oldState.actionsVisible } })
 
   addChild = _ => {
@@ -202,7 +206,7 @@ class SpaceListing extends Component {
     const isAdmin = userMember.powerLevel >= 100
     // should do this in a more fine-grained way with hasSufficientPowerLevelFor
     return <div style={this.roomColor.styleVariables} class="space-listing">
-      <h3>
+      <h3 onclick={this.searchMe}>
         {props.room.name}
         {isAdmin
           ? <button data-narrow-view={props.narrow} onclick={this.toggleActions}>{Icons.moreVertical}</button>

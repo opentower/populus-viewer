@@ -118,6 +118,7 @@ export default class RoomList extends Component {
       else if (word.slice(0, 1) === '~') searchFlags.push(word.slice(1))
       else searchNames.push(word)
     }
+    // XXX ↓ very naive implementation, watch for speed
     return this.state.rooms.filter(room => {
       let flagged = true
       if (searchFlags.includes("fav")) { flagged = flagged && !!room.tags["m.favourite"] }
