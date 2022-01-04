@@ -206,8 +206,8 @@ class SpaceListing extends Component {
     const isAdmin = userMember.powerLevel >= 100
     // should do this in a more fine-grained way with hasSufficientPowerLevelFor
     return <div style={this.roomColor.styleVariables} class="space-listing">
-      <h3 onclick={this.searchMe}>
-        {props.room.name}
+      <h3>
+        <span onclick={this.searchMe}>{props.room.name}</span>
         {isAdmin
           ? <button data-narrow-view={props.narrow} onclick={this.toggleActions}>{Icons.moreVertical}</button>
           : null
