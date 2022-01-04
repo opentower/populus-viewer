@@ -195,9 +195,15 @@ class SpaceListing extends Component {
     Modal.set(<AddChild room={this.props.room} />)
   }
 
-  openSettings = _ => Modal.set(<RoomSettings room={this.props.room} />)
+  openSettings = _ => {
+    this.setState({ actionsVisible: false })
+    Modal.set(<RoomSettings room={this.props.room} />)
+  }
 
-  openInvite = _ => Modal.set(<Invite roomId={this.props.room.roomId} />)
+  openInvite = _ => {
+    this.setState({ actionsVisible: false })
+    Modal.set(<Invite roomId={this.props.room.roomId} />)
+  }
 
   roomColor = new RoomColor(this.props.room.name)
 
