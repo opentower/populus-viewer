@@ -262,7 +262,7 @@ class DiscussionListing extends Component {
   }
 
   render(props) {
-    return <div onclick={this.addMe}>{props.room.name}</div>
+    return <button class="discussion-listing" onclick={this.addMe}>{props.room.name}</button>
   }
 }
 

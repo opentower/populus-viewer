@@ -123,6 +123,20 @@
     grid-template-columns: 180px 1fr;
 }
 
+.discussion-listing {
+  padding: 5px;
+  display: block;
+  background: none;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+}
+
+.discussion-listing:hover {
+  left:5px
+}
+
 #create-collection > label {
     grid-column: 1 / 2 ;
 }

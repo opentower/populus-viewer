@@ -1,5 +1,12 @@
 @import url('https://rsms.me/inter/inter.css');
 
+html {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width:none;
+}
+
+html::-webkit-scrollbar { display: none; }
+
 html * { font-family: 'Inter', sans-serif; }
 
 @supports (font-variation-settings: normal) {

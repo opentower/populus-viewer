@@ -29,6 +29,7 @@
     right:5px;
     align-items:center;
     display:flex;
+    background:#efefef;
 }
 
 .search-bar > .right-decoration > .search-hint {
