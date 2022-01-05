@@ -176,6 +176,11 @@
 @media only screen and (max-width: 600px) {
     #create-collection { grid-template-columns: 1fr; }
 
+    .space-listing h3 {
+      display:grid;
+      grid-template-columns: 1fr auto;
+    }
+
     .name-validation-detail,
     #create-collection > input, 
     #create-collection > textarea { 
