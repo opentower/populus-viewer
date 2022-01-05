@@ -27,9 +27,9 @@ export default class SearchBar extends Component {
     this.props.setSearch("")
   }
 
-  handleInputBlur = _ => this.props.setFocus(false)
+  handleInputBlur = _ => this.props.setFocus ? this.props.setFocus(false) : null
 
-  handleInputFocus = _ => this.props.setFocus(true)
+  handleInputFocus = _ => this.props.setFocus ? this.props.setFocus(true) : null
 
   handleInputKeydown = e => {
     e.stopPropagation() // don't propagate to global keypress handlers

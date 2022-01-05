@@ -5,8 +5,10 @@ import * as Icons from './icons.js'
 export default class Modal extends Component {
   constructor(props) {
     super(props)
+    this.state = { content: null }
     Modal.set = this.setContent
     Modal.hide = this.hideModal
+    Modal.isVisible = _ => this.state.content !== null
   }
 
   hideModal = _ => this.setState({content: null})

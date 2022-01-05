@@ -6,6 +6,7 @@ import Modal from './modal.js'
 import Invite from './invite.js'
 import Resource from './utils/resource.js'
 import RoomSettings from './roomSettings.js'
+import SearchBar from './search.js'
 import * as Icons from './icons.js'
 import { RoomColor } from './utils/colors.js'
 import { pdfStateType, spaceChild, spaceParent, mscResourceData } from "./constants.js"
@@ -172,11 +173,14 @@ class SpaceListing extends Component {
 
   async loadChildren() {
     // dendrite will still use the fallback route, which can't restrict depth
-    const children = await Client.client.getRoomHierarchy(this.props.room.roomId, 15, 1)
-      .then(response => response.rooms.map(child => <SpaceListingChild key={child.roomId} child={child} />))
-      .then(allrooms => allrooms.slice(1)) // the root is always first in the listing
-    // going to have to handle pagination eventually
-    this.setState({children})
+    const response = await Client.client.getRoomHierarchy(this.props.room.roomId, 15, 1)
+    const children = response.rooms.slice(1)
+    // the root is always first in the listing
+    this.setState({children},
+      _ => Modal.isVisible()
+        ? Modal.set(<AddChild children={this.state.children} room={this.props.room} />)
+        : null
+    )
   }
 
   handleStateUpdate = e => {
@@ -192,7 +196,7 @@ class SpaceListing extends Component {
 
   addChild = _ => {
     this.setState({ actionsVisible: false })
-    Modal.set(<AddChild room={this.props.room} />)
+    Modal.set(<AddChild children={this.state.children} room={this.props.room} />)
   }
 
   openSettings = _ => {
@@ -228,7 +232,10 @@ class SpaceListing extends Component {
         : null
       }
       <div class="space-listing-children">
-        {state.children}
+        {state.children
+          ? state.children.map(child => <SpaceListingChild key={child.roomId} child={child} />)
+          : null // insert loading bling here.
+        }
         {isAdmin && props.dragging ? <button ondrop={_ => alert('drop not implemented!')} class="add-child-to-collection">+</button> : null }
       </div>
     </div>
@@ -238,22 +245,76 @@ class SpaceListing extends Component {
 class AddChild extends Component {
   constructor(props) {
     super(props)
+    props.children.map(child => child.name)
     this.state = {
-      discussions: Client.client.getVisibleRooms()
-        .filter(Resource.hasResource)
-        .map(room => <DiscussionListing key={room.room_id} room={room} collection={props.room} />)
+      search: "",
+      discussions: Client.client
+        .getVisibleRooms()
+        .filter(room => Resource.hasResource(room))
     }
   }
 
-  render(_props, state) {
+  filterDiscussions = search => {
+    this.setState({
+      search,
+      discussions: Client.client
+        .getVisibleRooms()
+        .filter(room =>
+          Resource.hasResource(room) &&
+          room.name.toLowerCase().includes(search.toLowerCase())
+        )
+    })
+  }
+
+  render(props, state) {
+    const childNames = this.props.children.map(child => child.name)
     return <Fragment>
-      <h3 id="modalHeader">Add Discussion to Collection</h3>
-      {state.discussions}
+      <h3 id="modalHeader">Manage Discussions in Collection</h3>
+      <SearchBar search={state.search} setSearch={this.filterDiscussions} />
+      {props.children.length > 0
+        ? <Fragment>
+          <h4>Current Discussions</h4>
+          <div class="current-discussions-list">
+            {props.children
+              .filter(child => child.name.toLowerCase().includes(state.search.toLowerCase()))
+              .map(child =>
+                <CurrentDiscussionListing key={child.room_id} child={child} collection={props.room} />
+              )
+            }
+          </div>
+        </Fragment>
+        : null
+      }
+      <h4>Available Discussions</h4>
+      <div class="available-discussions-list">
+        {state.discussions
+          .filter(room => !childNames.includes(room.name))
+          .map(room =>
+            <AvailableDiscussionListing key={room.roomId} room={room} collection={props.room} />
+          )
+        }
+      </div>
     </Fragment>
   }
 }
 
-class DiscussionListing extends Component {
+class CurrentDiscussionListing extends Component {
+  removeMe = async _ => {
+    await Client.client
+      .sendStateEvent(this.props.collection.roomId, spaceChild, {}, this.props.child.room_id)
+      .catch(e => alert(e))
+    await Client.client
+      .sendStateEvent(this.props.child.room_id, spaceParent, {}, this.props.collection.roomId)
+      .catch(e => alert(e))
+    // need a better way of displaying this alert
+  }
+
+  render(props) {
+    return <button class="discussion-listing" onclick={this.removeMe}><span>{Icons.trash}</span><span>{props.child.name}</span></button>
+  }
+}
+
+class AvailableDiscussionListing extends Component {
   addMe = async _ => {
     const theDomain = Client.client.getDomain()
     const childContent = { via: [theDomain] }
@@ -264,11 +325,11 @@ class DiscussionListing extends Component {
     await Client.client
       .sendStateEvent(this.props.room.roomId, spaceParent, parentContent, this.props.collection.roomId)
       .catch(e => alert(e))
-    Modal.hide()
+    // need a better way of displaying this alert
   }
 
   render(props) {
-    return <button class="discussion-listing" onclick={this.addMe}>{props.room.name}</button>
+    return <button class="discussion-listing" onclick={this.addMe}><span>{Icons.newDiscussion}</span><span>{props.room.name}</span></button>
   }
 }
 

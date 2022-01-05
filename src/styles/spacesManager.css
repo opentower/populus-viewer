@@ -119,14 +119,31 @@
     grid-template-columns: 180px 1fr;
 }
 
+.current-discussions-list {
+  height:200px;
+  overflow-y: scroll;
+}
+
+.available-discussions-list {
+  height:200px;
+  overflow-y: scroll;
+}
+
+.discussion-listing svg {
+  height:1.2em;
+  vertical-align:bottom;
+}
+
 .discussion-listing {
   padding: 5px;
-  display: block;
+  display: grid;
+  grid-template-columns: 2em 1fr;
   background: none;
   border: none;
   font-weight: bold;
   cursor: pointer;
   position: relative;
+  text-align:left;
 }
 
 .discussion-listing:hover {
