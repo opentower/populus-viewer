@@ -242,7 +242,7 @@ class AvatarPanel extends Component {
       avatarEvent,
       loaded: false,
       avatarUrl: avatarEvent?.getContent()?.url
-        ? Client.client.mxcUrlToHttp(avatarEvent.getContent().url)
+        ? Client.client.getHttpUriForMxcFromHS(avatarEvent.getContent().url, 800, 600, "scale")
         : null
     }
   }
@@ -260,7 +260,7 @@ class AvatarPanel extends Component {
       this.setState({
         avatarEvent: e,
         avatarUrl: e.getContent().url
-          ? Client.client.getHttpUriForMxcFromHS(e.getContent().url)
+          ? Client.client.getHttpUriForMxcFromHS(avatarEvent.getContent().url, 800, 600, "scale")
           : null
       })
     }
