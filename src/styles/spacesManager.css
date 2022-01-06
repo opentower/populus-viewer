@@ -146,6 +146,10 @@
   text-align:left;
 }
 
+.discussion-listing[data-change-pending] {
+  color:#ababab;
+}
+
 .discussion-listing:hover {
   left:5px
 }

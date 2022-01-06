@@ -300,6 +300,7 @@ class AddChild extends Component {
 
 class CurrentDiscussionListing extends Component {
   removeMe = async _ => {
+    this.setState({pending: true})
     await Client.client
       .sendStateEvent(this.props.collection.roomId, spaceChild, {}, this.props.child.room_id)
       .catch(e => alert(e))
@@ -309,13 +310,20 @@ class CurrentDiscussionListing extends Component {
     // need a better way of displaying this alert
   }
 
-  render(props) {
-    return <button class="discussion-listing" onclick={this.removeMe}><span>{Icons.trash}</span><span>{props.child.name}</span></button>
+  render(props, state) {
+    return <button
+      data-change-pending={state.pending}
+      class="discussion-listing"
+      onclick={this.removeMe}>
+        <span>{Icons.trash}</span>
+        <span>{props.child.name}</span>
+      </button>
   }
 }
 
 class AvailableDiscussionListing extends Component {
   addMe = async _ => {
+    this.setState({pending: true})
     const theDomain = Client.client.getDomain()
     const childContent = { via: [theDomain] }
     const parentContent = { via: [theDomain] }
@@ -328,8 +336,14 @@ class AvailableDiscussionListing extends Component {
     // need a better way of displaying this alert
   }
 
-  render(props) {
-    return <button class="discussion-listing" onclick={this.addMe}><span>{Icons.newDiscussion}</span><span>{props.room.name}</span></button>
+  render(props, state) {
+    return <button
+      data-change-pending={state.pending}
+      class="discussion-listing"
+      onclick={this.addMe}>
+        <span>{Icons.newDiscussion}</span>
+        <span>{props.room.name}</span>
+      </button>
   }
 }
 
