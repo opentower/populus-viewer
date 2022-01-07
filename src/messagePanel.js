@@ -2,7 +2,7 @@ import * as Icons from "./icons.js"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
-import { spaceChild, mscLocation, mscParent, mscMarkupMsgKey, mscPdfHighlight, populusHighlight, eventVersion} from "./constants.js"
+import { spaceChild, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscPdfHighlight, populusHighlight, eventVersion} from "./constants.js"
 import { unionRects } from "./layout.js"
 import { textFromPdfSelection } from './utils/selection.js'
 import { processRegex } from './processRegex.js'
@@ -77,12 +77,15 @@ export default class MessagePanel extends Component {
         rootEventId: eventInterface.event_id,
         rootContent: theContent
       }
+      const highlightData = this.props.focus.location[mscPdfHighlight]
+      const textData = this.props.focus.location[mscPdfText]
       const childContent = {
         via: [theDomain],
         [mscLocation]: {
           // TODO should also set the content property of the msc highlight with fallback text
-          [mscPdfHighlight]: this.props.focus.location[mscPdfHighlight],
-          [populusHighlight]: Object.assign(this.props.focus.location[populusHighlight], diff)
+          [populusHighlight]: Object.assign(this.props.focus.location[populusHighlight], diff),
+          ...(highlightData && {[mscPdfHighlight]: highlightData}),
+          ...(textData && {[mscPdfText]: textData})
         }
       }
       Client.client

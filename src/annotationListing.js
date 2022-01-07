@@ -350,7 +350,7 @@ class AnnotationListingEntry extends Component {
       ref={this.entry}
       onclick={this.handleClick}
       class="annotation-listing-entry">
-      {props.annotationLocation.getType() === "pindrop"
+      {props.annotationLocation.getType() === "text"
         ? <div class="annotation-listing-pin-icon">
             {Icons.pin} <span>on page {props.annotationLocation.getPageIndex()}</span>
           </div>

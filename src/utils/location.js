@@ -1,5 +1,5 @@
 import Client from '../client.js'
-import { eventVersion, spaceParent, spaceChild, mscLocation, populusHighlight, mscPdfHighlight, mscMarkupMsgKey, mscParent } from "../constants.js"
+import { spaceParent, spaceChild, mscLocation, populusHighlight, mscPdfText, mscPdfHighlight, mscMarkupMsgKey, mscParent } from "../constants.js"
 
 export default class Location {
   constructor(theEvent) {
@@ -28,11 +28,21 @@ export default class Location {
   }
 
   getPageIndex() {
-    return this.location?.[mscPdfHighlight]?.page_index
+    return this.location?.[mscPdfHighlight]?.page_index ||
+      this.location?.[mscPdfText]?.page_index
   }
 
   getStatus() {
     return this.location?.[populusHighlight]?.activityStatus
+  }
+
+  getRect() {
+    return this.location?.[mscPdfHighlight]?.rect ||
+      this.location?.[mscPdfText]?.rect
+  }
+
+  getQuadPoints() {
+    return this.location?.[mscPdfHighlight]?.quad_points
   }
 
   getCreator() {
@@ -41,6 +51,7 @@ export default class Location {
 
   getType() {
     if (this.location?.[mscPdfHighlight]) return "highlight"
+    if (this.location?.[mscPdfText]) return "text"
     return null
   }
 

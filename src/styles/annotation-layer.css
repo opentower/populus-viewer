@@ -16,13 +16,18 @@
 
 #annotation-layer span.annotation-pindrop { 
     cursor: pointer;
-    padding:5px;
+    padding:2px;
     border-radius:30px;
-    border: 4px solid transparent;
+    border: 2px solid transparent;
+}
+
+#annotation-layer span.annotation-pindrop svg {
+  height:14px;
+  width:16px;
 }
 
 #annotation-layer span.annotation-pindrop[data-focused] { 
-    border: 4px solid var(--user_light);
+    border: 2px solid var(--user_light);
 }
 
 #annotation-layer span.annotation-pindrop[data-annotation-typing] {

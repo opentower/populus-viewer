@@ -1,7 +1,7 @@
 import { h, createRef, Component } from 'preact';
 import * as Layout from "./layout.js"
 import * as Matrix from "matrix-js-sdk"
-import { spaceChild, mscPdfHighlight } from "./constants.js"
+import { spaceChild, mscPdfHighlight, mscPdfText } from "./constants.js"
 import { UserColor } from "./utils/colors.js"
 import QuadPoints from './utils/quadPoints.js'
 import Client from './client.js'
@@ -66,10 +66,12 @@ export default class AnnotationLayer extends Component {
       annotations = annotationData.map(loc => {
         const annotationId = loc.getChild()
         switch (loc.getType()) {
-          case 'pindrop': return <Pindrop
+          case 'text': return <Pindrop
             key={loc.event.getId()}
             focused={focusId === annotationId}
+            parent={this.props.annotationLayerWrapper.current}
             typing={this.state.typing[annotationId]}
+            pdfWidthAdjusted={this.props.pdfWidthAdjusted}
             setFocus={this.props.setFocus}
             location={loc} />
           // default for legacy reasons, could switch to highlight in 2022
@@ -115,16 +117,22 @@ function PindropPreview (props) {
 }
 
 class Pindrop extends Component {
+  shouldComponentUpdate(nextProps) {
+    if (nextProps.pdfWidthAdjusted === 0) return false
+    if (!this.positioned) {
+      this.left = this.props.location.getRect().left
+      this.top = this.props.parent.scrollHeight - this.props.location.getRect().top
+      this.positioned = true // don't recalculate after positioning
+    }
+  }
+
   setFocus = _ => this.props.setFocus(this.props.location)
 
-  userColor = new UserColor(this.props.location.location.creator)
+  userColor = new UserColor(this.props.location.getCreator())
 
-  style = {
-    left: `${this.props.location.location.x}px`,
-    top: `${this.props.location.location.y}px`,
-    ...this.userColor.styleVariables
-  }
-  // we add a slight 15px offset to have it line up more with the cursor
+  left = this.props.location.getRect().left
+
+  top = this.props.parent.scrollHeight - this.props.location.getRect().top
 
   render(props) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
@@ -134,24 +142,27 @@ class Pindrop extends Component {
       data-focused={props.focused}
       data-annotation-typing={typing}
       data-annotation
-      style={this.style}>
+      style={{
+        left: `${this.left}px`,
+        top: `${this.top}px`,
+        ...this.userColor.styleVariables
+      }}>
       {Icons.pin}
     </span>
   }
 }
 
 class Highlight extends Component {
-
   shouldComponentUpdate(nextProps) {
     if (nextProps.pdfWidthAdjusted === 0) return false
     if (!this.positioned) {
       this.boundingRect = new DOMRect(
-        this.pdfHighlight.rect.left,
-        this.props.parent.scrollHeight - this.pdfHighlight.rect.top,
-        this.pdfHighlight.rect.right - this.pdfHighlight.rect.left,
-        this.pdfHighlight.rect.top - this.pdfHighlight.rect.bottom
+        this.props.location.getRect().left,
+        this.props.parent.scrollHeight - this.props.location.getRect().top,
+        this.props.location.getRect().right - this.props.location.getRect().left,
+        this.props.location.getRect().top - this.props.location.getRect().bottom
       )
-      this.clientRects = this.pdfHighlight.quad_points.map(qp =>
+      this.clientRects = this.props.location.getQuadPoints().map(qp =>
         QuadPoints.fromQuadArray(qp).toDOMRectIn(this.props.parent)
       )
       if (nextProps.pdfWidthAdjusted > this.boundingRect.width * 2) {
@@ -165,23 +176,21 @@ class Highlight extends Component {
 
   setFocus = _ => { this.props.setFocus(this.props.location) }
 
-  pdfHighlight = this.props.location.location[mscPdfHighlight]
-
   roomId = this.props.location.getChild()
 
   rightSide = this.roomId.charCodeAt(1) % 2 === 1
 
   positioned = false // whether we've manually positioned the bartab.
 
-  clientRects = this.pdfHighlight.quad_points.map(qp =>
+  clientRects = this.props.location.getQuadPoints().map(qp =>
     QuadPoints.fromQuadArray(qp).toDOMRectIn(this.props.parent)
   )
 
   boundingRect = new DOMRect(
-    this.pdfHighlight.rect.left,
-    this.props.parent.scrollHeight - this.pdfHighlight.rect.top,
-    this.pdfHighlight.rect.right - this.pdfHighlight.rect.left,
-    this.pdfHighlight.rect.top - this.pdfHighlight.rect.bottom
+    this.props.location.getRect().left,
+    this.props.parent.scrollHeight - this.props.location.getRect().top,
+    this.props.location.getRect().right - this.props.location.getRect().left,
+    this.props.location.getRect().top - this.props.location.getRect().bottom
   )
 
   userColor = new UserColor(this.props.location.getCreator())
@@ -238,8 +247,8 @@ class BarTab extends Component {
 
   getTabRect = _ => {
     return this.props.rightSide
-      ? new DOMRect(this.props.pdfWidthAdjusted - 10 + this.state.overlapOffset, this.props.rect.y, 5, this.props.rect.height)
-      : new DOMRect(5 - this.state.overlapOffset, this.props.rect.y, 5, this.props.rect.height)
+      ? new DOMRect(this.props.pdfWidthAdjusted - 10 + this.state.overlapOffset, this.props.rect.y, 3, this.props.rect.height)
+      : new DOMRect(5 - this.state.overlapOffset, this.props.rect.y, 3, this.props.rect.height)
   }
 
   scootch = _ => {

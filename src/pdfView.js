@@ -13,7 +13,7 @@ import History from './history.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
 import QuadPoints from "./utils/quadPoints.js"
-import { mscLocation, mscPdfHighlight, populusHighlight, eventVersion, spaceChild, spaceParent, lastViewed } from "./constants.js"
+import { mscLocation, mscPdfText, mscPdfHighlight, populusHighlight, eventVersion, spaceChild, spaceParent, lastViewed } from "./constants.js"
 import Location from './utils/location.js'
 import { textFromPdfSelection, rectsFromPdfSelection } from './utils/selection.js'
 import SyncIndicator from './syncIndicator.js'
@@ -177,11 +177,11 @@ export default class PdfView extends Component {
   releasePin = e => {
     if (e.target === this.annotationLayer.current.base) {
       const theX = e.altKey
-        ? Math.round((e.offsetX - 25) / 25) * 25
-        : e.offsetX - 25
+        ? Math.round((e.offsetX - 14) / 14) * 14
+        : e.offsetX - 14
       const theY = e.altKey
-        ? Math.round((e.offsetY - 25) / 25) * 25
-        : e.offsetY - 25
+        ? Math.round((e.offsetY - 14) / 14) * 14
+        : e.offsetY - 14
       this.setState({pindropMode: {x: theX, y: theY} })
     } else {
       document.removeEventListener("click", this.releasePin)
@@ -191,6 +191,24 @@ export default class PdfView extends Component {
 
   commitPin = (theX, theY) => {
     const theDomain = Client.client.getDomain()
+    const newY = this.annotationLayerWrapper.current.scrollHeight - theY
+    const locationData = {
+      [mscPdfText]: {
+        page_index: parseInt(this.props.pageFocused, 10),
+        rect: {
+          left: theX,
+          right: theX + 10,
+          top: newY,
+          bottom: newY - 10
+        },
+        name: "Comment",
+        contents: "" // highlight contents, per PDF spec. TODO Fill this with the first chat message text, or fallback text
+      },
+      [populusHighlight]: {
+        activityStatus: "pending",
+        creator: Client.client.getUserId()
+      }
+    }
     if (this.state.pindropMode?.x) {
       Client.client.createRoom({
         visibility: "public",
@@ -203,7 +221,8 @@ export default class PdfView extends Component {
         {
           type: spaceParent, // we indicate that the current room is the parent
           content: {
-            via: [theDomain]
+            via: [theDomain],
+            [mscLocation]: locationData
           },
           state_key: this.state.roomId
         }
@@ -212,17 +231,7 @@ export default class PdfView extends Component {
         // set child event in pdfRoom State
         const childContent = {
           via: [theDomain],
-          [mscLocation]: {
-            [eventVersion]: {
-              pageNumber: parseInt(this.props.pageFocused, 10),
-              activityStatus: "pending",
-              type: "pindrop",
-              x: theX,
-              y: theY,
-              icon: "map-pin",
-              creator: Client.client.getUserId()
-            }
-          }
+          [mscLocation]: locationData
         }
         const fakeEvent = new Matrix.MatrixEvent({
           type: "m.space.child",
