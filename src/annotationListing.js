@@ -3,7 +3,7 @@ import './styles/annotationListing.css'
 import * as Matrix from "matrix-js-sdk"
 import { renderLatexInElement } from './latex.js'
 import { processLinks } from './links.js'
-import { spaceChild, mscMarkupMsgKey } from "./constants.js"
+import { spaceChild, populusHighlight, mscPdfHighlight, mscMarkupMsgKey } from "./constants.js"
 import Client from './client.js'
 import MemberPill from './memberPill.js'
 import { UserColor } from './utils/colors.js'
@@ -71,8 +71,8 @@ export default class AnnotationListing extends Component {
   }
 
   byPage = (a, b) => {
-    if (a.location.pageNumber > b.location.pageNumber) return 1
-    if (a.location.pageNumber < b.location.pageNumber) return -1
+    if (a.getPageIndex() > b.getPageIndex()) return 1
+    if (a.getPageIndex() < b.getPageIndex()) return -1
     return 0
   }
 
@@ -137,8 +137,8 @@ export default class AnnotationListing extends Component {
       if (looped) {
         switch (state.sort) {
           case "Page" : {
-            if (thePage < loc.location.pageNumber) {
-              const newPage = loc.location.pageNumber
+            if (thePage < loc.getPageIndex()) {
+              const newPage = loc.getPageIndex()
               divider = <div class="annotation-listing-divider">
                 <span>Page {state.sortOrder === 1 ? newPage : thePage}</span>
               </div>
@@ -291,7 +291,7 @@ class AnnotationListingEntry extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      topic: props.annotationLocation.location.selectedText
+      topic: props.annotationLocation.getText()
     }
   }
 
@@ -329,7 +329,7 @@ class AnnotationListingEntry extends Component {
       topic: this.room.getLiveTimeline()
         .getState(Matrix.EventTimeline.FORWARDS)
         .getStateEvents("m.room.topic", "")
-        ?.getContent().topic || this.props.annotationLocation.location.selectedText
+        ?.getContent().topic || this.props.annotationLocation.getText()
     })
   }
 
@@ -337,7 +337,7 @@ class AnnotationListingEntry extends Component {
     this.props.focusByRoomId(this.props.annotationLocation.getChild())
   }
 
-  creator = this.props.parentRoom.getMember(this.props.annotationLocation.location.creator)
+  creator = this.props.parentRoom.getMember(this.props.annotationLocation.getCreator())
 
   userColor = new UserColor(this.creator.userId)
 
@@ -350,9 +350,9 @@ class AnnotationListingEntry extends Component {
       ref={this.entry}
       onclick={this.handleClick}
       class="annotation-listing-entry">
-      {props.annotationLocation.location.type === "pindrop"
+      {props.annotationLocation.getType() === "pindrop"
         ? <div class="annotation-listing-pin-icon">
-            {Icons.pin} <span>on page {props.annotationLocation.location.pageNumber}</span>
+            {Icons.pin} <span>on page {props.annotationLocation.getPageIndex()}</span>
           </div>
         : <div class="annotation-listing-topic">
             <span class="annotation-listing-topic-icon">{Icons.quote}</span>{state.topic}
@@ -369,7 +369,7 @@ class AnnotationListingEntry extends Component {
 }
 
 function AnnotationListingComment(props) {
-  const content = props.annotationLocation.location.rootContent
+  const content = props.annotationLocation.location[populusHighlight]?.rootContent
   if (content) {
     let body
     switch (content.msgtype) {
@@ -400,7 +400,7 @@ function AnnotationListingComment(props) {
         <div class="annotation-listing-creator"><MemberPill member={props.creator} /></div>
       </div>
     </Fragment>
-  } else if (props.annotationLocation.location.activityStatus === "pending") {
+  } else if (props.annotationLocation.getStatus() === "pending") {
     return <div class="annotation-listing-pending">awaiting your comment... </div>
   }
 }

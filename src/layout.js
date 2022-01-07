@@ -20,11 +20,11 @@ export function rectRelativeTo(elt, rect, zoomFactor) {
   )
 }
 
-// take an array of rects and sanitize them, removing zero width and rounding off decimal pixels
+// take an array of rects and sanitize them, 
+// - removing zero width artifacts.
+// TODO: fuse relevantly overlapping rects
 export function sanitizeRects(rects) {
-  return rects
-    .filter(rect => rect.width > 1)
-    .map(rect => new DOMRect(Math.round(rect.x), Math.round(rect.y), Math.round(rect.width), Math.round(rect.height)))
+  return rects.filter(rect => rect.width > 1)
 }
 
 // take an array of rects and return the minimal rect containing all of them

@@ -363,7 +363,7 @@ class AnnotationData extends Component {
     const annotations = this.props.room.getLiveTimeline()
       .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
       .map(ev => new Location(ev))
-      .filter(loc => loc.location?.activityStatus === "open")
+      .filter(loc => loc.isValid() && loc.getStatus() === "open")
     this.setState({annotations})
   }
 

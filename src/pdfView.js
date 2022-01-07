@@ -12,7 +12,8 @@ import PdfCanvas from "./pdfCanvas.js"
 import History from './history.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
-import { mscLocation, eventVersion, spaceChild, spaceParent, lastViewed } from "./constants.js"
+import QuadPoints from "./utils/quadPoints.js"
+import { mscLocation, mscPdfHighlight, populusHighlight, eventVersion, spaceChild, spaceParent, lastViewed } from "./constants.js"
 import Location from './utils/location.js'
 import { textFromPdfSelection, rectsFromPdfSelection } from './utils/selection.js'
 import SyncIndicator from './syncIndicator.js'
@@ -45,6 +46,9 @@ export default class PdfView extends Component {
       pinching: false,
       hideButtons: false // this is for hiding the buttons, but only applies if the buttons overlap the chatbox
     }
+
+    this.pdfScale = 3
+    // single source of truth for PDF scale, pdfcanvas w/h are pdf dimensions (in userspace units) times scale
     this.prevScrollTop = 0
     this.checkForSelection = this.checkForSelection.bind(this)
     this.handleKeydown = this.handleKeydown.bind(this)
@@ -239,7 +243,7 @@ export default class PdfView extends Component {
     }
   }
 
-  rectsFromPdfSelection = sel => rectsFromPdfSelection(sel,this.annotationLayerWrapper.current, this.state.pdfFitRatio * this.state.zoomFactor)
+  rectsFromPdfSelection = sel => rectsFromPdfSelection(sel, this.annotationLayerWrapper.current, this.state.pdfFitRatio * this.state.zoomFactor)
 
   commitHighlight = _ => {
     const theSelection = window.getSelection()
@@ -247,10 +251,26 @@ export default class PdfView extends Component {
     const theSelectedText = textFromPdfSelection(theSelection)
     const clientRects = this.rectsFromPdfSelection(theSelection)
     const boundingClientRect = unionRects(clientRects)
+    const clientQuads = clientRects.map(rect => QuadPoints.fromRectIn(rect, this.annotationLayerWrapper.current))
+    const boundingQuad = QuadPoints.fromRectIn(boundingClientRect, this.annotationLayerWrapper.current)
+    // ↑ We've set the dimensions of the text layer in such a way that it's 72dpi, scaled up with a CSS transform.
+    // So we can omit the DPI parameter here.
     const theDomain = Client.client.getDomain()
-    // TODO: room creation is a bit slow, might want to rework this slightly for responsiveness
-    //
-    // TODO: we should set room_alias_name and name object, in a useful way based on the selection
+    const locationData = {
+      [mscPdfHighlight]: {
+        page_index: parseInt(this.props.pageFocused, 10),
+        rect: boundingQuad.getBoundingRect(),
+        quad_points: clientQuads.map(quad => quad.getArray()),
+        contents: "", // highlight contents, per PDF spec. Fill this with the first chat message text, or fallback text
+        text_content: theSelectedText // the actual highlighted text
+      },
+      [populusHighlight]: {
+        activityStatus: "pending",
+        creator: Client.client.getUserId()
+      }
+    }
+    console.log(locationData)
+    // TODO: we should set room_alias_name and name, in a useful way based on the selection
     Client.client.createRoom({
       visibility: "public",
       name: `highlighted passage on page ${this.props.pageFocused}`,
@@ -262,29 +282,15 @@ export default class PdfView extends Component {
       },
       {
         type: spaceParent, // we indicate that the current room is the parent
-        content: {
-          via: [theDomain]
-        },
+        content: { via: [theDomain], [mscLocation]: locationData },
         state_key: this.state.roomId
       }
       ]
     }).then(roominfo => {
       // set child event in pdfRoom State
       theSelection.removeAllRanges()
-      const childContent = {
-        via: [theDomain],
-        [mscLocation]: {
-          [eventVersion]: {
-            pageNumber: parseInt(this.props.pageFocused, 10),
-            activityStatus: "pending",
-            type: "highlight",
-            boundingClientRect: JSON.stringify(boundingClientRect),
-            clientRects: JSON.stringify(clientRects),
-            creator: Client.client.getUserId(),
-            selectedText: theSelectedText
-          }
-        }
-      }
+      const childContent = { via: [theDomain], [mscLocation]: locationData }
+      // We focus on a new fake placeholder event to insert the highlight immediately
       const fakeEvent = new Matrix.MatrixEvent({
         type: "m.space.child",
         origin_server_ts: new Date().getTime(),
@@ -460,14 +466,7 @@ export default class PdfView extends Component {
       alert("Only moderators can close annotations that they didn't create")
       return
     }
-    const theDiff = { activityStatus: "closed" }
-    const theContent = {
-      via: [theDomain],
-      [mscLocation]: {
-        [eventVersion]: Object.assign(this.state.focus.location, theDiff)
-      }
-    }
-    Client.client.sendStateEvent(this.state.roomId, spaceChild, theContent, this.state.focus.getChild())
+    Client.client.sendStateEvent(this.state.roomId, spaceChild, {}, this.state.focus.getChild())
     this.unsetFocus()
   }
 
@@ -501,14 +500,11 @@ export default class PdfView extends Component {
       const annotationContents = theRoom.getLiveTimeline()
         .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
         .map(ev => new Location(ev))
-        .filter(loc =>
-          loc.location &&
+        .filter(loc => loc.isValid() &&
           // we infer that you are a member if you have unread. TODO Should do this more directly.
           (!loc.location.private || location.getUnread() !== "All") &&
-          ( loc.location.activityStatus === "open" ||
-            ( loc.location.activityStatus === "pending" &&
-              loc.location.creator === Client.client.getUserId()
-            )
+          ( loc.getStatus() !== "pending" ||
+            ( loc.getStatus() === "pending" && loc.getCreator() === Client.client.getUserId())
           )
         )
       this.setState({annotationContents, filteredAnnotationContents: this.filterAnnotations(this.state.annotationFilter, annotationContents)})
@@ -578,6 +574,7 @@ export default class PdfView extends Component {
           <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
             setPdfDimensions={this.setPdfDimensions}
             setPdfFitRatio={this.setPdfFitRatio}
+            pdfScale={this.pdfScale}
             annotationLayer={this.annotationLayer}
             textLayer={this.textLayer}
             searchString={state.searchString}
@@ -591,7 +588,6 @@ export default class PdfView extends Component {
           />
           <AnnotationLayer ref={this.annotationLayer}
                 pindropMode={state.pindropMode}
-                annotationLayer={this.annotationLayer}
                 annotationLayerWrapper={this.annotationLayerWrapper}
                 filteredAnnotationContents={state.filteredAnnotationContents}
                 pdfWidthAdjusted={state.pdfWidthPx / state.pdfFitRatio}

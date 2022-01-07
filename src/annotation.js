@@ -1,8 +1,9 @@
 import { h, createRef, Component } from 'preact';
 import * as Layout from "./layout.js"
 import * as Matrix from "matrix-js-sdk"
-import { spaceChild } from "./constants.js"
+import { spaceChild, mscPdfHighlight } from "./constants.js"
 import { UserColor } from "./utils/colors.js"
+import QuadPoints from './utils/quadPoints.js'
 import Client from './client.js'
 import './styles/annotation-layer.css'
 import * as Icons from './icons.js'
@@ -38,9 +39,9 @@ export default class AnnotationLayer extends Component {
   filterAnnotations (loc) {
     return (
       !!loc.location && // filter out old eventVersions
-      loc.location.pageNumber === parseInt(this.props.pageFocused, 10) &&
-      ( loc.location.activityStatus === "open" ||
-        (loc.location.activityStatus === "pending" && loc.event.getSender() === Client.client.getUserId())
+      loc.getPageIndex() === parseInt(this.props.pageFocused, 10) &&
+      ( loc.getStatus() !== "pending" ||
+        (loc.getStatus() === "pending" && loc.getCreator() === Client.client.getUserId())
       )
     )
   }
@@ -64,7 +65,7 @@ export default class AnnotationLayer extends Component {
       // We turn the array into annontation components
       annotations = annotationData.map(loc => {
         const annotationId = loc.getChild()
-        switch (loc.location.type) {
+        switch (loc.getType()) {
           case 'pindrop': return <Pindrop
             key={loc.event.getId()}
             focused={focusId === annotationId}
@@ -72,10 +73,11 @@ export default class AnnotationLayer extends Component {
             setFocus={this.props.setFocus}
             location={loc} />
           // default for legacy reasons, could switch to highlight in 2022
-          default: return <Annotation
+          case 'highlight': return <Highlight
             zoomFactor={this.props.zoomFactor}
             key={loc.event.getId()}
             focused={focusId === loc.getChild()}
+            parent={this.props.annotationLayerWrapper.current}
             typing={this.state.typing[annotationId]}
             setFocus={this.props.setFocus}
             pdfWidthAdjusted={this.props.pdfWidthAdjusted}
@@ -138,21 +140,32 @@ class Pindrop extends Component {
   }
 }
 
-class Annotation extends Component {
+class Highlight extends Component {
 
   shouldComponentUpdate(nextProps) {
     if (nextProps.pdfWidthAdjusted === 0) return false
-    if (!this.positioned && nextProps.pdfWidthAdjusted > this.boundingRect.width * 2) {
-      const rightMargin = nextProps.pdfWidthAdjusted - (this.boundingRect.width + this.boundingRect.x)
-      if (rightMargin < this.boundingRect.x) this.rightSide = true
-      if (rightMargin > this.boundingRect.x) this.rightSide = false
-      this.positioned = true //don't recalculate after positioning
+    if (!this.positioned) {
+      this.boundingRect = new DOMRect(
+        this.pdfHighlight.rect.left,
+        this.props.parent.scrollHeight - this.pdfHighlight.rect.top,
+        this.pdfHighlight.rect.right - this.pdfHighlight.rect.left,
+        this.pdfHighlight.rect.top - this.pdfHighlight.rect.bottom
+      )
+      this.clientRects = this.pdfHighlight.quad_points.map(qp =>
+        QuadPoints.fromQuadArray(qp).toDOMRectIn(this.props.parent)
+      )
+      if (nextProps.pdfWidthAdjusted > this.boundingRect.width * 2) {
+        const rightMargin = nextProps.pdfWidthAdjusted - (this.boundingRect.width + this.boundingRect.x)
+        if (rightMargin < this.boundingRect.x) this.rightSide = true
+        if (rightMargin > this.boundingRect.x) this.rightSide = false
+      }
+      this.positioned = true // don't recalculate after positioning
     }
   }
 
   setFocus = _ => { this.props.setFocus(this.props.location) }
 
-  eventContent = this.props.location.location
+  pdfHighlight = this.props.location.location[mscPdfHighlight]
 
   roomId = this.props.location.getChild()
 
@@ -160,18 +173,36 @@ class Annotation extends Component {
 
   positioned = false // whether we've manually positioned the bartab.
 
-  boundingRect = JSON.parse(this.eventContent.boundingClientRect)
+  clientRects = this.pdfHighlight.quad_points.map(qp =>
+    QuadPoints.fromQuadArray(qp).toDOMRectIn(this.props.parent)
+  )
 
-  userColor = new UserColor(this.eventContent.creator)
+  boundingRect = new DOMRect(
+    this.pdfHighlight.rect.left,
+    this.props.parent.scrollHeight - this.pdfHighlight.rect.top,
+    this.pdfHighlight.rect.right - this.pdfHighlight.rect.left,
+    this.pdfHighlight.rect.top - this.pdfHighlight.rect.bottom
+  )
+
+  userColor = new UserColor(this.props.location.getCreator())
 
   render(props) {
-    if (props.pdfWidthAdjusted === 0) return null
-    // This is recalculated with every render. Could be memoized on pdfWidthAdjusted and zoomfactor
-    const spans = JSON.parse(this.eventContent.clientRects).map(
-      rect => <RectSpan pdfWidthAdjusted={this.props.pdfWidthAdjusted} key={rect} zoomFactor={this.props.zoomFactor} setFocus={this.setFocus} rect={rect} />
+    if (!this.props.pdfWidthAdjusted) return null
+    const spans = this.clientRects.map(
+      rect => <RectSpan
+        pdfWidthAdjusted={this.props.pdfWidthAdjusted}
+        key={rect}
+        zoomFactor={this.props.zoomFactor}
+        setFocus={this.setFocus}
+        rect={rect}
+      />
     )
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
-    return <div style={this.userColor.styleVariables} data-annotation-typing={typing} data-focused={props.focused} id={this.roomId}>
+    return <div
+      style={this.userColor.styleVariables}
+      data-annotation-typing={typing}
+      data-focused={props.focused}
+      id={this.roomId}>
       <BarTab
         pdfWidthAdjusted={props.pdfWidthAdjusted}
         rightSide={this.rightSide}

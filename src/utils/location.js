@@ -1,18 +1,47 @@
 import Client from '../client.js'
-import { eventVersion, spaceParent, spaceChild, mscLocation, mscMarkupMsgKey, mscParent } from "../constants.js"
+import { eventVersion, spaceParent, spaceChild, mscLocation, populusHighlight, mscPdfHighlight, mscMarkupMsgKey, mscParent } from "../constants.js"
 
 export default class Location {
   constructor(theEvent) {
     this.event = theEvent
-    this.location = this.event.getContent()[mscLocation]?.[eventVersion] ||
-      this.event.getContent()[mscMarkupMsgKey]?.[mscLocation]?.[eventVersion] ||
-      this.event.getContent()[eventVersion]
+    this.location = this.event.getContent()[mscLocation] ||
+      this.event.getContent()[mscMarkupMsgKey]?.[mscLocation]
+  }
+
+  isValid() {
+    if (!this.location) return false
+    if (!this.getPageIndex()) return false
+    if (!this.getStatus()) return false
+    if (!this.getCreator()) return false
+    if (!this.getType()) return false
+    return true
   }
 
   getUnread() {
     const room = Client.client.getRoom(this.getChild())
     if (room) return room.getUnreadNotificationCount()
     return "All"
+  }
+
+  getText() {
+    return this.location?.[mscPdfHighlight]?.text_content
+  }
+
+  getPageIndex() {
+    return this.location?.[mscPdfHighlight]?.page_index
+  }
+
+  getStatus() {
+    return this.location?.[populusHighlight]?.activityStatus
+  }
+
+  getCreator() {
+    return this.location?.[populusHighlight]?.creator
+  }
+
+  getType() {
+    if (this.location?.[mscPdfHighlight]) return "highlight"
+    return null
   }
 
   getParent() {

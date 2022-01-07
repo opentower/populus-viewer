@@ -2,7 +2,7 @@ import * as Icons from "./icons.js"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
-import { spaceChild, mscLocation, mscParent, mscMarkupMsgKey, eventVersion} from "./constants.js"
+import { spaceChild, mscLocation, mscParent, mscMarkupMsgKey, mscPdfHighlight, populusHighlight, eventVersion} from "./constants.js"
 import { unionRects } from "./layout.js"
 import { textFromPdfSelection } from './utils/selection.js'
 import { processRegex } from './processRegex.js'
@@ -71,7 +71,7 @@ export default class MessagePanel extends Component {
 
   openPendingAnnotation = (theContent, eventInterface) => {
     const theDomain = Client.client.getDomain()
-    if (this.props.focus.location.activityStatus === "pending") {
+    if (this.props.focus.getStatus() === "pending") {
       const diff = {
         activityStatus: "open",
         rootEventId: eventInterface.event_id,
@@ -80,7 +80,9 @@ export default class MessagePanel extends Component {
       const childContent = {
         via: [theDomain],
         [mscLocation]: {
-          [eventVersion]: Object.assign(this.props.focus.location, diff)
+          // TODO should also set the content property of the msc highlight with fallback text
+          [mscPdfHighlight]: this.props.focus.location[mscPdfHighlight],
+          [populusHighlight]: Object.assign(this.props.focus.location[populusHighlight], diff)
         }
       }
       Client.client

@@ -11,7 +11,7 @@ export function textFromPdfSelection(sel) {
         : "" ).join(' ').replace(/(.)-\s+/g, "$1") // join nodes with spaces, clean any linebreak dashes
 }
 
-// get rects in coordinatates relative to the given elt, correcting for a css zoom originating at 0,0
+// get rects in CSS pixel coordinatates relative to the given elt, correcting for a css zoom originating at 0,0
 export function rectsFromPdfSelection(sel, elt, zoom) {
   const theRange = sel.getRangeAt(0)
   return Layout.sanitizeRects(Array.from(theRange.getClientRects())

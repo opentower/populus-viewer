@@ -123,18 +123,20 @@ export default class PdfCanvas extends Component {
     const page = await pdf.getPage(parseInt(this.props.pageFocused, 10) || 1).catch(console.log)
     console.log('Page loaded');
 
-    const scale = 3
+    const scale = this.props.pdfScale
     const viewport = page.getViewport({scale});
 
     // Prepare canvas using PDF page dimensions
+    //
+    // These are PDF userspace units (aka "points", 72 per inch) times viewport scale
     theCanvas.height = viewport.height;
     theCanvas.width = viewport.width;
 
     // pass scaled height in px upwards for css variables
-    const pdfWidthPx = Math.min((viewport.width * 1.5) / scale, window.innerWidth)
+    const pdfWidthPx = Math.min(viewport.width / scale, window.innerWidth)
     const pdfHeightPx = (pdfWidthPx / viewport.width) * viewport.height
     this.props.setPdfDimensions(pdfHeightPx, pdfWidthPx)
-    this.props.setPdfFitRatio(Math.min(1, window.innerWidth / ((viewport.width * 1.5) / scale)))
+    this.props.setPdfFitRatio(Math.min(1, window.innerWidth / (viewport.width / scale)))
 
     // Render PDF page into canvas context
     const canvasContext = theCanvas.getContext('2d')
@@ -158,7 +160,7 @@ export default class PdfCanvas extends Component {
     this.pendingTextRender = PDFJS.renderTextLayer({
       textContent: text,
       container: this.props.textLayer.current,
-      viewport: page.getViewport({scale: 1.5}),
+      viewport: page.getViewport({scale: 1}),
       textDivs: []
     })
     this.pendingTextRender.promise.then(_ => { this.cleanText = this.props.textLayer.current.innerHTML })

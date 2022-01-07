@@ -9,8 +9,7 @@
     "serve": "webpack serve --mode development",
     "deploy": "ORIGIN=\"$(git remote get-url origin)\" && rm -rf dist/.git && npm run build && cd dist && git init && git add . && git commit -m \"deploy $(date -I)\" && git remote add origin \"$ORIGIN\" && git push --force origin main:gh-pages",
     "preversion": "npm test",
-    "version": "npm run build && npm run deploy",
-    "postversion": "git push && git push --tags"
+    "postversion": "npm run deploy && git push && git push --tags"
   },
   "devDependencies": {
     "@babel/core": "^7.13.10",
