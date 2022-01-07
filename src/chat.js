@@ -303,16 +303,16 @@ function Anchor(props) {
           : null
         }
       </div>
-      { props.focus.location.type === "pindrop"
+      { props.focus.getType() === "text"
         ? <div id="anchor-pin">
-            {Icons.pin} <span>on page {props.focus.location.pageNumber}</span>
+            {Icons.pin} <span>on page {props.focus.getPageIndex()}</span>
           </div>
         : null
       }
       <div id="scroll-done">
-        { props.focus.location.activityStatus === "open"
-          ? "All messages loaded"
-          : "Awaiting your comment..."
+        { props.focus.getStatus() === "pending"
+          ? "Awaiting your comment..."
+          : "All messages loaded"
         }
       </div>
     </div>
