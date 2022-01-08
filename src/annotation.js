@@ -38,7 +38,7 @@ export default class AnnotationLayer extends Component {
 
   filterAnnotations (loc) {
     return (
-      !!loc.location && // filter out old eventVersions
+      loc.isValid() &&
       loc.getPageIndex() === parseInt(this.props.pageFocused, 10) &&
       ( loc.getStatus() !== "pending" ||
         (loc.getStatus() === "pending" && loc.getCreator() === Client.client.getUserId())
@@ -174,7 +174,7 @@ class Highlight extends Component {
     }
   }
 
-  setFocus = _ => { this.props.setFocus(this.props.location) }
+  setFocus = _ => this.props.setFocus(this.props.location)
 
   roomId = this.props.location.getChild()
 

@@ -2,8 +2,7 @@ import * as Icons from "./icons.js"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
-import { spaceChild, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscPdfHighlight, populusHighlight, eventVersion} from "./constants.js"
-import { unionRects } from "./layout.js"
+import { spaceChild, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscPdfHighlight, populusHighlight } from "./constants.js"
 import { textFromPdfSelection } from './utils/selection.js'
 import { processRegex } from './processRegex.js'
 import { UserColor } from './utils/colors.js'
@@ -98,25 +97,24 @@ export default class MessagePanel extends Component {
     const theSelection = window.getSelection()
     if (theSelection.isCollapsed) return
     const theSelectedText = textFromPdfSelection(theSelection)
-    const clientRects = this.props.rectsFromPdfSelection(theSelection)
-    const boundingClientRect = unionRects(clientRects)
+    const { clientQuads, boundingQuad } = this.props.quadsFromPdfSelection(theSelection)
+    const locationData = {
+      [mscPdfHighlight]: {
+        page_index: parseInt(this.props.pageFocused, 10),
+        rect: boundingQuad.getBoundingRect(),
+        quad_points: clientQuads.map(quad => quad.getArray()),
+        contents: "", // highlight contents, per PDF spec. Fill this with the first chat message text, or fallback text
+        text_content: theSelectedText // the actual highlighted text
+      },
+      [populusHighlight]: {
+        activityStatus: "pending",
+        creator: Client.client.getUserId()
+      }
+    }
     const theContent = {
       body: "created an annotation",
       msgtype: "m.emote",
-      [mscMarkupMsgKey]: {
-        [mscParent]: this.props.pdfId,
-        [mscLocation]: {
-          [eventVersion]: {
-            pageNumber: parseInt(this.props.pageFocused, 10),
-            activityStatus: "open",
-            type: "highlight",
-            boundingClientRect: JSON.stringify(boundingClientRect),
-            clientRects: JSON.stringify(clientRects),
-            creator: Client.client.getUserId(),
-            selectedText: theSelectedText
-          }
-        }
-      }
+      [mscMarkupMsgKey]: { [mscParent]: this.props.pdfId, [mscLocation]: locationData }
     }
     const eventI = await Client.client.sendMessage(this.props.focus.getChild(), theContent)
     this.openPendingAnnotation(theContent, eventI)

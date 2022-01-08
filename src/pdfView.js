@@ -13,7 +13,7 @@ import History from './history.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
 import QuadPoints from "./utils/quadPoints.js"
-import { mscLocation, mscPdfText, mscPdfHighlight, populusHighlight, eventVersion, spaceChild, spaceParent, lastViewed } from "./constants.js"
+import { mscLocation, mscPdfText, mscPdfHighlight, populusHighlight, spaceChild, spaceParent, lastViewed } from "./constants.js"
 import Location from './utils/location.js'
 import { textFromPdfSelection, rectsFromPdfSelection } from './utils/selection.js'
 import SyncIndicator from './syncIndicator.js'
@@ -252,16 +252,19 @@ export default class PdfView extends Component {
     }
   }
 
-  rectsFromPdfSelection = sel => rectsFromPdfSelection(sel, this.annotationLayerWrapper.current, this.state.pdfFitRatio * this.state.zoomFactor)
+  quadsFromPdfSelection = sel => {
+    const clientRects = rectsFromPdfSelection(sel, this.annotationLayerWrapper.current, this.state.pdfFitRatio * this.state.zoomFactor)
+    const boundingClientRect = unionRects(clientRects)
+    const clientQuads = clientRects.map(rect => QuadPoints.fromRectIn(rect, this.annotationLayerWrapper.current))
+    const boundingQuad = QuadPoints.fromRectIn(boundingClientRect, this.annotationLayerWrapper.current)
+    return {clientQuads, boundingQuad}
+  }
 
   commitHighlight = _ => {
     const theSelection = window.getSelection()
     if (theSelection.isCollapsed) return
     const theSelectedText = textFromPdfSelection(theSelection)
-    const clientRects = this.rectsFromPdfSelection(theSelection)
-    const boundingClientRect = unionRects(clientRects)
-    const clientQuads = clientRects.map(rect => QuadPoints.fromRectIn(rect, this.annotationLayerWrapper.current))
-    const boundingQuad = QuadPoints.fromRectIn(boundingClientRect, this.annotationLayerWrapper.current)
+    const { clientQuads, boundingQuad } = this.quadsFromPdfSelection(theSelection)
     // ↑ We've set the dimensions of the text layer in such a way that it's 72dpi, scaled up with a CSS transform.
     // So we can omit the DPI parameter here.
     const theDomain = Client.client.getDomain()
@@ -278,7 +281,6 @@ export default class PdfView extends Component {
         creator: Client.client.getUserId()
       }
     }
-    console.log(locationData)
     // TODO: we should set room_alias_name and name, in a useful way based on the selection
     Client.client.createRoom({
       visibility: "public",
@@ -619,7 +621,7 @@ export default class PdfView extends Component {
               pdfFocused={props.pdfFocused}
               pageFocused={props.pageFocused}
               hasSelection={state.hasSelection}
-              rectsFromPdfSelection={this.rectsFromPdfSelection}
+              quadsFromPdfSelection={this.quadsFromPdfSelection}
               handleWidgetScroll={this.handleWidgetScroll}
               secondaryFocus={state.secondaryFocus}
               focus={state.focus} />

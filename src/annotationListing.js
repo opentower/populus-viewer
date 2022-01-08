@@ -316,7 +316,7 @@ class AnnotationListingEntry extends Component {
   }
 
   handleTimeline = (_event, room) => {
-    if (room.roomId === this.room.roomId) this.setState({})
+    if (room.roomId === this.room?.roomId) this.setState({})
   }
 
   comment = createRef()

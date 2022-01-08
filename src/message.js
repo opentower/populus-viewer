@@ -2,7 +2,7 @@ import { h, createRef, Fragment, Component } from 'preact';
 import sanitizeHtml from 'sanitize-html'
 import { renderLatexInElement } from './latex.js'
 import { UserColor } from './utils/colors.js'
-import { sanitizeHtmlParams, mscMarkupMsgKey, mscLocation, eventVersion } from './constants.js'
+import { sanitizeHtmlParams, mscMarkupMsgKey, mscLocation } from './constants.js'
 import { processLinks } from './links.js'
 import UserInfoHeader from './userInfoHeader.js'
 import MessageFrame from './messageFrame.js'

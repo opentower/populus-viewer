@@ -1,4 +1,3 @@
-export const eventVersion = "com.open-tower.populus.annotation" // increment to start over with a fresh event type
 export const pdfStateType = "com.open-tower.populus.pdf" // increment to start over with a fresh event type
 export const lastViewed = "com.open-tower.populus.lastPageViewed"
 export const serverRoot = `https://populus.open-tower.com`
