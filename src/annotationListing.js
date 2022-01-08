@@ -370,6 +370,7 @@ class AnnotationListingEntry extends Component {
 
 function AnnotationListingComment(props) {
   const content = props.annotationLocation.location[populusHighlight]?.rootContent
+  console.log(props.annotationLocation.location[populusHighlight])
   if (content) {
     let body
     switch (content.msgtype) {
@@ -395,7 +396,7 @@ function AnnotationListingComment(props) {
       > {body} </div>
       <div class="annotation-listing-info">
         <div class="annotation-listing-features">
-          {props.annotationLocation.location.private ? Icons.lock : null}
+          {props.annotationLocation.isPrivate() ? Icons.lock : null}
         </div>
         <div class="annotation-listing-creator"><MemberPill member={props.creator} /></div>
       </div>

@@ -4,7 +4,7 @@ import * as Matrix from "matrix-js-sdk"
 import { loadImageElement } from "./utils/media.js"
 import Location from './utils/location.js'
 import Modal from './modal.js'
-import { mscLocation, joinRule, spaceParent, spaceChild } from './constants.js';
+import { mscLocation, joinRule, spaceParent, populusHighlight, spaceChild } from './constants.js';
 import "./styles/roomSettings.css"
 
 export default class RoomSettings extends Component {
@@ -107,45 +107,36 @@ export default class RoomSettings extends Component {
   }
 
   publishReferences() {
-    // TODO Rework this
-    //
-    // const theDomain = Client.client.getDomain()
-    // this.state.references.forEach(reference => {
-    //   const theLocation = new Location(reference)
-    //   if (!theLocation.location) return
-    //   if (!theLocation.location.private) return
-    //   delete theLocation.location.private
-    //   const childContent = {
-    //     via: [theDomain],
-    //     [mscLocation]: {
-    //       [eventVersion]: location.location
-    //     }
-    //   }
-    //   Client.client
-    //     .sendStateEvent(reference.getRoomId(), spaceChild, childContent, this.props.room.roomId)
-    //     .catch(e => alert(e))
-    // })
+    const theDomain = Client.client.getDomain()
+    this.state.references.forEach(reference => {
+      const theLocation = new Location(reference)
+      if (!theLocation.isPrivate()) return
+      delete theLocation.location[populusHighlight].private
+      const childContent = {
+        via: [theDomain],
+        [mscLocation]: theLocation.location
+      }
+      Client.client
+        .sendStateEvent(reference.getRoomId(), spaceChild, childContent, this.props.room.roomId)
+        .catch(e => alert(e))
+    })
   }
 
   hideReferences() {
-    // TODO Rework this
-    //
-    // const theDomain = Client.client.getDomain()
-    // this.state.references.forEach(reference => {
-    //   const theLocation = new Location(reference)
-    //   if (!theLocation.location) return
-    //   if (theLocation.location.private) return
-    //   theLocation.location.private = true
-    //   const childContent = {
-    //     via: [theDomain],
-    //     [mscLocation]: {
-    //       [eventVersion]: location.location
-    //     }
-    //   }
-    //   Client.client
-    //     .sendStateEvent(reference.getRoomId(), spaceChild, childContent, this.props.room.roomId)
-    //     .catch(e => alert(e))
-    // })
+    const theDomain = Client.client.getDomain()
+    this.state.references.forEach(reference => {
+      const theLocation = new Location(reference)
+      if (!theLocation?.location?.[populusHighlight]) return
+      if (theLocation.isPrivate()) return
+      theLocation.location[populusHighlight].private = true
+      const childContent = {
+        via: [theDomain],
+        [mscLocation]: theLocation.location
+      }
+      Client.client
+        .sendStateEvent(reference.getRoomId(), spaceChild, childContent, this.props.room.roomId)
+        .catch(e => alert(e))
+    })
   }
 
   uploadAvatar = _ => this.avatarImageInput.current.click()

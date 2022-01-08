@@ -41,6 +41,11 @@ export default class Location {
       this.location?.[mscPdfText]?.rect
   }
 
+  isPrivate() {
+    if (this.location?.[populusHighlight]?.private) return true
+    return false
+  }
+
   getQuadPoints() {
     return this.location?.[mscPdfHighlight]?.quad_points
   }

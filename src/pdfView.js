@@ -513,7 +513,7 @@ export default class PdfView extends Component {
         .map(ev => new Location(ev))
         .filter(loc => loc.isValid() &&
           // we infer that you are a member if you have unread. TODO Should do this more directly.
-          (!loc.location.private || location.getUnread() !== "All") &&
+          (!loc.isPrivate() || loc.getUnread() !== "All") &&
           ( loc.getStatus() !== "pending" ||
             ( loc.getStatus() === "pending" && loc.getCreator() === Client.client.getUserId())
           )
