@@ -124,6 +124,7 @@ class SSO extends Component {
     const theSSO = flows.flows.find(flow => flow.type === "m.login.sso")
     if (!theSSO) {
       window.alert("This server doesn't appear to support SSO login.")
+      this.setState({ loading: false })
       return
     }
     this.setState({
