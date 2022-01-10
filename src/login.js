@@ -134,8 +134,11 @@ class SSO extends Component {
 
   trySSO = (idpId, e) => {
     e?.preventDefault()
-    const loginUrl = Client.client.getSsoLoginUrl(window.location.href, "sso", idpId)
-    window.location.replace(loginUrl)
+    Client.client
+      ? window.location.replace(Client.client.getSsoLoginUrl(window.location.href, "sso", idpId))
+      : Client.initClient().then(client =>
+        window.location.replace(client.getSsoLoginUrl(window.location.href, "sso", idpId))
+      )
   }
 
   handleServerInput = e => this.props.setServer(e.target.value)
