@@ -96,7 +96,7 @@ class SSO extends Component {
       SSOProviders: [],
       loading: false
     }
-    if (props.server && queryParameters.get("sso")) this.trySSO(queryParameters.get("sso"))
+    if (this.props.server && queryParameters.get("sso")) this.trySSO(queryParameters.get("sso"), queryParameters.get("server"))
   }
 
   handleSubmit = (e) => {
@@ -133,13 +133,14 @@ class SSO extends Component {
     })
   }
 
-  trySSO = (idpId, e) => {
+  trySSO = (idpId, server, e) => {
     e?.preventDefault()
+    if (server) localStorage.setItem("baseUrl", `https://${server}`)
     Client.client
       ? window.location.replace(Client.client.getSsoLoginUrl(window.location.href, "sso", idpId))
-      : Client.initClient().then(client =>
+      : Client.initClient().then(client => {
         window.location.replace(client.getSsoLoginUrl(window.location.href, "sso", idpId))
-      )
+      })
   }
 
   handleServerInput = e => this.props.setServer(e.target.value)
@@ -163,7 +164,7 @@ class SSO extends Component {
           provider => {
             let iconHttpURI = null
             if (provider.icon) iconHttpURI = Matrix.getHttpUriForMxc(localStorage.getItem("baseUrl"), provider.icon, 40, 40, "crop")
-            return <div onclick={e => this.trySSO(provider.id, e)} class="login-sso-listing"key={provider.id}>
+            return <div onclick={e => this.trySSO(provider.id, null, e)} class="login-sso-listing"key={provider.id}>
               { iconHttpURI
                 ? <img class="sso-icon" width="40" height="40" src={iconHttpURI} />
                 : Icons.login
