@@ -429,8 +429,8 @@ export default class PdfView extends Component {
     // sets the last viewed page for later retrieval
     if (!this.props.pageFocused || !this.props.pdfFocused || !this.state.roomId) return
     Client.client.setRoomAccountData(this.state.roomId, lastViewed, {
-      page: this.props.pageFocused,
-      deviceId: Client.deviceId
+      deviceId: Client.deviceId,
+      ...(parseInt(this.props.pageFocused, 10 ) && { page: this.props.pageFocused })
     })
     if (this.props.roomFocused) this.focusByRoomId(this.props.roomFocused)
   }
