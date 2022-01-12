@@ -101,7 +101,7 @@ export default class PdfView extends Component {
             <div style="margin-top:10px">
               <button
                 onclick={_ => {
-                  History.push(`/${this.props.pdfFocused}/${theContent.page}/`)
+                  History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${theContent.page}/`)
                   Toast.set(null)
                 }}
                 class="styled-button">
@@ -372,7 +372,7 @@ export default class PdfView extends Component {
     const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
     if (theAnnotation) {
       const focus = new Location(theAnnotation)
-      History.push(`/${this.props.pdfFocused}/${focus.location.pageNumber || this.props.pageFocused}/${roomId}`)
+      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${focus.location.pageNumber || this.props.pageFocused}/${roomId}`)
       this.setState({ focus, secondaryFocus: null, panelVisible: true, hideButtons: false })
     }
   }
@@ -402,14 +402,14 @@ export default class PdfView extends Component {
 
   prevPage = _ => {
     if (this.props.pageFocused > 1) {
-      History.push(`/${this.props.pdfFocused}/${parseInt(this.props.pageFocused, 10) - 1}/`)
+      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${parseInt(this.props.pageFocused, 10) - 1}/`)
       this.contentContainer.current.scrollTop = this.contentContainer.current.scrollHeight
     }
   }
 
   nextPage = _ => {
     if (this.props.pageFocused < this.state.totalPages) {
-      History.push(`/${this.props.pdfFocused}/${parseInt(this.props.pageFocused, 10) + 1}/`)
+      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${parseInt(this.props.pageFocused, 10) + 1}/`)
       this.contentContainer.current.scrollTop = 0
     }
   }
@@ -483,11 +483,11 @@ export default class PdfView extends Component {
 
   unsetFocus = _ => {
     this.setState({secondaryFocus: null, focus: null})
-    History.push(`/${this.props.pdfFocused}/${this.props.pageFocused}/`)
+    History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.props.pageFocused}/`)
   }
 
   setFocus = focus => {
-    History.push(`/${this.props.pdfFocused}/${this.props.pageFocused}/${focus.getChild()}/`)
+    History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.props.pageFocused}/${focus.getChild()}/`)
     this.setState({secondaryFocus: null, focus })
   }
 

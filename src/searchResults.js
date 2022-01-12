@@ -164,8 +164,8 @@ class SearchResult extends Component {
   focus = _ => {
     this.props.setFocus(this.props.index)
     this.props.roomFocused
-      ? History.push(`/${this.props.pdfFocused}/${this.props.result.page}/${this.props.roomFocused}`)
-      : History.push(`/${this.props.pdfFocused}/${this.props.result.page}/`)
+      ? History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.props.result.page}/${this.props.roomFocused}`)
+      : History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.props.result.page}/`)
     this.result.current.scrollIntoView()
   }
 
