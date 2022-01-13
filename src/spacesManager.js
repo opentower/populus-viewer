@@ -179,15 +179,7 @@ class SpaceListing extends Component {
     this.setState({
       children: this.state.children.concat(response.rooms),
       nextBatch: response.next_batch
-    }, _ => Modal.isVisible()
-      ? Modal.set(<AddChild
-          children={this.state.children.slice(1)}
-          nextBatch={this.state.nextBatch}
-          pageChildren={this.pageChildren}
-          room={this.props.room}
-        />)
-      : null
-    )
+    }, this.refreshModal)
   }
 
   pageChildren = async _ => {
@@ -200,10 +192,28 @@ class SpaceListing extends Component {
     this.setState({limit})
   }
 
+  refreshModal = _ => Modal.isVisible()
+    ? Modal.set(<AddChild
+        children={this.state.children.slice(1)}
+        nextBatch={this.state.nextBatch}
+        pageChildren={this.pageChildren}
+        room={this.props.room}
+      />)
+    : null
+
   handleStateUpdate = e => {
     if (e.getRoomId() === this.props.room.roomId && e.getType() === spaceChild) {
-      this.pageChildren()
-      // going to have to handle pagination eventually, insert this rather than redo the whole listing.
+      if (e.getContent().via) {
+        const responsePromise = Client.client.getRoomHierarchy(e.getStateKey(), 1, 0)
+        responsePromise.then(response => {
+          const children = this.state.children.concat(response.rooms)
+          this.setState({ children }, this.refreshModal)
+        })
+      } else {
+        const children = this.state.children
+          .filter(c => c.room_id !== e.getStateKey())
+        this.setState({ children }, this.refreshModal)
+      }
     }
   }
 
