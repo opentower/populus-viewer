@@ -95,22 +95,20 @@
   opacity: 1
 }
 
-.add-child-to-collection {
+.space-listing-more {
   margin-left:10px;
   background:white;
-  border: 2px #cdcdcd dashed;
   display:inline-block;
   border-radius:5px;
-  font-size:18pt;
+  font-size:14pt;
   font-weight:bold;
   height:50px;
-  width:50px;
   color: #cdcdcd;
   cursor:pointer;
   transition: color .5s ease;
 }
 
-.add-child-to-collection:hover {
+.space-listing-more:hover {
   color:black;
 }
 

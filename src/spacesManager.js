@@ -158,7 +158,9 @@ class SpaceListing extends Component {
     super(props)
     this.state = {
       actionsVisible: false,
-      children: null
+      children: [],
+      limit: 15,
+      nextBatch: null
     }
   }
 
@@ -171,21 +173,36 @@ class SpaceListing extends Component {
     Client.client.off("RoomState.events", this.handleStateUpdate)
   }
 
-  async loadChildren() {
+  loadChildren = async _ => {
     // dendrite will still use the fallback route, which can't restrict depth
-    const response = await Client.client.getRoomHierarchy(this.props.room.roomId, 15, 1)
-    const children = response.rooms.slice(1)
-    // the root is always first in the listing
-    this.setState({children},
-      _ => Modal.isVisible()
-        ? Modal.set(<AddChild children={this.state.children} room={this.props.room} />)
-        : null
+    const response = await Client.client.getRoomHierarchy(this.props.room.roomId, 15, 1, false, this.state.nextBatch)
+    this.setState({
+      children: this.state.children.concat(response.rooms),
+      nextBatch: response.next_batch
+    }, _ => Modal.isVisible()
+      ? Modal.set(<AddChild
+          children={this.state.children.slice(1)}
+          nextBatch={this.state.nextBatch}
+          pageChildren={this.pageChildren}
+          room={this.props.room}
+        />)
+      : null
     )
+  }
+
+  pageChildren = async _ => {
+    if (this.state.nextBatch) this.loadChildren()
+  }
+
+  addChildren = _ => {
+    const limit = this.state.limit + 15
+    if (limit > this.state.children.length) this.pageChildren()
+    this.setState({limit})
   }
 
   handleStateUpdate = e => {
     if (e.getRoomId() === this.props.room.roomId && e.getType() === spaceChild) {
-      this.loadChildren()
+      this.pageChildren()
       // going to have to handle pagination eventually, insert this rather than redo the whole listing.
     }
   }
@@ -196,7 +213,13 @@ class SpaceListing extends Component {
 
   addChild = _ => {
     this.setState({ actionsVisible: false })
-    Modal.set(<AddChild children={this.state.children} room={this.props.room} />)
+    Modal.set(<AddChild
+      // the root is always first in the listing
+      children={this.state.children.slice(1)}
+      nextBatch={this.state.nextBatch}
+      pageChildren={this.pageChildren}
+      room={this.props.room}
+      />)
   }
 
   openSettings = _ => {
@@ -233,10 +256,15 @@ class SpaceListing extends Component {
       }
       <div class="space-listing-children">
         {state.children
-          ? state.children.map(child => <SpaceListingChild key={child.roomId} child={child} />)
+          // the root is always first in the listing
+          ? state.children.slice(1, state.limit + 1).map(child => <SpaceListingChild key={child.room_id} child={child} />)
           : null // insert loading bling here.
         }
         {isAdmin && props.dragging ? <button ondrop={_ => alert('drop not implemented!')} class="add-child-to-collection">+</button> : null }
+        {(state.nextBatch || state.limit < state.children.length)
+          ? <div class="space-listing-more" onclick={this.addChildren}>...</div>
+          : null
+        }
       </div>
     </div>
   }
@@ -252,6 +280,19 @@ class AddChild extends Component {
         .getVisibleRooms()
         .filter(room => Resource.hasResource(room))
     }
+  }
+
+  currentList = createRef()
+
+  handleScroll = _ => {
+    clearTimeout(this.debounceTimeout)
+    this.debounceTimeout = setTimeout(_ => {
+      const list = this.currentList.current
+      if (list.scrollTop + list.clientHeight + 10 >= list.scrollHeight) {
+        console.log("scrolled")
+        this.props.pageChildren()
+      }
+    }, 500)
   }
 
   filterDiscussions = search => {
@@ -274,7 +315,7 @@ class AddChild extends Component {
       {props.children.length > 0
         ? <Fragment>
           <h4>Current Discussions</h4>
-          <div class="current-discussions-list">
+          <div onscroll={this.handleScroll} ref={this.currentList}class="current-discussions-list">
             {props.children
               .filter(child => child.name.toLowerCase().includes(state.search.toLowerCase()))
               .map(child =>
