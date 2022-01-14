@@ -78,11 +78,11 @@
 }
 
 .annotation-listing-topic {
-  width: 100%
+  width: 100%;
+  color:#565656;
 }
 
 .annotation-listing-topic-icon {
-  color:#565656;
   padding-right: .25em;
 }
 
