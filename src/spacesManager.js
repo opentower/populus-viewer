@@ -159,7 +159,7 @@ class SpaceListing extends Component {
     this.state = {
       actionsVisible: false,
       children: [],
-      limit: 15,
+      limit: 30,
       nextBatch: null
     }
   }
@@ -175,7 +175,7 @@ class SpaceListing extends Component {
 
   loadChildren = async _ => {
     // dendrite will still use the fallback route, which can't restrict depth
-    const response = await Client.client.getRoomHierarchy(this.props.room.roomId, 15, 1, false, this.state.nextBatch)
+    const response = await Client.client.getRoomHierarchy(this.props.room.roomId, 30, 1, false, this.state.nextBatch)
     this.setState({
       children: this.state.children.concat(response.rooms),
       nextBatch: response.next_batch
