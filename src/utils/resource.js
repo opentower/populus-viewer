@@ -25,6 +25,8 @@ export default class Resource {
 
   get httpUrl() {
     if (this.schema === "mxc") return Client.client.getHttpUriForMxcFromHS(this.url)
+    if (this.schema === "http") return this.url
+    if (this.schema === "https") return this.url
     return null
   }
 }
