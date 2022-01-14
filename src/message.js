@@ -108,9 +108,9 @@ export class AnnotationMessage extends Component {
 
   location = new Location(this.props.event)
 
-  text = this.location.location.selectedText
+  text = this.location.getText()
 
-  pageNumber = this.location.location.pageNumber
+  pageNumber = this.location.getPageIndex()
 
   hasFocus = _ => this.location === this.props.secondaryFocus
 

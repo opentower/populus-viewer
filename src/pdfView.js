@@ -372,7 +372,7 @@ export default class PdfView extends Component {
     const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
     if (theAnnotation) {
       const focus = new Location(theAnnotation)
-      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${focus.location.pageNumber || this.props.pageFocused}/${roomId}`)
+      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${focus.getPageIndex() || this.props.pageFocused}/${roomId}`)
       this.setState({ focus, secondaryFocus: null, panelVisible: true, hideButtons: false })
     }
   }
@@ -468,8 +468,7 @@ export default class PdfView extends Component {
   }
 
   closeAnnotation = _ => {
-    const theDomain = Client.client.getDomain()
-    const isCreator = Client.client.getUserId() === this.state.focus.location.creator
+    const isCreator = Client.client.getUserId() === this.state.focus.getCreator()
     const theRoom = Client.client.getRoom(this.state.roomId)
     const isMod = theRoom.getMember(Client.client.getUserId()).powerLevel >= 50
     if (!confirm('Are you sure you want to close this annotation?')) return
@@ -534,18 +533,18 @@ export default class PdfView extends Component {
     }
     return annotations.filter(loc => {
       let flagged = true
-      if (searchFlags.includes("me")) { flagged = flagged && loc.location.creator === Client.client.getUserId() }
+      if (searchFlags.includes("me")) { flagged = flagged && loc.getCreator() === Client.client.getUserId() }
       if (searchFlags.includes("hour")) { flagged = flagged && (loc.event.getTs() > (Date.now() - 3600000)) }
       if (searchFlags.includes("day")) { flagged = flagged && (loc.event.getTs() > (Date.now() - 86400000)) }
       if (searchFlags.includes("week")) { flagged = flagged && (loc.event.getTs() > (Date.now() - 604800000)) }
       if (searchFlags.includes("unread")) { flagged = flagged && loc.getUnread() }
       const membered = searchMembers.length
-        ? searchMembers.some(member => loc.location.creator.toLowerCase().includes(member.toLowerCase()))
+        ? searchMembers.some(member => loc.getCreator().toLowerCase().includes(member.toLowerCase()))
         : true
       return membered && flagged && searchText.every(term =>
-        (!loc.location.selectedText && !loc.location.rootContent) ||
-        loc.location.selectedText?.toLowerCase().includes(term.toLowerCase()) ||
-        loc.location.rootContent?.body.toLowerCase().includes(term.toLowerCase()))
+        (!loc.getText() && !loc.getRootContent()) ||
+        loc.getText()?.toLowerCase().includes(term.toLowerCase()) ||
+        loc.getRootContent()?.body.toLowerCase().includes(term.toLowerCase()))
     })
   }
 

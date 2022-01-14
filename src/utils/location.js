@@ -50,6 +50,10 @@ export default class Location {
     return this.location?.[mscPdfHighlight]?.quad_points
   }
 
+  getRootContent() {
+    return this.location?.[populusHighlight]?.rootContent
+  }
+
   getCreator() {
     return this.location?.[populusHighlight]?.creator
   }

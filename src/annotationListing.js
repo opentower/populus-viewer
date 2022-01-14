@@ -369,8 +369,7 @@ class AnnotationListingEntry extends Component {
 }
 
 function AnnotationListingComment(props) {
-  const content = props.annotationLocation.location[populusHighlight]?.rootContent
-  console.log(props.annotationLocation.location[populusHighlight])
+  const content = props.annotationLocation.getRootContent()
   if (content) {
     let body
     switch (content.msgtype) {
