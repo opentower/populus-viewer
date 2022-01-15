@@ -69,9 +69,9 @@ export default class AnnotationLayer extends Component {
           case 'text': return <Pindrop
             key={loc.event.getId()}
             focused={focusId === annotationId}
-            parent={this.props.annotationLayerWrapper.current}
             typing={this.state.typing[annotationId]}
-            pdfWidthAdjusted={this.props.pdfWidthAdjusted}
+            pdfWidthAdjustedPx={this.props.pdfWidthAdjustedPx}
+            pdfHeightAdjustedPx={this.props.pdfHeightAdjustedPx}
             setFocus={this.props.setFocus}
             location={loc} />
           // default for legacy reasons, could switch to highlight in 2022
@@ -79,10 +79,10 @@ export default class AnnotationLayer extends Component {
             zoomFactor={this.props.zoomFactor}
             key={loc.event.getId()}
             focused={focusId === loc.getChild()}
-            parent={this.props.annotationLayerWrapper.current}
             typing={this.state.typing[annotationId]}
             setFocus={this.props.setFocus}
-            pdfWidthAdjusted={this.props.pdfWidthAdjusted}
+            pdfWidthAdjustedPx={this.props.pdfWidthAdjustedPx}
+            pdfHeightAdjustedPx={this.props.pdfHeightAdjustedPx}
             location={loc} />
         }
       })
@@ -119,10 +119,10 @@ function PindropPreview (props) {
 class Pindrop extends Component {
   shouldComponentUpdate(nextProps) {
     if (nextProps.pdfWidthAdjusted === 0) return false
+    if (nextProps.pdfHeightAdjustedPx === this.props.pdfHeightAdjustedPx) return false
     if (!this.positioned) {
       this.left = this.props.location.getRect().left
-      this.top = this.props.parent.scrollHeight - this.props.location.getRect().top
-      this.positioned = true // don't recalculate after positioning
+      this.top = this.props.pdfHeightAdjustedPx - this.props.location.getRect().top
     }
   }
 
@@ -132,7 +132,7 @@ class Pindrop extends Component {
 
   left = this.props.location.getRect().left
 
-  top = this.props.parent.scrollHeight - this.props.location.getRect().top
+  top = this.props.pdfHeightAdjustedPx - this.props.location.getRect().top
 
   render(props) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
@@ -154,23 +154,23 @@ class Pindrop extends Component {
 
 class Highlight extends Component {
   shouldComponentUpdate(nextProps) {
-    if (nextProps.pdfWidthAdjusted === 0) return false
+    if (nextProps.pdfWidthAdjustedPx === 0) return false
+    if (nextProps.pdfHeightAdjustedPx === this.props.pdfHeightAdjustedPx) return false
     if (!this.positioned) {
       this.boundingRect = new DOMRect(
         this.props.location.getRect().left,
-        this.props.parent.scrollHeight - this.props.location.getRect().top,
+        nextProps.pdfHeightAdjustedPx - this.props.location.getRect().top,
         this.props.location.getRect().right - this.props.location.getRect().left,
         this.props.location.getRect().top - this.props.location.getRect().bottom
       )
       this.clientRects = this.props.location.getQuadPoints().map(qp =>
-        QuadPoints.fromQuadArray(qp).toDOMRectIn(this.props.parent)
+        QuadPoints.fromQuadArray(qp).toDOMRectInHeight(nextProps.pdfHeightAdjustedPx)
       )
-      if (nextProps.pdfWidthAdjusted > this.boundingRect.width * 2) {
-        const rightMargin = nextProps.pdfWidthAdjusted - (this.boundingRect.width + this.boundingRect.x)
+      if (nextProps.pdfWidthAdjustedPx > this.boundingRect.width * 2) {
+        const rightMargin = nextProps.pdfWidthAdjustedPx - (this.boundingRect.width + this.boundingRect.x)
         if (rightMargin < this.boundingRect.x) this.rightSide = true
         if (rightMargin > this.boundingRect.x) this.rightSide = false
       }
-      this.positioned = true // don't recalculate after positioning
     }
   }
 
@@ -180,15 +180,13 @@ class Highlight extends Component {
 
   rightSide = this.roomId.charCodeAt(1) % 2 === 1
 
-  positioned = false // whether we've manually positioned the bartab.
-
   clientRects = this.props.location.getQuadPoints().map(qp =>
-    QuadPoints.fromQuadArray(qp).toDOMRectIn(this.props.parent)
+    QuadPoints.fromQuadArray(qp).toDOMRectInHeight(this.props.pdfHeightAdjustedPx)
   )
 
   boundingRect = new DOMRect(
     this.props.location.getRect().left,
-    this.props.parent.scrollHeight - this.props.location.getRect().top,
+    this.props.pdfHeightAdjustedPx - this.props.location.getRect().top,
     this.props.location.getRect().right - this.props.location.getRect().left,
     this.props.location.getRect().top - this.props.location.getRect().bottom
   )
@@ -196,10 +194,10 @@ class Highlight extends Component {
   userColor = new UserColor(this.props.location.getCreator())
 
   render(props) {
-    if (!this.props.pdfWidthAdjusted) return null
+    if (!this.props.pdfWidthAdjustedPx) return null
     const spans = this.clientRects.map(
       rect => <RectSpan
-        pdfWidthAdjusted={this.props.pdfWidthAdjusted}
+        pdfWidthAdjustedPx={this.props.pdfWidthAdjustedPx}
         key={rect}
         zoomFactor={this.props.zoomFactor}
         setFocus={this.setFocus}
@@ -213,7 +211,7 @@ class Highlight extends Component {
       data-focused={props.focused}
       id={this.roomId}>
       <BarTab
-        pdfWidthAdjusted={props.pdfWidthAdjusted}
+        pdfWidthAdjustedPx={props.pdfWidthAdjustedPx}
         rightSide={this.rightSide}
         rect={this.boundingRect}
         zoomFactor={props.zoomFactor}
@@ -247,7 +245,7 @@ class BarTab extends Component {
 
   getTabRect = _ => {
     return this.props.rightSide
-      ? new DOMRect(this.props.pdfWidthAdjusted - 10 + this.state.overlapOffset, this.props.rect.y, 3, this.props.rect.height)
+      ? new DOMRect(this.props.pdfWidthAdjustedPx - 10 + this.state.overlapOffset, this.props.rect.y, 3, this.props.rect.height)
       : new DOMRect(5 - this.state.overlapOffset, this.props.rect.y, 3, this.props.rect.height)
   }
 

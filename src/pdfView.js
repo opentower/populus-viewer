@@ -600,7 +600,8 @@ export default class PdfView extends Component {
                 pindropMode={state.pindropMode}
                 annotationLayerWrapper={this.annotationLayerWrapper}
                 filteredAnnotationContents={state.filteredAnnotationContents}
-                pdfWidthAdjusted={state.pdfWidthPx / state.pdfFitRatio}
+                pdfWidthAdjustedPx={state.pdfWidthPx / state.pdfFitRatio}
+                pdfHeightAdjustedPx={state.pdfHeightPx / state.pdfFitRatio}
                 zoomFactor={state.zoomFactor}
                 pageFocused={props.pageFocused}
                 roomId={state.roomId}

@@ -37,13 +37,13 @@ export default class QuadPoints {
     this.y4 = y4
   }
 
-  toDOMRectIn(elt, maybeDPI) {
+  toDOMRectInHeight(height, maybeDPI) {
     const dpi = maybeDPI || 72
     const scale = 72 / dpi
     const rect = this.getBoundingRect()
     return new DOMRect(
       rect.left * scale,
-      (elt.scrollHeight - rect.top) * scale,
+      (height - rect.top) * scale,
       (rect.right - rect.left) * scale,
       (rect.top - rect.bottom) * scale
     )
