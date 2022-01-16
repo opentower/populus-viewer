@@ -78,7 +78,7 @@ export default class AnnotationLayer extends Component {
           case 'highlight': return <Highlight
             zoomFactor={this.props.zoomFactor}
             key={loc.event.getId()}
-            focused={focusId === loc.getChild()}
+            focused={focusId === annotationId}
             typing={this.state.typing[annotationId]}
             setFocus={this.props.setFocus}
             pdfWidthAdjustedPx={this.props.pdfWidthAdjustedPx}
@@ -119,7 +119,7 @@ function PindropPreview (props) {
 class Pindrop extends Component {
   shouldComponentUpdate(nextProps) {
     if (nextProps.pdfWidthAdjusted === 0) return false
-    if (nextProps.pdfHeightAdjustedPx === this.props.pdfHeightAdjustedPx) return false
+    if (nextProps.pdfHeightAdjustedPx === this.props.pdfHeightAdjustedPx) return
     if (!this.positioned) {
       this.left = this.props.location.getRect().left
       this.top = this.props.pdfHeightAdjustedPx - this.props.location.getRect().top
@@ -155,7 +155,7 @@ class Pindrop extends Component {
 class Highlight extends Component {
   shouldComponentUpdate(nextProps) {
     if (nextProps.pdfWidthAdjustedPx === 0) return false
-    if (nextProps.pdfHeightAdjustedPx === this.props.pdfHeightAdjustedPx) return false
+    if (nextProps.pdfHeightAdjustedPx === this.props.pdfHeightAdjustedPx) return
     if (!this.positioned) {
       this.boundingRect = new DOMRect(
         this.props.location.getRect().left,
