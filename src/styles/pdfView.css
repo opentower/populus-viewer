@@ -1,7 +1,7 @@
 #sidepanel {
     display:flex;
     position:fixed;
-    right: calc((var(--sidePanelVisible) - 1) * (var(--sidepanelWidth)));
+    right: 0px;
     top:0px;
     bottom:0px;
     box-shadow: -2px 0 4px 0 rgba(0,0,0,.2);
@@ -12,7 +12,7 @@
 }
 
 /* workaround for chrome bug with resizing the chat panel itself */
-.panel-widget-1 {
+.panel-widget-1, .panel-widget-2 {
     display:inline-flex;
     height:100%;
     -ms-overflow-style: none;  /* IE and Edge */
@@ -21,10 +21,21 @@
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box; /* Firefox, other Gecko */
     box-sizing: border-box; /* Opera/IE 8+ */
+    transition: width 0.5s ease, left 0.5s ease;
+}
+
+.panel-widget-1 {
+    position:absolute;
+    width: var(--widget-1-width);
 }
 
 .panel-widget-2 {
-    display:none;
+    position:absolute;
+    left: calc(var(--chatVisible) * var(--widget-1-width));
+    width: var(--widget-2-width);
+    border-left:1px solid #adadad;
+    min-width: var(--widget-2-width);
+    background:white;
 }
 
 /*chrome, safari, opera*/
@@ -34,9 +45,13 @@
 
 .panel-widget-controls {
   height:100%;
-  width:50px;
+  position:absolute;
+  right:0px;
+  background:white;
+  /* accounting for padding */
+  width:calc(var(--widget-control-width) - 40px); 
   border-left:1px solid #adadad;
-  padding:0px 20px 0px 20px;
+  padding:20px;
 }
 
 .panel-widget-controls > button {
@@ -52,37 +67,41 @@
 @media only screen and (max-width: 600px) {
     #content-container {
       --sidepanelWidth: 100%;
+      --widget-1-width: 100%;
+      --widget-2-width: 100%;
     }
 
-    .panel-widget-1 {
-        width:100%;
-        padding:0px;
+    .panel-widget-controls {
+      display:none;
     }
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
     #content-container {
-        --sidepanelWidth: 500px;
-    }
-
-    .panel-widget-1 {
-        width:400px;
-        border: 1px solid #adadad;
+        --sidepanelWidth: calc(
+            (var(--widget-1-width) * var(--chatVisible))
+            + (var(--widget-2-width) * var(--annotationListingVisible))
+            + (var(--widget-control-width))
+        );
+        --widget-control-width:80px;
+        --widget-1-width:350px;
+        --widget-2-width:350px;
     }
 }
 
 /* standard DPI */
 @media only screen and (min-width: 1280px) {
     #content-container {
-        --sidepanelWidth: 350px;
-        --contentWidth: calc(100% - (var(--sidepanelWidth)));
+        --widget-1-width:400px;
+        --widget-2-width:400px;
     }
+
     #sidepanel {
         right: 0px
     }
+
     .panel-widget-1 {
-        width:100%;
         padding:0px;
         border: none;
     }
@@ -90,32 +109,11 @@
 
 /* high DPI laptop */
 @media only screen and (min-width: 1400px) {
-    #content-container {
-        --sidepanelWidth: 500px;
-    }
-
-    .panel-widget-1 {
-        width:400px;
-    }
 }
     
 @media only screen and (min-width: 1800px) {
     #content-container {
-        --sidepanelWidth: calc((var(--chatFocused) * 900px) + ((var(--chatFocused) - 1) * -450px))  ;
-    }
-
-    .panel-widget-1 { min-width:375px; }
-
-    .panel-widget-2 {
-        min-width:375px;
-        border-left: 1px solid #adadad;
-        display:inline-flex;
-        height:100%;
-        -ms-overflow-style: none;  /* IE and Edge */
-        scrollbar-width: none;  /* Firefox */
-        overflow-y: scroll;
-        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
-        -moz-box-sizing: border-box; /* Firefox, other Gecko */
-        box-sizing: border-box; /* Opera/IE 8+ */
+        --widget-1-width:500px;
+        --widget-2-width:500px;
     }
 }

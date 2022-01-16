@@ -97,17 +97,13 @@
 @media only screen and (max-width: 600px) {
     #content-container {
         height: calc(100% - (0.8 * var(--navHeight)));
-        --contentWidth: calc(100% - (var(--sidePanelVisible) * (var(--sidepanelWidth))));
+        --contentWidth: calc(100%);
     }
 
 } 
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
-    #content-container {
-        --contentWidth: calc(100% - (var(--sidePanelVisible) * (var(--sidepanelWidth))));
-    }
-
     #pdf-mobile-buttons {
       display:none;
     }
@@ -119,6 +115,9 @@
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
+    #content-container {
+        --contentWidth: calc(100% - var(--sidepanelWidth));
+    }
 } 
 
 /* standard DPI */

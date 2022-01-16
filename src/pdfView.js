@@ -31,6 +31,8 @@ export default class PdfView extends Component {
       totalPages: null,
       navHeight: 75,
       panelVisible: false,
+      chatVisible: false,
+      annotationListingVisible: false,
       hasSelection: false,
       annotationsVisible: true,
       annotationContents: [],
@@ -242,7 +244,7 @@ export default class PdfView extends Component {
           content: childContent
         })
         this.setFocus(new Location(fakeEvent))
-        this.setState({ panelVisible: true })
+        this.setState({ chatVisible: true })
         document.removeEventListener("click", this.releasePin)
         this.setState({pindropMode: null })
         return Client.client
@@ -311,7 +313,7 @@ export default class PdfView extends Component {
         content: childContent
       })
       this.setFocus(new Location(fakeEvent))
-      this.setState({ panelVisible: true })
+      this.setState({ chatVisible: true })
       return Client.client.sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
     }).catch(e => alert(e))
   }
@@ -343,7 +345,7 @@ export default class PdfView extends Component {
 
   setSearch = searchString => this.setState({searchString})
 
-  clearFocus = _ => this.setState({focus: null})
+  clearFocus = _ => this.setState({ focus: null, chatVisible: false })
 
   toggleAnnotations = _ => this.setState(oldState => {
     return { annotationsVisible: !oldState.annotationsVisible }
@@ -373,7 +375,7 @@ export default class PdfView extends Component {
     if (theAnnotation) {
       const focus = new Location(theAnnotation)
       History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${focus.getPageIndex() || this.props.pageFocused}/${roomId}`)
-      this.setState({ focus, secondaryFocus: null, panelVisible: true, hideButtons: false })
+      this.setState({ focus, secondaryFocus: null, chatVisible: true, hideButtons: false })
     }
   }
 
@@ -414,7 +416,9 @@ export default class PdfView extends Component {
     }
   }
 
-  togglePanel = () => this.setState({panelVisible: !this.state.panelVisible})
+  toggleChat = _ => this.setState(oldState => { return {chatVisible: !oldState.chatVisible} })
+
+  toggleAnnotationListing = _ => this.setState(oldState => { return {annotationListingVisible: !oldState.annotationListingVisible} })
 
   checkForSelection () {
     if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
@@ -556,6 +560,8 @@ export default class PdfView extends Component {
       "--pdfWidthPx": `${state.pdfWidthPx}px`,
       "--pdfHeightPx": `${state.pdfHeightPx}px`,
       "--sidePanelVisible": state.panelVisible ? 1 : 0,
+      "--chatVisible": state.chatVisible ? 1 : 0,
+      "--annotationListingVisible": state.annotationListingVisible ? 1 : 0,
       "--chatFocused": state.focus ? 1 : 0,
       "--selectColor": this.userColor.solid,
       "touch-action": this.state.pinching ? "none" : null
@@ -625,11 +631,11 @@ export default class PdfView extends Component {
               handleWidgetScroll={this.handleWidgetScroll}
               secondaryFocus={state.secondaryFocus}
               focus={state.focus} />
-          : null
+          : <div class="panel-widget-1" />
         }
         { state.searchString
           ? <SearchResults
-              class={state.focus ? "panel-widget-2" : "panel-widget-1"}
+              class="panel-widget-2"
               searchString={state.searchString}
               setSearch={this.setSearch}
               pdfText={this.pdfText}
@@ -638,7 +644,7 @@ export default class PdfView extends Component {
             />
           : <AnnotationListing
                 roomId={state.roomId}
-                class={state.focus ? "panel-widget-2" : "panel-widget-1"}
+                class="panel-widget-2"
                 focus={state.focus}
                 setAnnotationFilter={this.setAnnotationFilter}
                 annotationFilter={state.annotationFilter}
@@ -652,10 +658,10 @@ export default class PdfView extends Component {
               />
           }
         <div class="panel-widget-controls">
-          <button title="toggle sidebar" id="panel-toggle" onclick={this.togglePanel}>
-            {state.panelVisible ? Icons.close : Icons.menu }
+          <button disabled={!state.focus} title="show chat" id="show-annotations" onclick={this.toggleChat}>
+            {Icons.annotation}
           </button>
-          <button title="focus annotation list" id="show-annotations" onclick={this.clearFocus}>
+          <button title="focus annotation list" id="show-annotations" onclick={this.toggleAnnotationListing}>
             {Icons.list}
           </button>
         </div>
