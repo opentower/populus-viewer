@@ -1,3 +1,16 @@
+#sidepanel {
+    display:flex;
+    position:fixed;
+    right: calc((var(--sidePanelVisible) - 1) * (var(--sidepanelWidth)));
+    top:0px;
+    bottom:0px;
+    box-shadow: -2px 0 4px 0 rgba(0,0,0,.2);
+    background:white;
+    z-index:6;
+    width: var(--sidepanelWidth);
+    transition: width 0.5s ease, right 0.5s ease, padding 0.5s ease;
+}
+
 /* workaround for chrome bug with resizing the chat panel itself */
 .panel-widget-1 {
     display:inline-flex;
@@ -19,7 +32,28 @@
   display: none;
 }
 
+.panel-widget-controls {
+  height:100%;
+  width:50px;
+  border-left:1px solid #adadad;
+  padding:0px 20px 0px 20px;
+}
+
+.panel-widget-controls > button {
+    border:none;
+    outline:none;
+    font-size:24px;
+    text-align:center;
+    vertical-align:middle;
+    background:transparent;
+    cursor:pointer;
+}
+
 @media only screen and (max-width: 600px) {
+    #content-container {
+      --sidepanelWidth: 100%;
+    }
+
     .panel-widget-1 {
         width:100%;
         padding:0px;
@@ -28,6 +62,10 @@
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
+    #content-container {
+        --sidepanelWidth: 500px;
+    }
+
     .panel-widget-1 {
         width:400px;
         border: 1px solid #adadad;
@@ -36,6 +74,13 @@
 
 /* standard DPI */
 @media only screen and (min-width: 1280px) {
+    #content-container {
+        --sidepanelWidth: 350px;
+        --contentWidth: calc(100% - (var(--sidepanelWidth)));
+    }
+    #sidepanel {
+        right: 0px
+    }
     .panel-widget-1 {
         width:100%;
         padding:0px;
@@ -45,19 +90,25 @@
 
 /* high DPI laptop */
 @media only screen and (min-width: 1400px) {
+    #content-container {
+        --sidepanelWidth: 500px;
+    }
+
     .panel-widget-1 {
         width:400px;
-        border: 1px solid #adadad;
     }
 }
     
 @media only screen and (min-width: 1800px) {
+    #content-container {
+        --sidepanelWidth: calc((var(--chatFocused) * 900px) + ((var(--chatFocused) - 1) * -450px))  ;
+    }
+
     .panel-widget-1 { min-width:375px; }
 
     .panel-widget-2 {
-        margin-left:50px;
         min-width:375px;
-        border: 1px solid #adadad;
+        border-left: 1px solid #adadad;
         display:inline-flex;
         height:100%;
         -ms-overflow-style: none;  /* IE and Edge */

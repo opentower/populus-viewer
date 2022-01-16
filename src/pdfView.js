@@ -651,6 +651,14 @@ export default class PdfView extends Component {
                 room={theRoom}
               />
           }
+        <div class="panel-widget-controls">
+          <button title="toggle sidebar" id="panel-toggle" onclick={this.togglePanel}>
+            {state.panelVisible ? Icons.close : Icons.menu }
+          </button>
+          <button title="focus annotation list" id="show-annotations" onclick={this.clearFocus}>
+            {Icons.list}
+          </button>
+        </div>
       </div>
       <Navbar hasSelection={state.hasSelection}
         openAnnotation={this.openAnnotation}
@@ -674,7 +682,7 @@ export default class PdfView extends Component {
         pindropMode={state.pindropMode}
         setZoom={this.setZoom}
         zoomFactor={state.zoomFactor} />
-      <div data-hide-buttons={state.hideButtons} id="pdf-panel-button-wrapper">
+      <div data-hide-buttons={state.hideButtons} id="pdf-mobile-buttons">
         {(state.panelVisible && state.focus)
           ? <button title="focus annotation list" id="show-annotations" onclick={this.clearFocus}>
             {Icons.list}

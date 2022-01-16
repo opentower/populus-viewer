@@ -11,20 +11,6 @@
 
 #content-container::-webkit-scrollbar { display: none; }
 
-#sidepanel {
-    display:flex;
-    position:fixed;
-    right: calc((var(--sidePanelVisible) - 1) * (var(--sidepanelWidth) + (2 * var(--sidepanelPadding) + 10px)));
-    top:0px;
-    bottom:0px;
-    padding: var(--sidepanelPadding);
-    box-shadow: -2px 0 4px 0 rgba(0,0,0,.2);
-    background:white;
-    z-index:6;
-    width: var(--sidepanelWidth);
-    transition: width 0.5s ease, right 0.5s ease, padding 0.5s ease;
-}
-
 #document-view {
     position:relative;
     display: inline-block;
@@ -68,16 +54,21 @@
     user-select:none;
 }
 
-#pdf-panel-button-wrapper {
+#pdf-mobile-buttons {
     position:fixed;
     z-index:7;
     top:0px;
     transition: top 0.5s ease;
     right:0px;
-    width: calc(var(--sidepanelWidth) + var(--sidepanelPadding));
+    width: calc(var(--sidepanelWidth));
     margin-top:5px;
     font-size:24px;
     pointer-events:none;
+}
+
+#pdf-mobile-buttons[data-hide-buttons] {
+    top:-50px;
+    transition: top 0.5s ease;
 }
 
 #panel-toggle {
@@ -88,7 +79,7 @@
     pointer-events:all;
 }
 
-#pdf-panel-button-wrapper > button {
+#pdf-mobile-buttons > button {
     border:none;
     outline:none;
     font-size:24px;
@@ -98,7 +89,7 @@
     cursor:pointer;
 }
 
-#pdf-panel-button-wrapper > button:last-child {
+#pdf-mobile-buttons > button:last-child {
     float:right
 }
 
@@ -106,28 +97,19 @@
 @media only screen and (max-width: 600px) {
     #content-container {
         height: calc(100% - (0.8 * var(--navHeight)));
-        --sidepanelWidth: 100%;
-        --sidepanelPadding: 0px;
-        --contentWidth: calc(100% - (var(--sidePanelVisible) * (var(--sidepanelWidth) + (2 * var(--sidepanelPadding)))));
+        --contentWidth: calc(100% - (var(--sidePanelVisible) * (var(--sidepanelWidth))));
     }
 
-    #pdf-panel-button-wrapper[data-hide-buttons] {
-        top:-50px;
-        transition: top 0.5s ease;
-    }
 } 
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
     #content-container {
-        --sidepanelWidth: 400px;
-        --sidepanelPadding: 50px;
-        --contentWidth: calc(100% - (var(--sidePanelVisible) * (var(--sidepanelWidth) + (2 * var(--sidepanelPadding)))));
+        --contentWidth: calc(100% - (var(--sidePanelVisible) * (var(--sidepanelWidth))));
     }
 
-    #pdf-panel-button-wrapper {
-        margin-right:10px;
-        margin-top:10px;
+    #pdf-mobile-buttons {
+      display:none;
     }
 } 
 
@@ -141,47 +123,15 @@
 
 /* standard DPI */
 @media only screen and (min-width: 1280px) {
-    #content-container {
-        --sidepanelWidth: 350px;
-        --sidepanelPadding: 0px;
-        --contentWidth: calc(100% - (var(--sidepanelWidth) + (2 * var(--sidepanelPadding))));
-    }
-    #sidepanel {
-        right: 0px
-    }
     #panel-toggle {
         visibility:hidden;
-    }
-
-    #pdf-panel-button-wrapper {
-        margin-right:0px;
-    }
-
-    #pdf-panel-button-wrapper[data-hide-buttons] {
-        top:-50px;
-        transition: top 0.5s ease;
     }
 }
 
 /* high DPI laptop */
 @media only screen and (min-width: 1400px) {
-    #content-container {
-        --sidepanelWidth: 400px;
-        --sidepanelPadding: 50px;
-    }
-
-    #pdf-panel-button-wrapper {
-        margin-right:10px;
-    }
-
-    #pdf-panel-button-wrapper[data-hide-buttons] {
-        top:0px;
-    }
 }
 
 /* larger monitor */
 @media only screen and (min-width: 1800px) {
-    #content-container {
-        --sidepanelWidth: calc((var(--chatFocused) * 800px) + ((var(--chatFocused) - 1) * -400px))  ;
-    }
 }
