@@ -8,7 +8,7 @@
     background:white;
     z-index:6;
     width: var(--sidepanelWidth);
-    transition: width 0.5s ease, right 0.5s ease, padding 0.5s ease;
+    transition: width 0.5s ease, left 0.5s ease, right 0.5s ease, padding 0.5s ease;
 }
 
 /* workaround for chrome bug with resizing the chat panel itself */
@@ -27,6 +27,7 @@
 .panel-widget-1 {
     position:absolute;
     width: var(--widget-1-width);
+    min-width: var(--widget-1-width);
 }
 
 .panel-widget-2 {
@@ -65,8 +66,12 @@
 }
 
 @media only screen and (max-width: 600px) {
+    #sidepanel {
+      left: calc(100% * (1 - max(var(--chatVisible), var(--annotationListingVisible))))
+    }
+
     #content-container {
-      --sidepanelWidth: 100%;
+      --sidepanelWidth: 100%; 
       --widget-1-width: 100%;
       --widget-2-width: 100%;
     }

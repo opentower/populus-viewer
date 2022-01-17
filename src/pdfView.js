@@ -143,6 +143,8 @@ export default class PdfView extends Component {
   }
 
   handleWidgetScroll = e => {
+    console.log(e.target)
+    console.log(e.target.scrollTop)
     if (this.prevScrollTop < e.target.scrollTop && !this.state.hideButtons) this.setState({hideButtons: true})
     if (this.prevScrollTop > e.target.scrollTop && this.state.hideButtons) this.setState({hideButtons: false})
     this.prevScrollTop = e.target.scrollTop
@@ -420,6 +422,12 @@ export default class PdfView extends Component {
 
   toggleAnnotationListing = _ => this.setState(oldState => { return {annotationListingVisible: !oldState.annotationListingVisible} })
 
+  toggleSidebar = _ => this.setState(oldState => {
+    if (oldState.annotationListingVisible || oldState.chatVisible) return {annotationListingVisible: false, chatVisible: false}
+    else if (this.focus) return {chatVisible: true}
+    return {annotationListingVisible: true}
+  })
+
   checkForSelection () {
     if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
     const hasSelection = !window.getSelection().isCollapsed &&
@@ -695,8 +703,8 @@ export default class PdfView extends Component {
           </button>
           : null
         }
-        <button title="toggle sidebar" id="panel-toggle" onclick={this.togglePanel}>
-          {state.panelVisible ? Icons.close : Icons.menu }
+        <button title="toggle chat" id="panel-toggle" onclick={this.toggleSidebar}>
+          {state.chatVisible || state.annotationListingVisible ? Icons.close : Icons.menu }
         </button>
       </div>
       <SyncIndicator class={state.panelVisible ? null : "sync-hidden"} />

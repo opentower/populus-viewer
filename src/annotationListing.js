@@ -333,7 +333,8 @@ class AnnotationListingEntry extends Component {
     })
   }
 
-  handleClick = () => {
+  handleClick = e => {
+    e.preventDefault() // this prevents spurious scroll events that might hide the buttons on mobile
     this.props.focusByRoomId(this.props.annotationLocation.getChild())
   }
 
