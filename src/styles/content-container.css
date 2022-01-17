@@ -104,20 +104,21 @@
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
-    #pdf-mobile-buttons {
-      display:none;
-    }
 } 
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
+    #pdf-mobile-buttons {
+      display:none;
+    }
+
+    #content-container {
+        --contentWidth: calc(max(475px, 100% - var(--sidepanelWidth)));
+    }
 } 
 
 /* Large devices (laptops/desktops, 992px and up) */
 @media only screen and (min-width: 992px) {
-    #content-container {
-        --contentWidth: calc(100% - var(--sidepanelWidth));
-    }
 } 
 
 /* standard DPI */
