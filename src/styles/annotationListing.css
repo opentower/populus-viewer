@@ -107,7 +107,7 @@
 
 .annotation-listing-comment, .annotation-listing-comment-unread {
     width:calc(100%);
-    padding-left:10px;
+    padding:0px 10px 0px 10px;
     border: 2px solid var(--user_light);
     margin-bottom:10px;
     margin-top:10px;
