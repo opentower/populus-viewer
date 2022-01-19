@@ -48,6 +48,7 @@ export default class RoomIcon extends Component {
       style={{
         width: props.size,
         height: props.size,
+        lineHeight: `${props.size}px`,
         ...this.roomColor.styleVariables
       }}>
         { state.avatarUrl

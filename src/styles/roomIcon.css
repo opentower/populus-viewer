@@ -16,7 +16,6 @@
   color: var(--room_dark);
   font-size:24pt;
   text-align:center;
-  line-height:50px;
 }
 
 .room-icon:not([data-joined]) {
