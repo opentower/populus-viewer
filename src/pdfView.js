@@ -63,6 +63,8 @@ export default class PdfView extends Component {
     // listener with the proper `this` reference
   }
 
+  getPage() { return parseInt(this.props.pageFocused, 10) || 1 }
+
   componentDidMount() {
     document.addEventListener("selectionchange", this.checkForSelection)
     document.addEventListener('keydown', this.handleKeydown)
@@ -199,7 +201,7 @@ export default class PdfView extends Component {
     const newY = this.annotationLayerWrapper.current.scrollHeight - theY
     const locationData = {
       [mscPdfText]: {
-        page_index: parseInt(this.props.pageFocused, 10),
+        page_index: this.getPage(),
         rect: {
           left: theX,
           right: theX + 10,
@@ -217,7 +219,7 @@ export default class PdfView extends Component {
     if (this.state.pindropMode?.x) {
       Client.client.createRoom({
         visibility: "public",
-        name: `pindrop on page ${this.props.pageFocused}`,
+        name: `pindrop on page ${this.getPage()}`,
         initial_state: [{
           type: "m.room.join_rules",
           state_key: "",
@@ -275,7 +277,7 @@ export default class PdfView extends Component {
     const theDomain = Client.client.getDomain()
     const locationData = {
       [mscPdfHighlight]: {
-        page_index: parseInt(this.props.pageFocused, 10),
+        page_index: this.getPage(),
         rect: boundingQuad.getBoundingRect(),
         quad_points: clientQuads.map(quad => quad.getArray()),
         contents: "", // highlight contents, per PDF spec. Fill this with the first chat message text, or fallback text
@@ -289,7 +291,7 @@ export default class PdfView extends Component {
     // TODO: we should set room_alias_name and name, in a useful way based on the selection
     Client.client.createRoom({
       visibility: "public",
-      name: `highlighted passage on page ${this.props.pageFocused}`,
+      name: `highlighted passage on page ${this.getPage()}`,
       topic: theSelectedText,
       initial_state: [{
         type: "m.room.join_rules",
@@ -377,7 +379,7 @@ export default class PdfView extends Component {
     const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
     if (theAnnotation) {
       const focus = new Location(theAnnotation)
-      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${focus.getPageIndex() || this.props.pageFocused}/${roomId}`)
+      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${focus.getPageIndex() || this.getPage()}/${roomId}`)
       this.setState({ focus, secondaryFocus: null, chatVisible: true, hideButtons: false })
     }
   }
@@ -406,15 +408,15 @@ export default class PdfView extends Component {
   }
 
   prevPage = _ => {
-    if (this.props.pageFocused > 1) {
-      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${parseInt(this.props.pageFocused, 10) - 1}/`)
+    if (this.getPage() > 1) {
+      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.getPage() - 1}/`)
       this.contentContainer.current.scrollTop = this.contentContainer.current.scrollHeight
     }
   }
 
   nextPage = _ => {
-    if (this.props.pageFocused < this.state.totalPages) {
-      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${parseInt(this.props.pageFocused, 10) + 1}/`)
+    if (this.getPage() < this.state.totalPages) {
+      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.getPage() + 1}/`)
       this.contentContainer.current.scrollTop = 0
     }
   }
@@ -443,7 +445,7 @@ export default class PdfView extends Component {
     if (!this.props.pageFocused || !this.props.pdfFocused || !this.state.roomId) return
     Client.client.setRoomAccountData(this.state.roomId, lastViewed, {
       deviceId: Client.deviceId,
-      ...(parseInt(this.props.pageFocused, 10 ) && { page: this.props.pageFocused })
+      ...(parseInt(this.props.pageFocused, 10) && { page: this.props.pageFocused })
     })
     if (this.props.roomFocused) this.focusByRoomId(this.props.roomFocused)
   }
@@ -604,7 +606,7 @@ export default class PdfView extends Component {
             textLayer={this.textLayer}
             searchString={state.searchString}
             pdfFocused={props.pdfFocused}
-            pageFocused={props.pageFocused}
+            pageFocused={this.getPage()}
             initFocus={this.initFocus}
             setId={this.setId}
             setTotalPages={this.setTotalPages}
@@ -618,7 +620,7 @@ export default class PdfView extends Component {
                 pdfWidthAdjustedPx={state.pdfWidthPx / state.pdfFitRatio}
                 pdfHeightAdjustedPx={state.pdfHeightPx / state.pdfFitRatio}
                 zoomFactor={state.zoomFactor}
-                pageFocused={props.pageFocused}
+                pageFocused={this.getPage()}
                 roomId={state.roomId}
                 setFocus={this.setFocus}
                 focus={state.focus}
@@ -634,7 +636,7 @@ export default class PdfView extends Component {
               unsetFocus={this.unsetFocus}
               pdfId={state.roomId}
               pdfFocused={props.pdfFocused}
-              pageFocused={props.pageFocused}
+              pageFocused={this.getPage()}
               hasSelection={state.hasSelection}
               quadsFromPdfSelection={this.quadsFromPdfSelection}
               handleWidgetScroll={this.handleWidgetScroll}
@@ -680,7 +682,7 @@ export default class PdfView extends Component {
       <Navbar hasSelection={state.hasSelection}
         openAnnotation={this.openAnnotation}
         closeAnnotation={this.closeAnnotation}
-        pageFocused={props.pageFocused || 1}
+        pageFocused={this.getPage()}
         pdfFocused={props.pdfFocused}
         total={state.totalPages}
         focus={state.focus}
