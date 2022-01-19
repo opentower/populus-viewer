@@ -55,10 +55,10 @@
   transition: border .25s ease;
 }
 
-#welcome-collection[data-welcome-active], 
-#welcome-notifications[data-welcome-active], 
-#welcome-upload[data-welcome-active], 
-#welcome-profile[data-welcome-active] {
+#welcome-collection[data-active], 
+#welcome-notifications[data-active], 
+#welcome-upload[data-active], 
+#welcome-profile[data-active] {
   border-bottom: 2px solid black;
 }
 

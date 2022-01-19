@@ -669,10 +669,10 @@ export default class PdfView extends Component {
         <div class="panel-widget-controls">
           {theRoom ? <RoomIcon roomId={state.roomId} size={42} name={theRoom.name} avatarUrl={theRoom.getMxcAvatarUrl()} /> : null }
           <hr />
-          <button disabled={!state.focus} title="show chat" id="show-annotations" onclick={this.toggleChat}>
+          <button data-active={state.chatVisible} disabled={!state.focus} title="show chat" id="show-annotations" onclick={this.toggleChat}>
             {Icons.annotation}
           </button>
-          <button title="focus annotation list" id="show-annotations" onclick={this.toggleAnnotationListing}>
+          <button data-active={state.annotationListingVisible} title="focus annotation list" id="show-annotations" onclick={this.toggleAnnotationListing}>
             {Icons.list}
           </button>
         </div>

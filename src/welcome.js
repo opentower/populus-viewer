@@ -109,12 +109,12 @@ export default class WelcomeView extends Component {
             setFocus={this.setFocus} />
           { !state.inputFocus && <Fragment>
             {state.narrow
-              ? <button data-welcome-active={state.view === "COLLECTION"} id="welcome-collection" onClick={this.toggleCollectionVisible}>{Icons.collection}</button>
+              ? <button data-active={state.view === "COLLECTION"} id="welcome-collection" onClick={this.toggleCollectionVisible}>{Icons.collection}</button>
               : null
             }
-            <button data-welcome-active={state.view === "UPLOAD"} id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</button>
-            <WelcomeIcon welcomeActive={state.view === "NOTIF"} toggleNotifVisible={this.toggleNotifVisible} />
-            <button data-welcome-active={state.view === "PROFILE"} id="welcome-profile" onClick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
+            <button data-active={state.view === "UPLOAD"} id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</button>
+            <WelcomeIcon active={state.view === "NOTIF"} toggleNotifVisible={this.toggleNotifVisible} />
+            <button data-active={state.view === "PROFILE"} id="welcome-profile" onClick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
               {state.avatarUrl
                 ? <img id="welcome-img" src={state.avatarUrl} />
                 : <span id="welcome-initial">{this.displayInitial()}</span>
@@ -189,7 +189,7 @@ class WelcomeIcon extends Component {
   }
 
   render(props, state) {
-    return <button data-welcome-active={props.welcomeActive} id="welcome-notifications" onClick={props.toggleNotifVisible}>
+    return <button data-active={props.active} id="welcome-notifications" onClick={props.toggleNotifVisible}>
         {Icons.bell}
         {state.count > 0 ? <span class="small-icon-badge">{state.count}</span> : null}
     </button>
