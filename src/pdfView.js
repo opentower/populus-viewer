@@ -31,9 +31,9 @@ export default class PdfView extends Component {
       secondaryFocus: null, // for temporarily focusing an extra location
       totalPages: null,
       navHeight: 75,
-      panelVisible: History.message?.searchString || false,
+      panelVisible: false,
       chatVisible: false,
-      annotationListingVisible: false,
+      annotationListingVisible: !!History.message?.searchString || false,
       hasSelection: false,
       annotationsVisible: true,
       annotationContents: [],
@@ -700,7 +700,7 @@ export default class PdfView extends Component {
         setZoom={this.setZoom}
         zoomFactor={state.zoomFactor} />
       <div data-hide-buttons={state.hideButtons} id="pdf-mobile-buttons">
-         {(state.panelVisible && state.focus)
+         {state.chatVisible
           ? <button title="focus annotation list" id="show-annotations" onclick={this.clearFocus}>
             {Icons.list}
           </button>
@@ -710,7 +710,7 @@ export default class PdfView extends Component {
           {state.chatVisible || state.annotationListingVisible ? Icons.close : Icons.menu }
         </button>
       </div>
-      <SyncIndicator class={state.panelVisible ? null : "sync-hidden"} />
+      <SyncIndicator class={state.chatVisible || state.annotationListingVisible ? null : "sync-hidden"} />
     </div>
   }
 }
