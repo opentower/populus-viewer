@@ -94,11 +94,8 @@ export class Emojis extends Component {
         this.setState(oldState => { return {selection: oldState.selection - 1} })
       }
     }
-    if (e.key === "Enter") {
-      e.preventDefault()
-      this.insertSelection()
-    }
-    if (e.key === ":") {
+    if ((e.key === "Enter" || e.key === ":") &&
+      this.state.popupItems.length > 0) {
       e.preventDefault()
       this.insertSelection()
     }
@@ -207,7 +204,7 @@ export class Members extends Component {
         this.setState(oldState => { return {selection: oldState.selection - 1} })
       }
     }
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && this.state.popupItems.length > 0) {
       e.preventDefault()
       this.insertSelection()
     }
@@ -320,7 +317,7 @@ export class Flags extends Component {
         this.setState(oldState => { return {selection: oldState.selection - 1} })
       }
     }
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && this.state.popupItems.length > 0) {
       e.preventDefault()
       this.insertSelection()
     }
