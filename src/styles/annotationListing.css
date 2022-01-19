@@ -8,11 +8,14 @@
 #annotation-entries-wrapper {
     overflow-y:scroll;
     padding-bottom:40px;
+}
+
+body:not([data-scrollbars="visible"]) #annotation-entries-wrapper {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
 }
 
-#annotation-entries-wrapper::-webkit-scrollbar { display: none; }
+body:not([data-scrollbars="visible"]) #annotation-entries-wrapper::-webkit-scrollbar { display: none; }
 
 #annotation-controls {
     user-select:none;

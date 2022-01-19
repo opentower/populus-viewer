@@ -1,6 +1,6 @@
 #content-container {
     position: relative;
-    overflow:scroll;
+    overflow:auto;
     height: calc(100% - var(--navHeight));
     width: var(--contentWidth);
     --leftToCenter: max(0px, calc(50% - (var(--pdfWidthPx) * var(--pdfZoomFactor)) / 2));
@@ -9,7 +9,12 @@
     transition:width 0.5s ease;
 }
 
-#content-container::-webkit-scrollbar { display: none; }
+body[data-scrollbars="hidden"] #content-container {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width:none;
+}
+
+body[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: none; }
 
 #document-view {
     position:relative;

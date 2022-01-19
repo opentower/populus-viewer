@@ -24,9 +24,7 @@
 .panel-widget-1, .panel-widget-2 {
     display:inline-flex;
     height:100%;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-    overflow-y: scroll;
+    overflow-y:auto;
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box; /* Firefox, other Gecko */
     box-sizing: border-box; /* Opera/IE 8+ */
@@ -48,8 +46,15 @@
     background:white;
 }
 
+body[data-scrollbars="hidden"] .panel-widget-2
+body[data-scrollbars="hidden"] .panel-widget-1 {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
 /*chrome, safari, opera*/
-.panel-widget-2::-webkit-scrollbar, .panel-widget-1::-webkit-scrollbar {
+body[data-scrollbars="hidden"] .panel-widget-2::-webkit-scrollbar,
+body[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
   display: none;
 }
 

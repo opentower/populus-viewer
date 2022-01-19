@@ -15,6 +15,7 @@
     grid-template-columns: 180px 1fr;
 }
 
+#profile-display-options,
 #profile-advanced-options {
     display:grid;
     grid-template-columns: 180px 1fr;
@@ -92,8 +93,10 @@ div#profileSelector {
 
 @media only screen and (max-width: 600px) {
 
-    #profileInformationForm { grid-template-columns: 1fr }
-    #profile-advanced-options { grid-template-columns: 1fr }
+    #profileInformationForm,
+    #profile-advanced-options,
+    #profile-display-options 
+    { grid-template-columns: 1fr }
 
     #profileInformationFormProgress,
     #profileSelector, 

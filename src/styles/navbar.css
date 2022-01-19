@@ -23,12 +23,15 @@
     height:50px;
     width: var(--contentWidth);
     overflow-y:scroll;
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
     transition: bottom 0.5s ease-in-out;
 }
 
-#nav-pages::-webkit-scrollbar { display: none; }
+body[data-scrollbars="hidden"] #nav-pages {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+body[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
 
 .nav-hidden {
     bottom:0px !important;

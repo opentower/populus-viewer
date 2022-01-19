@@ -61,10 +61,11 @@
   padding:10px;
   z-index:21;
   overflow:scroll;
-  scrollbar-width: none;
 }
 
-#toast-content::-webkit-scrollbar {
+body[data-scrollbars="hidden"] #toast-content { scrollbar-width: none; }
+
+body[data-scrollbars="hidden"] #toast-content::-webkit-scrollbar {
   display: none;
 }
 

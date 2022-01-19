@@ -10,11 +10,14 @@ export default class ProfileInfomation extends Component {
       previewUrl: Client.client.getHttpUriForMxcFromHS(me.avatarUrl, 180, 180, "crop"),
       displayName: me.displayName
     }
+    if (localStorage.getItem("scrollbars") === "visible") this.scrollbarsVisible = true
   }
 
   displayNameInput = createRef()
 
   avatarImageInput = createRef()
+
+  scrollbarVisibleSelect = createRef()
 
   submitButton = createRef()
 
@@ -42,6 +45,8 @@ export default class ProfileInfomation extends Component {
     const theImage = this.avatarImageInput.current.files[0]
     const theDisplayName = this.displayNameInput.current.value
     this.submitButton.current.setAttribute("disabled", true)
+    localStorage.setItem("scrollbars", this.scrollbarVisibleSelect.current.value)
+    document.body.dataset.scrollbars = this.scrollbarVisibleSelect.current.value
     if (theDisplayName) await Client.client.setDisplayName(theDisplayName)
     if (theImage && /^image/.test(theImage.type)) {
       await Client.client.uploadContent(theImage, { progressHandler: this.progressHandler })
@@ -68,6 +73,16 @@ export default class ProfileInfomation extends Component {
           ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl} />
           : <div key="profileSelector" onclick={this.uploadAvatar} id="profileSelector" />}
         <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
+        <details>
+          <summary>Display Options</summary>
+          <div id="profile-display-options">
+            <label for="scrollbar-visibility">Scrollbars</label>
+            <select class="styled-input" ref={this.scrollbarVisibleSelect} name="scrollbar-visibility">
+              <option value="hidden">Hidden</option>
+              <option selected={this.scrollbarsVisible} value="visible">Visible</option>
+            </select>
+          </div>
+        </details>
         <details>
           <summary>Advanced Options</summary>
           <div id="profile-advanced-options">

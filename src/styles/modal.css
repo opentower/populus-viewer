@@ -33,10 +33,13 @@
   padding-right:60px;
   z-index:21;
   overflow:scroll;
+}
+
+body[data-scrollbars="hidden"] #modalContent {
   scrollbar-width: none;
 }
 
-#modalContent::-webkit-scrollbar {
+body[data-scrollbars="hidden"] #modalContent::-webkit-scrollbar {
   display: none;
 }
 
