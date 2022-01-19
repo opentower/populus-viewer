@@ -146,8 +146,6 @@ export default class PdfView extends Component {
   }
 
   handleWidgetScroll = e => {
-    console.log(e.target)
-    console.log(e.target.scrollTop)
     if (this.prevScrollTop < e.target.scrollTop && !this.state.hideButtons) this.setState({hideButtons: true})
     if (this.prevScrollTop > e.target.scrollTop && this.state.hideButtons) this.setState({hideButtons: false})
     this.prevScrollTop = e.target.scrollTop

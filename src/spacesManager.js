@@ -306,7 +306,6 @@ class AddChild extends Component {
     this.debounceTimeout = setTimeout(_ => {
       const list = this.currentList.current
       if (list.scrollTop + list.clientHeight + 10 >= list.scrollHeight) {
-        console.log("scrolled")
         this.props.pageChildren()
       }
     }, 500)
