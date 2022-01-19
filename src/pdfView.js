@@ -31,7 +31,7 @@ export default class PdfView extends Component {
       secondaryFocus: null, // for temporarily focusing an extra location
       totalPages: null,
       navHeight: 75,
-      panelVisible: false,
+      panelVisible: History.message?.searchString || false,
       chatVisible: false,
       annotationListingVisible: false,
       hasSelection: false,
