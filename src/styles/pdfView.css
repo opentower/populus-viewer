@@ -57,22 +57,31 @@
   height:100%;
   position:absolute;
   right:0px;
+  padding-top:10px;
   background:white;
-  /* accounting for padding */
-  width:calc(var(--widget-control-width) - 40px); 
+  width:calc(var(--widget-control-width)); 
   border-left:1px solid #adadad;
-  padding:20px;
   display:none;
+  flex-direction:column;
+  gap:10px;
+  align-items:center;
 }
 
 .panel-widget-controls > button {
     border:none;
     outline:none;
     font-size:24px;
+    height:24px;
     text-align:center;
     vertical-align:middle;
     background:transparent;
     cursor:pointer;
+}
+
+.panel-widget-controls > hr {
+  border: none;
+  border-top: 1px solid #dedede;
+  width:24px;
 }
 
 @media only screen and (max-width: 600px) {
@@ -85,7 +94,7 @@
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
     .panel-widget-controls {
-      display:block;
+      display:flex;
     }
 
     #sidepanel {

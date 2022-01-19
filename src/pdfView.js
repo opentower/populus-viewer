@@ -6,6 +6,7 @@ import * as Matrix from "matrix-js-sdk"
 import { unionRects } from "./layout.js"
 import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
+import RoomIcon from "./roomIcon.js"
 import AnnotationListing from "./annotationListing.js"
 import SearchResults from "./searchResults.js"
 import PdfCanvas from "./pdfCanvas.js"
@@ -666,6 +667,8 @@ export default class PdfView extends Component {
               />
           }
         <div class="panel-widget-controls">
+          {theRoom ? <RoomIcon roomId={state.roomId} size={42} name={theRoom.name} avatarUrl={theRoom.getMxcAvatarUrl()} /> : null }
+          <hr />
           <button disabled={!state.focus} title="show chat" id="show-annotations" onclick={this.toggleChat}>
             {Icons.annotation}
           </button>
@@ -697,7 +700,7 @@ export default class PdfView extends Component {
         setZoom={this.setZoom}
         zoomFactor={state.zoomFactor} />
       <div data-hide-buttons={state.hideButtons} id="pdf-mobile-buttons">
-        {(state.panelVisible && state.focus)
+         {(state.panelVisible && state.focus)
           ? <button title="focus annotation list" id="show-annotations" onclick={this.clearFocus}>
             {Icons.list}
           </button>

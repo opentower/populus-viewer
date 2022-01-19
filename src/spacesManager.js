@@ -7,9 +7,10 @@ import Invite from './invite.js'
 import Resource from './utils/resource.js'
 import RoomSettings from './roomSettings.js'
 import SearchBar from './search.js'
+import RoomIcon from './roomIcon.js'
 import * as Icons from './icons.js'
 import { RoomColor } from './utils/colors.js'
-import { pdfStateType, spaceChild, spaceParent, mscResourceData } from "./constants.js"
+import { spaceChild, spaceParent } from "./constants.js"
 
 export default class SpacesManager extends Component {
   constructor(props) {
@@ -267,7 +268,13 @@ class SpaceListing extends Component {
       <div class="space-listing-children">
         {state.children
           // the root is always first in the listing
-          ? state.children.slice(1, state.limit + 1).map(child => <SpaceListingChild key={child.room_id} child={child} />)
+          ? state.children.slice(1, state.limit + 1).map(child => <RoomIcon
+              key={child.room_id}
+              size={50}
+              roomId={child.room_id}
+              avatarUrl={child.avatar_url}
+              name={child.name}
+            />)
           : null // insert loading bling here.
         }
         {isAdmin && props.dragging ? <button ondrop={_ => alert('drop not implemented!')} class="add-child-to-collection">+</button> : null }
@@ -395,56 +402,5 @@ class AvailableDiscussionListing extends Component {
         <span>{Icons.newDiscussion}</span>
         <span>{props.room.name}</span>
       </button>
-  }
-}
-
-class SpaceListingChild extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      joined: this.amJoined(),
-      loaded: false,
-      avatarUrl: props.child.avatar_url
-        ? Client.client.mxcUrlToHttp(props.child.avatar_url, 35, 35, "crop")
-        : null
-    }
-  }
-
-  amJoined = _ => !!(Client.client.getRoom(this.props.child.room_id)?.getMyMembership() === "join")
-
-  componentDidMount () {
-    Client.client.on("Room", this.handleRoom)
-    Client.client.on("RoomState.events", this.handleRoom)
-  }
-
-  componentDidUnmount () {
-    Client.client.on("Room", this.handleRoom)
-    Client.client.on("RoomState.events", this.handleRoom)
-  }
-
-  handleRoom = (e, r) => {
-    if (e.roomId === this.props.child.room_id || r?.roomId === this.props.child.room_id) {
-      clearTimeout(this.roomDebounceTimeout)
-      this.roomDebounceTimeout = setTimeout(_ => {
-        this.setState({ joined: this.amJoined() })
-      })
-    }
-  }
-
-  joinRoom = _ => Client.client.joinRoom(this.props.child.room_id)
-
-  roomColor = new RoomColor(this.props.child.name)
-
-  render(props, state) {
-    return <div onclick={this.joinRoom}
-      data-joined={state.joined}
-      data-has-avatar={!!state.avatarUrl}
-      class="space-listing-child"
-      style={this.roomColor.styleVariables}>
-        { state.avatarUrl
-          ? <img src={state.avatarUrl} />
-          : props.child.name.slice(0, 1)
-        }
-      </div>
   }
 }
