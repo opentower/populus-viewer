@@ -234,6 +234,7 @@ export default class AnnotationListing extends Component {
             key={loc.getChild()}
             typing={state.typing[loc.getChild()]}
             annotationLocation={loc}
+            handleWidgetScroll={props.handleWidgetScroll}
             focusByRoomId={props.focusByRoomId}
             focus={props.focus}
             parentRoom={props.room}
@@ -311,6 +312,7 @@ class AnnotationListingEntry extends Component {
   componentDidUpdate(prevProps) {
     if (prevProps.focus?.getChild() !== this.props.annotationLocation.getChild() &&
       this.props.focus?.getChild() === this.props.annotationLocation.getChild()) {
+      this.props.handleWidgetScroll.pause = true
       this.entry.current.scrollIntoView()
     }
   }
@@ -334,7 +336,6 @@ class AnnotationListingEntry extends Component {
   }
 
   handleClick = e => {
-    e.preventDefault() // this prevents spurious scroll events that might hide the buttons on mobile
     this.props.focusByRoomId(this.props.annotationLocation.getChild())
   }
 
