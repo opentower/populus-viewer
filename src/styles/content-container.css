@@ -4,17 +4,15 @@
     height: calc(100% - var(--navHeight));
     width: var(--contentWidth);
     --leftToCenter: max(0px, calc(50% - (var(--pdfWidthPx) * var(--pdfZoomFactor)) / 2));
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
     transition:width 0.5s ease;
 }
 
-body[data-scrollbars="hidden"] #content-container {
+html[data-scrollbars="hidden"] #content-container {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width:none;
 }
 
-body[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: none; }
+html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: none; }
 
 #document-view {
     position:relative;

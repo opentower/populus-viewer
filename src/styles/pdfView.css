@@ -46,15 +46,15 @@
     background:white;
 }
 
-body[data-scrollbars="hidden"] .panel-widget-2
-body[data-scrollbars="hidden"] .panel-widget-1 {
+html[data-scrollbars="hidden"] .panel-widget-2
+html[data-scrollbars="hidden"] .panel-widget-1 {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
 
 /*chrome, safari, opera*/
-body[data-scrollbars="hidden"] .panel-widget-2::-webkit-scrollbar,
-body[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
+html[data-scrollbars="hidden"] .panel-widget-2::-webkit-scrollbar,
+html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
   display: none;
 }
 

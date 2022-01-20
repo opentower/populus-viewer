@@ -26,12 +26,12 @@
     transition: bottom 0.5s ease-in-out;
 }
 
-body[data-scrollbars="hidden"] #nav-pages {
+html[data-scrollbars="hidden"] #nav-pages {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
 }
 
-body[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
+html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
 
 .nav-hidden {
     bottom:0px !important;

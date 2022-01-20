@@ -46,7 +46,7 @@ export default class ProfileInfomation extends Component {
     const theDisplayName = this.displayNameInput.current.value
     this.submitButton.current.setAttribute("disabled", true)
     localStorage.setItem("scrollbars", this.scrollbarVisibleSelect.current.value)
-    document.body.dataset.scrollbars = this.scrollbarVisibleSelect.current.value
+    document.documentElement.dataset.scrollbars = this.scrollbarVisibleSelect.current.value
     if (theDisplayName) await Client.client.setDisplayName(theDisplayName)
     if (theImage && /^image/.test(theImage.type)) {
       await Client.client.uploadContent(theImage, { progressHandler: this.progressHandler })

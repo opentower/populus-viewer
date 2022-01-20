@@ -10,12 +10,12 @@
     padding-bottom:40px;
 }
 
-body:not([data-scrollbars="visible"]) #annotation-entries-wrapper {
+html[data-scrollbars="hidden"] #annotation-entries-wrapper {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
 }
 
-body:not([data-scrollbars="visible"]) #annotation-entries-wrapper::-webkit-scrollbar { display: none; }
+html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { display: none; }
 
 #annotation-controls {
     user-select:none;

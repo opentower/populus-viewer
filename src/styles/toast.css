@@ -63,9 +63,9 @@
   overflow:scroll;
 }
 
-body[data-scrollbars="hidden"] #toast-content { scrollbar-width: none; }
+html[data-scrollbars="hidden"] #toast-content { scrollbar-width: none; }
 
-body[data-scrollbars="hidden"] #toast-content::-webkit-scrollbar {
+html[data-scrollbars="hidden"] #toast-content::-webkit-scrollbar {
   display: none;
 }
 

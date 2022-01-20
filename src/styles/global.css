@@ -1,11 +1,11 @@
 @import url('https://rsms.me/inter/inter.css');
 
-body[data-scrollbars="hidden"] {
+html[data-scrollbars="hidden"] {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width:none;
 }
 
-body[data-scrollbars="hidden"]::-webkit-scrollbar { display: none; }
+html[data-scrollbars="hidden"]::-webkit-scrollbar { display: none; }
 
 html * { font-family: 'Inter', sans-serif; }
 

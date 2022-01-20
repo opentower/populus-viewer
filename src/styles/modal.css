@@ -35,11 +35,11 @@
   overflow:scroll;
 }
 
-body[data-scrollbars="hidden"] #modalContent {
+html[data-scrollbars="hidden"] #modalContent {
   scrollbar-width: none;
 }
 
-body[data-scrollbars="hidden"] #modalContent::-webkit-scrollbar {
+html[data-scrollbars="hidden"] #modalContent::-webkit-scrollbar {
   display: none;
 }
 
