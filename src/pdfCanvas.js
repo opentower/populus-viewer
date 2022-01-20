@@ -2,6 +2,8 @@ import { h, createRef, Fragment, Component } from 'preact';
 import './styles/pdfView.css'
 import * as PDFJS from "pdfjs-dist/webpack"
 import Client from './client.js'
+import Toast from "./toast.js"
+import History from './history.js'
 import Resource from "./utils/resource.js"
 import './styles/text-layer.css'
 
@@ -49,11 +51,25 @@ export default class PdfCanvas extends Component {
 
   canvas = createRef()
 
+  catchFetchPdfError = e => {
+    Toast.set(<Fragment>
+      <h3 id="toast-header">Couldn't fetch the PDF...</h3>
+      <div>Here's the error message:</div>
+      <pre>{e.message}</pre>
+      </Fragment>
+    )
+    History.push('/')
+    this.errorCondition = true
+  }
+
   async fetchPdf (alias) {
-    const theId = await Client.client.getRoomIdForAlias(alias)
-    await Client.client.joinRoom(theId.room_id)
+    const theId = await Client.client.getRoomIdForAlias(alias).catch(this.catchFetchPdfError)
+    if (this.errorCondition) return
+    await Client.client.joinRoom(theId.room_id).catch(this.catchFetchPdfError)
+    if (this.errorCondition) return
     this.props.setId(theId.room_id)
-    const theRoom = await Client.client.getRoomWithState(theId.room_id)
+    const theRoom = await Client.client.getRoomWithState(theId.room_id).catch(this.catchFetchPdfError)
+    if (this.errorCondition) return
     const thePdf = new Resource(theRoom)
     this.setState({pdfIdentifier: thePdf.url})
     if (!PdfCanvas.PDFStore[thePdf.url]) {
@@ -72,7 +88,9 @@ export default class PdfCanvas extends Component {
           return theClone.arrayBuffer()
         })
         .then(array => PDFJS.getDocument(array).promise)
+        .catch(this.catchFetchPdfError)
     } else { console.log(`found pdf for ${theRoom.name} in store` ) }
+    if (this.errorCondition) return
     PdfCanvas.PDFStore[thePdf.url]
       .then(pdf => this.props.setTotalPages(pdf.numPages))
       .then(this.resolveFetch)

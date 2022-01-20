@@ -70,7 +70,7 @@ html[data-scrollbars="hidden"] #toast-content::-webkit-scrollbar {
 }
 
 #toast-header{
-  margin-top:-5px;
+  margin-top:-3px;
 }
 
 #dismiss-toast {
