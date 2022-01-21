@@ -254,24 +254,22 @@ export default class Chat extends Component {
       }
     })
     // has height set, so that we don't need to set height on the flexbox element
-    return (
-      <div ref={this.chatWrapper} class={props.class} onscroll={this.handleScroll} id="chat-wrapper">
-        <div id="chat-panel">
-          <MessagePanel
-            hasSelection={props.hasSelection}
-            quadsFromPdfSelection={props.quadsFromPdfSelection}
-            pdfId={props.pdfId}
-            pageFocused={props.pageFocused}
-            focus={props.focus} />
-          <div id="messages">
-            {messagedivs}
-            <TypingIndicator key={props.focus.getChild()} roomId={props.focus.getChild()} />
-            {/* The key prop here ensures that typing state is reset when the room changes */}
-          </div>
-          <Anchor ref={this.scrollAnchor} focus={props.focus} topic={state.topic} fullyScrolled={state.fullyScrolled} />
+    return <div ref={this.chatWrapper} class={props.class} onscroll={this.handleScroll} id="chat-wrapper">
+      <div id="chat-panel">
+        <MessagePanel
+          hasSelection={props.hasSelection}
+          quadsFromPdfSelection={props.quadsFromPdfSelection}
+          pdfId={props.pdfId}
+          pageFocused={props.pageFocused}
+          focus={props.focus} />
+        <div id="messages">
+          {messagedivs}
+          <TypingIndicator key={props.focus.getChild()} roomId={props.focus.getChild()} />
+          {/* The key prop here ensures that typing state is reset when the room changes */}
         </div>
+        <Anchor ref={this.scrollAnchor} focus={props.focus} topic={state.topic} fullyScrolled={state.fullyScrolled} />
       </div>
-    )
+    </div>
   }
 }
 

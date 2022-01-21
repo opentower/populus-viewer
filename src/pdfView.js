@@ -168,7 +168,7 @@ export default class PdfView extends Component {
 
   setId = id => {
     // sets the roomId after loading a PDF, and also tries to use that information to update the focus.
-    this.setState({roomId: id}, _ => this.props.roomFocused
+    this.setState({room: Client.client.getRoom(id), roomId: id}, _ => this.props.roomFocused
       ? this.focusByRoomId(this.props.roomFocused)
       : null)
   }
@@ -349,8 +349,6 @@ export default class PdfView extends Component {
 
   setSearch = searchString => this.setState({searchString})
 
-  clearFocus = _ => this.setState({ focus: null, chatVisible: false })
-
   toggleAnnotations = _ => this.setState(oldState => {
     return { annotationsVisible: !oldState.annotationsVisible }
   })
@@ -373,8 +371,7 @@ export default class PdfView extends Component {
   }
 
   focusByRoomId = roomId => {
-    const theRoom = Client.client.getRoom(this.state.roomId) // the roomId here is for the PDF
-    const theRoomState = theRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const theRoomState = this.state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
     if (theAnnotation) {
       const focus = new Location(theAnnotation)
@@ -487,8 +484,7 @@ export default class PdfView extends Component {
 
   closeAnnotation = _ => {
     const isCreator = Client.client.getUserId() === this.state.focus.getCreator()
-    const theRoom = Client.client.getRoom(this.state.roomId)
-    const isMod = theRoom.getMember(Client.client.getUserId()).powerLevel >= 50
+    const isMod = this.state.room.getMember(Client.client.getUserId()).powerLevel >= 50
     if (!confirm('Are you sure you want to close this annotation?')) return
     if (!isCreator && !isMod) {
       alert("Only moderators can close annotations that they didn't create")
@@ -499,7 +495,10 @@ export default class PdfView extends Component {
   }
 
   unsetFocus = _ => {
-    this.setState({secondaryFocus: null, focus: null})
+    // XXX breaking this up into two updates makes the animation work properly.
+    // If you replace the element AND unset chat visibility in one update, then
+    // the annotation panel jumps to the left
+    this.setState({secondaryFocus: null, focus: null}, _ => this.setState({chatVisible: false}))
     History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.props.pageFocused}/`)
   }
 
@@ -523,9 +522,8 @@ export default class PdfView extends Component {
   }
 
   updateAnnotations = _ => {
-    const theRoom = Client.client.getRoom(this.state.roomId)
-    if (theRoom) {
-      const annotationContents = theRoom.getLiveTimeline()
+    if (this.state.room) {
+      const annotationContents = this.state.room.getLiveTimeline()
         .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
         .map(ev => new Location(ev))
         .filter(loc => loc.isValid() &&
@@ -583,7 +581,6 @@ export default class PdfView extends Component {
     const hideUntilWidthAvailable = {
       visibility: state.pdfHeightPx ? null : "hidden"
     }
-    const theRoom = Client.client.getRoom(state.roomId)
     return <div
       style={dynamicDocumentStyle}
       id="content-container"
@@ -645,7 +642,7 @@ export default class PdfView extends Component {
               handleWidgetScroll={this.handleWidgetScroll}
               secondaryFocus={state.secondaryFocus}
               focus={state.focus} />
-          : <div class="panel-widget-1" />
+          : <div class="panel-widget-1"></div>
         }
         { state.searchString
           ? <SearchResults
@@ -668,11 +665,11 @@ export default class PdfView extends Component {
                 focusByRoomId={this.focusByRoomId}
                 focusNext={this.focusNext}
                 focusPrev={this.focusPrev}
-                room={theRoom}
+                room={state.room}
               />
           }
         <div class="panel-widget-controls">
-          {theRoom ? <RoomIcon roomId={state.roomId} size={42} name={theRoom.name} avatarUrl={theRoom.getMxcAvatarUrl()} /> : null }
+          {state.room ? <RoomIcon roomId={state.roomId} size={42} name={state.room.name} avatarUrl={state.room.getMxcAvatarUrl()} /> : null }
           <hr />
           <button data-active={state.chatVisible} disabled={!state.focus} title="show chat" id="show-annotations" onclick={this.toggleChat}>
             {Icons.annotation}
@@ -690,6 +687,7 @@ export default class PdfView extends Component {
         total={state.totalPages}
         focus={state.focus}
         roomId={state.roomId}
+        room={state.room}
         focusNext={this.focusNext}
         focusPrev={this.focusPrev}
         nextPage={this.nextPage}
@@ -706,10 +704,10 @@ export default class PdfView extends Component {
         zoomFactor={state.zoomFactor} />
       <div data-hide-buttons={state.hideButtons} id="pdf-mobile-buttons">
          {state.chatVisible
-          ? <button title="focus annotation list" id="show-annotations" onclick={this.clearFocus}>
-            {Icons.list}
-          </button>
-          : null
+           ? <button title="focus annotation list" id="show-annotations" onclick={this.unsetFocus}>
+             {Icons.list}
+           </button>
+           : null
         }
         <button title="toggle chat" id="panel-toggle" onclick={this.toggleSidebar}>
           {state.chatVisible || state.annotationListingVisible ? Icons.close : Icons.menu }

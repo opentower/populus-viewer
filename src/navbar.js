@@ -7,6 +7,7 @@ import { UserColor } from "./utils/colors.js"
 import './styles/navbar.css';
 import { spaceChild } from "./constants.js"
 import History from './history.js'
+import Resource from "./utils/resource.js"
 import Client from './client.js'
 import Modal from './modal.js'
 import Invite from './invite.js'
@@ -64,6 +65,13 @@ export default class Navbar extends Component {
 
   mainMenu = _ => History.push("/")
 
+  download = _ => {
+    if (confirm("do you want to download the file you're annotating?")) {
+      const file = new Resource(this.props.room)
+      window.open(file.httpUrl)
+    }
+  }
+
   openInvite = _ => Modal.set(<Invite roomId={this.props.roomId} />)
 
   zoomOut = _ => this.props.setZoom(this.props.zoomFactor - 0.1)
@@ -112,6 +120,7 @@ export default class Navbar extends Component {
         </div>
         <div ref={this.bottomWrapper} data-searchFocused={state.searchFocused} class="nav-button-wrapper bottom-wrapper">
           <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button>
+          <button title="Download" onClick={this.download}>{Icons.download}</button>
           <button title="Zoom out&#013;Shortcut: -" onClick={this.zoomOut}>{Icons.zoomout}</button>
           <button title="Zoom in&#013;Shortcut: +" onClick={this.zoomIn}>{Icons.zoomin}</button>
           <button title="Toggle annotation visibility&#013;Shortcut: Alt + v" onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
