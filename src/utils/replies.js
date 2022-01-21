@@ -73,24 +73,40 @@ export function generateFallbackHtml (event) {
         `<br>${replyHtml}</blockquote></mx-reply>`)
 }
 
-// based on https://github.com/matrix-org/matrix-react-sdk/blob/33e8edb3d508d6eefb354819ca693b7accc695e7/src/components/views/rooms/EditMessageComposer.js
+// for fallback when no live event is available - strips mx-reply tag
 export function getFallbackHtml (content) {
   const html = content.formatted_body
   if (!html) return ''
   const rootNode = new DOMParser().parseFromString(html, 'text/html').body
-  const mxReply = rootNode.querySelector('mx-reply > blockquote')
+  const blockQuote = rootNode.querySelector('mx-reply > blockquote')
   // remove the usual boilerplate to avoid unwanted redirection to https://matrix.to
-  mxReply.removeChild(rootNode.querySelector('a'))
-  mxReply.removeChild(rootNode.querySelector('a'))
-  mxReply.removeChild(rootNode.querySelector('br'))
-  return mxReply ? mxReply.outerHTML : ''
+  blockQuote?.removeChild(rootNode.querySelector('a'))
+  blockQuote?.removeChild(rootNode.querySelector('a'))
+  blockQuote?.removeChild(rootNode.querySelector('br'))
+  return blockQuote ? blockQuote.outerHTML : ''
 }
 
 export function getFallbackPlain (content) {
+  return getReplyPrefixPlain(content).map(l => l.slice(2))
+}
+
+export function getReplyPrefixHtml(content) {
+  const html = content.formatted_body
+  if (!html) return ''
+  const rootNode = new DOMParser().parseFromString(html, 'text/html').body
+  return rootNode.querySelector('mx-reply').outerHTML
+}
+
+export function getReplyPrefixPlain (content) {
   const body = content.body
-  const lines = body.split('\n').map(l => l.trim())
-  if (lines.length > 2 && lines[0].startsWith('> ') && lines[1].length === 0) {
-    return `${lines[0]}\n\n`
+  const lines = body.trim().split('\n')
+  if (lines.length > 2 && lines[0].startsWith('> <')) {
+    const header = []
+    for (const line of lines) {
+      if (line.startsWith('> ')) header.push(line)
+      else break
+    }
+    return `${header.join('\n')}\n\n`
   }
   return ''
 }

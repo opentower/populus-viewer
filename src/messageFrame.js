@@ -256,8 +256,8 @@ class MessageEditor extends Component {
     }
     if (Replies.isReply(this.currentContent)) {
       theReplacementContent["m.relates_to"] = this.currentContent["m.relates_to"]
-      theReplacementContent.body = Replies.getFallbackPlain(this.currentContent) + theReplacementContent.body
-      theReplacementContent.formatted_body = Replies.getFallbackHtml(this.currentContent) + theReplacementContent.formatted_body
+      theReplacementContent.body = Replies.getReplyPrefixPlain(this.currentContent) + theReplacementContent.body
+      theReplacementContent.formatted_body = Replies.getReplyPrefixHtml(this.currentContent) + theReplacementContent.formatted_body
     }
     const theReactionContent = {
       body: "an edit occurred", // fallback for clients that don't handle edits. we can do something more descriptive
