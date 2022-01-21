@@ -22,6 +22,7 @@
 
 /* workaround for chrome bug with resizing the chat panel itself */
 .panel-widget-1, .panel-widget-2 {
+    position:absolute;
     display:inline-flex;
     height:100%;
     overflow-y:auto;
@@ -32,21 +33,19 @@
 }
 
 .panel-widget-1 {
-    position:absolute;
     width: var(--widget-1-width);
     min-width: var(--widget-1-width);
 }
 
 .panel-widget-2 {
-    position:absolute;
     left: calc(var(--chatVisible) * var(--widget-1-width));
     width: var(--widget-2-width);
-    border-left:1px solid #adadad;
     min-width: var(--widget-2-width);
+    border-left:1px solid #adadad;
     background:white;
 }
 
-html[data-scrollbars="hidden"] .panel-widget-2
+html[data-scrollbars="hidden"] .panel-widget-2,
 html[data-scrollbars="hidden"] .panel-widget-1 {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
