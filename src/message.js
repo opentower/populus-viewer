@@ -141,10 +141,14 @@ class ReplyPreview extends Component {
   // eventually will want a mechanism for refreshing on receipt of edits
   componentDidMount() {
     this.getLiveEvent()
+    renderLatexInElement(this.replyPreview.current)
+    processLinks(this.replyPreview.current)
   }
 
   componentDidUpdate() {
     this.getLiveEvent()
+    renderLatexInElement(this.replyPreview.current)
+    processLinks(this.replyPreview.current)
   }
 
   async getLiveEvent() {
@@ -185,6 +189,8 @@ class ReplyPreview extends Component {
         .filter(event => event.getContent()["m.relates_to"].rel_type === "m.replace")
       : []
   }
+
+  replyPreview = createRef()
 
   fromLiveEvent = _ => {
     const content = this.getCurrentEdit()
@@ -257,7 +263,7 @@ class ReplyPreview extends Component {
     return <Fragment>
       <div class="reply-preface">In reply to:</div>
       <UserInfoHeader isReply userId={this.state.liveEvent.getSender()} />
-      <div style={senderColors.styleVariables} class="reply-preview">
+      <div ref={this.replyPreview} style={senderColors.styleVariables} class="reply-preview">
         {displayBody}
       </div>
     </Fragment>
