@@ -32,7 +32,6 @@
   padding:30px;
   padding-right:60px;
   z-index:21;
-  overflow:scroll;
 }
 
 html[data-scrollbars="hidden"] #modalContent {

@@ -60,7 +60,6 @@
   background:#efefef;
   padding:10px;
   z-index:21;
-  overflow:scroll;
 }
 
 html[data-scrollbars="hidden"] #toast-content { scrollbar-width: none; }
