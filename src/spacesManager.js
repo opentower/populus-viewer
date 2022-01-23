@@ -193,13 +193,13 @@ class SpaceListing extends Component {
     this.setState({limit})
   }
 
-  refreshModal = _ => Modal.isVisible()
+  refreshModal = _ => Modal.getTitle() === "addChild"
     ? Modal.set(<AddChild
         children={this.state.children.slice(1)}
         nextBatch={this.state.nextBatch}
         pageChildren={this.pageChildren}
         room={this.props.room}
-      />)
+      />, "addChild")
     : null
 
   handleStateUpdate = e => {
@@ -230,7 +230,7 @@ class SpaceListing extends Component {
       nextBatch={this.state.nextBatch}
       pageChildren={this.pageChildren}
       room={this.props.room}
-      />)
+      />, "addChild")
   }
 
   openSettings = _ => {
