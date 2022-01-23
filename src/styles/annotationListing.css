@@ -143,7 +143,7 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
 .annotation-listing-creator::before {
   content: "";
   position: absolute;
-  bottom:8px;
+  bottom:21px;
   left:-25px;
   border-right: 10px solid var(--user_light);
   border-top: 10px solid var(--user_light);
@@ -154,7 +154,7 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
 .annotation-listing-creator::after {
   content: "";
   position: absolute;
-  bottom:13px;
+  bottom:26px;
   left:-25px;
   border-right: 9px solid white;
   border-top: 9px solid white;
@@ -163,7 +163,7 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
 }
 
 .annotation-listing-comment-unread + .annotation-listing-info .annotation-listing-creator::before {
-  bottom:1px;
+  bottom:13px;
   left:-35px;
   border-right: 15px solid var(--user_light);
   border-top: 15px solid var(--user_light);
@@ -172,7 +172,7 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
 }
 
 .annotation-listing-comment-unread + .annotation-listing-info .annotation-listing-creator::after {
-  bottom:14px;
+  bottom:27px;
   left:-28px;
 }
 
