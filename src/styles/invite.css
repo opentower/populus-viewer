@@ -35,5 +35,6 @@
 
 #invite-add-members, #invite-remove-members {
   height:200px;
+  max-height:20vh;
   overflow-y: scroll;
 }
