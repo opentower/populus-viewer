@@ -79,6 +79,7 @@
     display: flex;
     padding-bottom:5px;
     flex-wrap:wrap;
+    gap:5px;
     align-items: center;
 }
 
@@ -88,15 +89,7 @@
   margin-right:10px;
 }
 
-.room-listing-data-row .invite-pill, 
-.room-listing-data-row .member-pill {
-  margin-top:5px;
-  margin-bottom:5px;
-}
-
-.room-listing-data .invite-pill {
-  opacity:.5;
-}
+.room-listing-data .invite-pill { opacity:.5; }
 
 .room-listing-heading > a {
   font-size:16pt;

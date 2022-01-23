@@ -1,12 +1,15 @@
 .invite-candidate,
 .disinvite-candidate,
 .removal-candidate {
-  display:block;
+  display:flex;
   position:relative;
   background:none;
   border:none;
   font-size:unset;
   cursor:pointer;
+  align-items:center;
+  margin-top:5px;
+  max-width:100%;
 }
 
 .invite-candidate:hover,
@@ -19,12 +22,6 @@
 .disinvite-candidate .small-icon,
 .removal-candidate .small-icon{
   padding-right: 10px;
-}
-
-.invite-candidate .small-icon > svg,
-.disinvite-candidate .small-icon > svg,
-.removal-candidate .small-icon > svg {
-  vertical-align: bottom;
 }
 
 #invite-search-divider {

@@ -1,7 +1,9 @@
 .member-pill {
     border-radius:5px;
-    margin-right:5px;
     padding:5px;
     white-space: nowrap;
     color:black;
+    display:inline-block;
+    overflow-x:hidden;
+    text-overflow:ellipsis;
 }

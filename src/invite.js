@@ -79,7 +79,7 @@ class Invitation extends Component {
     .catch(alert)
 
   render(props) {
-    return <button class="invite-candidate" style={{ marginTop: "15px" }} onclick={this.invite} >
+    return <button class="invite-candidate" onclick={this.invite} >
       <span class="small-icon">{Icons.userPlus}</span>
       <UserPill user={props.user} />
     </button>
@@ -92,7 +92,7 @@ class Disinvitation extends Component {
     .catch(alert)
 
   render(props) {
-    return <button class="disinvite-candidate" style={{ marginTop: "15px" }} onclick={this.kick}>
+    return <button class="disinvite-candidate" onclick={this.kick}>
       <span class="small-icon">{Icons.userMinus}</span>
       <MemberPill member={props.member} />
     </button>
@@ -105,7 +105,7 @@ class Removal extends Component {
     .catch(alert)
 
   render(props) {
-    return <button class="removal-candidate" style={{ marginTop: "15px" }} onclick={this.kick}>
+    return <button class="removal-candidate" onclick={this.kick}>
       <span class="small-icon">{Icons.userMinus}</span>
       <MemberPill member={props.member} />
     </button>
@@ -143,7 +143,7 @@ class ServerResults extends Component {
         <button id="invite-search-directory" class="styled-button" disabled={state.pending} onclick={this.serverSearch}>
           {state.fired
             ? "Search again?"
-            : "Search for people you don't already know?"
+            : "Search for more people?"
           }
         </button>
       </div>
