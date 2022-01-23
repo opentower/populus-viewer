@@ -1,0 +1,42 @@
+.invite-candidate,
+.disinvite-candidate,
+.removal-candidate {
+  display:block;
+  position:relative;
+  background:none;
+  border:none;
+  font-size:unset;
+  cursor:pointer;
+}
+
+.invite-candidate:hover,
+.disinvite-candidate:hover,
+.removal-candidate:hover {
+  left:5px;
+}
+
+.invite-candidate .small-icon,
+.disinvite-candidate .small-icon,
+.removal-candidate .small-icon{
+  padding-right: 10px;
+}
+
+.invite-candidate .small-icon > svg,
+.disinvite-candidate .small-icon > svg,
+.removal-candidate .small-icon > svg {
+  vertical-align: bottom;
+}
+
+#invite-search-divider {
+  margin-top:20px;
+  margin-bottom:20px;
+}
+
+#invite-search-directory {
+  margin-top:20px;
+}
+
+#invite-add-members, #invite-remove-members {
+  height:200px;
+  overflow-y: scroll;
+}

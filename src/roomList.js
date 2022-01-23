@@ -188,7 +188,7 @@ class RoomEntry extends Component {
 
   toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
 
-  openInvite = _ => Modal.set(<Invite roomId={this.props.room.roomId} />)
+  openInvite = _ => Modal.set(<Invite room={this.props.room} />)
 
   openSettings = _ => Modal.set(<RoomSettings room={this.props.room} />)
 

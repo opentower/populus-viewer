@@ -72,7 +72,7 @@ export default class Navbar extends Component {
     }
   }
 
-  openInvite = _ => Modal.set(<Invite roomId={this.props.roomId} />)
+  openInvite = _ => Modal.set(<Invite roomId={this.props.room} />)
 
   zoomOut = _ => this.props.setZoom(this.props.zoomFactor - 0.1)
 
