@@ -51,9 +51,11 @@ export default class PdfCanvas extends Component {
 
   canvas = createRef()
 
-  catchFetchPdfError = e => {
+  catchFetchPdfError = alias => e => {
     Toast.set(<Fragment>
       <h3 id="toast-header">Couldn't fetch the PDF...</h3>
+      <div>Tried to fetch: </div>
+      <pre>{alias}</pre>
       <div>Here's the error message:</div>
       <pre>{e.message}</pre>
       </Fragment>
@@ -63,12 +65,12 @@ export default class PdfCanvas extends Component {
   }
 
   async fetchPdf (alias) {
-    const theId = await Client.client.getRoomIdForAlias(alias).catch(this.catchFetchPdfError)
+    const theId = await Client.client.getRoomIdForAlias(alias).catch(this.catchFetchPdfError(alias))
     if (this.errorCondition) return
-    await Client.client.joinRoom(theId.room_id).catch(this.catchFetchPdfError)
+    await Client.client.joinRoom(theId.room_id).catch(this.catchFetchPdfError(alias))
     if (this.errorCondition) return
     this.props.setId(theId.room_id)
-    const theRoom = await Client.client.getRoomWithState(theId.room_id).catch(this.catchFetchPdfError)
+    const theRoom = await Client.client.getRoomWithState(theId.room_id).catch(this.catchFetchPdfError(alias))
     if (this.errorCondition) return
     const thePdf = new Resource(theRoom)
     this.setState({pdfIdentifier: thePdf.url})
@@ -88,7 +90,7 @@ export default class PdfCanvas extends Component {
           return theClone.arrayBuffer()
         })
         .then(array => PDFJS.getDocument(array).promise)
-        .catch(this.catchFetchPdfError)
+        .catch(this.catchFetchPdfError(alias))
     } else { console.log(`found pdf for ${theRoom.name} in store` ) }
     if (this.errorCondition) return
     PdfCanvas.PDFStore[thePdf.url]
