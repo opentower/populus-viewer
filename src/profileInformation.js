@@ -66,6 +66,10 @@ export default class ProfileInfomation extends Component {
     return <div id="profile-information">
        <h2>Update Your Profile</h2>
       <form id="profileInformationForm" ref={this.mainForm} onsubmit={this.updateProfile}>
+        <label>My User Id</label>
+        <div id="profile-information-userid">
+          {Client.client.getUserId()}
+        </div>
         <label>My Display Name</label>
         <input onkeydown={this.handleKeydown} placeholder={state.displayName} ref={this.displayNameInput} type="text" />
         <label>My Avatar</label>
