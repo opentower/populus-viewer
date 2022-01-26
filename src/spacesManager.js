@@ -159,7 +159,8 @@ class SpaceListing extends Component {
     super(props)
     this.state = {
       actionsVisible: false,
-      children: [],
+      // We use an array here to avoid duplicating children
+      children: {},
       limit: 30,
       nextBatch: null
     }
@@ -177,10 +178,11 @@ class SpaceListing extends Component {
   loadChildren = async _ => {
     // dendrite will still use the fallback route, which can't restrict depth
     const response = await Client.client.getRoomHierarchy(this.props.room.roomId, 30, 1, false, this.state.nextBatch)
-    this.setState({
-      children: this.state.children.concat(response.rooms),
-      nextBatch: response.next_batch
-    }, this.refreshModal)
+    const children = this.state.children
+    for (const child of response.rooms) {
+      if (child.room_id != this.props.room.roomId) children[child.room_id] = child
+    }
+    this.setState({ children, nextBatch: response.next_batch }, this.refreshModal)
   }
 
   pageChildren = async _ => {
@@ -189,13 +191,13 @@ class SpaceListing extends Component {
 
   addChildren = _ => {
     const limit = this.state.limit + 15
-    if (limit > this.state.children.length) this.pageChildren()
+    if (limit > Object.keys(this.state.children).length) this.pageChildren()
     this.setState({limit})
   }
 
   refreshModal = _ => Modal.getTitle() === "addChild"
     ? Modal.set(<AddChild
-        children={this.state.children.slice(1)}
+        children={Object.values(this.state.children)}
         nextBatch={this.state.nextBatch}
         pageChildren={this.pageChildren}
         room={this.props.room}
@@ -207,13 +209,13 @@ class SpaceListing extends Component {
       if (e.getContent().via) {
         const responsePromise = Client.client.getRoomHierarchy(e.getStateKey(), 1, 0)
         responsePromise.then(response => {
-          const children = this.state.children.concat(response.rooms)
-          this.setState({ children }, this.refreshModal)
+          const [child] = response.rooms
+          this.state.children[child.room_id] = child
+          this.setState({ children: this.state.children }, this.refreshModal)
         })
       } else {
-        const children = this.state.children
-          .filter(c => c.room_id !== e.getStateKey())
-        this.setState({ children }, this.refreshModal)
+        delete this.state.children[e.getStateKey()]
+        this.setState({ children: this.state.children  }, this.refreshModal)
       }
     }
   }
@@ -226,7 +228,7 @@ class SpaceListing extends Component {
     this.setState({ actionsVisible: false })
     Modal.set(<AddChild
       // the root is always first in the listing
-      children={this.state.children.slice(1)}
+      children={Object.values(this.state.children)}
       nextBatch={this.state.nextBatch}
       pageChildren={this.pageChildren}
       room={this.props.room}
@@ -268,7 +270,7 @@ class SpaceListing extends Component {
       <div class="space-listing-children">
         {state.children
           // the root is always first in the listing
-          ? state.children.slice(1, state.limit + 1).map(child => <RoomIcon
+          ? Object.values(state.children).slice(0, state.limit).map(child => <RoomIcon
               key={child.room_id}
               size={50}
               roomId={child.room_id}
@@ -278,7 +280,7 @@ class SpaceListing extends Component {
           : null // insert loading bling here.
         }
         {isAdmin && props.dragging ? <button ondrop={_ => alert('drop not implemented!')} class="add-child-to-collection">+</button> : null }
-        {(state.nextBatch || state.limit < state.children.length)
+        {(state.nextBatch || state.limit < Object.values(state.children).length)
           ? <div class="space-listing-more" onclick={this.addChildren}>...</div>
           : null
         }
