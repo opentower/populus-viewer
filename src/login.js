@@ -221,17 +221,25 @@ class Registration extends Component {
     else this.server = serverRoot
     localStorage.setItem("baseUrl", this.server)
     await Client.initClient()
-    await Client.client.register(this.username.toLowerCase(), this.password, undefined, {}).catch(
-      err => {
-        if (err.data.session && err.data.params["m.login.recaptcha"]) {
-          this.authSession = err.data.session
-          this.recaptchaKey = err.data.params["m.login.recaptcha"].public_key
-        } else {
-          alert("Error: can't start recaptcha registration flow with this server")
-          // need to also analyze for 404 and other failures here.
+    try {
+      await Client.client.register(this.username.toLowerCase(), this.password, undefined, {})
+      this.setState({ registrationStage: "awaiting-recaptcha" })
+    } catch (err) {
+      if (err.data?.session && err.data.params["m.login.recaptcha"]) {
+        this.authSession = err.data.session
+        this.recaptchaKey = err.data.params["m.login.recaptcha"].public_key
+      } else {
+        switch (err.name) {
+          // should analyze for other errors here.
+          case "ConnectionError" : {
+            alert(`Can't connect to a server at\n\n${this.server}\n\n Double-check that address?`)
+            break
+          }
+          default : alert("Error: can't start recaptcha registration flow with this server")
         }
-      })
-    this.setState({ registrationStage: "awaiting-recaptcha" })
+      }
+      this.setState({ registrationStage: "awaiting-server" })
+    }
   }
 
   recaptchaHandler = e => {
