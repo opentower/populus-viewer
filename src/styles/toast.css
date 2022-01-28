@@ -64,13 +64,21 @@
 
 html[data-scrollbars="hidden"] #toast-content { scrollbar-width: none; }
 
-html[data-scrollbars="hidden"] #toast-content::-webkit-scrollbar {
-  display: none;
+html[data-scrollbars="hidden"] #toast-content::-webkit-scrollbar { display: none; }
+
+#toast-content pre {
+  overflow-y: scroll;
+  text-overflow:ellipsis;
 }
 
-#toast-header{
-  margin-top:-3px;
+html[data-scrollbars="hidden"] #toast-content pre {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width:none;
 }
+
+html[data-scrollbars="hidden"] #toast-content pre::-webkit-scrollbar { display: none; }
+
+#toast-header{ margin-top:-3px; }
 
 #dismiss-toast {
   cursor:pointer;

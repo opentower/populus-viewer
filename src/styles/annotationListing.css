@@ -176,6 +176,23 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
   left:-28px;
 }
 
+.annotation-listing-comment pre, .annotation-listing-comment-unread pre{
+  overflow-y: scroll;
+  max-width: calc(var(--widget-2-width) - 50px);
+  text-overflow:ellipsis;
+}
+
+html[data-scrollbars="hidden"] .annotation-listing-comment-unread pre,
+html[data-scrollbars="hidden"] .annotation-listing-comment pre {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width:none;
+}
+
+html[data-scrollbars="hidden"] .annotation-listing-comment pre::-webkit-scrollbar,
+html[data-scrollbars="hidden"] .annotation-listing-comment-unread pre::-webkit-scrollbar { 
+  display: none; 
+}
+
 .annotation-listing-creator {
     position:relative;
     font-size:10pt;

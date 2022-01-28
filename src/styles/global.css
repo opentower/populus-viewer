@@ -7,10 +7,14 @@ html[data-scrollbars="hidden"] {
 
 html[data-scrollbars="hidden"]::-webkit-scrollbar { display: none; }
 
-html * { font-family: 'Inter', sans-serif; }
+code { font-family: 'IBM Plex Mono', monospace; }
+
+pre { font-family: 'IBM Plex Mono', monospace; }
+
+* { font-family: 'Inter', sans-serif; }
 
 @supports (font-variation-settings: normal) {
-  html * { font-family: 'Inter var', sans-serif; }
+  * { font-family: 'Inter var', sans-serif; }
 }
 
 body { 
