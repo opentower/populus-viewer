@@ -223,11 +223,11 @@ class Registration extends Component {
     await Client.initClient()
     try {
       await Client.client.register(this.username.toLowerCase(), this.password, undefined, {})
-      this.setState({ registrationStage: "awaiting-recaptcha" })
     } catch (err) {
       if (err.data?.session && err.data.params["m.login.recaptcha"]) {
         this.authSession = err.data.session
         this.recaptchaKey = err.data.params["m.login.recaptcha"].public_key
+        this.setState({ registrationStage: "awaiting-recaptcha" })
       } else {
         switch (err.name) {
           // should analyze for other errors here.
@@ -237,8 +237,8 @@ class Registration extends Component {
           }
           default : alert("Error: can't start recaptcha registration flow with this server")
         }
+        this.setState({ registrationStage: "awaiting-server" })
       }
-      this.setState({ registrationStage: "awaiting-server" })
     }
   }
 
