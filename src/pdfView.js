@@ -141,7 +141,7 @@ export default class PdfView extends Component {
     // if two fingers are down, see if we're pinching
     if (this.pointerCache.length === 2) {
       const touchDistance = Math.abs(this.pointerCache[0].clientX - this.pointerCache[1].clientX)
-      this.setZoom(this.initialZoom * (touchDistance / this.initialDistance))
+      this.setZoom(_ => this.initialZoom * (touchDistance / this.initialDistance))
     }
   }
 
@@ -353,7 +353,8 @@ export default class PdfView extends Component {
     return { annotationsVisible: !oldState.annotationsVisible }
   })
 
-  setZoom = zoomFactor => {
+  setZoom = zoomFunction => {
+    let zoomFactor = zoomFunction(this.state.zoomFactor)
     if (zoomFactor < 1) this.setState({zoomFactor: 1})
     else {
       zoomFactor = Math.min(zoomFactor, 5)
@@ -455,8 +456,8 @@ export default class PdfView extends Component {
     if (e.altKey && e.key === 'r') this.closeAnnotation()
     if (e.altKey && e.key === 'v') this.toggleAnnotations()
     if (e.ctrlKey || e.altKey || e.metaKey) return // Don't catch browser shortcuts
-    if (e.key === '+' || e.key === '=') this.setZoom(this.state.zoomFactor + 0.1)
-    if (e.key === '-') this.setZoom(this.state.zoomFactor - 0.1)
+    if (e.key === '+' || e.key === '=') this.setZoom(zoomFactor => zoomFactor + 0.1)
+    if (e.key === '-') this.setZoom(zoomFactor => zoomFactor - 0.1)
     if (e.key === "Esc" || e.key === "Escape") History.push("/")
     if (e.key === 'j' || e.key === "ArrowRight") this.nextPage()
     if (e.key === 'k' || e.key === "ArrowLeft") this.prevPage()
@@ -700,8 +701,7 @@ export default class PdfView extends Component {
         setSearch={this.setSearch}
         startPindrop={this.startPindrop}
         pindropMode={state.pindropMode}
-        setZoom={this.setZoom}
-        zoomFactor={state.zoomFactor} />
+        setZoom={this.setZoom} />
       <div data-hide-buttons={state.hideButtons} id="pdf-mobile-buttons">
          {state.chatVisible
            ? <button title="focus annotation list" id="show-annotations" onclick={this.unsetFocus}>

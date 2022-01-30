@@ -74,9 +74,9 @@ export default class Navbar extends Component {
 
   openInvite = _ => Modal.set(<Invite room={this.props.room} />)
 
-  zoomOut = _ => this.props.setZoom(this.props.zoomFactor - 0.1)
+  zoomOut = _ => this.props.setZoom(zoomFactor => zoomFactor - 0.1)
 
-  zoomIn = _ => this.props.setZoom(this.props.zoomFactor + 0.1)
+  zoomIn = _ => this.props.setZoom(zoomFactor => zoomFactor + 0.1)
 
   searchPredicate = e => e.key === "/" && e.altKey
 
