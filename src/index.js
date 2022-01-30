@@ -23,7 +23,7 @@ class PopulusViewer extends Component {
     const queryParameters = new URLSearchParams(window.location.search)
     this.loginToken = queryParameters.get('loginToken')
     if (localStorage.getItem('scrollbars')) document.documentElement.dataset.scrollbars = localStorage.getItem('scrollbars')
-    else document.body.dataset.scrollbars = "hidden"
+    else document.documentElement.dataset.scrollbars = "hidden"
     if (Client.isResumable()) Client.initClient().then(this.loginHandler)
     else if (this.loginToken) {
       Client.initClient()
