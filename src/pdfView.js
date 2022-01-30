@@ -683,6 +683,7 @@ export default class PdfView extends Component {
       <Navbar hasSelection={state.hasSelection}
         openAnnotation={this.openAnnotation}
         closeAnnotation={this.closeAnnotation}
+        hasAnnotations={this.state.filteredAnnotationContents.length > 0}
         pageFocused={this.getPage()}
         pdfFocused={props.pdfFocused}
         total={state.totalPages}

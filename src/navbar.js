@@ -100,7 +100,7 @@ export default class Navbar extends Component {
           <button title="Add annotation&#013;Shortcut: Alt + a "
             disabled={(props.hasSelection || props.pindropMode?.x) ? null : "disabled"}
             onclick={props.openAnnotation}>{Icons.addAnnotation}</button>
-          <button title="Go to previous annotation&#013;Shortcut: Alt + Shift + Tab" onclick={props.focusPrev}>{Icons.chevronsLeft}</button>
+          <button title="Go to previous annotation&#013;Shortcut: Alt + Shift + Tab" disabled={!props.hasAnnotations} onclick={props.focusPrev}>{Icons.chevronsLeft}</button>
           <button title="Go to previous page&#013;Shortcuts: k, &larr;" disabled={props.pageFocused > 1 ? null : "disabled"} onclick={props.prevPage}>{Icons.chevronLeft}</button>
           <form onSubmit={this.handleSubmit}>
             <button onclick={this.togglePageNav} type="button" class={state.pageViewVisible ? "nav-toggled" : null} title="Show page navigation">{Icons.page}</button>
@@ -114,7 +114,7 @@ export default class Navbar extends Component {
             <span ref={this.pageTotal} id="nav-total-pages">{props.total}</span>
           </form>
           <button title="Go to next page&#013;Shortcuts: j, &rarr;" disabled={props.total > props.pageFocused ? null : "disabled"} onclick={props.nextPage}>{Icons.chevronRight}</button>
-          <button title="Go to next annotation&#013;Shortcut: Alt + Tab" onclick={props.focusNext}>{Icons.chevronsRight}</button>
+          <button title="Go to next annotation&#013;Shortcut: Alt + Tab" disabled={!props.hasAnnotations} onclick={props.focusNext}>{Icons.chevronsRight}</button>
           <button title="Remove annotation&#013;Shortcut: Alt + r" disabled={props.focus && !props.hasSelection ? null : "disabled"} onclick={props.closeAnnotation}>{Icons.removeAnnotation}</button>
           <button title="More options" onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
         </div>
