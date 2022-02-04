@@ -1,8 +1,6 @@
 import { h, Component } from 'preact';
 import './styles/splash.css'
 import Client from './client.js'
-import { lastViewed } from './constants.js'
-import History from './history.js'
 
 export default class SplashView extends Component {
   pollInitialized = async () => {
