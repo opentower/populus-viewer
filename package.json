@@ -29,7 +29,7 @@
     "style-loader": "^2.0.0",
     "webpack": "^5.27.1",
     "webpack-cli": "^4.5.0",
-    "webpack-dev-server": "^3.11.2",
+    "webpack-dev-server": "^4.7.4",
     "worker-loader": "^3.0.8"
   },
   "author": "Graham Leach-Krouse",
@@ -44,6 +44,7 @@
     "png-chunks-extract": "^1.0.0",
     "preact": "^10.5.12",
     "preact-router": "^3.2.1",
-    "sanitize-html": "^2.3.3"
+    "sanitize-html": "^2.3.3",
+    "url": "^0.11.0"
   }
 }
