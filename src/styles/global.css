@@ -127,6 +127,7 @@ button.small-icon { cursor:pointer }
   bottom:10px;
   display:inline-flex;
   align-items: center;
+  border:none;
   justify-content: space-around;
   color:white;
   font-size:8pt;

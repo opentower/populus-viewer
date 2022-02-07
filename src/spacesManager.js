@@ -43,7 +43,7 @@ export default class SpacesManager extends Component {
     Client.client.off("Room.name", this.handleRoom)
   }
 
-  searchPush = s => this.props.setSearch(`${this.props.searchFilter} "${s}"`)
+  filterSet = s => this.props.setFilterItems([s])
 
   isCollection(room) {
     const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
@@ -60,7 +60,7 @@ export default class SpacesManager extends Component {
     return <div id="spaces-manager">
       <h1>Collections</h1>
       <div id="spaces-list">
-        {state.spaces.map(room => <SpaceListing searchPush={this.searchPush} narrow={props.narrow} key={room.roomId} room={room} />)}
+        {state.spaces.map(room => <SpaceListing filterSet={this.filterSet} narrow={props.narrow} key={room.roomId} room={room} />)}
       </div>
       <div>
         <button onclick={this.createCollection} id="create-space">+ Create New Collection</button>
@@ -220,7 +220,7 @@ class SpaceListing extends Component {
     }
   }
 
-  searchMe = _ => this.props.searchPush(`*${this.props.room.name}`)
+  searchMe = _ => this.props.filterSet(`*${this.props.room.name}`)
 
   toggleActions = _ => this.setState(oldState => { return { actionsVisible: !oldState.actionsVisible } })
 

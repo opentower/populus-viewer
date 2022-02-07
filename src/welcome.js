@@ -6,6 +6,7 @@ import RoomList from './roomList.js'
 import SpacesManager from './spacesManager.js'
 import Client from './client.js'
 import SearchBar from './search.js'
+import { toWords } from './utils/strings.js'
 import ProfileInformation from './profileInformation.js'
 import NotificationListing from './notifications.js'
 import * as Icons from './icons.js'
@@ -24,6 +25,7 @@ export default class WelcomeView extends Component {
       view: null,
       inputFocus: false,
       searchFilter: "",
+      filterItems: [],
       narrow: document.body.offsetWidth <= 600,
       avatarUrl: Client.client.getHttpUriForMxcFromHS(this.user.avatarUrl, 30, 30, "crop")
     }
@@ -61,6 +63,17 @@ export default class WelcomeView extends Component {
   }
 
   setSearch = s => this.setState({ searchFilter: s})
+
+  setFilterItems = s => this.setState({ filterItems: s})
+
+  submitSearch = _ => {
+    this.setState(oldState => {
+      return {
+        searchFilter: "",
+        filterItems: oldState.filterItems.concat(toWords(oldState.searchFilter))
+      }
+    })
+  }
 
   setFocus = b => this.setState({
     inputFocus: b,
@@ -106,6 +119,7 @@ export default class WelcomeView extends Component {
           <SearchBar
             search={state.searchFilter}
             setSearch={this.setSearch}
+            submit={this.submitSearch}
             setFocus={this.setFocus} />
           { !state.inputFocus && <Fragment>
             {state.narrow
@@ -135,10 +149,10 @@ export default class WelcomeView extends Component {
                     <SpacesManager searchFilter={state.searchFilter} setSearch={this.setSearch} narrow={state.narrow} />
                 </div>
                 : state.narrow
-                  ? <RoomList narrow={state.narrow} searchFilter={state.searchFilter} />
+                  ? <RoomList narrow={state.narrow} setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />
                   : <div id="welcome-split">
-                    <SpacesManager searchFilter={state.searchFilter} setSearch={this.setSearch} narrow={state.narrow} />
-                    <RoomList narrow={state.narrow} searchFilter={state.searchFilter} />
+                    <SpacesManager setFilterItems={this.setFilterItems} filterItems={state.filterItems} narrow={state.narrow} />
+                    <RoomList narrow={state.narrow} setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />
                   </div>
         }
       </div>

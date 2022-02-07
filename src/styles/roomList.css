@@ -9,6 +9,39 @@
     margin-left: 1em;
 }
 
+#room-filters {
+    margin-left: 1em;
+    padding-top: 1em;
+}
+
+.room-filter-listing:first-child {
+    padding-left:.5em;
+}
+
+.room-filter-listing {
+    position:relative;
+    font-weight: bold;
+}
+
+.room-filter-content::after {
+    content: ","
+}
+
+.room-filter-listing > .small-icon-badge {
+    visibility: hidden;
+    cursor: pointer;
+}
+
+.room-filter-listing > .small-icon-badge > svg {
+  height:10px;
+  width:10px;
+  stroke-width:4px;
+}
+
+.room-filter-listing:hover > .small-icon-badge {
+    visibility:visible;
+}
+
 #select-sort > button {
     margin-left: 1em;
 }

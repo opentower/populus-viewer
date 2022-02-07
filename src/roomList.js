@@ -10,6 +10,7 @@ import Invite from './invite.js'
 import { TagEditor, TagList } from './tagEditor.js'
 import RoomSettings from './roomSettings.js'
 import { RoomColor } from './utils/colors.js'
+import { toWords } from './utils/strings.js'
 import * as Icons from './icons.js'
 import History from './history.js'
 import './styles/roomList.css'
@@ -96,7 +97,7 @@ export default class RoomList extends Component {
     }
   }
 
-  searchRooms = _ => {
+  searchRooms = searchWords => {
     // TODO: We're going to want to have different subcategories of rooms,
     // for actual pdfs, and for annotation discussions
     const searchNames = []
@@ -104,13 +105,6 @@ export default class RoomList extends Component {
     const searchMembers = []
     const searchFlags = []
     const searchParents = []
-    const searchWords = []
-    const regex = /[^\s"]+|"([^"]*)"/gi
-    let match
-    do {
-      match = regex.exec(this.props.searchFilter)
-      if (match != null) searchWords.push(match[1] ? match[1] : match[0])
-    } while (match != null)
     for (const word of searchWords) {
       if (word.slice(0, 1) === '#') searchTags.push(word.slice(1))
       else if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
@@ -150,7 +144,8 @@ export default class RoomList extends Component {
       }).filter(room => room !== null)
   }
 
-  render(_, state) {
+  render(props, state) {
+    console.log(props.filterItems)
     return <div id="room-list">
       <div id="select-sort">
         <button class="small-icon"
@@ -168,9 +163,35 @@ export default class RoomList extends Component {
                 onClick={this.sortByName}
                 class="styled-button">Name</button>
       </div>
+      <FilterList setFilterItems={props.setFilterItems} filterItems={props.filterItems} />
       {/* TODO: We're probably going to need to debounce this rather than searching with each render, for longer lists of rooms */}
-      <div>{this.sortRooms(this.searchRooms())}</div>
+      <div>{this.sortRooms(this.searchRooms(toWords(props.searchFilter).concat(props.filterItems)))}</div>
     </div>
+  }
+}
+
+class FilterList extends Component {
+  removeFilter = item => this.props.setFilterItems(this.props.filterItems.filter(x => x !== item))
+
+  render(props) {
+    if (props.filterItems.length > 0) {
+      return <div id="room-filters">
+        Filters: {props.filterItems.map(item =>
+          <FilterListing removeFilter={this.removeFilter} key={item} filter={item} />
+      )}
+      </div>
+    }
+  }
+}
+
+class FilterListing extends Component {
+  removeMe = _ => { this.props.removeFilter(this.props.filter) }
+
+  render(props) {
+    return <span class="room-filter-listing" >
+      <span class="room-filter-content">{props.filter}</span>
+      <button onclick={this.removeMe}class="small-icon-badge">{Icons.close}</button>
+    </span>
   }
 }
 

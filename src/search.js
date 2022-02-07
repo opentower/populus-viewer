@@ -34,6 +34,7 @@ export default class SearchBar extends Component {
   handleInputKeydown = e => {
     e.stopPropagation() // don't propagate to global keypress handlers
     if (e.key === "Esc" || e.key === "Escape") this.searchInput.current.blur()
+    if (e.key === "Enter" && this.props.submit ) this.props.submit(this.props.search)
   }
 
   handleInput = e => this.props.setSearch(e.target.value)
