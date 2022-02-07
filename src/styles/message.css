@@ -107,6 +107,7 @@
     text-align:left;
     margin-top:5px;
     margin-bottom:5px;
+    margin-right:5px;
     grid-area: content;
     overflow-wrap: anywhere;
     /* XXX: depreciated, but needed until webkit adds overflow-wrap: anywhere */
