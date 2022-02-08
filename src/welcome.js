@@ -146,7 +146,7 @@ export default class WelcomeView extends Component {
               ? <NotificationListing />
               : state.view === "COLLECTION"
                 ? <div class="welcome-column">
-                    <SpacesManager searchFilter={state.searchFilter} setSearch={this.setSearch} narrow={state.narrow} />
+                    <SpacesManager narrow={state.narrow} showMainView={this.showMainView} setFilterItems={this.setFilterItems} filterItems={state.filterItems} />
                 </div>
                 : state.narrow
                   ? <RoomList narrow={state.narrow} setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />

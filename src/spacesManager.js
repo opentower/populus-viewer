@@ -43,7 +43,12 @@ export default class SpacesManager extends Component {
     Client.client.off("Room.name", this.handleRoom)
   }
 
-  filterSet = s => this.props.setFilterItems([s])
+  filterSet = s => {
+    this.props.setFilterItems([s])
+    this.props.showMainView
+      ? this.props.showMainView()
+      : null
+  }
 
   isCollection(room) {
     const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)

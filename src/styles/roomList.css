@@ -28,8 +28,9 @@
 }
 
 .room-filter-listing > .small-icon-badge {
-    visibility: hidden;
-    cursor: pointer;
+  visibility:hidden;
+  cursor: pointer;
+  padding:0px;
 }
 
 .room-filter-listing > .small-icon-badge > svg {
@@ -39,7 +40,7 @@
 }
 
 .room-filter-listing:hover > .small-icon-badge {
-    visibility:visible;
+  visibility:visible;
 }
 
 #select-sort > button {
