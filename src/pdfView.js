@@ -422,9 +422,19 @@ export default class PdfView extends Component {
     }
   }
 
-  toggleChat = _ => this.setState(oldState => { return {chatVisible: !oldState.chatVisible} })
+  toggleChat = _ => this.setState(oldState => {
+    if (oldState.chatVisible) return {chatVisible: false}
+    const narrow = document.body.offsetWidth <= 600
+    if (narrow) return {annotationListingVisible: false, chatVisible: true}
+    return {chatVisible: true}
+  })
 
-  toggleAnnotationListing = _ => this.setState(oldState => { return {annotationListingVisible: !oldState.annotationListingVisible} })
+  toggleAnnotationListing = _ => this.setState(oldState => {
+    if (oldState.annotationListingVisible) return {annotationListingVisible: false}
+    const narrow = document.body.offsetWidth <= 600
+    if (narrow) return {annotationListingVisible: true, chatVisible: false}
+    return {annotationListingVisible: true}
+  })
 
   toggleSidebar = _ => this.setState(oldState => {
     if (oldState.annotationListingVisible || oldState.chatVisible) return {annotationListingVisible: false, chatVisible: false}
@@ -704,14 +714,8 @@ export default class PdfView extends Component {
         pindropMode={state.pindropMode}
         setZoom={this.setZoom} />
       <div data-hide-buttons={state.hideButtons} id="pdf-mobile-buttons">
-         {state.chatVisible
-           ? <button title="focus annotation list" id="show-annotations" onclick={this.unsetFocus}>
-             {Icons.list}
-           </button>
-           : null
-        }
-        <button title="toggle chat" id="panel-toggle" onclick={this.toggleSidebar}>
-          {state.chatVisible || state.annotationListingVisible ? Icons.close : Icons.menu }
+        <button title="open options" id="panel-toggle" onclick={this.toggleSidebar}>
+          {state.chatVisible || state.annotationListingVisible ? null : Icons.menu }
         </button>
       </div>
       <SyncIndicator class={state.chatVisible || state.annotationListingVisible ? null : "sync-hidden"} />

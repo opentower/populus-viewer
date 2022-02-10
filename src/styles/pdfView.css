@@ -1,8 +1,8 @@
 #content-container {
   --sidepanelWidth: 100%; 
-  --widget-1-width: 100%;
-  --widget-2-width: 100%;
-  --widget-control-width:80px;
+  --widget-1-width: calc(100% - var(--widget-control-width));
+  --widget-2-width: calc(100% - var(--widget-control-width));
+  --widget-control-width:40px;
 }
 
 #sidepanel {
@@ -38,7 +38,7 @@
 }
 
 .panel-widget-2 {
-    left: calc(var(--chatVisible) * var(--widget-1-width));
+    left: calc(var(--chatVisible) * (var(--widget-1-width) + var(--widget-control-width)));
     width: var(--widget-2-width);
     min-width: var(--widget-2-width);
     border-left:1px solid #adadad;
@@ -61,11 +61,10 @@ html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
   height:100%;
   position:absolute;
   right:0px;
-  padding-top:10px;
   background:white;
   width:calc(var(--widget-control-width)); 
   border-left:1px solid #adadad;
-  display:none;
+  display:flex;
   flex-direction:column;
   gap:10px;
   align-items:center;
@@ -99,17 +98,23 @@ html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
 }
 
 @media only screen and (max-width: 600px) {
+  .panel-widget-controls .room-icon {
+    transform: scale(0.7)
+  }
 }
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (min-width: 600px) {
+  .panel-widget-controls {
+    padding-top:10px;
+  }
+    #content-container {
+      --widget-control-width:80px;
+    }
 }
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
-    .panel-widget-controls {
-      display:flex;
-    }
 
     #sidepanel {
       left:unset;
