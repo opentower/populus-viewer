@@ -145,7 +145,6 @@ export default class RoomList extends Component {
   }
 
   render(props, state) {
-    console.log(props.filterItems)
     return <div id="room-list">
       <div id="select-sort">
         <button class="small-icon"
