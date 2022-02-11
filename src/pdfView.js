@@ -145,13 +145,6 @@ export default class PdfView extends Component {
     }
   }
 
-  handleWidgetScroll = e => {
-    if (this.handleWidgetScroll.pause) return (this.handleWidgetScroll.pause = false)
-    if (this.prevScrollTop < e.target.scrollTop && !this.state.hideButtons) this.setState({hideButtons: true})
-    if (this.prevScrollTop > e.target.scrollTop && this.state.hideButtons) this.setState({hideButtons: false})
-    this.prevScrollTop = e.target.scrollTop
-  }
-
   annotationLayer = createRef()
 
   textLayer = createRef()
@@ -377,11 +370,8 @@ export default class PdfView extends Component {
     if (theAnnotation) {
       const focus = new Location(theAnnotation)
       History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${focus.getPageIndex() || this.getPage()}/${roomId}`)
-      this.setState({ focus, secondaryFocus: null, chatVisible: true, hideButtons: false },_ => {
-        //prevent stray scrolling events from hiding buttons
-        this.buttonLock = true
-        setTimeout(_ => this.buttonLock = false, 500)
-      })
+      const annotationListingVisible = document.body.offsetWidth <= 600 ? false : this.state.annotationListingVisible
+      this.setState({ focus, secondaryFocus: null, chatVisible: true, annotationListingVisible, hideButtons: false })
     }
   }
 
@@ -436,9 +426,8 @@ export default class PdfView extends Component {
     return {annotationListingVisible: true}
   })
 
-  toggleSidebar = _ => this.setState(oldState => {
-    if (oldState.annotationListingVisible || oldState.chatVisible) return {annotationListingVisible: false, chatVisible: false}
-    else if (this.focus) return {chatVisible: true}
+  openSidebar = _ => this.setState(_ => {
+    if (this.focus) return {chatVisible: true}
     return {annotationListingVisible: true}
   })
 
@@ -650,7 +639,6 @@ export default class PdfView extends Component {
               pageFocused={this.getPage()}
               hasSelection={state.hasSelection}
               quadsFromPdfSelection={this.quadsFromPdfSelection}
-              handleWidgetScroll={this.handleWidgetScroll}
               secondaryFocus={state.secondaryFocus}
               focus={state.focus} />
           : <div class="panel-widget-1"></div>
@@ -672,7 +660,6 @@ export default class PdfView extends Component {
                 annotationFilter={state.annotationFilter}
                 annotationContents={state.annotationContents}
                 filteredAnnotationContents={state.filteredAnnotationContents}
-                handleWidgetScroll={this.handleWidgetScroll}
                 focusByRoomId={this.focusByRoomId}
                 focusNext={this.focusNext}
                 focusPrev={this.focusPrev}
@@ -714,7 +701,7 @@ export default class PdfView extends Component {
         pindropMode={state.pindropMode}
         setZoom={this.setZoom} />
       <div data-hide-buttons={state.hideButtons} id="pdf-mobile-buttons">
-        <button title="open options" id="panel-toggle" onclick={this.toggleSidebar}>
+        <button title="open options" id="panel-toggle" onclick={this.openSidebar}>
           {state.chatVisible || state.annotationListingVisible ? null : Icons.menu }
         </button>
       </div>

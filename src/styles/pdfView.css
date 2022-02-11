@@ -38,7 +38,7 @@
 }
 
 .panel-widget-2 {
-    left: calc(var(--chatVisible) * var(--widget-1-width));
+    left: calc(var(--chatVisible) * (var(--widget-1-width) + var(--widget-control-width)));
     width: var(--widget-2-width);
     min-width: var(--widget-2-width);
     border-left:1px solid #adadad;
@@ -115,6 +115,10 @@ html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
+
+    .panel-widget-2 {
+      left: calc(var(--chatVisible) * var(--widget-1-width));
+    }
 
     #sidepanel {
       left:unset;

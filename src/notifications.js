@@ -70,12 +70,9 @@ export default class NotificationListing extends Component {
     }, 500)
   }
 
-  handleScroll = e => {
+  handleScroll = _ => {
     clearTimeout(this.scrollDebounceTimeout)
-    this.scrollDebounceTimeout = setTimeout(_ => {
-      this.tryBackfill()
-      if (this.props.handleWidgetScroll) this.props.handleWidgetScroll(e)
-    }, 200)
+    this.scrollDebounceTimeout = setTimeout(_ => { this.tryBackfill() }, 200)
   }
 
   async loadNotificationWindow () {
