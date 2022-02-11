@@ -48,7 +48,10 @@ better social annotation experience, please open an issue or a PR!
 To try out Populus-Viewer, just point your browser at our [github pages
 instance](https://opentower.github.io/populus-viewer). You're welcome to use
 the default testing server, but be aware that this server may be torn down or
-replaced at any time.
+replaced at any time. Also, be aware that the testing server isn't federated,
+so it won't be possible for users on other servers to join your discussions or
+vice-versa. We may consider running a larger public instance in the future once
+client development is further along.
 
 To get started tinkering with the source code, clone this repository and then
 run:
