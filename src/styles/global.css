@@ -17,6 +17,8 @@ pre { font-family: 'IBM Plex Mono', monospace; }
   * { font-family: 'Inter var', sans-serif; }
 }
 
+.katex * { font-family: unset }
+
 body { 
   margin:0px; 
   height:100vh;

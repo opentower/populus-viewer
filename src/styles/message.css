@@ -119,17 +119,19 @@
   margin-left: 1em;
 }
 
+.message-body [data-mx-maths],
 .message-body pre {
   overflow-y: scroll;
-  max-width: calc(var(--widget-1-width) - 50px);
-  text-overflow:ellipsis;
+  max-width: calc(var(--widget-1-width) - 55px);
 }
 
+html[data-scrollbars="hidden"] .message-body [data-mx-maths],
 html[data-scrollbars="hidden"] .message-body pre {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width:none;
 }
 
+html[data-scrollbars="hidden"] .message-body [data-mx-maths]::-webkit-scrollbar,
 html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: none; }
 
 
