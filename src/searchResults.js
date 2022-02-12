@@ -145,7 +145,7 @@ export default class SearchResults extends Component {
   }
 
   handleBlur = _ => {
-    if (this.props.searchString.length < 1) this.props.hideSearch()
+    if (this.props.searchString.length < 1) this.props.endSearch()
   }
 
   render(props, state) {
@@ -168,6 +168,7 @@ export default class SearchResults extends Component {
             pdfFocused={props.pdfFocused}
             key={result.page}
             result={result}
+            hideListing={props.hideListing}
             focusedResult={state.focusedResult}
             setFocus={this.setFocus}
             index={idx}
@@ -186,6 +187,8 @@ class SearchResult extends Component {
     const newUrl = `/${encodeURIComponent(this.props.pdfFocused)}/${this.props.result.page}/${this.props.roomFocused ? this.props.roomFocused : ""}`
     History.push(newUrl)
     this.result.current.scrollIntoView()
+    const narrow = document.body.offsetWidth <= 600
+    if (narrow) this.props.hideListing()
   }
 
   result = createRef()

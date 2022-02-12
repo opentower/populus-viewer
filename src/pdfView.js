@@ -348,7 +348,7 @@ export default class PdfView extends Component {
     this.showListing()
   }
 
-  hideSearch = _ => this.setState({listingType: null})
+  endSearch = _ => this.setState({listingType: null})
 
   toggleAnnotations = _ => this.setState(oldState => {
     return { annotationsVisible: !oldState.annotationsVisible }
@@ -667,7 +667,8 @@ export default class PdfView extends Component {
               class="panel-widget-2"
               searchString={state.searchString}
               setSearch={this.setSearch}
-              hideSearch={this.hideSearch}
+              endSearch={this.endSearch}
+              hideListing={this.hideListing}
               pdfText={this.pdfText}
               pdfFocused={props.pdfFocused}
               roomFocused={props.roomFocused}
