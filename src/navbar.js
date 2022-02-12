@@ -125,7 +125,7 @@ export default class Navbar extends Component {
           <button title="Zoom in&#013;Shortcut: +" onClick={this.zoomIn}>{Icons.zoomin}</button>
           <button title="Toggle annotation visibility&#013;Shortcut: Alt + v" onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
           <button title="Add Pin" onClick={props.startPindrop}>{Icons.pin}</button>
-          <SearchBar title="Search within PDF&#013;Shortcut: Alt + /" setSearch={props.setSearch} search={props.searchString} searchPredicate={this.searchPredicate} setFocus={this.setSearchFocus} />
+          <button title="Search Within PDF" onClick={props.showSearch}>{Icons.search}</button>
         </div>
       </nav>
     }

@@ -33,7 +33,8 @@ export default class PdfView extends Component {
       navHeight: 75,
       panelVisible: false,
       chatVisible: false,
-      annotationListingVisible: !!History.message?.searchString || false,
+      listingType: null,
+      listingVisible: !!History.message?.searchString || false,
       hasSelection: false,
       annotationsVisible: true,
       annotationContents: [],
@@ -342,6 +343,13 @@ export default class PdfView extends Component {
 
   setSearch = searchString => this.setState({searchString})
 
+  showSearch = _ => {
+    this.setState({ listingType: "search" })
+    this.showListing()
+  }
+
+  hideSearch = _ => this.setState({listingType: null})
+
   toggleAnnotations = _ => this.setState(oldState => {
     return { annotationsVisible: !oldState.annotationsVisible }
   })
@@ -370,8 +378,8 @@ export default class PdfView extends Component {
     if (theAnnotation) {
       const focus = new Location(theAnnotation)
       History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${focus.getPageIndex() || this.getPage()}/${roomId}`)
-      const annotationListingVisible = document.body.offsetWidth <= 600 ? false : this.state.annotationListingVisible
-      this.setState({ focus, secondaryFocus: null, chatVisible: true, annotationListingVisible, hideButtons: false })
+      const listingVisible = document.body.offsetWidth <= 600 ? false : this.state.listingVisible
+      this.setState({ focus, secondaryFocus: null, chatVisible: true, listingVisible, hideButtons: false })
     }
   }
 
@@ -412,23 +420,35 @@ export default class PdfView extends Component {
     }
   }
 
-  toggleChat = _ => this.setState(oldState => {
-    if (oldState.chatVisible) return {chatVisible: false}
+  hideChat = _ => this.setState({chatVisible: false})
+
+  showChat = _ => {
     const narrow = document.body.offsetWidth <= 600
-    if (narrow) return {annotationListingVisible: false, chatVisible: true}
-    return {chatVisible: true}
+    if (narrow) this.setState({listingVisible: false, chatVisible: true})
+    else this.setState({chatVisible: true})
+  }
+
+  toggleChat = _ => this.setState(oldState => {
+    if (oldState.chatVisible) this.hideChat()
+    else this.showChat()
   })
 
-  toggleAnnotationListing = _ => this.setState(oldState => {
-    if (oldState.annotationListingVisible) return {annotationListingVisible: false}
+  hideListing = _ => this.setState({listingVisible: false})
+
+  showListing = _ => {
     const narrow = document.body.offsetWidth <= 600
-    if (narrow) return {annotationListingVisible: true, chatVisible: false}
-    return {annotationListingVisible: true}
+    if (narrow) this.setState({listingVisible: true, chatVisible: false})
+    else this.setState({listingVisible: true})
+  }
+
+  toggleListing = _ => this.setState(oldState => {
+    if (oldState.listingVisible) this.hideListing()
+    else this.showListing()
   })
 
   openSidebar = _ => this.setState(_ => {
     if (this.focus) return {chatVisible: true}
-    return {annotationListingVisible: true}
+    return {listingVisible: true}
   })
 
   checkForSelection () {
@@ -447,7 +467,6 @@ export default class PdfView extends Component {
       deviceId: Client.deviceId,
       ...(parseInt(this.props.pageFocused, 10) && { page: this.props.pageFocused })
     })
-    if (this.props.roomFocused) this.focusByRoomId(this.props.roomFocused)
   }
 
   handleKeydown = e => {
@@ -573,7 +592,7 @@ export default class PdfView extends Component {
       "--pdfHeightPx": `${state.pdfHeightPx}px`,
       "--sidePanelVisible": state.panelVisible ? 1 : 0,
       "--chatVisible": state.chatVisible ? 1 : 0,
-      "--annotationListingVisible": state.annotationListingVisible ? 1 : 0,
+      "--listingVisible": state.listingVisible ? 1 : 0,
       "--chatFocused": state.focus ? 1 : 0,
       "--selectColor": this.userColor.solid,
       "touch-action": this.state.pinching ? "none" : null
@@ -641,13 +660,14 @@ export default class PdfView extends Component {
               quadsFromPdfSelection={this.quadsFromPdfSelection}
               secondaryFocus={state.secondaryFocus}
               focus={state.focus} />
-          : <div class="panel-widget-1"></div>
+          : <div class="panel-widget-1" />
         }
-        { state.searchString
+        { state.listingType === "search"
           ? <SearchResults
               class="panel-widget-2"
               searchString={state.searchString}
               setSearch={this.setSearch}
+              hideSearch={this.hideSearch}
               pdfText={this.pdfText}
               pdfFocused={props.pdfFocused}
               roomFocused={props.roomFocused}
@@ -672,7 +692,7 @@ export default class PdfView extends Component {
           <button data-active={state.chatVisible} disabled={!state.focus} title="show chat" id="show-annotations" onclick={this.toggleChat}>
             {Icons.annotation}
           </button>
-          <button data-active={state.annotationListingVisible} title="focus annotation list" id="show-annotations" onclick={this.toggleAnnotationListing}>
+          <button data-active={state.listingVisible} title="focus annotation list" id="show-annotations" onclick={this.toggleListing}>
             {Icons.list}
           </button>
         </div>
@@ -696,16 +716,16 @@ export default class PdfView extends Component {
         annotationsVisible={state.annotationsVisible}
         toggleAnnotations={this.toggleAnnotations}
         setNavHeight={this.setNavHeight}
-        setSearch={this.setSearch}
+        showSearch={this.showSearch}
         startPindrop={this.startPindrop}
         pindropMode={state.pindropMode}
         setZoom={this.setZoom} />
       <div data-hide-buttons={state.hideButtons} id="pdf-mobile-buttons">
         <button title="open options" id="panel-toggle" onclick={this.openSidebar}>
-          {state.chatVisible || state.annotationListingVisible ? null : Icons.menu }
+          {state.chatVisible || state.listingVisible ? null : Icons.menu }
         </button>
       </div>
-      <SyncIndicator class={state.chatVisible || state.annotationListingVisible ? null : "sync-hidden"} />
+      <SyncIndicator class={state.chatVisible || state.listingVisible ? null : "sync-hidden"} />
     </div>
   }
 }

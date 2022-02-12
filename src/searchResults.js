@@ -2,6 +2,7 @@ import { h, Fragment, createRef, Component } from 'preact';
 import './styles/searchResults.css'
 import * as Icons from "./icons.js"
 import History from "./history.js"
+import SearchBar from './search.js'
 
 export default class SearchResults extends Component {
   constructor(props) {
@@ -15,9 +16,12 @@ export default class SearchResults extends Component {
 
   resultListing = createRef()
 
+  searchInput = createRef()
+
   componentDidMount() {
     this.initializeSearch()
     document.addEventListener('keydown', this.handleKeydown)
+    this.searchInput.current.focus()
   }
 
   componentWillUnmount () {
@@ -28,9 +32,20 @@ export default class SearchResults extends Component {
     if (this.props.searchString !== prevProps.searchString && this.props.pdfText) this.initializeSearch()
     else if (this.state.searchLimit > prevState.searchLimit && this.props.pdfText) this.expandSearch()
   }
+  
+  resetSearch() {
+    this.setState({
+      searchResults: [],
+      searchLimit: 20,
+      focusedResult: null
+    })
+  }
 
   initializeSearch () {
-    if (this.props.searchString.length < 3) return
+    if (this.props.searchString.length < 3) {
+      this.resetSearch()
+      return
+    }
     const searchResults = []
     // We strip out all non-alphanumerics, for fuzzy search
     const word = this.props.searchString.toLowerCase().replace(/[^a-zA-Z0-9]/gm, "")
@@ -64,7 +79,10 @@ export default class SearchResults extends Component {
   }
 
   expandSearch () {
-    if (this.props.searchString.length < 3) return
+    if (this.props.searchString.length < 3) {
+      this.resetSearch()
+      return
+    }
     const searchResults = this.state.searchResults
     const oldPage = searchResults.slice(-1)[0].page
     const word = this.props.searchString.toLowerCase().replace(/[^a-zA-Z0-9]/gm, "")
@@ -101,8 +119,6 @@ export default class SearchResults extends Component {
     })
   }
 
-  clearSearch = _ => this.props.setSearch(null)
-
   setFocus = focus => this.setState({ focusedResult: focus })
 
   focusNext = _ => {
@@ -128,6 +144,10 @@ export default class SearchResults extends Component {
     if (e.altKey && e.shiftKey && e.key === 'Tab') this.focusPrev()
   }
 
+  handleBlur = _ => {
+    if (this.props.searchString.length < 1) this.props.hideSearch()
+  }
+
   render(props, state) {
     return <div ref={this.resultListing}
       id="pdf-search-result-panel"
@@ -136,12 +156,12 @@ export default class SearchResults extends Component {
       {this.props.pdfText
         ? <Fragment>
           <div id="pdf-search-term">
-            <div><b>Search Results For:</b>
-              <span onclick={this.clearSearch}
-                class="small-icon">{Icons.close}
-              </span>
-            </div>
-            {props.searchString}
+            <div><b>Search Results For:</b></div>
+            <SearchBar
+              searchInput={this.searchInput}
+              onBlur={this.handleBlur}
+              search={props.searchString}
+              setSearch={props.setSearch} />
           </div>
           {state.searchResults.map((result, idx) => <SearchResult
             roomFocused={props.roomFocused}
@@ -163,9 +183,8 @@ export default class SearchResults extends Component {
 class SearchResult extends Component {
   focus = _ => {
     this.props.setFocus(this.props.index)
-    this.props.roomFocused
-      ? History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.props.result.page}/${this.props.roomFocused}`)
-      : History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.props.result.page}/`)
+    const newUrl = `/${encodeURIComponent(this.props.pdfFocused)}/${this.props.result.page}/${this.props.roomFocused ? this.props.roomFocused : ""}`
+    History.push(newUrl)
     this.result.current.scrollIntoView()
   }
 

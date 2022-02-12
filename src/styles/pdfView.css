@@ -16,7 +16,7 @@
     z-index:6;
     /* ↓ for mobile, override below */
     left: calc(
-      (100% + 5px) * (1 - max(var(--chatVisible), var(--annotationListingVisible)))
+      (100% + 5px) * (1 - max(var(--chatVisible), var(--listingVisible)))
     );
     width: var(--sidepanelWidth);
     transition: width 0.5s ease, left 0.5s ease, right 0.5s ease, padding 0.5s ease;
@@ -42,7 +42,7 @@
 .panel-widget-2 {
     left: calc(
       var(--chatVisible) * (var(--widget-1-width) + var(--widget-control-width)) 
-      + (var(--annotationListingVisible) * -1px) /* to compensate for border */
+      + (var(--listingVisible) * -1px) /* to compensate for border */
     );
     width: var(--widget-2-width);
     min-width: var(--widget-2-width);
@@ -132,7 +132,7 @@ html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
     #content-container {
         --sidepanelWidth: calc(
             (var(--widget-1-width) * var(--chatVisible))
-            + (var(--widget-2-width) * var(--annotationListingVisible))
+            + (var(--widget-2-width) * var(--listingVisible))
             + (var(--widget-control-width))
         );
         --widget-1-width:350px;

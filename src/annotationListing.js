@@ -332,7 +332,7 @@ class AnnotationListingEntry extends Component {
     })
   }
 
-  handleClick = e => {
+  handleClick = _ => {
     this.props.focusByRoomId(this.props.annotationLocation.getChild())
   }
 

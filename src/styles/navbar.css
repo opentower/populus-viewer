@@ -86,27 +86,6 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
         justify-content:space-around;
     }
 
-    .nav-button-wrapper > .search-bar:last-child {
-      grid-column:9/10;
-    }
-
-    .nav-button-wrapper > .search-bar > input {
-      position:absolute;
-      right:-5px;
-    }
-
-    .nav-button-wrapper[data-searchFocused] > .search-bar > input {
-      width:calc(125vw - 35px)
-    }
-
-    .nav-button-wrapper > .search-bar  {
-      justify-content:center
-    }
-
-    .nav-button-wrapper > .search-bar > svg  {
-      right:unset;
-    }
-
     #page-nav {
       height:calc(0.8 * var(--navHeight));
     }
@@ -130,13 +109,6 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
         position: absolute;
         right:10px;
     }
-
-    .nav-button-wrapper > .search-bar:last-child {
-        position: absolute;
-        right:10px;
-        margin-right:0px;
-        width:40px;
-    }
 }
 
 .nav-button-wrapper > button {
@@ -150,10 +122,6 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
 
 .nav-button-wrapper > button:focus {
   outline: 1px solid white;
-}
-
-.nav-button-wrapper[data-searchFocused] > button {
-  display:none;
 }
 
 .nav-button-wrapper > button[disabled] {
@@ -209,31 +177,6 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
     color:white;
     background:#ababab;
     transition: background 0.5s ease;
-}
-
-.nav-button-wrapper[data-searchFocused] .search-bar {
-  width:unset;
-  left:0px;
-}
-
-.nav-button-wrapper .search-bar > input {
-  background:black;
-  padding-top:10px;
-  padding-bottom:10px;
-}
-
-.nav-button-wrapper .search-bar > .clear-icon,
-.nav-button-wrapper .search-bar > .search-icon {
-  color:white
-}
-
-.nav-button-wrapper .search-bar > input:focus {
-  background:white;
-}
-
-.nav-button-wrapper .search-bar > input:focus ~ .clear-icon,
-.nav-button-wrapper .search-bar > input:focus ~ .search-icon {
-  color:black;
 }
 
 #nav-total-pages {

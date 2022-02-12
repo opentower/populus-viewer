@@ -8,6 +8,12 @@
   border-bottom: 1px solid #ababab;
 }
 
+#pdf-search-term .search-bar {
+  margin-left:0px;
+  margin-right:0px;
+  margin-top:5px;
+}
+
 #pdf-search-term .small-icon {
   position:absolute;
   right:10px;
