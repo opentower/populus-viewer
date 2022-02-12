@@ -78,8 +78,6 @@ export default class Navbar extends Component {
 
   zoomIn = _ => this.props.setZoom(zoomFactor => zoomFactor + 0.1)
 
-  searchPredicate = e => e.key === "/" && e.altKey
-
   componentDidUpdate() {
     if (this.pageInput.current) this.pageInput.current.style.width = `${this.pageTotal.current.scrollWidth}px`
   }

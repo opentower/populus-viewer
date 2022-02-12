@@ -473,6 +473,7 @@ export default class PdfView extends Component {
     if (e.altKey && e.key === 'a') this.openAnnotation()
     if (e.altKey && e.key === 'r') this.closeAnnotation()
     if (e.altKey && e.key === 'v') this.toggleAnnotations()
+    if (e.altKey && e.key === "/") this.showSearch()
     if (e.ctrlKey || e.altKey || e.metaKey) return // Don't catch browser shortcuts
     if (e.key === '+' || e.key === '=') this.setZoom(zoomFactor => zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(zoomFactor => zoomFactor - 0.1)
