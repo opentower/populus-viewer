@@ -1,7 +1,8 @@
 #content-container {
   --sidepanelWidth: 100%; 
   --widget-1-width: calc(100% - var(--widget-control-width));
-  --widget-2-width: calc(100% - var(--widget-control-width));
+  /* 1px to compensate for border */
+  --widget-2-width: calc(100% - var(--widget-control-width) + 1px);
   --widget-control-width:40px;
 }
 
@@ -42,7 +43,7 @@
 .panel-widget-2 {
     left: calc(
       var(--chatVisible) * (var(--widget-1-width) + var(--widget-control-width)) 
-      + (var(--listingVisible) * -1px) /* to compensate for border */
+      + (var(--listingVisible) * -1px) /* 1px to compensate for border */
     );
     width: var(--widget-2-width);
     min-width: var(--widget-2-width);
@@ -63,6 +64,7 @@ html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
 }
 
 .panel-widget-controls {
+  box-sizing:border-box;
   height:100%;
   position:absolute;
   right:0px;
