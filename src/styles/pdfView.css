@@ -15,7 +15,9 @@
     background:white;
     z-index:6;
     /* ↓ for mobile, override below */
-    left: calc(100% * (1 - max(var(--chatVisible), var(--annotationListingVisible))));
+    left: calc(
+      (100% + 5px) * (1 - max(var(--chatVisible), var(--annotationListingVisible)))
+    );
     width: var(--sidepanelWidth);
     transition: width 0.5s ease, left 0.5s ease, right 0.5s ease, padding 0.5s ease;
 }
@@ -38,7 +40,10 @@
 }
 
 .panel-widget-2 {
-    left: calc(var(--chatVisible) * (var(--widget-1-width) + var(--widget-control-width)));
+    left: calc(
+      var(--chatVisible) * (var(--widget-1-width) + var(--widget-control-width)) 
+      + (var(--annotationListingVisible) * -1px) /* to compensate for border */
+    );
     width: var(--widget-2-width);
     min-width: var(--widget-2-width);
     border-left:1px solid #adadad;
