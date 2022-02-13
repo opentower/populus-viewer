@@ -524,7 +524,7 @@ export default class PdfView extends Component {
 
   setFocus = focus => {
     History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.props.pageFocused}/${focus.getChild()}/`)
-    this.setState({secondaryFocus: null, focus })
+    this.setState({secondaryFocus: null, focus, chatVisible: true })
   }
 
   setSecondaryFocus = secondaryFocus => this.setState({ secondaryFocus })
