@@ -125,7 +125,13 @@
   max-width: calc(var(--widget-1-width) - 55px);
 }
 
-.message-body [data-mx-maths]::after,
+/* allows max-width on inline math */
+span[data-mx-maths] { 
+  display:inline-block; 
+  vertical-align:middle;
+}
+
+.message-body div[data-mx-maths]::after,
 .message-body pre::after {
   content:'';
   width:100%;
@@ -136,7 +142,7 @@
   background:linear-gradient(to right, transparent calc(var(--widget-1-width) - 80px), white calc(var(--widget-1-width) - 30px));
 }
 
-.message-frame:hover [data-mx-maths]::after,
+.message-frame:hover div[data-mx-maths]::after,
 .message-frame:hover pre::after{
   background:linear-gradient(to right, transparent calc(var(--widget-1-width) - 80px), var(--user_ultralight) calc(var(--widget-1-width) - 30px));
 }
