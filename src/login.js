@@ -48,8 +48,9 @@ export default class LoginView extends Component {
 }
 
 class Login extends Component {
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault()
+    this.setState({submitting: true})
     const loginForm = document.getElementById("loginForm")
     const formdata = new FormData(loginForm)
     const entries = Array.from(formdata.entries()).map(i => i[1])
@@ -58,15 +59,18 @@ class Login extends Component {
     Client.initClient()
       .then(client => client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
       .then(this.props.loginHandler)
-      .catch(window.alert)
+      .catch(e => {
+        this.setState({submitting: false})
+        window.alert(e)
+      })
   }
 
   handleSSO = e => e.preventDefault()
 
-  render(props) {
+  render(props, state) {
     return <div id="login">
       <h3>Login To Populus</h3>
-      <form id="loginForm">
+      <form id="loginForm" onSubmit={this.handleSubmit}>
         <UserData
           setServer={props.setServer}
           server={props.server}
@@ -75,13 +79,15 @@ class Login extends Component {
           setName={props.setName}
           name={props.name} />
         <div>
-          <button className="styled-button" onClick={this.handleSubmit} >Login</button>
+          <button disabled={state.submitting} class="styled-button" >Login</button>
         </div>
         <div>
           <span>Don't have a username? </span>
-          <button className="styled-button" onClick={props.switchView("register")} >Register</button>
-          <span>or&nbsp; </span>
-          <button className="styled-button" onClick={props.switchView("SSO")} >Login Via SSO</button>
+          <div class="login-options">
+            <button class="styled-button" disabled={state.submitting} onClick={props.switchView("register")} >Register</button>
+            <span>or&nbsp; </span>
+            <button class="styled-button" disabled={state.submitting} onClick={props.switchView("SSO")} >Login Via SSO</button>
+          </div>
         </div>
       </form>
     </div>
@@ -157,18 +163,21 @@ class SSO extends Component {
             type="text"
             name="servername"
             placeholder="populus.open-tower.com" />
-          <button className="styled-button" onClick={this.handleSubmit} >Look up SSO</button>
+          <button class="styled-button" onClick={this.handleSubmit} >Look up SSO</button>
         </div>
         {state.loading ? <div id="server-loading-message">Loading...</div> : null}
         {state.SSOProviders.map(
           provider => {
             let iconHttpURI = null
             if (provider.icon) iconHttpURI = Matrix.getHttpUriForMxc(localStorage.getItem("baseUrl"), provider.icon, 40, 40, "crop")
-            return <div onclick={e => this.trySSO(provider.id, null, e)} class="login-sso-listing"key={provider.id}>
-              { iconHttpURI
-                ? <img class="sso-icon" width="40" height="40" src={iconHttpURI} />
-                : Icons.login
-              }
+            return <div
+              onclick={e => this.trySSO(provider.id, null, e)}
+              class="login-sso-listing"
+              key={provider.id} >
+                { iconHttpURI
+                  ? <img class="sso-icon" width="40" height="40" src={iconHttpURI} />
+                  : Icons.login
+                }
               <a class="sso-name" href={`?server=${encodeURIComponent(props.server)}&sso=${encodeURIComponent(provider.id)}`}>
                 {provider.name}
               </a>
@@ -177,7 +186,7 @@ class SSO extends Component {
         )}
         <div>
           <span>Don't want to use a third-party login? </span>
-          <button className="styled-button" onClick={props.switchView("register")} >Register an Account</button>
+          <button class="styled-button" onClick={props.switchView("register")} >Register an Account</button>
         </div>
       </form>
     </div>
@@ -290,11 +299,11 @@ class Registration extends Component {
           <form id="registerForm">
             <div id="theRecaptcha">
               Complete this Recaptcha to finish registration
-              <div className="g-recaptcha"
+              <div class="g-recaptcha"
                 data-sitekey={this.recaptchaKey}
                 data-callback="recaptchaHandler" />
             </div>
-            <div>OR, <button className="styled-button" onClick={props.switchView("login")} >Login With Existing Account</button></div>
+            <div>OR, <button class="styled-button" onClick={props.switchView("login")} >Login With Existing Account</button></div>
             <script src="https://www.google.com/recaptcha/api.js" async defer />
           </form>
         </div>
@@ -302,7 +311,10 @@ class Registration extends Component {
       case "awaiting-server" : {
         return <div id="registration">
           <h3>Register an account</h3>
-          <form ref={this.registerForm} id="registerForm">
+          <form
+            onSubmit={this.beginRegistrationFlow}
+            ref={this.registerForm}
+            id="registerForm">
             <UserData
               setServer={props.setServer}
               server={props.server}
@@ -310,8 +322,15 @@ class Registration extends Component {
               password={props.password}
               setName={props.setName}
               name={props.name} />
-            <div><button className="styled-button" onClick={this.beginRegistrationFlow} >Register a New Account</button></div>
-            <div>Already have an account? <button className="styled-button" onClick={props.switchView("login")} >Login With Existing Account</button></div>
+            <div><button class="styled-button">Register a New Account</button></div>
+            <div>
+              <span>Already have an account? </span>
+              <div class="login-options">
+                <button class="styled-button" onClick={props.switchView("login")} >
+                  Login With Existing Account
+                </button>
+              </div>
+            </div>
           </form>
         </div>
       }
