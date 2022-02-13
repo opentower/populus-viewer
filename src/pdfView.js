@@ -48,7 +48,6 @@ export default class PdfView extends Component {
       pdfFitRatio: 1,
       zoomFactor: null,
       pinching: false,
-      hideButtons: false // this is for hiding the buttons, but only applies if the buttons overlap the chatbox
     }
 
     this.pdfScale = 3
@@ -379,7 +378,7 @@ export default class PdfView extends Component {
       const focus = new Location(theAnnotation)
       History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${focus.getPageIndex() || this.getPage()}/${roomId}`)
       const listingVisible = document.body.offsetWidth <= 600 ? false : this.state.listingVisible
-      this.setState({ focus, secondaryFocus: null, chatVisible: true, listingVisible, hideButtons: false })
+      this.setState({ focus, secondaryFocus: null, chatVisible: true, listingVisible })
     }
   }
 
@@ -722,7 +721,7 @@ export default class PdfView extends Component {
         startPindrop={this.startPindrop}
         pindropMode={state.pindropMode}
         setZoom={this.setZoom} />
-      <div data-hide-buttons={state.hideButtons} id="pdf-mobile-buttons">
+      <div id="pdf-mobile-buttons">
         <button title="open options" id="panel-toggle" onclick={this.openSidebar}>
           {state.chatVisible || state.listingVisible ? null : Icons.menu }
         </button>
