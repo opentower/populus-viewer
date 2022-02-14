@@ -72,7 +72,10 @@ export default class Chat extends Component {
 
   async loadTimelineWindow (roomId) {
     try {
-      await Client.client.joinRoom(this.props.focus.getChild())
+      await Client.client.joinRoom(
+        this.props.focus.getChild(),
+        { viaServers: this.props.focus.getVia() }
+      )
     } catch (err) {
       alert(err)
       this.props.unsetFocus()

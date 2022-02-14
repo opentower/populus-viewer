@@ -27,6 +27,10 @@ export default class Location {
     return this.location?.[mscPdfHighlight]?.text_content
   }
 
+  getVia() {
+    return this.event.getContent().via
+  }
+
   getPageIndex() {
     return this.location?.[mscPdfHighlight]?.page_index ||
       this.location?.[mscPdfText]?.page_index
