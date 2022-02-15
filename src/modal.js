@@ -12,9 +12,15 @@ export default class Modal extends Component {
     Modal.getTitle = _ => this.state.title
   }
 
-  hideModal = _ => this.setState({content: null, title: null})
+  hideModal = _ => {
+    document.body.dataset.modalVisible = false
+    this.setState({content: null, title: null})
+  }
 
-  setContent = (content, title) => this.setState({content, title})
+  setContent = (content, title) => {
+    document.body.dataset.modalVisible = true
+    this.setState({content, title})
+  }
 
   render(_, state) {
     return state.content

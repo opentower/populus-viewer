@@ -17,7 +17,9 @@
   left: 0px;
   right: 0px;
   background:black;
-  opacity:0.1
+  opacity:0.1;
+  overscroll-behavior:none;
+  overflow-y:scroll;
 }
 
 #modalContent {
@@ -32,6 +34,8 @@
   padding:30px;
   padding-right:60px;
   z-index:21;
+  overflow-y:scroll;
+  overscroll-behavior:contain;
 }
 
 html[data-scrollbars="hidden"] #modalContent {

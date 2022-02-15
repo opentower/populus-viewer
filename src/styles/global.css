@@ -24,6 +24,10 @@ body {
   height:100vh;
 }
 
+body[data-modal-visible] { 
+  overflow:hidden;
+}
+
 @keyframes reverse-pulse-color{
   0% { color: white }
   50% { color: black }
