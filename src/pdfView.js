@@ -477,6 +477,7 @@ export default class PdfView extends Component {
     if (e.key === '+' || e.key === '=') this.setZoom(zoomFactor => zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(zoomFactor => zoomFactor - 0.1)
     if (e.key === "Esc" || e.key === "Escape") History.push("/")
+    if (e.shiftKey) return
     if (e.key === 'j' || e.key === "ArrowRight") this.nextPage()
     if (e.key === 'k' || e.key === "ArrowLeft") this.prevPage()
     if (e.key === "ArrowUp") {
