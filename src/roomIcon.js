@@ -36,7 +36,9 @@ export default class RoomIcon extends Component {
     }
   }
 
-  joinRoom = _ => Client.client.joinRoom(this.props.roomId)
+  joinRoom = _ => Client.client.joinRoom(this.props.roomId,
+    { viaServers: this.props.via }
+  )
 
   roomColor = new RoomColor(this.props.name)
 

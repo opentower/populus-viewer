@@ -167,7 +167,8 @@ class SpaceListing extends Component {
       // We use an array here to avoid duplicating children
       children: {},
       limit: 30,
-      nextBatch: null
+      nextBatch: null,
+      via: null
     }
   }
 
@@ -183,11 +184,15 @@ class SpaceListing extends Component {
   loadChildren = async _ => {
     // dendrite will still use the fallback route, which can't restrict depth
     const response = await Client.client.getRoomHierarchy(this.props.room.roomId, 30, 1, false, this.state.nextBatch)
+    const via = {}
+    for (const childState of response.rooms[0]?.children_state) {
+      via[childState.state_key] = childState.content.via
+    }
     const children = this.state.children
     for (const child of response.rooms) {
-      if (child.room_id != this.props.room.roomId) children[child.room_id] = child
+      if (child.room_id !== this.props.room.roomId) children[child.room_id] = child
     }
-    this.setState({ children, nextBatch: response.next_batch }, this.refreshModal)
+    this.setState({ via, children, nextBatch: response.next_batch }, this.refreshModal)
   }
 
   pageChildren = async _ => {
@@ -215,12 +220,17 @@ class SpaceListing extends Component {
         const responsePromise = Client.client.getRoomHierarchy(e.getStateKey(), 1, 0)
         responsePromise.then(response => {
           const [child] = response.rooms
-          this.state.children[child.room_id] = child
-          this.setState({ children: this.state.children }, this.refreshModal)
+          this.setState(oldState => {
+            oldState.children[child.room_id] = child
+            oldState.via[e.getStateKey()] = e.getContent().via
+            return { via: oldState.via, children: oldState.children }
+          }, this.refreshModal)
         })
       } else {
-        delete this.state.children[e.getStateKey()]
-        this.setState({ children: this.state.children  }, this.refreshModal)
+        this.setState(oldState => {
+          delete oldState.children[e.getStateKey()]
+          return { children: oldState.children }
+        }, this.refreshModal)
       }
     }
   }
@@ -278,6 +288,7 @@ class SpaceListing extends Component {
           ? Object.values(state.children).slice(0, state.limit).map(child => <RoomIcon
               key={child.room_id}
               size={50}
+              via={state.via[child.room_id]}
               roomId={child.room_id}
               avatarUrl={child.avatar_url}
               name={child.name}

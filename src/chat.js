@@ -50,7 +50,7 @@ export default class Chat extends Component {
     }
   }
 
-  handleScroll = e => {
+  handleScroll = _ => {
     clearTimeout(this.debounceTimeout)
     this.debounceTimeout = setTimeout(this.tryBackfill, 200)
   }
