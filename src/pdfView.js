@@ -469,6 +469,7 @@ export default class PdfView extends Component {
       deviceId: Client.deviceId,
       ...(parseInt(this.props.pageFocused, 10) && { page: this.props.pageFocused })
     })
+    this.refreshFocus()
   }
 
   handleKeydown = e => {
@@ -528,6 +529,12 @@ export default class PdfView extends Component {
   setFocus = focus => {
     History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.props.pageFocused}/${focus.getChild()}/`)
     this.setState({secondaryFocus: null, focus, chatVisible: true })
+  }
+
+  refreshFocus = _ => {
+    const theRoomState = this.state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const theAnnotation = theRoomState.getStateEvents(spaceChild, this.props.roomFocused)
+    if (theAnnotation) this.setState({ focus: new Location(theAnnotation) })
   }
 
   setSecondaryFocus = secondaryFocus => this.setState({ secondaryFocus })
