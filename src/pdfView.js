@@ -51,8 +51,6 @@ export default class PdfView extends Component {
       pinching: false
     }
 
-    console.log(History.history)
-
     this.pdfScale = 3
     // single source of truth for PDF scale, pdfcanvas w/h are pdf dimensions (in userspace units) times scale
     this.prevScrollTop = 0
