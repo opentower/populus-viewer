@@ -7,12 +7,12 @@ export default class History {
   static message = {}
 
   static push(theRoute, message) {
-    History.message = message || {}
     route(theRoute)
+    this.history.replace(theRoute, message)
   }
 
   static replace(theRoute, message) {
-    History.message = message || {}
     route(theRoute, true)
+    this.history.replace(theRoute, message)
   }
 }

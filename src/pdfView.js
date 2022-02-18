@@ -25,6 +25,7 @@ import { UserColor } from "./utils/colors.js"
 export default class PdfView extends Component {
   constructor(props) {
     super(props)
+    const maybeState = History.history.location.state
     this.state = {
       roomId: null,
       focus: null,
@@ -34,21 +35,23 @@ export default class PdfView extends Component {
       panelVisible: false,
       chatVisible: false,
       listingType: null,
-      listingVisible: !!History.message?.searchString || false,
+      listingVisible: maybeState ? !!maybeState.searchString : false,
       hasSelection: false,
       annotationsVisible: true,
       annotationContents: [],
       filteredAnnotationContents: [],
       pindropMode: null,
-      annotationFilter: History.message?.searchString || "",
+      annotationFilter: maybeState ? maybeState.searchString : "",
       searchString: "",
       loadingStatus: "loading...",
       pdfWidthPx: null,
       pdfHeightPx: null,
       pdfFitRatio: 1,
       zoomFactor: null,
-      pinching: false,
+      pinching: false
     }
+
+    console.log(History.history)
 
     this.pdfScale = 3
     // single source of truth for PDF scale, pdfcanvas w/h are pdf dimensions (in userspace units) times scale
@@ -477,7 +480,7 @@ export default class PdfView extends Component {
     if (e.key === '+' || e.key === '=') this.setZoom(zoomFactor => zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(zoomFactor => zoomFactor - 0.1)
     if (e.key === "Esc" || e.key === "Escape") History.push("/")
-    if (e.shiftKey) return
+    if (e.shiftKey) return // don't capture shift-modified arrow keys, these change the text selection
     if (e.key === 'j' || e.key === "ArrowRight") this.nextPage()
     if (e.key === 'k' || e.key === "ArrowLeft") this.prevPage()
     if (e.key === "ArrowUp") {
