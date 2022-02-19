@@ -26,9 +26,7 @@ class PopulusViewer extends Component {
     else document.documentElement.dataset.scrollbars = "hidden"
     if (Client.isResumable()) Client.initClient().then(this.loginHandler)
     else if (this.loginToken) {
-      Client.initClient()
-        .then(_ => Client.client.loginWithToken(this.loginToken, this.loginHandler))
-        .then(_ => window.history.replaceState({}, '', location.pathname + location.hash)) // clear query parameters
+      Client.initClient().then(_ => Client.client.loginWithToken(this.loginToken, this.loginHandler))
     } else this.setState({ loggedIn: false })
   }
 
