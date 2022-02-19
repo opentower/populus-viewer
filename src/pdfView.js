@@ -4,12 +4,11 @@ import './styles/pdfView.css'
 import './styles/content-container.css'
 import * as Matrix from "matrix-js-sdk"
 import { unionRects } from "./layout.js"
-import AnnotationLayer from "./annotation.js"
 import Chat from "./chat.js"
 import RoomIcon from "./roomIcon.js"
 import AnnotationListing from "./annotationListing.js"
 import SearchResults from "./searchResults.js"
-import PdfCanvas from "./pdfCanvas.js"
+import PdfPage from "./pdfPage.js"
 import History from './history.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
@@ -625,36 +624,33 @@ export default class PdfView extends Component {
       <Router onChange={this.handleRouteChange} />
       {this.getLoadingStatus()}
       <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
-        <div id="document-wrapper" data-annotations-hidden={!state.annotationsVisible}>
-          <PdfCanvas setPdfWidthPx={this.setPdfWidthPx}
-            setPdfDimensions={this.setPdfDimensions}
-            setPdfFitRatio={this.setPdfFitRatio}
-            pdfScale={this.pdfScale}
-            annotationLayer={this.annotationLayer}
-            textLayer={this.textLayer}
-            searchString={state.searchString}
-            pdfFocused={props.pdfFocused}
-            pageFocused={this.getPage()}
-            initFocus={this.initFocus}
-            setId={this.setId}
-            setTotalPages={this.setTotalPages}
-            setPdfText={this.setPdfText}
-            setPdfLoadingStatus={this.setPdfLoadingStatus}
-          />
-          <AnnotationLayer ref={this.annotationLayer}
-                pindropMode={state.pindropMode}
-                annotationLayerWrapper={this.annotationLayerWrapper}
-                filteredAnnotationContents={state.filteredAnnotationContents}
-                pdfWidthAdjustedPx={state.pdfWidthPx / state.pdfFitRatio}
-                pdfHeightAdjustedPx={state.pdfHeightPx / state.pdfFitRatio}
-                zoomFactor={state.zoomFactor}
-                pageFocused={this.getPage()}
-                roomId={state.roomId}
-                setFocus={this.setFocus}
-                focus={state.focus}
-                secondaryFocus={state.secondaryFocus}
-          />
-        </div>
+        <PdfPage
+          annotationLayer={this.annotationLayer}
+          annotationLayerWrapper={this.annotationLayerWrapper}
+          annotationsVisible={state.annotationsVisible}
+          filteredAnnotationContents={state.filteredAnnotationContents}
+          focus={state.focus}
+          initFocus={this.initFocus}
+          pageFocused={this.getPage()}
+          pdfFocused={props.pdfFocused}
+          pdfHeightAdjustedPx={state.pdfHeightPx / state.pdfFitRatio}
+          pdfScale={this.pdfScale}
+          pdfWidthAdjustedPx={state.pdfWidthPx / state.pdfFitRatio}
+          pindropMode={state.pindropMode}
+          roomId={state.roomId}
+          searchString={state.searchString}
+          secondaryFocus={state.secondaryFocus}
+          setFocus={this.setFocus}
+          setId={this.setId}
+          setPdfDimensions={this.setPdfDimensions}
+          setPdfFitRatio={this.setPdfFitRatio}
+          setPdfLoadingStatus={this.setPdfLoadingStatus}
+          setPdfText={this.setPdfText}
+          setPdfWidthPx={this.setPdfWidthPx}
+          setTotalPages={this.setTotalPages}
+          textLayer={this.textLayer}
+          zoomFactor={state.zoomFactor}
+        />
       </div>
       <div id="sidepanel">
         {state.focus
@@ -683,18 +679,18 @@ export default class PdfView extends Component {
               roomFocused={props.roomFocused}
             />
           : <AnnotationListing
-                roomId={state.roomId}
-                class="panel-widget-2"
-                focus={state.focus}
-                setAnnotationFilter={this.setAnnotationFilter}
-                annotationFilter={state.annotationFilter}
-                annotationContents={state.annotationContents}
-                filteredAnnotationContents={state.filteredAnnotationContents}
-                focusByRoomId={this.focusByRoomId}
-                focusNext={this.focusNext}
-                focusPrev={this.focusPrev}
-                room={state.room}
-              />
+              roomId={state.roomId}
+              class="panel-widget-2"
+              focus={state.focus}
+              setAnnotationFilter={this.setAnnotationFilter}
+              annotationFilter={state.annotationFilter}
+              annotationContents={state.annotationContents}
+              filteredAnnotationContents={state.filteredAnnotationContents}
+              focusByRoomId={this.focusByRoomId}
+              focusNext={this.focusNext}
+              focusPrev={this.focusPrev}
+              room={state.room}
+            />
           }
         <div class="panel-widget-controls">
           {state.room ? <RoomIcon roomId={state.roomId} size={42} name={state.room.name} avatarUrl={state.room.getMxcAvatarUrl()} /> : null }
