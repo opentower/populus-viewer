@@ -14,6 +14,8 @@ export default class RoomSettings extends Component {
     this.initialJoinRule = this.roomState.getJoinRule()
     this.initialName = props.room.name
     this.initialVisibility = null
+    this.joinLink = `${window.location.protocol}//${window.location.hostname}${window.location.pathname}` +
+      `?join=${encodeURIComponent(props.room.roomId)}&via=${Client.client.getDomain()}`
     this.state = {
       previewUrl: props.room.getAvatarUrl(`https://${Client.client.getDomain()}`, 300, 300, "crop"),
       joinRule: this.initialJoinRule,
@@ -189,6 +191,8 @@ export default class RoomSettings extends Component {
               : "an explicit invitation is required before joining"
             }
           </div>
+          <label>Join Link</label>
+          <pre id="room-settings-join-link">{this.joinLink}</pre>
           <div id="room-settings-submit-wrapper">
             <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
             <button className="styled-button" onClick={this.cancel} >Cancel</button>

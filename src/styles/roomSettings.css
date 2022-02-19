@@ -38,6 +38,21 @@ div#room-settings-avatar-selector {
   font-size:10pt;
 }
 
+#room-settings-join-link {
+  grid-column: 2/3;
+  font-size:10pt;
+  overflow-y:scroll;
+  user-select:all;
+  text-overflow:ellipsis;
+}
+
+html[data-scrollbars="hidden"] #room-settings-join-link {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width:none;
+}
+
+html[data-scrollbars="hidden"] #room-settings-join-link::-webkit-scrollbar { display: none; }
+
 #room-settings-name-info,
 #room-settings-avatar-info,
 #room-settings-visibility-info,
@@ -76,6 +91,7 @@ div#room-settings-avatar-selector {
   #room-settings-avatar-info,
   #room-settings-avatar-selector,
   #room-settings-progress,
+  #room-settings-join-link,
   #room-settings-join-info {
     grid-column: 1/2;
   }

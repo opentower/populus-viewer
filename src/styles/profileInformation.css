@@ -22,14 +22,20 @@
     padding:10px;
 }
 
-#profile-advanced-options > div {
+#profile-advanced-options > pre {
+  margin:0px;
+  font-size:10pt;
   overflow-y:scroll;
   user-select:all;
+  text-overflow:ellipsis;
+}
+
+html[data-scrollbars="hidden"] #profile-advanced-options > pre {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
 
-#profile-advanced-options > div::-webkit-scrollbar { display: none; }
+html[data-scrollbars="hidden"] #profile-advanced-options > div::-webkit-scrollbar { display: none; }
 
 #profileInformationForm label {
     grid-column: 1 / 2 ;

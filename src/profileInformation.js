@@ -91,7 +91,7 @@ export default class ProfileInfomation extends Component {
           <summary>Advanced Options</summary>
           <div id="profile-advanced-options">
             <label>My Access Token</label>
-            <div>{Client.client.getAccessToken()}</div>
+            <pre>{Client.client.getAccessToken()}</pre>
           </div>
         </details>
         <div key="profileInformationFormSubmit" id="profileInformationFormSubmit">
