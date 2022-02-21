@@ -191,7 +191,7 @@ export default class RoomSettings extends Component {
               : "an explicit invitation is required before joining"
             }
           </div>
-          { props.joinLink 
+          { props.joinLink
             ? <Fragment>
                 <label>Join Link</label>
                 <pre id="room-settings-join-link">{this.joinLink}</pre>

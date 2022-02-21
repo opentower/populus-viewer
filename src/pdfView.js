@@ -3,7 +3,7 @@ import Router from 'preact-router';
 import './styles/pdfView.css'
 import './styles/content-container.css'
 import * as Matrix from "matrix-js-sdk"
-import { unionRects } from "./layout.js"
+import { unionRects } from "./utils/layout.js"
 import Chat from "./chat.js"
 import RoomIcon from "./roomIcon.js"
 import AnnotationListing from "./annotationListing.js"

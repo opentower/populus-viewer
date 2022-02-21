@@ -21,10 +21,14 @@ export function rectRelativeTo(elt, rect, zoomFactor) {
 }
 
 // take an array of rects and sanitize them, 
-// - removing zero width artifacts.
+// - removing zero width artifacts, and padding width
 // TODO: fuse relevantly overlapping rects
 export function sanitizeRects(rects) {
-  return rects.filter(rect => rect.width > 1)
+  return rects.filter(rect => rect.width > 1).map(rect => {
+    rect.x = rect.x - 5
+    rect.width = rect.width + 10
+    return rect
+  })
 }
 
 // take an array of rects and return the minimal rect containing all of them
