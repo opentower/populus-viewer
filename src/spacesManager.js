@@ -252,7 +252,7 @@ class SpaceListing extends Component {
 
   openSettings = _ => {
     this.setState({ actionsVisible: false })
-    Modal.set(<RoomSettings room={this.props.room} />)
+    Modal.set(<RoomSettings joinLink={true} room={this.props.room} />)
   }
 
   openInvite = _ => {

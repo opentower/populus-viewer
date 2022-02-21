@@ -210,7 +210,7 @@ class RoomEntry extends Component {
 
   openInvite = _ => Modal.set(<Invite room={this.props.room} />)
 
-  openSettings = _ => Modal.set(<RoomSettings room={this.props.room} />)
+  openSettings = _ => Modal.set(<RoomSettings joinLink={true} room={this.props.room} />)
 
   handleEditTags = _ => Modal.set(<TagEditor room={this.props.room} />)
 

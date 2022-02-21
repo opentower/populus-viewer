@@ -191,8 +191,13 @@ export default class RoomSettings extends Component {
               : "an explicit invitation is required before joining"
             }
           </div>
-          <label>Join Link</label>
-          <pre id="room-settings-join-link">{this.joinLink}</pre>
+          { props.joinLink 
+            ? <Fragment>
+                <label>Join Link</label>
+                <pre id="room-settings-join-link">{this.joinLink}</pre>
+              </Fragment>
+            : null
+          }
           <div id="room-settings-submit-wrapper">
             <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
             <button className="styled-button" onClick={this.cancel} >Cancel</button>
