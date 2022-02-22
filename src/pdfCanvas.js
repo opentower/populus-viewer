@@ -65,12 +65,12 @@ export default class PdfCanvas extends Component {
   }
 
   async fetchPdf (alias) {
-    const theId = await Client.client.getRoomIdForAlias(alias).catch(this.catchFetchPdfError(alias))
+    const {room_id, servers} = await Client.client.getRoomIdForAlias(alias).catch(this.catchFetchPdfError(alias))
     if (this.errorCondition) return
-    await Client.client.joinRoom(theId.room_id).catch(this.catchFetchPdfError(alias))
+    await Client.client.joinRoom(room_id, { viaServers: servers }).catch(this.catchFetchPdfError(alias))
     if (this.errorCondition) return
-    this.props.setId(theId.room_id)
-    const theRoom = await Client.client.getRoomWithState(theId.room_id).catch(this.catchFetchPdfError(alias))
+    this.props.setId(room_id)
+    const theRoom = await Client.client.getRoomWithState(room_id).catch(this.catchFetchPdfError(alias))
     if (this.errorCondition) return
     const thePdf = new Resource(theRoom)
     this.setState({pdfIdentifier: thePdf.url})
