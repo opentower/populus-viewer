@@ -186,7 +186,7 @@ class Notification extends Component {
 
   handleClick = _ => {
     const origin = new Location(this.originAnnotation)
-    History.push(`/${encodeURIComponent(this.originAlias.slice(1))}/${origin.location.pageNumber}/${origin.getChild()}`)
+    History.push(`/${encodeURIComponent(this.originAlias.slice(1))}/${origin.getPageIndex()}/${origin.getChild()}`)
   }
 
   render(props, state) {
