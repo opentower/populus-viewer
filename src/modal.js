@@ -13,7 +13,7 @@ export default class Modal extends Component {
   }
 
   hideModal = _ => {
-    document.body.dataset.modalVisible = false
+    delete document.body.dataset.modalVisible
     this.setState({content: null, title: null})
   }
 
