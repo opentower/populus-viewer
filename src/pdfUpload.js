@@ -84,7 +84,7 @@ export default class PdfUpload extends Component {
     const theTopic = this.roomTopicInput.current.value
     const mxc = await Client.client.uploadContent(theFile, { progressHandler: this.progressHandler })
     this.submitButton.current.setAttribute("disabled", true)
-    await Client.client.createRoom({
+    const { room_id } = await Client.client.createRoom({
       room_alias_name: theAlias,
       visibility: "private",
       name: theName,
@@ -116,6 +116,8 @@ export default class PdfUpload extends Component {
         }
       }
     }).catch(e => { alert(e); })
+    // make sure we've got the room before returning to the main view
+    await Client.client.getRoomWithState(room_id)
     this.mainForm.current.reset()
     this.props.showMainView()
   }
