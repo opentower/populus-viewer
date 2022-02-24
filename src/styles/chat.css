@@ -53,6 +53,10 @@
     box-sizing: border-box; /* Opera/IE 8+ */
 }
 
+.typing-indicator {
+  user-select:none;
+}
+
 #messageComposer > textarea:focus,
 .replyComposer > textarea:focus,
 .messageEditor > textarea:focus {

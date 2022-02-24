@@ -347,9 +347,9 @@ class TypingIndicator extends Component {
   render(props, state) {
     const displayNames = state.typing.map(typer => Client.client.getUser(typer).displayName)
     const howMany = displayNames.length
-    if (howMany === 0) return <div class="typingIndicator">&nbsp;</div>
-    else if (howMany === 1) return <div class="typingIndicator">{displayNames[0]} is typing</div>
-    else if (howMany === 2) return <div class="typingIndicator">{displayNames[0]} and {displayNames[1]} are typing</div>
-    return <div class="typingIndicator">several people are typing</div>
+    if (howMany === 0) return <div class="typing-indicator">&nbsp;</div>
+    else if (howMany === 1) return <div class="typing-indicator">{displayNames[0]} is typing</div>
+    else if (howMany === 2) return <div class="typing-indicator">{displayNames[0]} and {displayNames[1]} are typing</div>
+    return <div class="typing-indicator">several people are typing</div>
   }
 }

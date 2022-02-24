@@ -73,7 +73,7 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
     align-items: center;
     justify-content:center;
     max-width: var(--contentWidth);
-    transition:max-width 0.5s ease;
+    transition: var(--transitionSizing)
 }
 
 @media only screen and (max-width: 600px) {

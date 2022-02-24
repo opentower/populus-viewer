@@ -1,9 +1,11 @@
 #content-container {
+  --dragOffset: 0px;
   --sidepanelWidth: 100%; 
   --widget-1-width: calc(100% - var(--widget-control-width));
   /* 1px to compensate for border */
   --widget-2-width: calc(100% - var(--widget-control-width) + 1px);
   --widget-control-width:40px;
+  --transitionSizing: max-width 0.5s ease, width 0.5s ease, left 0.5s ease, right 0.5s ease, padding 0.5s ease;
 }
 
 #sidepanel {
@@ -20,7 +22,17 @@
       (100% + 5px) * (1 - max(var(--chatVisible), var(--listingVisible)))
     );
     width: var(--sidepanelWidth);
-    transition: width 0.5s ease, left 0.5s ease, right 0.5s ease, padding 0.5s ease;
+    transition: var(--transitionSizing)
+}
+
+#panel-handle {
+  position:absolute;
+  top:calc(50% - 100px);
+  left:-10px;
+  width: 10px;
+  cursor:ew-resize;
+  font-size:16pt;
+  user-select:none;
 }
 
 /* workaround for chrome bug with resizing the chat panel itself */
@@ -32,7 +44,7 @@
     -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
     -moz-box-sizing: border-box; /* Firefox, other Gecko */
     box-sizing: border-box; /* Opera/IE 8+ */
-    transition: width 0.5s ease, left 0.5s ease;
+    transition: var(--transitionSizing)
 }
 
 .panel-widget-1 {
@@ -137,7 +149,7 @@ html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
             + (var(--widget-2-width) * var(--listingVisible))
             + (var(--widget-control-width))
         );
-        --widget-1-width:350px;
+        --widget-1-width:calc(350px + var(--dragOffset));
         --widget-2-width:350px;
     }
 }
@@ -145,7 +157,7 @@ html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
 /* standard DPI */
 @media only screen and (min-width: 1280px) {
     #content-container {
-        --widget-1-width:400px;
+        --widget-1-width:calc(400px + var(--dragOffset));
         --widget-2-width:400px;
     }
 
@@ -161,7 +173,7 @@ html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
     
 @media only screen and (min-width: 1800px) {
     #content-container {
-        --widget-1-width:500px;
+        --widget-1-width:calc(400px + var(--dragOffset));
         --widget-2-width:500px;
     }
 }

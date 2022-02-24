@@ -653,6 +653,7 @@ export default class PdfView extends Component {
         />
       </div>
       <div id="sidepanel">
+        <PanelHandle contentContainer={this.contentContainer} />
         {state.focus
           ? <Chat class="panel-widget-1"
               setFocus={this.setFocus}
@@ -733,5 +734,29 @@ export default class PdfView extends Component {
       </div>
       <SyncIndicator class={state.chatVisible || state.listingVisible ? null : "sync-hidden"} />
     </div>
+  }
+}
+
+class PanelHandle extends Component {
+
+  dragOffset = 0
+
+  handleMouseMove = e => {
+    this.dragOffset = this.startingClientX - e.clientX
+    this.props.contentContainer.current.style.setProperty('--dragOffset', `${this.dragOffset}px`)
+  }
+
+  startDrag = e => {
+    this.props.contentContainer.current.style.setProperty('--transitionSizing', "unset")
+    this.startingClientX = e.clientX + this.dragOffset
+    document.addEventListener('mousemove', this.handleMouseMove)
+    document.addEventListener('mouseup', _ => {
+      this.props.contentContainer.current.style.removeProperty('--transitionSizing')
+      document.removeEventListener('mousemove', this.handleMouseMove)
+    })
+  }
+
+  render() {
+    return <div onMousedown={this.startDrag} id="panel-handle">⋮</div>
   }
 }
