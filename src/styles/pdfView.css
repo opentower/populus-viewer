@@ -44,7 +44,7 @@
 }
 
 #panel-handle-2 {
-  left: calc(var(--widget-1-width) - 10px);
+  left: calc((var(--chatVisible) * var(--widget-1-width)) - 10px);
 }
 
 /* workaround for chrome bug with resizing the chat panel itself */
