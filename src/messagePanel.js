@@ -42,6 +42,10 @@ export default class MessagePanel extends Component {
     }
   }
 
+  showMoreButton = createRef()
+
+  showLessButton = createRef()
+
   setModeDefault = _ => this.setState({ mode: "Default" })
 
   setModeSendFile = _ => this.setState({ mode: "SendFile" })
@@ -60,12 +64,18 @@ export default class MessagePanel extends Component {
     } else this.setState({ mode: "RecordAudio" })
   }
 
-  showMore = _ => this.setState({ buttons: this.state.buttons + 1 })
+  showMore = _ => this.setState({ buttons: this.state.buttons + 1 }, _ => {
+    if (this.showLessButton.current) this.showLessButton.current.focus()
+  })
 
-  showLess = _ => this.setState({ buttons: this.state.buttons - 1 })
+  showLess = _ => this.setState({ buttons: this.state.buttons - 1 }, _ => {
+    if (this.showMoreButton.current) this.showMoreButton.current.focus()
+    // need the conditional here because of occasional apparent timing issues with the callback
+  })
 
   submitCurrentInput = _ => {
     if (this.theInput.current) this.theInput.current.submitInput()
+    // need the conditional here because of occasional apparent timing issues with the callback
   }
 
   openPendingAnnotation = (theContent, eventInterface) => {
@@ -133,22 +143,19 @@ export default class MessagePanel extends Component {
       {this.getInput()}
       <div id="submit-button-wrapper">
         { state.mode === "Default"
-          ? <Fragment>
-            { state.buttons === 1
-              ? <Fragment>
-                  <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
-                  <button title="record audio message" onclick={this.setModeRecordAudio}>{Icons.mic}</button>
-                  <button title="record video message" onclick={this.setModeRecordVideo}>{Icons.video}</button>
-                  <button title="more options" onclick={this.showMore}>{Icons.moreHorizontal}</button>
-              </Fragment>
-              : <Fragment>
-                  <button title="more options" onclick={this.showLess}>{Icons.moreHorizontal}</button>
-                  <button id="quote-button" disabled={!props.hasSelection} title="quote highlighted" onclick={this.sendSelection}>{Icons.quote}</button>
-                  <button title="upload image" onclick={this.setModeSendImage}>{Icons.image}</button>
-                  <button title="upload file" onclick={this.setModeSendFile}>{Icons.upload}</button>
-                  {isAdmin ? <button title="configure room settings" onclick={this.openSettings}>{Icons.settings}</button> : null}
-              </Fragment>
-            }
+          ? state.buttons === 1
+            ? <Fragment>
+                <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
+                <button title="record audio message" onclick={this.setModeRecordAudio}>{Icons.mic}</button>
+                <button title="record video message" onclick={this.setModeRecordVideo}>{Icons.video}</button>
+                <button title="more options" ref={this.showMoreButton} onclick={this.showMore}>{Icons.moreHorizontal}</button>
+            </Fragment>
+            : <Fragment>
+                <button title="more options" ref={this.showLessButton} onclick={this.showLess}>{Icons.moreHorizontal}</button>
+                <button id="quote-button" disabled={!props.hasSelection} title="quote highlighted" onclick={this.sendSelection}>{Icons.quote}</button>
+                <button title="upload image" onclick={this.setModeSendImage}>{Icons.image}</button>
+                <button title="upload file" onclick={this.setModeSendFile}>{Icons.upload}</button>
+                {isAdmin ? <button title="configure room settings" onclick={this.openSettings}>{Icons.settings}</button> : null}
             </Fragment>
           : <Fragment>
               <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
