@@ -653,7 +653,7 @@ export default class PdfView extends Component {
         />
       </div>
       <div id="sidepanel">
-        <PanelHandle contentContainer={this.contentContainer} />
+        <PanelHandle visible={state.chatVisible} id="panel-handle-1" offsetVar="--dragOffset-1" contentContainer={this.contentContainer} />
         {state.focus
           ? <Chat class="panel-widget-1"
               setFocus={this.setFocus}
@@ -668,6 +668,7 @@ export default class PdfView extends Component {
               focus={state.focus} />
           : <div class="panel-widget-1" />
         }
+        <PanelHandle visible={state.listingVisible} id="panel-handle-2" offsetVar="--dragOffset-2" contentContainer={this.contentContainer} />
         { state.listingType === "search"
           ? <SearchResults
               class="panel-widget-2"
@@ -738,12 +739,11 @@ export default class PdfView extends Component {
 }
 
 class PanelHandle extends Component {
-
   dragOffset = 0
 
   handleMouseMove = e => {
     this.dragOffset = this.startingClientX - e.clientX
-    this.props.contentContainer.current.style.setProperty('--dragOffset', `${this.dragOffset}px`)
+    this.props.contentContainer.current.style.setProperty(this.props.offsetVar, `${this.dragOffset}px`)
   }
 
   startDrag = e => {
@@ -756,7 +756,7 @@ class PanelHandle extends Component {
     })
   }
 
-  render() {
-    return <div onMousedown={this.startDrag} id="panel-handle">⋮</div>
+  render(props) {
+    if (props.visible) return <div id={props.id} onMousedown={this.startDrag} class="panel-handle">⋮</div>
   }
 }

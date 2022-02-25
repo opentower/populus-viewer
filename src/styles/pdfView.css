@@ -1,5 +1,6 @@
 #content-container {
-  --dragOffset: 0px;
+  --dragOffset-1: 0px;
+  --dragOffset-2: 0px;
   --sidepanelWidth: 100%; 
   --widget-1-width: calc(100% - var(--widget-control-width));
   /* 1px to compensate for border */
@@ -25,14 +26,25 @@
     transition: var(--transitionSizing)
 }
 
-#panel-handle {
+.panel-handle {
+  opacity:0;
   position:absolute;
-  top:calc(50% - 100px);
   left:-10px;
   width: 10px;
+  height:100%;
+  display:flex;
+  align-items:center;
   cursor:ew-resize;
   font-size:16pt;
   user-select:none;
+}
+
+.panel-handle:hover {
+  opacity:1;
+}
+
+#panel-handle-2 {
+  left: calc(var(--widget-1-width) - 10px);
 }
 
 /* workaround for chrome bug with resizing the chat panel itself */
@@ -149,16 +161,16 @@ html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
             + (var(--widget-2-width) * var(--listingVisible))
             + (var(--widget-control-width))
         );
-        --widget-1-width:calc(350px + var(--dragOffset));
-        --widget-2-width:350px;
+        --widget-1-width:calc(350px + var(--dragOffset-1));
+        --widget-2-width:calc(350px + var(--dragOffset-2));
     }
 }
 
 /* standard DPI */
 @media only screen and (min-width: 1280px) {
     #content-container {
-        --widget-1-width:calc(400px + var(--dragOffset));
-        --widget-2-width:400px;
+        --widget-1-width:calc(400px + var(--dragOffset-1));
+        --widget-2-width:calc(400px + var(--dragOffset-2));
     }
 
     .panel-widget-1 {
@@ -173,7 +185,7 @@ html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
     
 @media only screen and (min-width: 1800px) {
     #content-container {
-        --widget-1-width:calc(400px + var(--dragOffset));
-        --widget-2-width:500px;
+        --widget-1-width:calc(400px + var(--dragOffset-1));
+        --widget-2-width:calc(500px + var(--dragOffset-2));
     }
 }
