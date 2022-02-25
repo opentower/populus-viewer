@@ -218,8 +218,8 @@ class MediaUploadInput extends Component {
 
   getPreview = _ => {
     switch (this.state.mediaType) {
-      case "image": return <img ref={this.mediaPreview} class="mediaMessageThumbnail" src={this.state.previewUrl} />
-      case "video": return <video ref={this.mediaPreview} class="mediaMessageThumbnail" controls src={this.state.previewUrl} />
+      case "image": return <img ref={this.mediaPreview} class="image-message-preview media-message-thumbnail" src={this.state.previewUrl} />
+      case "video": return <video ref={this.mediaPreview} class="video-message-preview media-message-thumbnail" controls src={this.state.previewUrl} />
     }
   }
 
@@ -300,7 +300,7 @@ class MediaUploadInput extends Component {
       <input id="mediaUploaderHidden" onchange={this.updatePreview} accept="image/*,video/*" ref={this.mediaLoader} type="file" />
       {state.previewUrl
         ? this.getPreview()
-        : <div onclick={this.uploadImage} class="mediaMessageThumbnail awaiting" />}
+        : <div onclick={this.uploadImage} class="media-message-thumbnail awaiting" />}
       {this.state.progress
         ? <div id="pdfUploadFormProgress">
           <span>{this.state.progress.loaded}</span>
@@ -540,7 +540,7 @@ class RecordVideoInput extends RecordMediaInput {
         onclick={this.clickHandler}
         muted={!(state.recording === "done")}
         ref={this.mediaPreview}
-        class="mediaMessageThumbnail" />
+        class="video-message-preview media-message-thumbnail" />
       {this.recordingIcon()}
       {state.progress
         ? <div id="pdfUploadFormProgress">

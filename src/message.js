@@ -205,7 +205,7 @@ class ReplyPreview extends Component {
         case "m.video": {
           const thumbUrl = this.state.liveEvent.getContent().info.thumbnail_url
           const poster = thumbUrl ? Client.client.getHttpUriForMxcFromHS(thumbUrl) : null
-          displayBody = <video class="mediaMessageThumbnail"
+          displayBody = <video class="media-message-thumbnail"
             controls
             poster={poster}
             preload={poster ? "none" : "metadata"}
@@ -215,7 +215,7 @@ class ReplyPreview extends Component {
         case "m.image": {
           const thumbUrl = this.state.liveEvent.getContent().info.thumbnail_url
           const url = thumbUrl ? Client.client.getHttpUriForMxcFromHS(thumbUrl) : null
-          displayBody = <img class="mediaMessageThumbnail" src={url} />
+          displayBody = <img class="media-message-thumbnail" src={url} />
           break;
         }
         case "m.audio": {
@@ -377,7 +377,7 @@ export class ImageMessage extends Component {
       reactions={props.reactions}
       event={props.event}>
         <div class="message-body image-upload">
-          <img class="mediaMessageThumbnail" src={this.url} />
+          <img class="media-message-thumbnail" src={this.url} />
         </div>
     </MessageFrame>
   }
@@ -402,7 +402,7 @@ export class VideoMessage extends Component {
       reactions={props.reactions}
       event={props.event}>
         <div class="message-body image-upload">
-          <video class="mediaMessageThumbnail"
+          <video class="media-message-thumbnail"
             controls
             poster={this.poster}
             preload={this.poster ? "none" : "metadata"}

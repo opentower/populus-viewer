@@ -277,14 +277,21 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
     right:0px;
 }
 
-.mediaMessageThumbnail {
-  width: calc(100% - 20px);
-  max-width:350px;
-  margin:10px;
+.media-message-thumbnail {
+  max-width: calc(100% - 20px);
   border-radius:20px;
 }
 
-.mediaMessageThumbnail.awaiting {
+.image-message-preview,
+.video-message-preview {
+  margin:10px;
+  width: calc(100% - 30px);
+}
+
+.media-message-thumbnail.awaiting {
   height:200px;
+  margin:10px;
   border:3px dashed black;
+  width: calc(100% - 30px);
+
 }
