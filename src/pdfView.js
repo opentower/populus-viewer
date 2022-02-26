@@ -742,7 +742,7 @@ class PanelHandle extends Component {
   dragOffset = 0
 
   handleMouseMove = e => {
-    if (this.startingClientX - e.clientX < 0) return
+    if (e.clientX < 20 || this.startingClientX - e.clientX < 0) return
     this.dragOffset = this.startingClientX - e.clientX
     this.props.contentContainer.current.style.setProperty(this.props.offsetVar, `${this.dragOffset}px`)
   }
