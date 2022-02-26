@@ -37,6 +37,7 @@
   cursor:ew-resize;
   font-size:16pt;
   user-select:none;
+  touch-action:none;
 }
 
 .panel-handle:hover {

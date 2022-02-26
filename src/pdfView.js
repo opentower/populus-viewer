@@ -749,15 +749,17 @@ class PanelHandle extends Component {
 
   startDrag = e => {
     this.props.contentContainer.current.style.setProperty('--transitionSizing', "unset")
+    this.props.contentContainer.current.setPointerCapture(e.pointerId)
     this.startingClientX = e.clientX + this.dragOffset
-    document.addEventListener('mousemove', this.handleMouseMove)
-    document.addEventListener('mouseup', _ => {
+    this.props.contentContainer.current.addEventListener('pointermove', this.handleMouseMove)
+    this.props.contentContainer.current.addEventListener('pointerup', _ => {
       this.props.contentContainer.current.style.removeProperty('--transitionSizing')
-      document.removeEventListener('mousemove', this.handleMouseMove)
+      this.props.contentContainer.current.releasePointerCapture(e.pointerId)
+      this.props.contentContainer.current.removeEventListener('pointermove', this.handleMouseMove)
     })
   }
 
   render(props) {
-    if (props.visible) return <div id={props.id} onMousedown={this.startDrag} class="panel-handle">⋮</div>
+    if (props.visible) return <div id={props.id} onpointerdown={this.startDrag} class="panel-handle">⋮</div>
   }
 }
