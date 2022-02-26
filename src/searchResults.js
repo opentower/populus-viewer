@@ -62,7 +62,7 @@ export default class SearchResults extends Component {
         for (const letter of text) {
           if (before && counter === idx) before = false
           if (!before && counter === idx2) {
-            contexts.push(text.slice(Math.max(0, start - 15), end + 15))
+            contexts.push(text.slice(Math.max(0, start - 15), end + 40))
             idx = cleantext.indexOf(word, idx + 1)
             idx2 = idx + word.length
             break
@@ -100,7 +100,7 @@ export default class SearchResults extends Component {
           for (const letter of text) {
             if (before && counter === idx) before = false
             if (!before && counter === idx2) {
-              contexts.push(text.slice(Math.max(0, start - 15), end + 15))
+              contexts.push(text.slice(Math.max(0, start - 15), end + 40))
               idx = cleantext.indexOf(word, idx + 1)
               idx2 = idx + word.length
               break

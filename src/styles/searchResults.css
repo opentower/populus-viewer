@@ -42,6 +42,14 @@
   transition: background-color 0.5s ease;
 }
 
+.result-context {
+  white-space:pre;
+  text-overflow:ellipsis;
+  overflow:hidden;
+  text-align:center;
+  padding-bottom:5px;
+}
+
 #pdf-search-result-panel .page-data {
   font-size:10pt;
   color:#565656;
