@@ -291,7 +291,7 @@ class SpaceListing extends Component {
               via={state.via[child.room_id]}
               roomId={child.room_id}
               avatarUrl={child.avatar_url}
-              name={child.name}
+              name={child.name || child.canonical_alias.slice(1) || "?"}
             />)
           : null // insert loading bling here.
         }
