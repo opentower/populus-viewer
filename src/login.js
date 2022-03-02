@@ -316,6 +316,7 @@ class Registration extends Component {
             ref={this.registerForm}
             id="registerForm">
             <UserData
+              newAccount={true}
               setServer={props.setServer}
               server={props.server}
               setPassword={props.setPassword}
@@ -361,9 +362,9 @@ class UserData extends Component {
     return (
       <Fragment>
         <label htmlFor="username">Username</label>
-        <input value={props.name} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
+        <input autocomplete="username" value={props.name} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
         <label htmlFor="password">Password</label>
-        <input value={props.password} oninput={this.validatePassword} type="password" ref={this.passwordInput} id="password" name="password" />
+        <input autocomplete={props.newAccount ? "new-password" : "current-password"} value={props.password} oninput={this.validatePassword} type="password" ref={this.passwordInput} id="password" name="password" />
         <label htmlFor="servername">Server</label>
         <input value={props.server} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
       </Fragment>
