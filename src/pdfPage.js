@@ -16,7 +16,7 @@ export default class PdfPage extends Component {
         pdfFocused={props.pdfFocused}
         pageFocused={props.pageFocused}
         initFocus={props.initFocus}
-        setId={props.setId}
+        setResource={props.setResource}
         setTotalPages={props.setTotalPages}
         setPdfText={props.setPdfText}
         setPdfLoadingStatus={props.setPdfLoadingStatus}

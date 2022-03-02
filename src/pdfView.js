@@ -159,9 +159,8 @@ export default class PdfView extends Component {
 
   setNavHeight = px => this.setState({ navHeight: px })
 
-  setId = id => {
-    // sets the roomId after loading a PDF, and also tries to use that information to update the focus.
-    this.setState({room: Client.client.getRoom(id), roomId: id}, _ => this.props.roomFocused
+  setResource = room => {
+    this.setState({room, roomId: room.roomId}, _ => this.props.roomFocused
       ? this.focusByRoomId(this.props.roomFocused)
       : null)
   }
@@ -641,7 +640,7 @@ export default class PdfView extends Component {
           searchString={state.searchString}
           secondaryFocus={state.secondaryFocus}
           setFocus={this.setFocus}
-          setId={this.setId}
+          setResource={this.setResource}
           setPdfDimensions={this.setPdfDimensions}
           setPdfFitRatio={this.setPdfFitRatio}
           setPdfLoadingStatus={this.setPdfLoadingStatus}

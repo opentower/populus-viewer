@@ -69,10 +69,10 @@ export default class PdfCanvas extends Component {
     if (this.errorCondition) return
     await Client.client.joinRoom(room_id, { viaServers: servers }).catch(this.catchFetchPdfError(alias))
     if (this.errorCondition) return
-    this.props.setId(room_id)
     const theRoom = await Client.client.getRoomWithState(room_id).catch(this.catchFetchPdfError(alias))
     if (this.errorCondition) return
     const thePdf = new Resource(theRoom)
+    this.props.setResource(theRoom)
     this.setState({pdfIdentifier: thePdf.url})
     if (!PdfCanvas.PDFStore[thePdf.url]) {
       PdfCanvas.PDFStore[thePdf.url] = window.fetch(thePdf.httpUrl)
