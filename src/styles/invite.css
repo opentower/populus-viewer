@@ -12,6 +12,10 @@
   max-width:100%;
 }
 
+.disinvite-candidate {
+  opacity:.5
+}
+
 .invite-candidate:hover,
 .disinvite-candidate:hover,
 .removal-candidate:hover {
