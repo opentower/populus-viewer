@@ -10,7 +10,7 @@ import SearchBar from './search.js'
 import RoomIcon from './roomIcon.js'
 import * as Icons from './icons.js'
 import { RoomColor } from './utils/colors.js'
-import { spaceChild, spaceParent } from "./constants.js"
+import { spaceChild, spaceParent, populusCollectionChild } from "./constants.js"
 
 export default class SpacesManager extends Component {
   constructor(props) {
@@ -400,7 +400,10 @@ class AvailableDiscussionListing extends Component {
   addMe = async _ => {
     this.setState({pending: true})
     const theDomain = Client.client.getDomain()
-    const childContent = { via: [theDomain] }
+    const childContent = { 
+      via: [theDomain],
+      [populusCollectionChild]: true
+    }
     const parentContent = { via: [theDomain] }
     await Client.client
       .sendStateEvent(this.props.collection.roomId, spaceChild, childContent, this.props.room.roomId)
