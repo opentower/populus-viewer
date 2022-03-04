@@ -29,12 +29,11 @@
     right:5px;
     align-items:center;
     display:flex;
-    background:#efefef;
 }
 
 .search-bar > .right-decoration > .search-hint {
   border-radius:5px;
-  border: solid 1px #ababab;
+  border: solid 1px #cdcdcd;
   padding-left:5px;
   padding-right:5px;
   color:#ababab;

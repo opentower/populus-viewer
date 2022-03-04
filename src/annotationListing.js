@@ -277,6 +277,7 @@ export default class AnnotationListing extends Component {
                   setTextValue={props.setAnnotationFilter}
                 />
                 <SearchBar
+                  hint="/"
                   searchInput={this.searchInput}
                   search={props.annotationFilter}
                   setSearch={props.setAnnotationFilter}

@@ -120,6 +120,7 @@ export default class WelcomeView extends Component {
             search={state.searchFilter}
             setSearch={this.setSearch}
             submit={this.submitSearch}
+            hint="/"
             setFocus={this.setFocus} />
           { !state.inputFocus && <Fragment>
             {state.narrow

@@ -158,6 +158,7 @@ export default class SearchResults extends Component {
           <div id="pdf-search-term">
             <div><b>Search Results For:</b></div>
             <SearchBar
+              hint="Alt-/"
               searchInput={this.searchInput}
               onBlur={this.handleBlur}
               search={props.searchString}
