@@ -23,6 +23,11 @@
     font-weight: bold;
 }
 
+.room-filter-content .small-icon {
+    vertical-align: sub;
+    padding-right:5px;
+}
+
 .room-filter-content::after {
     content: ","
 }

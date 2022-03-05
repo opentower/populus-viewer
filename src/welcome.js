@@ -70,7 +70,9 @@ export default class WelcomeView extends Component {
     this.setState(oldState => {
       return {
         searchFilter: "",
-        filterItems: oldState.filterItems.concat(toWords(oldState.searchFilter))
+        filterItems: oldState.filterItems.concat(
+          toWords(oldState.searchFilter).map(word => { return { display: word, value: word} })
+        )
       }
     })
   }

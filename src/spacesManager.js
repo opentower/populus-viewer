@@ -235,7 +235,10 @@ class SpaceListing extends Component {
     }
   }
 
-  searchMe = _ => this.props.filterSet(`*${this.props.room.name}`)
+  searchMe = _ => this.props.filterSet({
+    display: <Fragment><span class="small-icon">{Icons.collection}</span>{this.props.room.name}</Fragment>,
+    value: `*${this.props.room.name}`
+  })
 
   toggleActions = _ => this.setState(oldState => { return { actionsVisible: !oldState.actionsVisible } })
 

@@ -164,19 +164,19 @@ export default class RoomList extends Component {
       </div>
       <FilterList setFilterItems={props.setFilterItems} filterItems={props.filterItems} />
       {/* TODO: We're probably going to need to debounce this rather than searching with each render, for longer lists of rooms */}
-      <div>{this.sortRooms(this.searchRooms(toWords(props.searchFilter).concat(props.filterItems)))}</div>
+      <div>{this.sortRooms(this.searchRooms(toWords(props.searchFilter).concat(props.filterItems.map(item => item.value))))}</div>
     </div>
   }
 }
 
 class FilterList extends Component {
-  removeFilter = item => this.props.setFilterItems(this.props.filterItems.filter(x => x !== item))
+  removeFilter = item => this.props.setFilterItems(this.props.filterItems.filter(x => x.value !== item.value))
 
   render(props) {
     if (props.filterItems.length > 0) {
       return <div id="room-filters">
         Filters: {props.filterItems.map(item =>
-          <FilterListing removeFilter={this.removeFilter} key={item} filter={item} />
+          <FilterListing removeFilter={this.removeFilter} key={item.value} filter={item} />
       )}
       </div>
     }
@@ -188,7 +188,7 @@ class FilterListing extends Component {
 
   render(props) {
     return <span class="room-filter-listing" >
-      <span class="room-filter-content">{props.filter}</span>
+      <span class="room-filter-content">{props.filter.display}</span>
       <button onclick={this.removeMe}class="small-icon-badge">{Icons.close}</button>
     </span>
   }
