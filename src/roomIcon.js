@@ -45,14 +45,14 @@ export default class RoomIcon extends Component {
     }
   }
 
-  joinRoom = _ => Client.client.joinRoom(this.props.roomId,
-    { viaServers: this.props.via }
-  )
+  handleClick = _ => this.state.joined
+    ? (this.props.activeClick && this.props.activeClick(this.props.roomId))
+    : (this.props.inactiveClick && this.props.inactiveClick(this.props.roomId))
 
   roomColor = new RoomColor(this.props.name)
 
   render(props, state) {
-    return <div onclick={this.joinRoom}
+    return <div onclick={this.handleClick}
       data-joined={state.joined}
       data-has-avatar={!!state.avatarUrl}
       class="room-icon"

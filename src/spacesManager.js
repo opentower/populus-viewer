@@ -253,6 +253,8 @@ class SpaceListing extends Component {
       />, "addChild")
   }
 
+  joinChild = roomId => Client.client.joinRoom(roomId, { viaServers: this.state.via[roomId] })
+
   openSettings = _ => {
     this.setState({ actionsVisible: false })
     Modal.set(<RoomSettings joinLink={true} room={this.props.room} />)
@@ -291,7 +293,7 @@ class SpaceListing extends Component {
           ? Object.values(state.children).slice(0, state.limit).map(child => <RoomIcon
               key={child.room_id}
               size={50}
-              via={state.via[child.room_id]}
+              inactiveClick={this.joinChild}
               roomId={child.room_id}
               avatarUrl={child.avatar_url}
               name={child.name || child.canonical_alias.slice(1) || "?"}
