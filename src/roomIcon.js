@@ -29,10 +29,19 @@ export default class RoomIcon extends Component {
 
   handleRoom = (e, r) => {
     if (e.roomId === this.props.roomId || r?.roomId === this.props.roomId) {
-      clearTimeout(this.roomDebounceTimeout)
-      this.roomDebounceTimeout = setTimeout(_ => {
-        this.setState({ joined: this.amJoined() })
-      })
+      if (e.getType() === "m.room.avatar") {
+        this.setState({
+          joined: this.amJoined(),
+          avatarUrl: e.getContent().url
+            ? Client.client.mxcUrlToHttp(e.getContent().url, 35, 35, "crop")
+            : null
+        })
+      } else {
+        clearTimeout(this.roomDebounceTimeout)
+        this.roomDebounceTimeout = setTimeout(_ => {
+          this.setState({ joined: this.amJoined() })
+        })
+      }
     }
   }
 
