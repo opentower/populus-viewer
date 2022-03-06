@@ -125,7 +125,6 @@ class ServerResults extends Component {
   serverSearch = async _ => {
     this.setState({pending: true})
     const { results } = await Client.client.searchUserDirectory({term: this.props.search})
-    console.log(results)
     this.setState({results, fired: true, pending: false})
   }
 
