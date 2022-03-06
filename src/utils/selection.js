@@ -15,8 +15,6 @@ export function textFromPdfSelection(sel) {
 export function rectsFromPdfSelection(sel, elt, zoom) {
   const theRange = sel.getRangeAt(0)
   let rects = []
-  console.log(theRange.startContainer)
-  console.log(theRange.endContainer)
   if (theRange.startContainer !== theRange.endContainer) {
     if (theRange.startContainer.nodeType === 1) { // starts in an element
       const startRangeChildren = Array.from(theRange.startContainer.childNodes).slice(theRange.startOffset)

@@ -105,11 +105,13 @@ export default class RoomList extends Component {
     const searchMembers = []
     const searchFlags = []
     const searchParents = []
+    const searchIds = []
     for (const word of searchWords) {
       if (word.slice(0, 1) === '#') searchTags.push(word.slice(1))
       else if (word.slice(0, 1) === '@') searchMembers.push(word.slice(1))
       else if (word.slice(0, 1) === '*') searchParents.push(word.slice(1))
       else if (word.slice(0, 1) === '~') searchFlags.push(word.slice(1))
+      else if (word.slice(0, 1) === '!') searchIds.push(word)
       else searchNames.push(word)
     }
     // XXX ↓ very naive implementation, watch for speed
@@ -122,6 +124,7 @@ export default class RoomList extends Component {
       const roomMembers = state.getMembers().map(m => m.userId)
       const parents = state.getStateEvents("m.space.parent").map(e => Client.client.getRoom(e.getStateKey())?.name).filter(e => e)
       return searchNames.every(name => room.name.toLowerCase().includes(name.toLowerCase())) &&
+        (searchIds.length > 0 ? searchIds.some(id => room.roomId === id) : true) &&
         searchMembers.every(member => roomMembers.some(roomMember => roomMember.toLowerCase().includes(member.toLowerCase()))) &&
         searchTags.every(searchTag => tags.some(tag => tag.toLowerCase().includes(searchTag.toLowerCase()))) &&
         searchParents.every(searchParent => parents.some(parent => parent.toLowerCase().includes(searchParent.toLowerCase()))) &&

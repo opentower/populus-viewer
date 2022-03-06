@@ -50,6 +50,15 @@ export default class SpacesManager extends Component {
       : null
   }
 
+  filterToggle = s => {
+    const newItems = this.props.filterItems.filter(item => item.value !== s.value)
+    if (newItems.length === this.props.filterItems.length) newItems.push(s)
+    this.props.setFilterItems(newItems)
+    this.props.showMainView
+      ? this.props.showMainView()
+      : null
+  }
+
   isCollection(room) {
     const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const creation = roomState.getStateEvents("m.room.create", "")
@@ -65,7 +74,7 @@ export default class SpacesManager extends Component {
     return <div id="spaces-manager">
       <h1>Collections</h1>
       <div id="spaces-list">
-        {state.spaces.map(room => <SpaceListing filterSet={this.filterSet} narrow={props.narrow} key={room.roomId} room={room} />)}
+        {state.spaces.map(room => <SpaceListing filterToggle={this.filterToggle} filterSet={this.filterSet} narrow={props.narrow} key={room.roomId} room={room} />)}
       </div>
       <div>
         <button onclick={this.createCollection} id="create-space">+ Create New Collection</button>
@@ -255,6 +264,11 @@ class SpaceListing extends Component {
 
   joinChild = roomId => Client.client.joinRoom(roomId, { viaServers: this.state.via[roomId] })
 
+  toggleChild = (roomId, name) => this.props.filterToggle({
+    value: roomId,
+    display: <Fragment><span class="small-icon">{Icons.page}</span>{name}</Fragment>
+  })
+
   openSettings = _ => {
     this.setState({ actionsVisible: false })
     Modal.set(<RoomSettings joinLink={true} room={this.props.room} />)
@@ -294,6 +308,7 @@ class SpaceListing extends Component {
               key={child.room_id}
               size={50}
               inactiveClick={this.joinChild}
+              activeClick={this.toggleChild}
               roomId={child.room_id}
               avatarUrl={child.avatar_url}
               name={child.name || child.canonical_alias.slice(1) || "?"}

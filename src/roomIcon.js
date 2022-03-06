@@ -46,8 +46,8 @@ export default class RoomIcon extends Component {
   }
 
   handleClick = _ => this.state.joined
-    ? (this.props.activeClick && this.props.activeClick(this.props.roomId))
-    : (this.props.inactiveClick && this.props.inactiveClick(this.props.roomId))
+    ? (this.props.activeClick && this.props.activeClick(this.props.roomId, this.props.name))
+    : (this.props.inactiveClick && this.props.inactiveClick(this.props.roomId, this.props.name))
 
   roomColor = new RoomColor(this.props.name)
 
@@ -57,6 +57,9 @@ export default class RoomIcon extends Component {
       data-has-avatar={!!state.avatarUrl}
       class="room-icon"
       style={{
+        cursor: state.joined
+          ? (props.activeClick && "pointer")
+          : (props.inactiveClick && "pointer"),
         width: props.size,
         height: props.size,
         lineHeight: `${props.size}px`,
