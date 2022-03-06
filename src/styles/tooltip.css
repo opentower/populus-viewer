@@ -1,0 +1,11 @@
+.tippy-box {
+  color:white;
+  background:black;
+  padding:5px;
+  font-weight:bold;
+  border-radius:5px;
+}
+
+.tippy-box[data-theme="bordered"] {
+  border: 1px solid white;
+}

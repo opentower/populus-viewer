@@ -18,6 +18,7 @@ import Location from './utils/location.js'
 import { textFromPdfSelection, rectsFromPdfSelection } from './utils/selection.js'
 import SyncIndicator from './syncIndicator.js'
 import Toast from "./toast.js"
+import ToolTip from "./utils/tooltip.js"
 import * as Icons from "./icons.js"
 import { UserColor } from "./utils/colors.js"
 
@@ -696,12 +697,16 @@ export default class PdfView extends Component {
         <div class="panel-widget-controls">
           {state.room ? <RoomIcon roomId={state.roomId} size={42} name={state.room.name} avatarUrl={state.room.getMxcAvatarUrl()} /> : null }
           <hr />
-          <button data-active={state.chatVisible} disabled={!state.focus} title="show chat" id="show-annotations" onclick={this.toggleChat}>
-            {Icons.annotation}
-          </button>
-          <button data-active={state.listingVisible} title="focus annotation list" id="show-annotations" onclick={this.toggleListing}>
-            {Icons.list}
-          </button>
+          <ToolTip placement="left" content="Show chat">
+            <button data-active={state.chatVisible} disabled={!state.focus} id="show-annotations" onclick={this.toggleChat}>
+              {Icons.annotation}
+            </button>
+          </ToolTip>
+          <ToolTip placement="left" content="Show annotation list">
+            <button data-active={state.listingVisible} id="show-annotations" onclick={this.toggleListing}>
+              {Icons.list}
+            </button>
+          </ToolTip>
         </div>
       </div>
       <Navbar hasSelection={state.hasSelection}

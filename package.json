@@ -45,6 +45,7 @@
     "preact": "^10.5.12",
     "preact-router": "^4.0.1",
     "sanitize-html": "^2.3.3",
+    "tippy.js": "^6.3.7",
     "url": "^0.11.0"
   }
 }
