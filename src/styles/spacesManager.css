@@ -159,3 +159,11 @@
         min-width: 0px; /* helps prevent overflow on very narrow viewports */
     }
 } 
+
+@media only screen and (min-width: 600px) {
+  .space-listing-children { padding-right:50px; }
+}
+
+@media only screen and (min-width: 1280px) {
+  .space-listing-children { padding-right:100px; }
+}

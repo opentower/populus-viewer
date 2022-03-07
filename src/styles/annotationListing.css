@@ -47,6 +47,15 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
     transition: background-color 0.5s ease;
 }
 
+/* Medium devices (landscape tablets, 768px and up) */
+@media only screen and (min-width: 768px) {
+  #annotation-panel .annotation-listing-entry {
+      width:calc(100% - 50px);
+      padding:20px 25px 20px 25px;
+
+  } 
+}
+
 #annotation-panel .annotation-listing-divider {
     border-bottom: 1px solid #dddddd;
     margin: 20px 60px 20px 60px;
