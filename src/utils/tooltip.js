@@ -5,9 +5,10 @@ import '../styles/tooltip.css';
 export default class ToolTip extends Component {
   componentDidMount() {
     this.tippy = tippy(this.base, Object.assign({
-      delay: [1000, null],
+      delay: [1500, null],
       touch: ["hold", 1000]
     }, this.props))
+    this.base.addEventListener("focusout", this.tippy.hide())
   }
 
   componentWillUnmount() {

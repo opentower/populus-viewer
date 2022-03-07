@@ -9,3 +9,7 @@
 .tippy-box[data-theme="bordered"] {
   border: 1px solid white;
 }
+
+.tippy-box[data-theme="small"] {
+  font-size:10pt;
+}

@@ -8,6 +8,7 @@ import { processRegex } from './processRegex.js'
 import { UserColor } from './utils/colors.js'
 import Client from './client.js'
 import Modal from './modal.js'
+import ToolTip from './utils/tooltip.js'
 import AudioVisualizer from './audioVisualizer.js'
 import * as PopupMenu from './popUpMenu.js'
 import RoomSettings from './roomSettings.js'
@@ -42,10 +43,6 @@ export default class MessagePanel extends Component {
     }
   }
 
-  showMoreButton = createRef()
-
-  showLessButton = createRef()
-
   setModeDefault = _ => this.setState({ mode: "Default" })
 
   setModeSendFile = _ => this.setState({ mode: "SendFile" })
@@ -64,14 +61,9 @@ export default class MessagePanel extends Component {
     } else this.setState({ mode: "RecordAudio" })
   }
 
-  showMore = _ => this.setState({ buttons: this.state.buttons + 1 }, _ => {
-    if (this.showLessButton.current) this.showLessButton.current.focus()
-  })
+  showMore = _ => this.setState({ buttons: this.state.buttons + 1 })
 
-  showLess = _ => this.setState({ buttons: this.state.buttons - 1 }, _ => {
-    if (this.showMoreButton.current) this.showMoreButton.current.focus()
-    // need the conditional here because of occasional apparent timing issues with the callback
-  })
+  showLess = _ => this.setState({ buttons: this.state.buttons - 1 })
 
   submitCurrentInput = _ => {
     if (this.theInput.current) this.theInput.current.submitInput()
@@ -146,16 +138,35 @@ export default class MessagePanel extends Component {
           ? state.buttons === 1
             ? <Fragment>
                 <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
-                <button title="record audio message" onclick={this.setModeRecordAudio}>{Icons.mic}</button>
-                <button title="record video message" onclick={this.setModeRecordVideo}>{Icons.video}</button>
-                <button title="more options" ref={this.showMoreButton} onclick={this.showMore}>{Icons.moreHorizontal}</button>
+                <ToolTip key="record-audio" content="Record audio message">
+                  <button aria-label="Record audio message" onclick={this.setModeRecordAudio}>{Icons.mic}</button>
+                </ToolTip>
+                <ToolTip key="record-video" content="Record video message">
+                  <button aria-label="Record video message" onclick={this.setModeRecordVideo}>{Icons.video}</button>
+                </ToolTip>
+                <ToolTip key="more-options" content="More options">
+                  <button aria-label="More options" ref={this.showMoreButton} onclick={this.showMore}>{Icons.moreHorizontal}</button>
+                </ToolTip>
             </Fragment>
             : <Fragment>
-                <button title="more options" ref={this.showLessButton} onclick={this.showLess}>{Icons.moreHorizontal}</button>
-                <button id="quote-button" disabled={!props.hasSelection} title="quote highlighted" onclick={this.sendSelection}>{Icons.quote}</button>
-                <button title="upload image" onclick={this.setModeSendImage}>{Icons.image}</button>
-                <button title="upload file" onclick={this.setModeSendFile}>{Icons.upload}</button>
-                {isAdmin ? <button title="configure room settings" onclick={this.openSettings}>{Icons.settings}</button> : null}
+                <ToolTip key="more-options-2" content="More options">
+                  <button aria-label="More options" ref={this.showLessButton} onclick={this.showLess}>{Icons.moreHorizontal}</button>
+                </ToolTip>
+                <ToolTip key="quote-highlighted" content="Quote highlighted">
+                  <button id="quote-button" disabled={!props.hasSelection} aria-label="quote highlighted" onclick={this.sendSelection}>{Icons.quote}</button>
+                </ToolTip>
+                <ToolTip key="upload-image" content="Upload image">
+                  <button aria-label="Upload image" onclick={this.setModeSendImage}>{Icons.image}</button>
+                </ToolTip>
+                <ToolTip key="upload-file" content="Upload file">
+                  <button aria-label="Upload file" onclick={this.setModeSendFile}>{Icons.upload}</button>
+                </ToolTip>
+                {isAdmin
+                  ? <ToolTip key="configure-room" content="Configure room settings">
+                    <button aria-label="Configure room settings" onclick={this.openSettings}>{Icons.settings}</button>
+                  </ToolTip>
+                  : null
+                }
             </Fragment>
           : <Fragment>
               <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
@@ -478,10 +489,10 @@ class RecordMediaInput extends Component {
 
   recordingIcon = _ => {
     switch (this.state.recording) {
-      case "started" : return <div title="stop recording" data-recording-state={this.state.recording} id={this.captionId}>{Icons.pause}</div>
+      case "started" : return <div aria-label="Stop recording" data-recording-state={this.state.recording} id={this.captionId}>{Icons.pause}</div>
       case "countdown" : return <div data-recording-state={this.state.recording} id={this.captionId}>{this.state.countdown}</div>
       case "done" : return null
-      case undefined : return <div title="start recording" data-recording-state={this.state.recording} id={this.captionId}>{this.icon}</div>
+      case undefined : return <div aria-label="Start recording" data-recording-state={this.state.recording} id={this.captionId}>{this.icon}</div>
     }
   }
 

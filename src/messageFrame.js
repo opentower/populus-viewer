@@ -5,6 +5,7 @@ import * as PopupMenu from './popUpMenu.js'
 import * as Replies from './utils/replies.js'
 import { processRegex } from './processRegex.js'
 import Client from './client.js'
+import ToolTip from './utils/tooltip.js'
 import * as CommonMark from 'commonmark'
 
 export default class MessageFrame extends Component {
@@ -188,12 +189,16 @@ class ActionsOnOthersMessages extends Component {
           <button key="g" onclick={this.pickEmoji}>{Icons.moreHorizontal}</button>
         </div>
       default : return <div ref={this.actions} class="message-actions">
-          {!props.responding && <button key="h" title="reply to this message" onclick={props.openEditor}>
-            {Icons.reply}
-          </button>}
-          <button key="i" title="react to this message" class="reaction" onclick={this.selectEmoji}>
+          {!props.responding && <ToolTip placement="top-start" theme="small" content="reply to this message">
+            <button key="h" aria-label="Reply to this message" onclick={props.openEditor}>
+              {Icons.reply}
+            </button>
+          </ToolTip>}
+          <ToolTip placement="top-start" theme="small" content="React to this message">
+            <button key="i" aria-label="React to this message" class="reaction" onclick={this.selectEmoji}>
             {Icons.like}
-          </button>
+            </button>
+          </ToolTip>
         </div>
     }
   }
@@ -201,12 +206,18 @@ class ActionsOnOthersMessages extends Component {
 
 function ActionsOnOwnMessages(props) {
   return <div class="message-actions">
-    {!props.responding && props.canEdit && <button title="edit this message" onclick={props.openEditor}>
-      {Icons.edit}
-    </button>}
-    <button title="delete this message" onclick={props.redactMessage} class="redact">
+    {!props.responding && props.canEdit && 
+      <ToolTip placement="top-end" theme="small" content="Edit this message">
+        <button aria-label="Edit this message" onclick={props.openEditor}>
+        {Icons.edit}
+        </button>
+      </ToolTip>
+    }
+    <ToolTip placement="top-end" theme="small" content="Delete this message">
+      <button aria-label="Delete this message" onclick={props.redactMessage} class="redact">
       {Icons.trash}
-    </button>
+      </button>
+    </ToolTip>
   </div>
 }
 
