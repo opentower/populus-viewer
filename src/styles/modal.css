@@ -17,7 +17,7 @@
   left: 0px;
   right: 0px;
   background:black;
-  opacity:0.1;
+  opacity:0.15;
   overscroll-behavior:none;
   overflow-y:scroll;
 }

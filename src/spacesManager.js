@@ -3,6 +3,7 @@ import * as Matrix from "matrix-js-sdk"
 import Client from './client.js'
 import './styles/spacesManager.css'
 import Modal from './modal.js'
+import { toastError } from "./toast.js"
 import Invite from './invite.js'
 import Resource from './utils/resource.js'
 import RoomSettings from './roomSettings.js'
@@ -263,6 +264,7 @@ class SpaceListing extends Component {
   }
 
   joinChild = roomId => Client.client.joinRoom(roomId, { viaServers: this.state.via[roomId] })
+    .catch(toastError("Couldn't join this discussion"))
 
   toggleChild = (roomId, name) => this.props.filterToggle({
     value: roomId,
@@ -315,7 +317,6 @@ class SpaceListing extends Component {
             />)
           : null // insert loading bling here.
         }
-        {isAdmin && props.dragging ? <button ondrop={_ => alert('drop not implemented!')} class="add-child-to-collection">+</button> : null }
         {(state.nextBatch || state.limit < Object.values(state.children).length)
           ? <div class="space-listing-more" onclick={this.addChildren}>...</div>
           : null
@@ -398,11 +399,10 @@ class CurrentDiscussionListing extends Component {
     this.setState({pending: true})
     await Client.client
       .sendStateEvent(this.props.collection.roomId, spaceChild, {}, this.props.child.room_id)
-      .catch(e => alert(e))
+      .catch(toastError("Couldn't remove discussion from collection"))
     await Client.client
       .sendStateEvent(this.props.child.room_id, spaceParent, {}, this.props.collection.roomId)
-      .catch(e => alert(e))
-    // need a better way of displaying this alert
+      .catch(toastError("Couldn't remove collection as parent of discussion"))
   }
 
   render(props, state) {
@@ -427,11 +427,10 @@ class AvailableDiscussionListing extends Component {
     const parentContent = { via: [theDomain] }
     await Client.client
       .sendStateEvent(this.props.collection.roomId, spaceChild, childContent, this.props.room.roomId)
-      .catch(e => alert(e))
+      .catch(toastError("Couldn't add discussion to collection"))
     await Client.client
       .sendStateEvent(this.props.room.roomId, spaceParent, parentContent, this.props.collection.roomId)
-      .catch(e => alert(e))
-    // need a better way of displaying this alert
+      .catch(toastError("Couldn't add collection as parent of discussion"))
   }
 
   render(props, state) {
@@ -444,3 +443,4 @@ class AvailableDiscussionListing extends Component {
       </button>
   }
 }
+

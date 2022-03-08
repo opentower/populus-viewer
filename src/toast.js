@@ -1,4 +1,4 @@
-import { h, Component } from 'preact'
+import { h, Fragment, Component } from 'preact'
 import './styles/toast.css'
 import * as Icons from './icons.js'
 
@@ -24,5 +24,15 @@ export default class Toast extends Component {
         </div>
       </div>
       : null
+  }
+}
+
+export function toastError (headline) {
+  return e => {
+    Toast.set(<Fragment>
+      <h3 id="toast-header">{headline}</h3>
+      <div>Here's the error message:</div>
+      <pre>{e.message}</pre>
+    </Fragment>)
   }
 }

@@ -58,8 +58,7 @@ export default class PdfCanvas extends Component {
       <pre>{alias}</pre>
       <div>Here's the error message:</div>
       <pre>{e.message}</pre>
-      </Fragment>
-    )
+    </Fragment>)
     History.push('/')
     this.errorCondition = true
   }
