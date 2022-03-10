@@ -4,9 +4,10 @@
   "description": "A pdf viewer for Populus",
   "scripts": {
     "test": "eslint src",
-    "build": "webpack --progress --mode=production",
+    "build": "webpack --progress --mode production",
     "watch": "webpack --progress --watch",
     "serve": "webpack serve --mode development",
+    "serve-production": "webpack serve --mode production",
     "deploy": "ORIGIN=\"$(git remote get-url origin)\" && rm -rf dist/.git && npm run build && cd dist && git init && git add . && git commit -m \"deploy $(date -I)\" && git remote add origin \"$ORIGIN\" && git push --force origin main:gh-pages",
     "preversion": "npm test",
     "postversion": "npm run deploy && git push && git push --tags"
@@ -46,6 +47,12 @@
     "preact-router": "^4.0.1",
     "sanitize-html": "^2.3.3",
     "tippy.js": "^6.3.7",
-    "url": "^0.11.0"
+    "url": "^0.11.0",
+    "workbox-cacheable-response": "^6.5.1",
+    "workbox-expiration": "^6.5.1",
+    "workbox-precaching": "^6.5.1",
+    "workbox-routing": "^6.5.1",
+    "workbox-strategies": "^6.5.1",
+    "workbox-webpack-plugin": "^6.5.1"
   }
 }

@@ -39,8 +39,8 @@ export default class MessageFrame extends Component {
         id={props.event.getId()}
         style={props.styleOverride || this.userColor.styleVariables}
         class={isUser ? "message-frame message-from-user" : "message-frame"}>
-        {props.children}
-            <MessageDecoration event={props.event} reactions={reactions}>
+          {props.children}
+          <MessageDecoration event={props.event} reactions={reactions}>
             {/* XXX Should probably handle action menu visibility in state rather than CSS */}
             { props.displayOnly
               ? null

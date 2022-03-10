@@ -120,7 +120,6 @@ Session.vim
 Sessionx.vim
 
 #build artefacts
-dist/*.js
-dist/*.txt
+dist/
 
 # End of https://www.toptal.com/developers/gitignore/api/node

@@ -8,6 +8,7 @@ import Modal from "./modal.js"
 import Toast from "./toast.js"
 import History from './history.js'
 import Client from './client.js'
+import './assets.js'
 import './styles/global.css'
 
 class PopulusViewer extends Component {
@@ -70,6 +71,16 @@ class PopulusViewer extends Component {
         </Router>
     </Fragment>
   }
+}
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').then(_ => {
+      console.log('[Service Worker] registered');
+    }).catch(registrationError => {
+      console.log('[Service Worker] failed to register: ', registrationError);
+    });
+  });
 }
 
 function recaptchaHandler (recaptchaToken) {

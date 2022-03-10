@@ -16,7 +16,7 @@ export default class SyncIndicator extends Component {
     switch (syncState) {
       case "PREPARED": return "loading data...";
       case "CATCHUP": return "loading data...";
-      case "ERROR": return "connection interrupted";
+      case "ERROR": return "no connection - working offline";
       default: return null;
     }
   }

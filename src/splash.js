@@ -5,7 +5,8 @@ import Client from './client.js'
 
 export default class SplashView extends Component {
   pollInitialized = async () => {
-    if (Client.client && Client.client.isInitialSyncComplete()) {
+    if (Client.client && ["PREPARED", "SYNCING", "ERROR"].includes(Client.client.getSyncState()) ) {
+      // in case of error, we still let the user into the app, for offline usage
       this.props.setInitializationStage("initialized")
       handleLaunchParameters(this.props.logoutHandler) // clear query parameters
     } else {
