@@ -75,7 +75,7 @@ class PopulusViewer extends Component {
 
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/service-worker.js').then(_ => {
+    navigator.serviceWorker.register('service-worker.js').then(_ => {
       console.log('[Service Worker] registered');
     }).catch(registrationError => {
       console.log('[Service Worker] failed to register: ', registrationError);
