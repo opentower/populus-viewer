@@ -105,7 +105,7 @@ export default class WelcomeView extends Component {
             submit={this.submitSearch}
             hint="/"
             setFocus={this.setFocus} />
-          { !state.inputFocus && <Fragment>
+          { (!state.inputFocus || !state.narrow) && <Fragment>
             {state.narrow
               ? <button data-active={state.view === "COLLECTION"} id="welcome-collection" onClick={this.toggleCollectionVisible}>{Icons.collection}</button>
               : null

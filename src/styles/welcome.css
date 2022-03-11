@@ -122,5 +122,17 @@
 }
 
 @media only screen and (min-width: 600px) {
-    #welcome-header-content { width:400px; }
+  #welcome-header-content .search-bar {
+    flex-grow:unset;
+    margin-right:auto;
+  }
+
+  #welcome-header-content .search-bar input {
+    transition: width .25s;
+    width:200px;
+  }
+
+  #welcome-header-content .search-bar input:focus {
+    width:400px;
+  }
 } 
