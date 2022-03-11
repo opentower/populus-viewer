@@ -34,17 +34,6 @@ registerRoute(
   })
 );
 
-registerRoute(
-  ({ request }) => request.destination === 'image',
-  new CacheFirst({
-    // Look for other images in cache, but don't add any that aren't from precache
-    cacheName: 'images',
-    plugins: [
-      new CacheableResponsePlugin({ statuses: [] })
-    ]
-  })
-);
-
 // network-first caching of aliases, roomHierarchy, and server data
 registerRoute(
   ({ request }) =>
@@ -70,20 +59,6 @@ registerRoute(
         headers: { "content-type": "application/pdf" }
       }),
       new ExpirationPlugin({ maxEntries: 10 })
-    ]
-  })
-);
-
-registerRoute(
-  ({ request }) =>
-    request.destination === 'style' ||
-    request.destination === 'script' ||
-    request.destination === 'worker',
-  new StaleWhileRevalidate({
-    cacheName: 'assets',
-    plugins: [
-      // Ensure that only requests that result in a 200 status are cached
-      new CacheableResponsePlugin({ statuses: [200] })
     ]
   })
 );

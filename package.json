@@ -28,7 +28,7 @@
     "eslint-plugin-react": "^7.23.2",
     "pdfjs-dist": "^2.11.338",
     "style-loader": "^3.3.0",
-    "webpack": "^5.27.1",
+    "webpack": "^5.70.0",
     "webpack-cli": "^4.5.0",
     "webpack-dev-server": "^4.7.4",
     "worker-loader": "^3.0.8"
