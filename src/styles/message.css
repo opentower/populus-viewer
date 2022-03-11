@@ -102,6 +102,20 @@
     color:gray;
 }
 
+.message-frame .message-frame-status {
+  position: absolute;
+  right: 25px;
+  bottom: 5px;
+  width:300px;
+  font-size:10pt;
+  color: #ababab;
+}
+
+.message-frame .message-frame-status a {
+  text-decoration:underline;
+  cursor:pointer;
+}
+
 .message-frame > .message-body {
     display: inline-block;
     text-align:left;

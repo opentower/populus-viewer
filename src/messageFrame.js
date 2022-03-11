@@ -11,14 +11,27 @@ import * as CommonMark from 'commonmark'
 export default class MessageFrame extends Component {
   constructor(props) {
     super(props)
-    this.state = ({ responding: false })
+    this.state = ({ 
+      responding: false,
+      status: props.event.getAssociatedStatus()
+    })
   }
+
+  componentDidMount() {
+    if (this.props.event.getAssociatedStatus()) this.props.event.on("Event.status", this.handleStatus)
+  }
+
+  componentWillUnmount() { this.props.event.off("Event.status", this.handleStatus) }
+
+  handleStatus = (_, status) => { this.setState({status}) }
 
   userColor = new UserColor(this.props.event.getSender())
 
   openEditor = () => this.setState({ responding: true })
 
   closeEditor = () => this.setState({ responding: false })
+
+  resend = _ => Client.client.resendEvent(this.props.event)
 
   redactMessage = () => {
     // XXX also need to redact all subsequent edits that replace the original
@@ -35,11 +48,17 @@ export default class MessageFrame extends Component {
       : []
     const isUser = Client.client.getUserId() === props.event.getSender()
     return <Fragment>
-      <div data-event-status={isUser ? props.event.getAssociatedStatus() : null}
+      <div data-event-status={isUser ? state.status : null}
         id={props.event.getId()}
         style={props.styleOverride || this.userColor.styleVariables}
         class={isUser ? "message-frame message-from-user" : "message-frame"}>
           {props.children}
+          { state.status === "not_sent"
+              ? <div class="message-frame-status">
+                message not sent - <a onclick={this.resend}>resend?</a>
+              </div>
+              : null
+          }
           <MessageDecoration event={props.event} reactions={reactions}>
             {/* XXX Should probably handle action menu visibility in state rather than CSS */}
             { props.displayOnly

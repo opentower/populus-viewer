@@ -6,6 +6,8 @@
   font-size:8pt;
   background:white;
   z-index:15;
+  padding:0px 3px 0px 3px;
+  border-radius:5px;
 }
 
 @media only screen and (max-width: 1280px) {

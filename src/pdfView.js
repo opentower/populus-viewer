@@ -737,7 +737,7 @@ export default class PdfView extends Component {
           {state.chatVisible || state.listingVisible ? null : Icons.menu }
         </button>
       </div>
-      <SyncIndicator class={state.chatVisible || state.listingVisible ? null : "sync-hidden"} />
+      <SyncIndicator />
     </div>
   }
 }

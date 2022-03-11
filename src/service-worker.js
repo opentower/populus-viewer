@@ -4,10 +4,9 @@ import { CacheableResponsePlugin } from 'workbox-cacheable-response';
 import { ExpirationPlugin } from 'workbox-expiration';
 import { precacheAndRoute } from 'workbox-precaching';
 
-precacheAndRoute(self.__WB_MANIFEST)
-
 // extra precaching
 self.addEventListener("install", event => {
+  self.skipWaiting()
   event.waitUntil(
     caches.open("static").then(cache => {
       cache.add("https://rsms.me/inter/font-files/Inter-roman.var.woff2?v=3.18");
@@ -16,6 +15,8 @@ self.addEventListener("install", event => {
     })
   );
 });
+
+precacheAndRoute(self.__WB_MANIFEST)
 
 registerRoute(
   // dynamically cache thumbnails
