@@ -17,27 +17,20 @@ import './styles/welcome.css'
 export default class WelcomeView extends Component {
   constructor(props) {
     super(props)
-    const userId = Client.client.getUserId()
-    this.user = Client.client.getUser(userId)
-    this.userColor = new UserColor(userId)
-    this.profileListener = this.profileListener.bind(this)
     this.state = {
       view: null,
       inputFocus: false,
       searchFilter: "",
       filterItems: [],
       narrow: document.body.offsetWidth <= 600,
-      avatarUrl: Client.client.getHttpUriForMxcFromHS(this.user.avatarUrl, 30, 30, "crop")
     }
   }
 
   componentDidMount () {
-    this.user.on("User.avatarUrl", this.profileListener)
     window.addEventListener("resize", this.resizeListener)
   }
 
   componentWillUnmount () {
-    this.user.off("User.avatarUrl", this.profileListener)
     window.removeEventListener("resize", this.resizeListener)
   }
 
@@ -54,12 +47,6 @@ export default class WelcomeView extends Component {
           ? this.setState({narrow: true})
           : null
     , 500)
-  }
-
-  profileListener () {
-    this.setState({
-      avatarUrl: Client.client.getHttpUriForMxcFromHS(this.user.avatarUrl, 30, 30, "crop")
-    })
   }
 
   setSearch = s => this.setState({ searchFilter: s})
@@ -108,12 +95,6 @@ export default class WelcomeView extends Component {
 
   showMainView = _ => this.setState({ view: null })
 
-  displayInitial = _ => {
-    return this.user.displayName.slice(0, 1) === '@'
-      ? this.user.displayName.slice(1, 2)
-      : this.user.displayName.slice(0, 1)
-  }
-
   render(props, state) {
     return <Fragment key="welcome-fragment">
       <header id="welcome-header">
@@ -131,12 +112,7 @@ export default class WelcomeView extends Component {
             }
             <button data-active={state.view === "UPLOAD"} id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</button>
             <WelcomeIcon active={state.view === "NOTIF"} toggleNotifVisible={this.toggleNotifVisible} />
-            <button data-active={state.view === "PROFILE"} id="welcome-profile" onClick={this.toggleProfileVisible} style={this.userColor.styleVariables} >
-              {state.avatarUrl
-                ? <img id="welcome-img" src={state.avatarUrl} />
-                : <span id="welcome-initial">{this.displayInitial()}</span>
-              }
-            </button>
+            <WelcomeProfile active={state.view === "PROFILE"} toggleProfileVisible={this.toggleProfileVisible}  />
           </Fragment>}
         </div>
       </header>
@@ -207,8 +183,49 @@ class WelcomeIcon extends Component {
 
   render(props, state) {
     return <button data-active={props.active} id="welcome-notifications" onClick={props.toggleNotifVisible}>
-        {Icons.bell}
-        {state.count > 0 ? <span class="small-icon-badge">{state.count}</span> : null}
+      {Icons.bell}
+      {state.count > 0 ? <span class="small-icon-badge">{state.count}</span> : null}
+    </button>
+  }
+}
+
+class WelcomeProfile extends Component {
+  constructor(props) {
+    super(props)
+    const userId = Client.client.getUserId()
+    this.user = Client.client.getUser(userId)
+    this.userColor = new UserColor(userId)
+    this.state = {
+      avatarUrl: Client.client.getHttpUriForMxcFromHS(this.user.avatarUrl, 30, 30, "crop")
+    }
+  }
+
+  componentDidMount () {
+    Client.client.on("sync", this.profileListener)
+  }
+
+  componentWillUnmount () {
+    Client.client.off("sync", this.profileListener)
+  }
+
+  profileListener = _ => {
+    this.setState({
+      avatarUrl: Client.client.getHttpUriForMxcFromHS(this.user.avatarUrl, 30, 30, "crop")
+    })
+  }
+
+  displayInitial = _ => {
+    return this.user.displayName.slice(0, 1) === '@'
+      ? this.user.displayName.slice(1, 2)
+      : this.user.displayName.slice(0, 1)
+  }
+
+  render(props, state) {
+    return <button data-active={props.active} id="welcome-profile" onClick={props.toggleProfileVisible} style={this.userColor.styleVariables} >
+      {state.avatarUrl
+        ? <img id="welcome-img" src={state.avatarUrl} />
+        : <span id="welcome-initial">{this.displayInitial()}</span>
+      }
     </button>
   }
 }
