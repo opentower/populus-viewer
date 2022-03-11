@@ -264,14 +264,14 @@ export class Members extends Component {
 class Member extends Component {
   colorFromId = new UserColor(this.props.member.userId)
 
-  insertName = e => {
+  insertUserId = e => {
     e.preventDefault() // try to prevent textarea losing focus
-    this.props.insert(`@${this.props.member.userId.split(":")[0].substring(1)} `, /@\S*$/)
+    this.props.insert(`${this.props.member.userId} `, /@\S*$/)
   }
 
   render(props) {
     return <div
-      onmousedown={this.insertName}
+      onmousedown={this.insertUserId}
       style={this.colorFromId.styleVariables}
       class={props.selected ? "popup-menu-item-selected-user popup-menu-item" : "popup-menu-item"}>
       <span class="popup-menu-item-userid"> @{props.member.userId.split(":")[0].substring(1)} </span>
