@@ -1,6 +1,7 @@
 import { h, createRef, Component } from 'preact';
 import './styles/pdfUpload.css'
 import { mscResourceData, spaceChild } from "./constants.js"
+import { onlineOrAlert } from "./utils/alerts.js"
 import Client from './client.js'
 
 export default class PdfUpload extends Component {
@@ -78,6 +79,7 @@ export default class PdfUpload extends Component {
 
   uploadFile = async e => {
     e.preventDefault()
+    if (!onlineOrAlert()) return
     const theFile = this.fileLoader.current.files[0]
     const theName = this.state.name
     const theAlias = this.state.alias.length > 0 ? this.state.alias : this.toAlias(this.state.name)

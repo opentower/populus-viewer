@@ -54,10 +54,10 @@ export default class MessageFrame extends Component {
         class={isUser ? "message-frame message-from-user" : "message-frame"}>
           {props.children}
           { state.status === "not_sent"
-              ? <div class="message-frame-status">
-                message not sent - <a onclick={this.resend}>resend?</a>
-              </div>
-              : null
+            ? <div class="message-frame-status">
+              message not sent - <a onclick={this.resend}>resend?</a>
+            </div>
+            : null
           }
           <MessageDecoration event={props.event} reactions={reactions}>
             {/* XXX Should probably handle action menu visibility in state rather than CSS */}
@@ -225,7 +225,7 @@ class ActionsOnOthersMessages extends Component {
 
 function ActionsOnOwnMessages(props) {
   return <div class="message-actions">
-    {!props.responding && props.canEdit && 
+    {!props.responding && props.canEdit &&
       <ToolTip placement="top-end" theme="small" content="Edit this message">
         <button aria-label="Edit this message" onclick={props.openEditor}>
         {Icons.edit}

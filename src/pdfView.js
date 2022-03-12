@@ -18,6 +18,7 @@ import Location from './utils/location.js'
 import { textFromPdfSelection, rectsFromPdfSelection } from './utils/selection.js'
 import SyncIndicator from './syncIndicator.js'
 import Toast from "./toast.js"
+import { onlineOrAlert } from "./utils/alerts.js"
 import ToolTip from "./utils/tooltip.js"
 import * as Icons from "./icons.js"
 import { UserColor } from "./utils/colors.js"
@@ -189,6 +190,7 @@ export default class PdfView extends Component {
   }
 
   commitPin = (theX, theY) => {
+    if (!onlineOrAlert()) return
     const theDomain = Client.client.getDomain()
     const newY = this.annotationLayerWrapper.current.scrollHeight - theY
     const locationData = {
@@ -260,6 +262,7 @@ export default class PdfView extends Component {
   }
 
   commitHighlight = _ => {
+    if (!onlineOrAlert()) return
     const theSelection = window.getSelection()
     if (theSelection.isCollapsed) return
     const theSelectedText = textFromPdfSelection(theSelection)

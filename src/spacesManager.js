@@ -3,7 +3,7 @@ import * as Matrix from "matrix-js-sdk"
 import Client from './client.js'
 import './styles/spacesManager.css'
 import Modal from './modal.js'
-import { toastError } from "./toast.js"
+import { toastError } from "./utils/alerts.js"
 import Invite from './invite.js'
 import Resource from './utils/resource.js'
 import RoomSettings from './roomSettings.js'

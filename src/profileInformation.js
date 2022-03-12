@@ -1,5 +1,6 @@
 import { h, createRef, Component } from 'preact';
 import './styles/profileInformation.css'
+import { onlineOrAlert } from "./utils/alerts.js"
 import Client from './client.js'
 
 export default class ProfileInfomation extends Component {
@@ -42,6 +43,7 @@ export default class ProfileInfomation extends Component {
 
   updateProfile = async e => {
     e.preventDefault()
+    if (!onlineOrAlert()) return
     const theImage = this.avatarImageInput.current.files[0]
     const theDisplayName = this.displayNameInput.current.value
     this.submitButton.current.setAttribute("disabled", true)
