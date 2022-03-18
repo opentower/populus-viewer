@@ -44,6 +44,6 @@
 #invite-add-members, #invite-remove-members {
   max-height:60vh;
   padding-top:10px;
-  overflow-y: scroll;
+  overflow-y: auto;
   transition:height .25s ease;
 }

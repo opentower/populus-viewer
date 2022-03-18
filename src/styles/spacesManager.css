@@ -94,7 +94,6 @@
 #available-discussions-list {
   max-height:60vh;
   padding-top:20px;
-  overflow-y: scroll;
   transition: height .25s ease;
 }
 
@@ -113,6 +112,12 @@
   cursor: pointer;
   position: relative;
   text-align:left;
+}
+
+.discussion-listing > span {
+  padding-bottom:10px;
+  white-space:pre;
+  overflow-x:auto;
 }
 
 .discussion-listing[data-change-pending] {
