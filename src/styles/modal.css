@@ -32,7 +32,7 @@
   max-height:80vh;
   border-radius:30px;
   padding:30px;
-  padding-right:60px;
+  padding-right:30px;
   z-index:21;
   overflow-y:scroll;
   overscroll-behavior:contain;
@@ -48,6 +48,8 @@ html[data-scrollbars="hidden"] #modalContent::-webkit-scrollbar {
 
 #modalHeader {
   margin-top:-10px;
+  margin-right:20px;
+
 }
 
 #dismissModal {

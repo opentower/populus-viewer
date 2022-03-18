@@ -15,6 +15,7 @@ export default class Invite extends Component {
       .sort((u1, u2) => u1.name.toUpperCase() > u2.name.toUpperCase() ? 1 : -1)
     const memberIds = joins.map(join => join.userId).concat(invites.map(invite => invite.userId))
     this.state = {
+      adding: true,
       joins,
       invites,
       memberIds,
@@ -41,33 +42,38 @@ export default class Invite extends Component {
 
   filterMembers = search => this.setState({ search })
 
+  addMembers = _ => this.setState({ adding: true })
+
+  removeMembers = _ => this.setState({ adding: false })
+
   render(props, state) {
-    const additions = Client.client.getUsers()
+    console.log(state)
+    const additions = state.adding && Client.client.getUsers()
       .filter(u => !state.memberIds.includes(u.userId))
       .filter(u => u.displayName.toUpperCase().includes(state.search.toUpperCase()))
       .sort((u1, u2) => u1.displayName.toUpperCase() > u2.displayName.toUpperCase() ? 1 : -1)
+    const removals = !state.adding && state.joins.filter(m => m.name.toUpperCase().includes(state.search.toUpperCase()))
+    const invites = !state.adding && state.invites.filter(m => m.name.toUpperCase().includes(state.search.toUpperCase()))
 
     return <Fragment>
       <h3 id="modalHeader">Manage Membership {props.room.name ? `for ${props.room.name}` : ""}</h3>
       <SearchBar search={state.search} setSearch={this.filterMembers} />
-      <h4>Add Members</h4>
-      <div id="invite-add-members">
-        <div>
-          { additions.map(u => <Invitation user={u} room={props.room} key={u.userId} />) }
+      <div id="invite-select-view" class="select-view">
+        <button onClick={this.addMembers} data-current-button={state.adding}>Add Members</button>
+        <button onClick={this.removeMembers} data-current-button={!state.adding}>Remove Members</button>
+      </div>
+      { state.adding
+        ? <div style={{height: `${(additions.length * 36) + 50}px` }} id="invite-add-members">
+          <div>
+            { additions.map(u => <Invitation user={u} room={props.room} key={u.userId} />) }
+          </div>
+          <ServerResults search={state.search} memberIds={state.memberIds} additions={additions} room={props.room} />
         </div>
-        <ServerResults search={state.search} additions={additions} room={props.room} />
-      </div>
-      <h4>Remove Members</h4>
-      <div id="invite-remove-members">
-        { state.joins
-          .filter(m => m.name.toUpperCase().includes(state.search.toUpperCase()))
-          .map(m => <Removal member={m} room={props.room} key={m.userId} />)
-        }
-        { state.invites
-          .filter(m => m.name.toUpperCase().includes(state.search.toUpperCase()))
-          .map(m => <Disinvitation member={m} room={props.room} key={m.userId} />)
-        }
-      </div>
+        : <div style={{height: `${(removals.length + invites.length) * 36}px`}}id="invite-remove-members">
+          { removals.map(m => <Removal member={m} room={props.room} key={m.userId} />) }
+          { invites.map(m => <Disinvitation member={m} room={props.room} key={m.userId} />) }
+        </div>
+      }
     </Fragment>
   }
 }
@@ -129,17 +135,22 @@ class ServerResults extends Component {
   }
 
   render(props, state) {
+    const buttonStyle = {
+      visibility: props.search ? "visible" : "hidden"
+    }
+    const candidates = state.results
+      .filter(u => !props.additions.map(a => a.userId).includes(u.user_id))
+      .filter(u => !props.memberIds.includes(u.user_id))
+      .filter(u => u.display_name
+        ? u.display_name.toUpperCase().includes(props.search.toUpperCase())
+        : u.user_id.toUpperCase().includes(props.search.toUpperCase())
+      )
     return <Fragment>
-      { state.fired ? <hr id="invite-search-divider" /> : null }
-      { state.results
-        .filter(u => !props.additions.map(a => a.userId).includes(u.user_id))
-        .filter(u => u.display_name
-          ? u.display_name.toUpperCase().includes(props.search.toUpperCase())
-          : u.user_id.toUpperCase().includes(props.search.toUpperCase())
-        ).map(u => <Invitation key={u.user_id} user={u} room={props.room} />)
+      { state.fired && candidates.length > 0 ? <hr id="invite-search-divider" /> : null }
+      { candidates.map(u => <Invitation key={u.user_id} user={u} room={props.room} />)
       }
       <div>
-        <button id="invite-search-directory" class="styled-button" disabled={state.pending} onclick={this.serverSearch}>
+        <button style={buttonStyle} id="invite-search-directory" class="styled-button" disabled={state.pending} onclick={this.serverSearch}>
           {state.fired
             ? "Search again?"
             : "Search for more people?"

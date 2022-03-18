@@ -86,14 +86,16 @@
     grid-template-columns: 180px 1fr;
 }
 
-.current-discussions-list {
-  height:200px;
-  overflow-y: scroll;
+#manage-discussion-select-view {
+  margin-top:20px;
 }
 
-.available-discussions-list {
-  height:200px;
+#current-discussions-list,
+#available-discussions-list {
+  max-height:60vh;
+  padding-top:20px;
   overflow-y: scroll;
+  transition: height .25s ease;
 }
 
 .discussion-listing svg {

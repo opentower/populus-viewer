@@ -332,6 +332,7 @@ class AddChild extends Component {
     props.children.map(child => child.name)
     this.state = {
       search: "",
+      adding: true,
       discussions: Client.client
         .getVisibleRooms()
         .filter(room => Resource.hasResource(room))
@@ -350,6 +351,10 @@ class AddChild extends Component {
     }, 500)
   }
 
+  addDiscussions = _ => this.setState({adding: true})
+
+  removeDiscussions = _ => this.setState({adding: false})
+
   filterDiscussions = search => {
     this.setState({
       search,
@@ -364,32 +369,23 @@ class AddChild extends Component {
 
   render(props, state) {
     const childNames = this.props.children.map(child => child.name)
+    const availableDiscussions = state.adding && state.discussions.filter(room => !childNames.includes(room.name))
+    const currentDiscussions = !state.adding && props.children.filter(child => child.name.toLowerCase().includes(state.search.toLowerCase()))
     return <Fragment>
-      <h3 id="modalHeader">Manage Discussions in Collection</h3>
+      <h3 id="modalHeader">Manage Discussions in {props.room.name}</h3>
       <SearchBar search={state.search} setSearch={this.filterDiscussions} />
-      {props.children.length > 0
-        ? <Fragment>
-          <h4>Current Discussions</h4>
-          <div onscroll={this.handleScroll} ref={this.currentList}class="current-discussions-list">
-            {props.children
-              .filter(child => child.name.toLowerCase().includes(state.search.toLowerCase()))
-              .map(child =>
-                <CurrentDiscussionListing key={child.room_id} child={child} collection={props.room} />
-              )
-            }
-          </div>
-        </Fragment>
-        : null
-      }
-      <h4>Available Discussions</h4>
-      <div class="available-discussions-list">
-        {state.discussions
-          .filter(room => !childNames.includes(room.name))
-          .map(room =>
-            <AvailableDiscussionListing key={room.roomId} room={room} collection={props.room} />
-          )
-        }
+      <div id="manage-discussion-select-view" class="select-view">
+        <button onClick={this.addDiscussions} data-current-button={state.adding}>Add Discussions</button>
+        <button onClick={this.removeDiscussions} data-current-button={!state.adding}>Remove Discussions</button>
       </div>
+      {state.adding
+        ? <div style={{height: `${availableDiscussions.length * 26}px`}} id="available-discussions-list">
+          { availableDiscussions.map(room => <AvailableDiscussionListing key={room.roomId} room={room} collection={props.room} />) }
+        </div>
+        : <div style={{height: `${currentDiscussions.length * 26}px`}} onscroll={this.handleScroll} ref={this.currentList} id="current-discussions-list">
+          { currentDiscussions.map(child => <CurrentDiscussionListing key={child.room_id} child={child} collection={props.room} />) }
+        </div>
+      }
     </Fragment>
   }
 }
@@ -420,7 +416,7 @@ class AvailableDiscussionListing extends Component {
   addMe = async _ => {
     this.setState({pending: true})
     const theDomain = Client.client.getDomain()
-    const childContent = { 
+    const childContent = {
       via: [theDomain],
       [populusCollectionChild]: true
     }
@@ -443,4 +439,3 @@ class AvailableDiscussionListing extends Component {
       </button>
   }
 }
-

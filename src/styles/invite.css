@@ -33,12 +33,17 @@
   margin-bottom:20px;
 }
 
+#invite-select-view {
+  margin-top:20px;
+}
+
 #invite-search-directory {
   margin-top:20px;
 }
 
 #invite-add-members, #invite-remove-members {
-  height:200px;
-  max-height:20vh;
+  max-height:60vh;
+  padding-top:10px;
   overflow-y: scroll;
+  transition:height .25s ease;
 }

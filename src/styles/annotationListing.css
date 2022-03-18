@@ -221,8 +221,6 @@ html[data-scrollbars="hidden"] .annotation-listing-comment-unread pre::-webkit-s
 }
 
 #annotation-panel-button-wrapper .search-bar {
-  margin:0px;
-  padding:0px;
   height:36px;
   border: 2px solid black;
   background-color:white;

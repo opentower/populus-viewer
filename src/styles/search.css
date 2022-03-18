@@ -1,10 +1,6 @@
 .search-bar { 
     position:relative; 
     display:flex;
-    flex-shrink:2;
-    flex-grow:1;
-    margin-right:15px; 
-    margin-left:13px; 
     align-items:center;
 }
 
