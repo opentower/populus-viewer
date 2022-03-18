@@ -425,7 +425,7 @@ export default class PdfView extends Component {
   hideChat = _ => this.setState({chatVisible: false})
 
   showChat = _ => {
-    const narrow = document.body.offsetWidth <= 600
+    const narrow = document.body.offsetWidth <= 768
     if (narrow) this.setState({listingVisible: false, chatVisible: true})
     else this.setState({chatVisible: true})
   }
@@ -438,7 +438,7 @@ export default class PdfView extends Component {
   hideListing = _ => this.setState({listingVisible: false})
 
   showListing = _ => {
-    const narrow = document.body.offsetWidth <= 600
+    const narrow = document.body.offsetWidth <= 768
     if (narrow) this.setState({listingVisible: true, chatVisible: false})
     else this.setState({listingVisible: true})
   }
