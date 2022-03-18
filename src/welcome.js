@@ -112,7 +112,7 @@ export default class WelcomeView extends Component {
             }
             <button data-active={state.view === "UPLOAD"} id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</button>
             <WelcomeIcon active={state.view === "NOTIF"} toggleNotifVisible={this.toggleNotifVisible} />
-            <WelcomeProfile active={state.view === "PROFILE"} toggleProfileVisible={this.toggleProfileVisible}  />
+            <WelcomeProfile active={state.view === "PROFILE"} toggleProfileVisible={this.toggleProfileVisible} />
           </Fragment>}
         </div>
       </header>

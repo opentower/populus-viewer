@@ -7,6 +7,7 @@ import MemberPill from './memberPill.js'
 import Client from './client.js'
 import Modal from './modal.js'
 import Invite from './invite.js'
+import LeaveRoom from './leaveRoom.js'
 import { TagEditor, TagList } from './tagEditor.js'
 import RoomSettings from './roomSettings.js'
 import { RoomColor } from './utils/colors.js'
@@ -222,7 +223,7 @@ class RoomEntry extends Component {
     else Client.client.setRoomTag(this.props.room.roomId, "m.favourite", {order: 0.5})
   }
 
-  handleClose = _ => Client.client.leave(this.props.room.roomId)
+  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />)
 
   render (props, state) {
     const userMember = props.room.getMember(Client.client.getUserId())
