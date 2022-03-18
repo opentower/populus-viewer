@@ -63,13 +63,13 @@ export default class Invite extends Component {
         <button onClick={this.removeMembers} data-current-button={!state.adding}>Remove Members</button>
       </div>
       { state.adding
-        ? <div style={{height: `${(additions.length * 36) + 50}px` }} id="invite-add-members">
+        ? <div style={{height: `${(additions.length * 40) + 50}px` }} id="invite-add-members">
           <div>
             { additions.map(u => <Invitation user={u} room={props.room} key={u.userId} />) }
           </div>
           <ServerResults search={state.search} memberIds={state.memberIds} additions={additions} room={props.room} />
         </div>
-        : <div style={{height: `${(removals.length + invites.length) * 36}px`}}id="invite-remove-members">
+        : <div style={{height: `${(removals.length + invites.length) * 40}px`}}id="invite-remove-members">
           { removals.map(m => <Removal member={m} room={props.room} key={m.userId} />) }
           { invites.map(m => <Disinvitation member={m} room={props.room} key={m.userId} />) }
         </div>

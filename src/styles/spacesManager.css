@@ -104,8 +104,8 @@
 }
 
 .discussion-listing {
-  padding: 5px;
   display: grid;
+  height:28px;
   grid-template-columns: 2em 1fr;
   background: none;
   border: none;

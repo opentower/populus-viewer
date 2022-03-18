@@ -8,8 +8,8 @@
   font-size:unset;
   cursor:pointer;
   align-items:center;
-  margin-top:5px;
   max-width:100%;
+  height:40px;
 }
 
 .disinvite-candidate {

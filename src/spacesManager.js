@@ -379,10 +379,10 @@ class AddChild extends Component {
         <button onClick={this.removeDiscussions} data-current-button={!state.adding}>Remove Discussions</button>
       </div>
       {state.adding
-        ? <div style={{height: `${availableDiscussions.length * 26}px`}} id="available-discussions-list">
+        ? <div style={{height: `${availableDiscussions.length * 28}px`}} id="available-discussions-list">
           { availableDiscussions.map(room => <AvailableDiscussionListing key={room.roomId} room={room} collection={props.room} />) }
         </div>
-        : <div style={{height: `${currentDiscussions.length * 26}px`}} onscroll={this.handleScroll} ref={this.currentList} id="current-discussions-list">
+        : <div style={{height: `${currentDiscussions.length * 28}px`}} onscroll={this.handleScroll} ref={this.currentList} id="current-discussions-list">
           { currentDiscussions.map(child => <CurrentDiscussionListing key={child.room_id} child={child} collection={props.room} />) }
         </div>
       }
