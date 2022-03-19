@@ -118,7 +118,11 @@
   padding-bottom:10px;
   white-space:pre;
   overflow-x:auto;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width:none;
 }
+
+.discussion-listing > span::-webkit-scrollbar { display: none; }
 
 .discussion-listing[data-change-pending] {
   color:#ababab;
