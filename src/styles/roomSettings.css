@@ -41,9 +41,8 @@ div#room-settings-avatar-selector {
 #room-settings-join-link {
   grid-column: 2/3;
   font-size:10pt;
-  overflow-y:scroll;
+  overflow-x:auto;
   user-select:all;
-  text-overflow:ellipsis;
 }
 
 html[data-scrollbars="hidden"] #room-settings-join-link {
