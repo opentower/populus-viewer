@@ -8,7 +8,7 @@ export default class LeaveRoom extends Component {
     Modal.hide()
   }
 
-  leaveRoom = async _ => {
+  forgetRoom = async _ => {
     await Client.client.leave(this.props.room.roomId)
     await Client.client.forget(this.props.room.roomId)
     Modal.hide()
