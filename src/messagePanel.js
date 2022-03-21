@@ -255,6 +255,7 @@ class MediaUploadInput extends Component {
   async submitVideo () {
     const theVideo = this.mediaLoader.current.files[0]
     // TODO: reject non-media mimetypes
+    window.theVideo = theVideo
     const videoElt = await loadVideoElement(theVideo)
     const thumbContent = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
     const thumbMxc = await Client.client.uploadContent(thumbContent.thumbnail, {
@@ -262,6 +263,7 @@ class MediaUploadInput extends Component {
       type: "image/jpeg",
       progressHandler: this.progressHandler
     })
+    console.log("upload video")
     const videoMxc = await Client.client.uploadContent(theVideo, { progressHandler: this.progressHandler })
     const duration = Math.round(videoElt.duration * 1000)
     const theContent = {
@@ -278,6 +280,7 @@ class MediaUploadInput extends Component {
       url: videoMxc
     }
     if (duration < Infinity) theContent.duration = duration
+    console.log("send video")
     const eventI = await Client.client.sendMessage(this.props.roomId, theContent)
     this.props.handlePending(theContent, eventI)
   }
