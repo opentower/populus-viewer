@@ -151,6 +151,21 @@
   display:none;
 }
 
+#file-uploader-progress,
+#media-uploader-progress {
+    display:grid;
+    grid-template-columns: auto 1fr;
+    animation: pulse-opacity 2s infinite; 
+    animation-timing-function:ease;
+    margin:5px 10px 5px 10px;
+    font-size:10pt;
+}
+
+#file-uploader-progress > progress,
+#media-uploader-progress > progress {
+    margin-left:10px;
+}
+
 #audioRecordingWrapper, #videoRecordingWrapper {
   position:relative;
   cursor:pointer;

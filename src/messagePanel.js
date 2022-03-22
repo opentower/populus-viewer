@@ -203,12 +203,13 @@ class FileUploadInput extends Component {
 
   progressHandler = (progress) => this.setState({progress})
 
-  render() {
+  render(props, state) {
     return <form ref={this.theForm}>
       <input ref={this.fileLoader} type="file" />
       {this.state.progress
-        ? <div id="pdfUploadFormProgress">
-            <progress max={this.state.progress.total} value={this.state.progress.loaded} />
+        ? <div id="file-uploader-progress">
+          <span>Uploading file</span>
+          <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
         </div>
         : null
       }
@@ -323,10 +324,9 @@ class MediaUploadInput extends Component {
         ? this.getPreview()
         : <div onclick={this.uploadImage} class="media-message-thumbnail awaiting" />}
       {this.state.progress
-        ? <div id="pdfUploadFormProgress">
-          <span>{this.state.progress.loaded}</span>
-          <span>/</span>
-          <span>{this.state.progress.total} bytes</span>
+        ? <div id="media-uploader-progress">
+          <span>Uploading {this.state.uploading}</span>
+          <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
         </div>
         : null
       }
@@ -512,7 +512,8 @@ class RecordMediaInput extends Component {
 class RecordVideoInput extends RecordMediaInput {
   constraints = {
     audio: true,
-    video: { facingMode: "user" }
+    video: { facingMode: "user" },
+    uploading: ""
   }
 
   recorderOptions = {
@@ -528,12 +529,15 @@ class RecordVideoInput extends RecordMediaInput {
     if (this.state.recording === "done") {
       const videoElt = this.mediaPreview.current
       const thumbContent = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
+      this.setState({uploading: "thumbnail"})
       const thumbMxc = await Client.client.uploadContent(thumbContent.thumbnail, {
         name: `${Client.client.getUserId()}_${Date.now()}_thumbnail`,
         type: "image/jpeg",
         progressHandler: this.progressHandler
       })
+      this.setState({uploading: "video"})
       const videoMxc = await Client.client.uploadContent(this.recordingBlob, { progressHandler: this.progressHandler })
+      this.setState({uploading: ""})
       const duration = Math.round(videoElt.duration * 1000)
       const theContent = {
         body: `${Client.client.getUserId()}_${Date.now()}`,
@@ -563,11 +567,10 @@ class RecordVideoInput extends RecordMediaInput {
         ref={this.mediaPreview}
         class="video-message-preview media-message-thumbnail" />
       {this.recordingIcon()}
-      {state.progress
-        ? <div id="pdfUploadFormProgress">
-          <span>{state.progress.loaded}</span>
-          <span>/</span>
-          <span>{state.progress.total} bytes</span>
+      {this.state.progress
+        ? <div id="media-uploader-progress">
+          <span>Uploading recording</span>
+          <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
         </div>
         : null
       }
@@ -615,11 +618,10 @@ class RecordAudioInput extends RecordMediaInput {
         {state.recording === "started" ? <AudioVisualizer stream={this.stream} /> : null}
         {this.recordingIcon()}
       </div>
-      {state.progress
-        ? <div id="pdfUploadFormProgress">
-          <span>{state.progress.loaded}</span>
-          <span>/</span>
-          <span>{state.progress.total} bytes</span>
+      {this.state.progress
+        ? <div id="media-uploader-progress">
+          <span>Uploading recording</span>
+          <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
         </div>
         : null
       }
