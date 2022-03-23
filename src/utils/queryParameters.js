@@ -13,8 +13,12 @@ export function handleLaunchParameters(logoutHandler) {
     Toast.set(<Fragment>
       <h3 id="toast-header">You might be in the wrong place</h3>
       <div>
-        It looks like the link you followed to get here requested a server
-        different from the one you're currently logged in to.
+        The link that brought you here requested
+        <pre>{server}</pre>
+        but you're already logged in to
+        <pre>{Client.client.getDomain()}</pre>
+        If you want join the server requested by the link you followed, log out
+        and then follow the link again.
       </div>
       <div style="margin-top:10px">
         <button onclick={_ => {
@@ -26,5 +30,5 @@ export function handleLaunchParameters(logoutHandler) {
       </div>
     </Fragment>)
   }
-  window.history.replaceState({toastWarning:true}, '', window.location.pathname + window.location.hash)
+  window.history.replaceState({toastWarning: true}, '', window.location.pathname + window.location.hash)
 }
