@@ -1,12 +1,13 @@
 import { latexDisplayToReplacement, latexInlineToReplacement } from './latex.js'
 import Client from './client.js'
 
+const escapedDollar = /\\\$/
 const latexInlineRegex = /\$(([^$]|\\\\$)*)\$/
 const latexDisplayRegex = /\$\$(([^$]|\\\\$)*)\$\$/
 const mentionRegex = /@\S*:\S*/
 
 export function processRegex(string) {
-  const theRegex = new RegExp(`${latexDisplayRegex.source}|${latexInlineRegex.source}|${mentionRegex.source}`, "gm")
+  const theRegex = new RegExp(`${escapedDollar.source}|${latexDisplayRegex.source}|${latexInlineRegex.source}|${mentionRegex.source}`, "gm")
   return string.replaceAll(theRegex, matchDispatch)
 }
 
@@ -25,4 +26,5 @@ function matchDispatch(match) {
   if (latexDisplayRegex.test(match)) return latexDisplayToReplacement(match.match(latexDisplayRegex)[1])
   if (latexInlineRegex.test(match)) return latexInlineToReplacement(match.match(latexInlineRegex)[1])
   if (mentionRegex.test(match)) return mentionToReplacement(match)
+  if (escapedDollar.test(match)) return "$"
 }
