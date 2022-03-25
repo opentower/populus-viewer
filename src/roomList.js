@@ -22,7 +22,6 @@ export default class RoomList extends Component {
     this.state = {
       rooms: Client.client.getVisibleRooms().filter(Resource.hasResource),
       sort: "Activity",
-      memberLimit: document.body.offsetWidth > 400 ? 15 : 5,
       sortOrder: 1
     }
   }
@@ -134,13 +133,18 @@ export default class RoomList extends Component {
   }
 
   sortRooms = rooms => {
+    const memberLimit = this.props.layout === "phone"
+      ? 2
+      : this.props.layout === "narrow"
+        ? 5
+        : 15
     return rooms.sort(this.getSortFunc())
       .map(room => {
         const resource = new Resource(room)
         let result = null
         if (room.getMyMembership() === "join" && resource.url) {
           result = <RoomEntry
-            memberLimit={this.props.narrow ? 5 : 15}
+            memberLimit={memberLimit}
             room={room}
             key={room.roomId} />
         }

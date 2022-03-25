@@ -75,7 +75,7 @@ export default class SpacesManager extends Component {
     return <div id="spaces-manager">
       <h1>Collections</h1>
       <div id="spaces-list">
-        {state.spaces.map(room => <SpaceListing filterToggle={this.filterToggle} filterSet={this.filterSet} narrow={props.narrow} key={room.roomId} room={room} />)}
+        {state.spaces.map(room => <SpaceListing filterToggle={this.filterToggle} filterSet={this.filterSet} layout={props.layout} key={room.roomId} room={room} />)}
       </div>
       <div>
         <button onclick={this.createCollection} id="create-space">+ Create New Collection</button>
@@ -291,7 +291,7 @@ class SpaceListing extends Component {
       <h3>
         <span onclick={this.searchMe}>{props.room.name}</span>
         {isAdmin
-          ? <button data-narrow-view={props.narrow} onclick={this.toggleActions}>{Icons.moreVertical}</button>
+          ? <button data-narrow-view={props.layout !== "wide"} onclick={this.toggleActions}>{Icons.moreVertical}</button>
           : null
         }
       </h3>

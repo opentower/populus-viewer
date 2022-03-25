@@ -22,7 +22,11 @@ export default class WelcomeView extends Component {
       inputFocus: false,
       searchFilter: "",
       filterItems: [],
-      narrow: document.body.offsetWidth <= 600,
+      layout: document.body.offsetWidth > 600
+        ? "wide"
+        : document.body.offsetWidth > 400
+          ? "narrow"
+          : "phone"
     }
   }
 
@@ -36,17 +40,20 @@ export default class WelcomeView extends Component {
 
   resizeListener = _ => {
     clearTimeout(this.resizeDebounce)
-    this.resizeDebounce = setTimeout(_ => document.body.offsetWidth > 600
-      ? this.state.narrow
-        ? this.setState({
-          view: this.state.view === "COLLECTION" ? null : this.state.view,
-          narrow: false
-        })
-        : null
-      : !this.state.narrow
-          ? this.setState({narrow: true})
-          : null
-    , 500)
+    this.resizeDebounce = setTimeout(_ => {
+      if (document.body.offsetWidth > 600) {
+        if (this.state.layout !== "wide") {
+          this.setState({
+            view: this.state.view === "COLLECTION" ? null : this.state.view,
+            layout: "wide"
+          })
+        }
+      } else if (document.body.offsetWidth > 400 ) {
+        if (this.state.layout !== "narrow") this.setState({layout: "narrow"})
+      } else if (document.body.offsetWidth <= 400 ) {
+        if (this.state.layout !== "phone") this.setState({layout: "phone"})
+      }
+    }, 500)
   }
 
   setSearch = s => this.setState({ searchFilter: s})
@@ -105,8 +112,8 @@ export default class WelcomeView extends Component {
             submit={this.submitSearch}
             hint="/"
             setFocus={this.setFocus} />
-          { (!state.inputFocus || !state.narrow) && <Fragment>
-            {state.narrow
+          { (!state.inputFocus || !(state.layout !== "wide")) && <Fragment>
+            {state.layout !== "wide"
               ? <button data-active={state.view === "COLLECTION"} id="welcome-collection" onClick={this.toggleCollectionVisible}>{Icons.collection}</button>
               : null
             }
@@ -125,13 +132,13 @@ export default class WelcomeView extends Component {
               ? <NotificationListing />
               : state.view === "COLLECTION"
                 ? <div class="welcome-column">
-                    <SpacesManager narrow={state.narrow} showMainView={this.showMainView} setFilterItems={this.setFilterItems} filterItems={state.filterItems} />
+                    <SpacesManager layout={state.layout} showMainView={this.showMainView} setFilterItems={this.setFilterItems} filterItems={state.filterItems} />
                 </div>
-                : state.narrow
-                  ? <RoomList narrow={state.narrow} setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />
+                : state.layout !== "wide"
+                  ? <RoomList layout={state.layout} setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />
                   : <div id="welcome-split">
-                    <SpacesManager setFilterItems={this.setFilterItems} filterItems={state.filterItems} narrow={state.narrow} />
-                    <RoomList narrow={state.narrow} setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />
+                    <SpacesManager setFilterItems={this.setFilterItems} filterItems={state.filterItems} layout={state.layout} />
+                    <RoomList layout={state.layout} setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />
                   </div>
         }
       </div>
