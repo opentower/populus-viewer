@@ -123,7 +123,7 @@ export default class AnnotationListing extends Component {
 
   popupActions = {
     "@": props => <PopupMenu.Members roomId={this.props.roomId} {...props} />,
-    "~": props => <PopupMenu.Flags roomId={this.props.roomId} flags={this.flags} {...props} />
+    "~": props => <PopupMenu.Flags flags={this.flags} {...props} />
   }
 
   render (props, state) {

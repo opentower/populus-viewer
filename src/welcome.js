@@ -1,4 +1,4 @@
-import { h, Fragment, Component } from 'preact';
+import { h, Fragment, createRef, Component } from 'preact';
 import * as Matrix from "matrix-js-sdk"
 import { UserColor } from './utils/colors.js'
 import PdfUpload from './pdfUpload.js'
@@ -7,6 +7,7 @@ import SpacesManager from './spacesManager.js'
 import Client from './client.js'
 import SearchBar from './search.js'
 import { toWords } from './utils/strings.js'
+import * as PopupMenu from './popUpMenu.js'
 import ProfileInformation from './profileInformation.js'
 import NotificationListing from './notifications.js'
 import * as Icons from './icons.js'
@@ -56,6 +57,8 @@ export default class WelcomeView extends Component {
     }, 500)
   }
 
+  searchInput = createRef()
+
   setSearch = s => this.setState({ searchFilter: s})
 
   setFilterItems = s => this.setState({ filterItems: s})
@@ -70,6 +73,12 @@ export default class WelcomeView extends Component {
       }
     })
   }
+
+  flags = [
+    { keyword: "fav", description: "favorite discussions" },
+  ]
+
+  popupActions = { }
 
   setFocus = b => this.setState({
     inputFocus: b,
@@ -106,12 +115,22 @@ export default class WelcomeView extends Component {
     return <Fragment key="welcome-fragment">
       <header id="welcome-header">
         <div id="welcome-header-content">
-          <SearchBar
-            search={state.searchFilter}
-            setSearch={this.setSearch}
-            submit={this.submitSearch}
-            hint="/"
-            setFocus={this.setFocus} />
+          <div id="welcome-search-wrapper">
+            <SearchBar
+              search={state.searchFilter}
+              setSearch={this.setSearch}
+              searchInput={this.searchInput}
+              submit={this.submitSearch}
+              hint="/"
+              setFocus={this.setFocus} />
+            <PopupMenu.Menu
+              below={true}
+              textValue={state.searchFilter}
+              textarea={this.searchInput}
+              actions={this.popupActions}
+              setTextValue={this.setSearch}
+            />
+          </div>
           { (!state.inputFocus || !(state.layout !== "wide")) && <Fragment>
             {state.layout !== "wide"
               ? <button data-active={state.view === "COLLECTION"} id="welcome-collection" onClick={this.toggleCollectionVisible}>{Icons.collection}</button>

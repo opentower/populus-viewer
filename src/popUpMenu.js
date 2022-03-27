@@ -6,7 +6,7 @@ import './styles/popUpMenu.css'
 
 export class Menu extends Component {
   componentDidMount () {
-    if (this.props.textarea) {
+    if (this.props.textarea?.current) {
       this.props.textarea.current.addEventListener("input", this.handleInput)
       this.props.textarea.current.addEventListener("click", this.cancel)
       this.props.textarea.current.addEventListener("blur", this.cancel)
@@ -14,7 +14,7 @@ export class Menu extends Component {
   }
 
   componentWillUnmount () {
-    if (this.props.textarea) {
+    if (this.props.textarea?.current) {
       this.props.textarea.current.removeEventListener("input", this.handleInput)
       this.props.textarea.current.removeEventListener("click", this.cancel)
       this.props.textarea.current.removeEventListener("blur", this.cancel)
@@ -50,7 +50,8 @@ export class Menu extends Component {
         insert: this.insert,
         cancel: this.cancel,
         textarea: props.textarea,
-        textValue: props.textValue
+        textValue: props.textValue,
+        below: props.below
       })
     }
   }
@@ -139,11 +140,11 @@ export class Emojis extends Component {
     this.props.insert(emoji, /:\S*$/)
   }
 
-  render(_props, state) {
+  render(props, state) {
     if (this.state.popupItems.length > 0) {
       // We use a relatively positioned wrapper to keep the PUM in the document flow
       return <div style={{top: `${state.popupItems.length * 40}px`}} id="popup-wrapper">
-        <div id="popup-menu">
+        <div id="popup-menu" style={props.below ? {top: "0px"} : {bottom: "0px"}}>
           {this.state.popupItems}
         </div>
       </div>
@@ -249,11 +250,11 @@ export class Members extends Component {
     this.props.cancel()
   }
 
-  render(_props, state) {
+  render(props, state) {
     if (this.state.popupItems.length > 0) {
       // We use a relatively positioned wrapper to keep the PUM in the document flow
       return <div style={{top: `${state.popupItems.length * 40}px`}} id="popup-wrapper">
-        <div id="popup-menu">
+        <div id="popup-menu" style={props.below ? {top: "0px"} : {bottom: "0px"}}>
           {this.state.popupItems}
         </div>
       </div>
@@ -358,11 +359,11 @@ export class Flags extends Component {
     this.props.cancel()
   }
 
-  render(_props, state) {
+  render(props, state) {
     if (this.state.popupItems.length > 0) {
       // We use a relatively positioned wrapper to keep the PUM in the document flow
       return <div style={{top: `${state.popupItems.length * 40}px`}} id="popup-wrapper">
-        <div id="popup-menu">
+        <div id="popup-menu" style={props.below ? {top: "0px"} : {bottom: "0px"}}>
           {this.state.popupItems}
         </div>
       </div>
