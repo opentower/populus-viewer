@@ -16,6 +16,7 @@ import { spaceChild, spaceParent, populusCollectionChild } from "./constants.js"
 export default class SpacesManager extends Component {
   constructor(props) {
     super(props)
+    SpacesManager.init()
     this.state = {
       spaces: Client.client.getVisibleRooms()
         .filter(room => room.getMyMembership() === "join")
@@ -31,6 +32,27 @@ export default class SpacesManager extends Component {
           .filter(room => room.getMyMembership() === "join")
           .filter(this.isCollection)
       })
+    })
+  }
+
+  static init() {
+    if (SpacesManager.initialized) return
+    SpacesManager.initialized = true
+    SpacesManager.spaces = {}
+    Client.client.on("RoomState.events", e => {
+      if (SpacesManager.spaces[e.getRoomId()] && e.getType() === spaceChild) {
+        if (e.getContent().via) {
+          const responsePromise = Client.client.getRoomHierarchy(e.getStateKey(), 1, 0)
+          responsePromise.then(response => {
+            const [child] = response.rooms
+            SpacesManager.spaces[e.getRoomId()].children[child.room_id] = child
+            SpacesManager.spaces[e.getRoomId()].via[e.getStateKey()] = e.getContent().via
+          }).then(_ => Client.client.emit("Space.update"))
+        } else {
+          delete SpacesManager.spaces[e.getRoomId()].children[e.getStateKey()]
+          Client.client.emit("Space.update")
+        }
+      }
     })
   }
 
@@ -172,41 +194,57 @@ class CreateCollection extends Component {
 class SpaceListing extends Component {
   constructor(props) {
     super(props)
+    if (!SpacesManager.spaces[this.props.room.roomId]) {
+      SpacesManager.spaces[this.props.room.roomId] = {
+        via: {},
+        children: {},
+        nextBatch: null
+      }
+    }
     this.state = {
       actionsVisible: false,
       // We use an array here to avoid duplicating children
-      children: {},
+      children: SpacesManager.spaces[this.props.room.roomId].children,
       limit: 30,
-      nextBatch: null,
-      via: {}
+      via: SpacesManager.spaces[this.props.room.roomId].via
     }
   }
 
   componentDidMount() {
-    Client.client.on("RoomState.events", this.handleStateUpdate)
-    this.loadChildren()
+    Client.client.on("Space.update", this.handleSpaceUpdate)
+    if (this.state.limit > Object.keys(this.state.children).length) this.loadChildren()
   }
 
   componentWillUnmount() {
-    Client.client.off("RoomState.events", this.handleStateUpdate)
+    Client.client.off("Space.update", this.handleSpaceUpdate)
+  }
+
+  handleSpaceUpdate = _ => {
+    const children = SpacesManager.spaces[this.props.room.roomId].children
+    const via = SpacesManager.spaces[this.props.room.roomId].via
+    this.setState({ via, children }, this.refreshModal)
   }
 
   loadChildren = async _ => {
     // dendrite will still use the fallback route, which can't restrict depth
-    const response = await Client.client.getRoomHierarchy(this.props.room.roomId, 30, 1, false, this.state.nextBatch)
-    const via = this.state.via
+    let nextBatch = SpacesManager.spaces[this.props.room.roomId].nextBatch
+    const response = await Client.client.getRoomHierarchy(this.props.room.roomId, 30, 1, false, nextBatch)
+    const via = SpacesManager.spaces[this.props.room.roomId].via
     for (const childState of response.rooms[0]?.children_state) {
       via[childState.state_key] = childState.content.via
     }
-    const children = this.state.children
+    const children = SpacesManager.spaces[this.props.room.roomId].children
     for (const child of response.rooms) {
       if (child.room_id !== this.props.room.roomId) children[child.room_id] = child
     }
-    this.setState({ via, children, nextBatch: response.next_batch }, this.refreshModal)
+    nextBatch = response.next_batch
+    SpacesManager.spaces[this.props.room.roomId] = { via, children, nextBatch }
+    this.setState({ via, children }, this.refreshModal)
   }
 
   pageChildren = async _ => {
-    if (this.state.nextBatch) this.loadChildren()
+    const nextBatch = SpacesManager.spaces[this.props.room.roomId].nextBatch
+    if (nextBatch) this.loadChildren()
   }
 
   addChildren = _ => {
@@ -223,27 +261,6 @@ class SpaceListing extends Component {
         room={this.props.room}
       />, "addChild")
     : null
-
-  handleStateUpdate = e => {
-    if (e.getRoomId() === this.props.room.roomId && e.getType() === spaceChild) {
-      if (e.getContent().via) {
-        const responsePromise = Client.client.getRoomHierarchy(e.getStateKey(), 1, 0)
-        responsePromise.then(response => {
-          const [child] = response.rooms
-          this.setState(oldState => {
-            oldState.children[child.room_id] = child
-            oldState.via[e.getStateKey()] = e.getContent().via
-            return { via: oldState.via, children: oldState.children }
-          }, this.refreshModal)
-        })
-      } else {
-        this.setState(oldState => {
-          delete oldState.children[e.getStateKey()]
-          return { children: oldState.children }
-        }, this.refreshModal)
-      }
-    }
-  }
 
   searchMe = _ => this.props.filterSet({
     display: <Fragment><span class="small-icon">{Icons.collection}</span>{this.props.room.name}</Fragment>,
