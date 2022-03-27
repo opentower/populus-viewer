@@ -178,7 +178,7 @@ class SpaceListing extends Component {
       children: {},
       limit: 30,
       nextBatch: null,
-      via: null
+      via: {}
     }
   }
 
@@ -194,7 +194,7 @@ class SpaceListing extends Component {
   loadChildren = async _ => {
     // dendrite will still use the fallback route, which can't restrict depth
     const response = await Client.client.getRoomHierarchy(this.props.room.roomId, 30, 1, false, this.state.nextBatch)
-    const via = {}
+    const via = this.state.via
     for (const childState of response.rooms[0]?.children_state) {
       via[childState.state_key] = childState.content.via
     }
