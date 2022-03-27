@@ -47,10 +47,10 @@ export default class SpacesManager extends Component {
             const [child] = response.rooms
             SpacesManager.spaces[e.getRoomId()].children[child.room_id] = child
             SpacesManager.spaces[e.getRoomId()].via[e.getStateKey()] = e.getContent().via
-          }).then(_ => Client.client.emit("Space.update"))
+          }).then(_ => Client.client.emit("Space.update", e.getRoomId()))
         } else {
           delete SpacesManager.spaces[e.getRoomId()].children[e.getStateKey()]
-          Client.client.emit("Space.update")
+          Client.client.emit("Space.update", e.getRoomId())
         }
       }
     })
@@ -219,10 +219,12 @@ class SpaceListing extends Component {
     Client.client.off("Space.update", this.handleSpaceUpdate)
   }
 
-  handleSpaceUpdate = _ => {
-    const children = SpacesManager.spaces[this.props.room.roomId].children
-    const via = SpacesManager.spaces[this.props.room.roomId].via
-    this.setState({ via, children }, this.refreshModal)
+  handleSpaceUpdate = roomId => {
+    if (roomId === this.props.room.roomId) {
+      const children = SpacesManager.spaces[this.props.room.roomId].children
+      const via = SpacesManager.spaces[this.props.room.roomId].via
+      this.setState({ via, children }, this.refreshModal)
+    }
   }
 
   loadChildren = async _ => {
