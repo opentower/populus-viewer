@@ -24,22 +24,22 @@ export function rectsFromPdfSelection(sel, elt, zoom) {
     if (theRange.startContainer.nodeType === 3) { // starts in a text element
       rects.push(textNodeToRect(theRange.startContainer, theRange.startOffset))
     }
-    if (theRange.endContainer.nodeType === 1) { // starts in an element
-      const endRangeChildren = Array.from(theRange.startContainer.childNodes).slice(theRange.startOffset)
+    if (theRange.endContainer.nodeType === 1) { // ends in an element
+      const endRangeChildren = Array.from(theRange.endContainer.childNodes).slice(0, theRange.endOffset)
       const endRangeChildrenText = endRangeChildren.map(gatherTextNodesBelow).reduce((acc, next) => acc.concat(next), [])
       rects = rects.concat(endRangeChildrenText.map(node => textNodeToRect(node)))
     }
-    if (theRange.startContainer.nodeType === 3) { // starts in a text element
+    if (theRange.endContainer.nodeType === 3 && theRange.endOffset > 0) { // ends in a text element
       rects.push(textNodeToRect(theRange.endContainer, 0, theRange.endOffset))
     }
     rects = rects.concat(gatherTextNodesBetween(theRange.startContainer, theRange.endContainer).map(node => textNodeToRect(node)))
   } else {
-    if (theRange.startContainer.nodeType === 1) { // starts in an element
+    if (theRange.startContainer.nodeType === 1) { // starts and ends in an element
       const startRangeChildren = Array.from(theRange.startContainer.childNodes).slice(theRange.startOffset, theRange.endOffset)
       const startRangeChildrenText = startRangeChildren.map(gatherTextNodesBelow).reduce((acc, next) => acc.concat(next), [])
       rects = rects.concat(startRangeChildrenText.map(node => textNodeToRect(node)))
     }
-    if (theRange.startContainer.nodeType === 3) { // starts in a text element
+    if (theRange.startContainer.nodeType === 3) { // starts and ends in a text element
       rects.push(textNodeToRect(theRange.startContainer, theRange.startOffset, theRange.endOffset))
     }
   }
@@ -94,5 +94,7 @@ function textNodeToRect(textNode, start, end) {
   range.selectNode(textNode);
   if (start) range.setStart(textNode, start)
   if (end) range.setEnd(textNode, end)
+  console.log(start,end)
+  console.log(range)
   return range.getBoundingClientRect();
 }
