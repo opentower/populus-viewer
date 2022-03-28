@@ -701,7 +701,7 @@ export default class PdfView extends Component {
           {state.room ? <RoomIcon roomId={state.roomId} size={42} name={state.room.name} avatarUrl={state.room.getMxcAvatarUrl()} /> : null }
           <hr />
           <ToolTip placement="left" content="Show chat">
-            <button data-active={state.chatVisible} disabled={!state.focus} id="show-annotations" onclick={this.toggleChat}>
+            <button data-active={state.chatVisible} disabled={!state.focus} id="show-chat" onclick={this.toggleChat}>
               {Icons.annotation}
             </button>
           </ToolTip>
