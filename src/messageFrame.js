@@ -209,12 +209,12 @@ class ActionsOnOthersMessages extends Component {
         </div>
       default : return <div ref={this.actions} class="message-actions">
           {!props.responding && <ToolTip placement="top-start" theme="small" content="reply to this message">
-            <button key="h" aria-label="Reply to this message" onclick={props.openEditor}>
+            <button key="h" onclick={props.openEditor}>
               {Icons.reply}
             </button>
           </ToolTip>}
           <ToolTip placement="top-start" theme="small" content="React to this message">
-            <button key="i" aria-label="React to this message" class="reaction" onclick={this.selectEmoji}>
+            <button key="i" class="reaction" onclick={this.selectEmoji}>
             {Icons.like}
             </button>
           </ToolTip>
@@ -227,13 +227,13 @@ function ActionsOnOwnMessages(props) {
   return <div class="message-actions">
     {!props.responding && props.canEdit &&
       <ToolTip placement="top-end" theme="small" content="Edit this message">
-        <button aria-label="Edit this message" onclick={props.openEditor}>
+        <button onclick={props.openEditor}>
         {Icons.edit}
         </button>
       </ToolTip>
     }
     <ToolTip placement="top-end" theme="small" content="Delete this message">
-      <button aria-label="Delete this message" onclick={props.redactMessage} class="redact">
+      <button onclick={props.redactMessage} class="redact">
       {Icons.trash}
       </button>
     </ToolTip>

@@ -98,32 +98,27 @@ export default class Navbar extends Component {
         <div id="nav-background" />
         <div class="nav-button-wrapper top-wrapper">
           <ToolTip content="Go to main menu (ESC)" offset={this.toolTipOffset}>
-            <button aria-label="Go to main menu" onclick={this.mainMenu}>{Icons.home}</button>
+            <button onclick={this.mainMenu}>{Icons.home}</button>
           </ToolTip>
           <ToolTip content="Add annotation (Alt + a)" offset={this.toolTipOffset} >
-            <button aria-label="Add annotation"
-              disabled={(props.hasSelection || props.pindropMode?.x) ? null : "disabled"}
+            <button disabled={(props.hasSelection || props.pindropMode?.x) ? null : "disabled"}
               onclick={props.openAnnotation}>{Icons.addAnnotation}
             </button>
           </ToolTip>
           <ToolTip content="Go to previous annotation (Alt + Shift + Tab)" offset={this.toolTipOffset}>
-            <button aria-label="Go to previous annotation"
-              disabled={!props.hasAnnotations}
+            <button disabled={!props.hasAnnotations}
               onclick={props.focusPrev}>{Icons.chevronsLeft}
             </button>
           </ToolTip>
           <ToolTip content="Go to previous page (k, ←)" offset={this.toolTipOffset}>
-            <button aria-label="Go to previous page"
-              disabled={props.pageFocused > 1 ? null : "disabled"}
+            <button disabled={props.pageFocused > 1 ? null : "disabled"}
               onclick={props.prevPage}>{Icons.chevronLeft}
             </button>
           </ToolTip>
           <form onSubmit={this.handleSubmit}>
             <ToolTip content="Show page navigation" offset={this.toolTipOffset}>
-              <button
-                onclick={this.togglePageNav}
-                class={state.pageViewVisible ? "nav-toggled" : null}
-                aria-label="Show page navigation">{Icons.page}
+              <button class={state.pageViewVisible ? "nav-toggled" : null}
+                onclick={this.togglePageNav}>{Icons.page}
               </button>
             </ToolTip>
             <input type="text"
@@ -136,50 +131,46 @@ export default class Navbar extends Component {
             <span ref={this.pageTotal} id="nav-total-pages">{props.total}</span>
           </form>
           <ToolTip content="Go to next page (j, →)" offset={this.toolTipOffset}>
-            <button aria-label="Go to next page"
-              disabled={props.total > props.pageFocused ? null : "disabled"} 
+            <button disabled={props.total > props.pageFocused ? null : "disabled"} 
               onclick={props.nextPage}>{Icons.chevronRight}
             </button>
           </ToolTip>
           <ToolTip content="Go to next annotation (Alt + Tab)" offset={[0, 30]}>
-            <button aria-label="Go to next annotation"
-              disabled={!props.hasAnnotations}
+            <button disabled={!props.hasAnnotations}
               onclick={props.focusNext}>{Icons.chevronsRight}
             </button>
           </ToolTip>
           <ToolTip content="Remove annotation (Alt + r)" offset={this.toolTipOffset}>
-            <button aria-label="Remove annotatation"
-              disabled={props.focus && !props.hasSelection ? null : "disabled"}
+            <button disabled={props.focus && !props.hasSelection ? null : "disabled"}
               onclick={props.closeAnnotation}>{Icons.removeAnnotation}
             </button>
           </ToolTip>
           <ToolTip content="More options" offset={this.toolTipOffset}>
-            <button aria-label="More options" onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
+            <button onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
           </ToolTip>
         </div>
         <div ref={this.bottomWrapper} data-searchFocused={state.searchFocused} class="nav-button-wrapper bottom-wrapper">
           <ToolTip content="Invite a friend" theme="bordered">
-            <button aria-label="Invite a friend"
-              onClick={this.openInvite}>{Icons.userPlus}
+            <button onClick={this.openInvite}>{Icons.userPlus}
             </button>
           </ToolTip>
           <ToolTip content="Download PDF" theme="bordered">
-            <button aria-label="Download PDF" onClick={this.download}>{Icons.download} </button>
+            <button onClick={this.download}>{Icons.download} </button>
           </ToolTip>
           <ToolTip content="Zoom out (-)" theme="bordered">
-            <button aria-label="Zoom out" onClick={this.zoomOut}>{Icons.zoomout}</button>
+            <button onClick={this.zoomOut}>{Icons.zoomout}</button>
           </ToolTip>
           <ToolTip content="Zoom in (+)" theme="bordered">
-            <button aria-label="Zoom in" onClick={this.zoomIn}>{Icons.zoomin}</button>
+            <button onClick={this.zoomIn}>{Icons.zoomin}</button>
           </ToolTip>
           <ToolTip content="Toggle annotation visibility (Alt + v)" theme="bordered">
-            <button aria-label="Toggle annotation visibility" onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
+            <button onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
           </ToolTip>
           <ToolTip content="Add Pin" theme="bordered">
-            <button aria-label="Add Pin" onClick={props.startPindrop}>{Icons.pin}</button>
+            <button  onClick={props.startPindrop}>{Icons.pin}</button>
           </ToolTip>
           <ToolTip content="Search Within PDF" theme="bordered">
-            <button aria-label="Search Within PDF" onClick={props.showSearch}>{Icons.search}</button>
+            <button onClick={props.showSearch}>{Icons.search}</button>
           </ToolTip>
         </div>
       </nav>

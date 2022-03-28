@@ -9,6 +9,7 @@ export default class ToolTip extends Component {
       touch: ["hold", 1000]
     }, this.props))
     this.base.addEventListener("focusout", this.tippy.hide())
+    this.base.setAttribute("aria-label", this.props.content)
   }
 
   componentWillUnmount() {

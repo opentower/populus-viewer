@@ -139,31 +139,31 @@ export default class MessagePanel extends Component {
             ? <Fragment>
                 <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
                 <ToolTip key="record-audio" content="Record audio message">
-                  <button aria-label="Record audio message" onclick={this.setModeRecordAudio}>{Icons.mic}</button>
+                  <button onclick={this.setModeRecordAudio}>{Icons.mic}</button>
                 </ToolTip>
                 <ToolTip key="record-video" content="Record video message">
-                  <button aria-label="Record video message" onclick={this.setModeRecordVideo}>{Icons.video}</button>
+                  <button onclick={this.setModeRecordVideo}>{Icons.video}</button>
                 </ToolTip>
                 <ToolTip key="more-options" content="More options">
-                  <button aria-label="More options" ref={this.showMoreButton} onclick={this.showMore}>{Icons.moreHorizontal}</button>
+                  <button ref={this.showMoreButton} onclick={this.showMore}>{Icons.moreHorizontal}</button>
                 </ToolTip>
             </Fragment>
             : <Fragment>
                 <ToolTip key="more-options-2" content="More options">
-                  <button aria-label="More options" ref={this.showLessButton} onclick={this.showLess}>{Icons.moreHorizontal}</button>
+                  <button ref={this.showLessButton} onclick={this.showLess}>{Icons.moreHorizontal}</button>
                 </ToolTip>
                 <ToolTip key="quote-highlighted" content="Quote highlighted">
-                  <button id="quote-button" disabled={!props.hasSelection} aria-label="quote highlighted" onclick={this.sendSelection}>{Icons.quote}</button>
+                  <button id="quote-button" disabled={!props.hasSelection} onclick={this.sendSelection}>{Icons.quote}</button>
                 </ToolTip>
-                <ToolTip key="upload-image" content="Upload image">
-                  <button aria-label="Upload image" onclick={this.setModeSendImage}>{Icons.image}</button>
+                <ToolTip key="Upload-image" content="Upload image">
+                  <button onclick={this.setModeSendImage}>{Icons.image}</button>
                 </ToolTip>
-                <ToolTip key="upload-file" content="Upload file">
-                  <button aria-label="Upload file" onclick={this.setModeSendFile}>{Icons.upload}</button>
+                <ToolTip key="Upload-file" content="Upload file">
+                  <button onclick={this.setModeSendFile}>{Icons.upload}</button>
                 </ToolTip>
                 {isAdmin
                   ? <ToolTip key="configure-room" content="Configure room settings">
-                    <button aria-label="Configure room settings" onclick={this.openSettings}>{Icons.settings}</button>
+                    <button onclick={this.openSettings}>{Icons.settings}</button>
                   </ToolTip>
                   : null
                 }

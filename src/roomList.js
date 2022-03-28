@@ -9,6 +9,7 @@ import Modal from './modal.js'
 import Invite from './invite.js'
 import LeaveRoom from './leaveRoom.js'
 import { TagEditor, TagList } from './tagEditor.js'
+import ToolTip from "./utils/tooltip.js"
 import RoomSettings from './roomSettings.js'
 import { RoomColor } from './utils/colors.js'
 import { toWords } from './utils/strings.js'
@@ -247,13 +248,13 @@ class RoomEntry extends Component {
           <MemberListing room= {props.room} memberLimit={props.memberLimit} />
         </div>
         <div class="room-listing-entry-buttons">
-          { state.buttonsVisible ? null : <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.moreVertical}</button> }
-          { state.buttonsVisible ? <button title="Toggle buttons" onClick={this.toggleButtons}>{Icons.close}</button> : null }
-          { state.buttonsVisible ? <button title="Toggle favorite" onClick={this.toggleFavorite}>{Icons.star}</button> : null }
-          { state.buttonsVisible ? <button title="Leave conversation" onClick={this.handleClose}>{Icons.exit}</button> : null }
-          { state.buttonsVisible ? <button title="Edit room tags" onClick={this.handleEditTags}>{Icons.tag}</button> : null }
-          { state.buttonsVisible && canInvite ? <button title="Invite a friend" onClick={this.openInvite}>{Icons.userPlus}</button> : null }
-          { state.buttonsVisible && isAdmin ? <button title="Configure room settings" onClick={this.openSettings}>{Icons.settings}</button> : null }
+          { state.buttonsVisible ? null : <ToolTip placement="right" content="Toggle buttons"><button onClick={this.toggleButtons}>{Icons.moreVertical}</button></ToolTip>}
+          { state.buttonsVisible ? <ToolTip placement="right" content="Toggle buttons"><button onClick={this.toggleButtons}>{Icons.close}</button> </ToolTip> : null }
+          { state.buttonsVisible ? <ToolTip placement="right" content="Toggle favorite"><button onClick={this.toggleFavorite}>{Icons.star}</button></ToolTip> : null }
+          { state.buttonsVisible ? <ToolTip placement="right" content="Leave conversation"><button onClick={this.handleClose}>{Icons.exit}</button></ToolTip> : null }
+          { state.buttonsVisible ? <ToolTip placement="right" content="Edit room tags"><button onClick={this.handleEditTags}>{Icons.tag}</button></ToolTip> : null }
+          { state.buttonsVisible && canInvite ? <ToolTip placement="right" content="Invite a friend"><button onClick={this.openInvite}>{Icons.userPlus}</button></ToolTip> : null }
+          { state.buttonsVisible && isAdmin ? <ToolTip placement="right" content="Configure room settings"><button onClick={this.openSettings}>{Icons.settings}</button></ToolTip> : null }
         </div>
       </div>
     </div>
