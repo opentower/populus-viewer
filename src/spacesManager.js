@@ -387,8 +387,8 @@ class AddChild extends Component {
   }
 
   render(props, state) {
-    const childNames = this.props.children.map(child => child.name)
-    const availableDiscussions = state.adding && state.discussions.filter(room => !childNames.includes(room.name))
+    const childIds = this.props.children.map(child => child.room_id)
+    const availableDiscussions = state.adding && state.discussions.filter(room => !childIds.includes(room.roomId))
     const currentDiscussions = !state.adding && props.children.filter(child => child.name.toLowerCase().includes(state.search.toLowerCase()))
     return <Fragment>
       <h3 id="modalHeader">Manage Discussions in {props.room.name}</h3>
@@ -450,11 +450,12 @@ class AvailableDiscussionListing extends Component {
 
   render(props, state) {
     return <button
+      aria-label={`add ${props.room.name} to discussion`}
       data-change-pending={state.pending}
       class="discussion-listing"
       onclick={this.addMe}>
         <span>{Icons.newDiscussion}</span>
         <span>{props.room.name}</span>
-      </button>
+    </button>
   }
 }
