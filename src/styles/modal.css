@@ -5,13 +5,14 @@
   left: 0px;
   right: 0px;
   display:flex;
-  align-items:center;
+  padding:25px;
   justify-content:center;
   z-index:20;
+  overflow-y:auto;
 }
 
 #modalBackground {
-  position: absolute;
+  position: fixed;
   top: 0px;
   bottom: 0px;
   left: 0px;
@@ -19,7 +20,6 @@
   background:black;
   opacity:0.15;
   overscroll-behavior:none;
-  overflow-y:scroll;
 }
 
 #modalContent {
@@ -29,12 +29,11 @@
   width:400px;
   min-height:150px;
   max-width:70vw;
-  max-height:80vh;
+  margin:auto;
   border-radius:30px;
   padding:30px;
   padding-right:30px;
   z-index:21;
-  overflow-y:scroll;
   overscroll-behavior:contain;
 }
 
