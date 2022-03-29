@@ -95,6 +95,18 @@
   max-height:60vh;
   padding-top:20px;
   transition: height .25s ease;
+  overflow:auto;
+}
+
+
+html[data-scrollbars="hidden"] #current-discussions-list,
+html[data-scrollbars="hidden"] #available-discussions-list {
+  scrollbar-width: none;
+}
+
+html[data-scrollbars="hidden"] #current-discussions-list::-webkit-scrollbar,
+html[data-scrollbars="hidden"] #available-discussions-list::-webkit-scrollbar {
+  display: none;
 }
 
 .discussion-listing svg {
