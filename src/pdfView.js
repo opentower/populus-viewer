@@ -108,7 +108,7 @@ export default class PdfView extends Component {
             <div style="margin-top:10px">
               <button
                 onclick={_ => {
-                  History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${theContent.page}/`)
+                  History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${theContent.page}/`)
                   Toast.set(null)
                 }}
                 class="styled-button">
@@ -253,24 +253,15 @@ export default class PdfView extends Component {
     }
   }
 
-  quadsFromPdfSelection = sel => {
+  generateLocation = sel => {
+    const theSelectedText = textFromPdfSelection(sel)
     const clientRects = rectsFromPdfSelection(sel, this.annotationLayerWrapper.current, this.state.pdfFitRatio * this.state.zoomFactor)
     const boundingClientRect = unionRects(clientRects)
     const clientQuads = clientRects.map(rect => QuadPoints.fromRectIn(rect, this.annotationLayerWrapper.current))
     const boundingQuad = QuadPoints.fromRectIn(boundingClientRect, this.annotationLayerWrapper.current)
-    return {clientQuads, boundingQuad}
-  }
-
-  commitHighlight = _ => {
-    if (!onlineOrAlert()) return
-    const theSelection = window.getSelection()
-    if (theSelection.isCollapsed) return
-    const theSelectedText = textFromPdfSelection(theSelection)
-    const { clientQuads, boundingQuad } = this.quadsFromPdfSelection(theSelection)
     // ↑ We've set the dimensions of the text layer in such a way that it's 72dpi, scaled up with a CSS transform.
     // So we can omit the DPI parameter here.
-    const theDomain = Client.client.getDomain()
-    const locationData = {
+    return {
       [mscPdfHighlight]: {
         page_index: this.getPage(),
         rect: boundingQuad.getBoundingRect(),
@@ -283,6 +274,17 @@ export default class PdfView extends Component {
         creator: Client.client.getUserId()
       }
     }
+  }
+
+  commitHighlight = _ => {
+    if (!onlineOrAlert()) return
+    const theSelection = window.getSelection()
+    if (theSelection.isCollapsed) return
+    const theSelectedText = textFromPdfSelection(theSelection)
+    // ↑ We've set the dimensions of the text layer in such a way that it's 72dpi, scaled up with a CSS transform.
+    // So we can omit the DPI parameter here.
+    const theDomain = Client.client.getDomain()
+    const locationData = this.generateLocation(theSelection)
     // TODO: we should set room_alias_name and name, in a useful way based on the selection
     Client.client.createRoom({
       visibility: "public",
@@ -379,7 +381,7 @@ export default class PdfView extends Component {
     const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
     if (theAnnotation) {
       const focus = new Location(theAnnotation)
-      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${focus.getPageIndex() || this.getPage()}/${roomId}`)
+      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${focus.getPageIndex() || this.getPage()}/${roomId}`)
       const listingVisible = document.body.offsetWidth <= 600 ? false : this.state.listingVisible
       this.setState({ focus, secondaryFocus: null, chatVisible: true, listingVisible })
     }
@@ -410,14 +412,14 @@ export default class PdfView extends Component {
 
   prevPage = _ => {
     if (this.getPage() > 1) {
-      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.getPage() - 1}/`)
+      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.getPage() - 1}/`)
       this.contentContainer.current.scrollTop = this.contentContainer.current.scrollHeight
     }
   }
 
   nextPage = _ => {
     if (this.getPage() < this.state.totalPages) {
-      History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.getPage() + 1}/`)
+      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.getPage() + 1}/`)
       this.contentContainer.current.scrollTop = 0
     }
   }
@@ -464,7 +466,7 @@ export default class PdfView extends Component {
 
   handleRouteChange = _ => {
     // sets the last viewed page for later retrieval
-    if (!this.props.pageFocused || !this.props.pdfFocused || !this.state.roomId) return
+    if (!this.props.pageFocused || !this.props.resourceAlias || !this.state.roomId) return
     Client.client.setRoomAccountData(this.state.roomId, lastViewed, {
       deviceId: Client.deviceId,
       ...(parseInt(this.props.pageFocused, 10) && { page: this.props.pageFocused })
@@ -523,11 +525,11 @@ export default class PdfView extends Component {
     // If you replace the element AND unset chat visibility in one update, then
     // the annotation panel jumps to the left
     this.setState({secondaryFocus: null, focus: null}, _ => this.setState({chatVisible: false}))
-    History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.props.pageFocused}/`)
+    History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.props.pageFocused}/`)
   }
 
   setFocus = focus => {
-    History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${this.props.pageFocused}/${focus.getChild()}/`)
+    History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.props.pageFocused}/${focus.getChild()}/`)
     this.setState({secondaryFocus: null, focus, chatVisible: true })
   }
 
@@ -635,7 +637,7 @@ export default class PdfView extends Component {
           focus={state.focus}
           initFocus={this.initFocus}
           pageFocused={this.getPage()}
-          pdfFocused={props.pdfFocused}
+          resourceAlias={props.resourceAlias}
           pdfHeightAdjustedPx={state.pdfHeightPx / state.pdfFitRatio}
           pdfScale={this.pdfScale}
           pdfWidthAdjustedPx={state.pdfWidthPx / state.pdfFitRatio}
@@ -662,11 +664,11 @@ export default class PdfView extends Component {
               setFocus={this.setFocus}
               setSecondaryFocus={this.setSecondaryFocus}
               unsetFocus={this.unsetFocus}
-              pdfId={state.roomId}
-              pdfFocused={props.pdfFocused}
+              resourceId={state.roomId}
+              resourceAlias={props.resourceAlias}
               pageFocused={this.getPage()}
               hasSelection={state.hasSelection}
-              quadsFromPdfSelection={this.quadsFromPdfSelection}
+              generateLocation={this.generateLocation}
               secondaryFocus={state.secondaryFocus}
               focus={state.focus} />
           : <div class="panel-widget-1" />
@@ -680,7 +682,7 @@ export default class PdfView extends Component {
               endSearch={this.endSearch}
               hideListing={this.hideListing}
               pdfText={this.pdfText}
-              pdfFocused={props.pdfFocused}
+              resourceAlias={props.resourceAlias}
               roomFocused={props.roomFocused}
             />
           : <AnnotationListing
@@ -717,7 +719,7 @@ export default class PdfView extends Component {
         closeAnnotation={this.closeAnnotation}
         hasAnnotations={this.state.filteredAnnotationContents.length > 0}
         pageFocused={this.getPage()}
-        pdfFocused={props.pdfFocused}
+        resourceAlias={props.resourceAlias}
         total={state.totalPages}
         focus={state.focus}
         roomId={state.roomId}

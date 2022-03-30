@@ -52,11 +52,11 @@ export default class Navbar extends Component {
   handleSubmit = ev => {
     ev.preventDefault();
     const currentPage = Number.isNaN(parseInt(this.state.value, 10)) ? 1 : parseInt(this.state.value, 10)
-    if (currentPage > 0 && currentPage <= this.props.total) History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${currentPage}/`)
+    if (currentPage > 0 && currentPage <= this.props.total) History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${currentPage}/`)
     else alert("Out of range");
   }
 
-  handleClick = e => History.push(`/${encodeURIComponent(this.props.pdfFocused)}/${parseInt(e.target.value, 10)}`)
+  handleClick = e => History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${parseInt(e.target.value, 10)}`)
 
   togglePageNav = _ => this.setState({pageViewVisible: !this.state.pageViewVisible})
 

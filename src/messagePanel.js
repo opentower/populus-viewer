@@ -90,7 +90,7 @@ export default class MessagePanel extends Component {
         }
       }
       Client.client
-        .sendStateEvent(this.props.pdfId, spaceChild, childContent, this.props.focus.getChild())
+        .sendStateEvent(this.props.resourceId, spaceChild, childContent, this.props.focus.getChild())
         .catch(e => alert(e))
     }
   }
@@ -98,25 +98,11 @@ export default class MessagePanel extends Component {
   sendSelection = async _ => {
     const theSelection = window.getSelection()
     if (theSelection.isCollapsed) return
-    const theSelectedText = textFromPdfSelection(theSelection)
-    const { clientQuads, boundingQuad } = this.props.quadsFromPdfSelection(theSelection)
-    const locationData = {
-      [mscPdfHighlight]: {
-        page_index: parseInt(this.props.pageFocused, 10),
-        rect: boundingQuad.getBoundingRect(),
-        quad_points: clientQuads.map(quad => quad.getArray()),
-        contents: "", // highlight contents, per PDF spec. Fill this with the first chat message text, or fallback text
-        text_content: theSelectedText // the actual highlighted text
-      },
-      [populusHighlight]: {
-        activityStatus: "pending",
-        creator: Client.client.getUserId()
-      }
-    }
+    const locationData = this.props.generateLocation(theSelection)
     const theContent = {
       body: "created an annotation",
       msgtype: "m.emote",
-      [mscMarkupMsgKey]: { [mscParent]: this.props.pdfId, [mscLocation]: locationData }
+      [mscMarkupMsgKey]: { [mscParent]: this.props.resourceId, [mscLocation]: locationData }
     }
     const eventI = await Client.client.sendMessage(this.props.focus.getChild(), theContent)
     this.openPendingAnnotation(theContent, eventI)

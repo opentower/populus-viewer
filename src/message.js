@@ -125,7 +125,7 @@ export class AnnotationMessage extends Component {
         <span class="annotation-banner">
           On&nbsp;
           <a onClick={this.handleLinkClick}
-            href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.pdfFocused)}/${this.pageNumber}/`} >
+            href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${this.pageNumber}/`} >
             page {this.pageNumber}
           </a>:
         </span>

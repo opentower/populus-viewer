@@ -191,7 +191,7 @@ export default class Chat extends Component {
           if (event.getContent()[mscMarkupMsgKey]) {
             accumulator.push(
               <AnnotationMessage reactions={reactions}
-                pdfFocused={props.pdfFocused}
+                resourceAlias={props.resourceAlias}
                 secondaryFocus={props.secondaryFocus}
                 setSecondaryFocus={props.setSecondaryFocus}
                 key={event.getId()}
@@ -260,9 +260,8 @@ export default class Chat extends Component {
       <div id="chat-panel">
         <MessagePanel
           hasSelection={props.hasSelection}
-          quadsFromPdfSelection={props.quadsFromPdfSelection}
-          pdfId={props.pdfId}
-          pageFocused={props.pageFocused}
+          generateLocation={props.generateLocation}
+          resourceId={props.resourceId}
           focus={props.focus} />
         <div id="messages">
           {messagedivs}

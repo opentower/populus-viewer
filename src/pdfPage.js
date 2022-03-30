@@ -13,7 +13,7 @@ export default class PdfPage extends Component {
         annotationLayer={props.annotationLayer}
         textLayer={props.textLayer}
         searchString={props.searchString}
-        pdfFocused={props.pdfFocused}
+        resourceAlias={props.resourceAlias}
         pageFocused={props.pageFocused}
         initFocus={props.initFocus}
         setResource={props.setResource}

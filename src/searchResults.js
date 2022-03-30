@@ -166,7 +166,7 @@ export default class SearchResults extends Component {
           </div>
           {state.searchResults.map((result, idx) => <SearchResult
             roomFocused={props.roomFocused}
-            pdfFocused={props.pdfFocused}
+            resourceAlias={props.resourceAlias}
             key={result.page}
             result={result}
             hideListing={props.hideListing}
@@ -185,7 +185,7 @@ export default class SearchResults extends Component {
 class SearchResult extends Component {
   focus = _ => {
     this.props.setFocus(this.props.index)
-    const newUrl = `/${encodeURIComponent(this.props.pdfFocused)}/${this.props.result.page}/${this.props.roomFocused ? this.props.roomFocused : ""}`
+    const newUrl = `/${encodeURIComponent(this.props.resourceAlias)}/${this.props.result.page}/${this.props.roomFocused ? this.props.roomFocused : ""}`
     History.push(newUrl)
     this.result.current.scrollIntoView()
     const narrow = document.body.offsetWidth <= 600

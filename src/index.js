@@ -67,7 +67,7 @@ class PopulusViewer extends Component {
         <Toast />
         <Router history={History.history}>
           <WelcomeView path="/" logoutHandler={this.logoutHandler} />
-          <PdfView path="/:pdfFocused/:pageFocused?/:roomFocused?" />
+          <PdfView path="/:resourceAlias/:pageFocused?/:roomFocused?" />
         </Router>
     </Fragment>
   }

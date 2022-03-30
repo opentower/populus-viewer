@@ -38,7 +38,7 @@ export default class PdfCanvas extends Component {
   }
 
   componentDidMount() {
-    this.fetchPdf(`#${this.props.pdfFocused}`)
+    this.fetchPdf(`#${this.props.resourceAlias}`)
     // fetch will fail if the initial sync isn't complete, but that should be handled by the splash page
     this.props.textLayer.current.addEventListener('click', e => {
       e.preventDefault() // this should prevent touch-to-search on mobile chrome
