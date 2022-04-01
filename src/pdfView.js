@@ -39,7 +39,6 @@ export default class PdfView extends Component {
       listingVisible: maybeState ? !!maybeState.searchString : false,
       hasSelection: false,
       annotationsVisible: true,
-      annotationContents: [],
       filteredAnnotationContents: [],
       pindropMode: null,
       annotationFilter: maybeState ? maybeState.searchString : "",
@@ -51,7 +50,8 @@ export default class PdfView extends Component {
       zoomFactor: null,
       pinching: false
     }
-
+    this.annotationChildEvents = {}
+    this.annotationParentEvents = {}
     this.pdfScale = 3
     // single source of truth for PDF scale, pdfcanvas w/h are pdf dimensions (in userspace units) times scale
     this.prevScrollTop = 0
@@ -70,7 +70,7 @@ export default class PdfView extends Component {
   componentDidMount() {
     document.addEventListener("selectionchange", this.checkForSelection)
     document.addEventListener('keydown', this.handleKeydown)
-    this.updateAnnotations()
+    this.initializeAnnotations()
     Client.client.on("Room.timeline", this.handleTimeline)
     Client.client.on("RoomState.events", this.handleStateUpdate)
     Client.client.on("Room.accountData", this.handleAccountData)
@@ -86,19 +86,20 @@ export default class PdfView extends Component {
 
   handleStateUpdate = e => {
     if (e.getRoomId() === this.state.roomId && e.getType() === spaceChild) {
-      this.updateAnnotations()
+      this.updateAnnotation(new Location(e))
     }
   }
 
   handleTimeline (_event, room) {
-    const childIds = this.state.annotationContents.map(loc => loc.getChild())
-    if (room?.roomId in childIds) this.updateAnnotations()
+    if (room?.roomId in this.annotationChildEvents) {
+      this.updateAnnotation(this.annotationChildEvents[room.roomId])
+    }
   }
 
   handleAccountData = (e, room) => {
-    const childIds = this.state.annotationContents.map(loc => loc.getChild())
-    if (room?.roomId in childIds) this.updateAnnotations()
-    else if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
+    if (room?.roomId in this.annotationChildEvents) {
+      this.updateAnnotation(this.annotationChildEvents[room.roomId])
+    } else if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
       const theContent = e.getContent()
       if (theContent.page !== this.props.pageFocused && theContent.deviceId !== Client.deviceId) {
         Toast.set(
@@ -333,12 +334,10 @@ export default class PdfView extends Component {
 
   setPdfText = pdfText => { this.pdfText = pdfText }
 
-  // XXX : will need to debounce eventually
-  setAnnotationFilter = annotationFilter => this.setState(oldState => {
-    return {
-      annotationFilter,
-      filteredAnnotationContents: this.filterAnnotations(annotationFilter, oldState.annotationContents)
-    }
+  // XXX : may need to debounce eventually
+  setAnnotationFilter = annotationFilter => this.setState({
+    annotationFilter,
+    filteredAnnotationContents: this.filterAnnotations(annotationFilter, this.annotationChildEvents)
   })
 
   setTotalPages = totalPages => this.setState({totalPages})
@@ -553,23 +552,48 @@ export default class PdfView extends Component {
     }
   }
 
-  updateAnnotations = _ => {
+  updateAnnotation = loc => {
+    this.setState(oldState => {
+      const filteredLoc = this.filterAnnotations(oldState.annotationFilter, {null: loc})
+      const isInsertable = this.insertable(loc)
+      if (isInsertable) this.annotationChildEvents[loc.getChild()] = loc
+      else delete this.annotationChildEvents[loc.getChild()]
+      let filteredAnnotationContents = oldState.filteredAnnotationContents
+      if (filteredLoc.length > 0 && isInsertable) { // if it passes the filter
+        // check if it's already there, and either replace or insert it
+        const idx = filteredAnnotationContents.findIndex(annot => annot.getChild() === loc.getChild())
+        if (idx > -1) filteredAnnotationContents[idx] = filteredLoc[0]
+        else filteredAnnotationContents.push(filteredLoc[0])
+      } else { // if it doesn't pass, make sure it's not in the filtered annotation contents
+        filteredAnnotationContents = filteredAnnotationContents
+          .filter(annot => annot.getChild() !== loc.getChild())
+      }
+      return {filteredAnnotationContents}
+    })
+  }
+
+  insertable(loc) {
+    return loc.isValid() &&
+      // we infer that you are a member if you have unread. TODO Should do this more directly.
+      (!loc.isPrivate() || loc.getUnread() !== "All") &&
+      ( loc.getStatus() !== "pending" ||
+        ( loc.getStatus() === "pending" && loc.getCreator() === Client.client.getUserId())
+      )
+  }
+
+  initializeAnnotations = _ => {
     if (this.state.room) {
-      const annotationContents = this.state.room.getLiveTimeline()
+      const locations = this.state.room.getLiveTimeline()
         .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
         .map(ev => new Location(ev))
-        .filter(loc => loc.isValid() &&
-          // we infer that you are a member if you have unread. TODO Should do this more directly.
-          (!loc.isPrivate() || loc.getUnread() !== "All") &&
-          ( loc.getStatus() !== "pending" ||
-            ( loc.getStatus() === "pending" && loc.getCreator() === Client.client.getUserId())
-          )
-        )
-      this.setState({annotationContents, filteredAnnotationContents: this.filterAnnotations(this.state.annotationFilter, annotationContents)})
-    } else setTimeout(this.updateAnnotations, 500) // keep polling until the room is available
+        .filter(this.insertable)
+      for (const loc of locations) this.annotationChildEvents[loc.getChild()] = loc
+      this.setState({filteredAnnotationContents: this.filterAnnotations(this.state.annotationFilter, this.annotationChildEvents)})
+    } else setTimeout(this.initializeAnnotations, 500) // keep polling until the room is available
   }
 
   filterAnnotations = (search, annotations) => {
+    const locations = Object.values(annotations)
     const searchText = []
     const searchMembers = []
     const searchFlags = []
@@ -579,7 +603,7 @@ export default class PdfView extends Component {
       else if (word.slice(0, 1) === '~') searchFlags.push(word.slice(1))
       else searchText.push(word)
     }
-    return annotations.filter(loc => {
+    return locations.filter(loc => {
       let flagged = true
       if (searchFlags.includes("me")) { flagged = flagged && loc.getCreator() === Client.client.getUserId() }
       if (searchFlags.includes("hour")) { flagged = flagged && (loc.event.getTs() > (Date.now() - 3600000)) }
@@ -691,7 +715,7 @@ export default class PdfView extends Component {
               focus={state.focus}
               setAnnotationFilter={this.setAnnotationFilter}
               annotationFilter={state.annotationFilter}
-              annotationContents={state.annotationContents}
+              annotationContents={this.annotationChildEvents}
               filteredAnnotationContents={state.filteredAnnotationContents}
               focusByRoomId={this.focusByRoomId}
               focusNext={this.focusNext}
@@ -717,7 +741,7 @@ export default class PdfView extends Component {
       <Navbar hasSelection={state.hasSelection}
         openAnnotation={this.openAnnotation}
         closeAnnotation={this.closeAnnotation}
-        hasAnnotations={this.state.filteredAnnotationContents.length > 0}
+        hasAnnotations={state.filteredAnnotationContents.length > 0}
         pageFocused={this.getPage()}
         resourceAlias={props.resourceAlias}
         total={state.totalPages}

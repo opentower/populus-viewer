@@ -262,7 +262,7 @@ export default class AnnotationListing extends Component {
                           onClick={this.sortByCreation}
                           class="styled-button">Creation</button>
                 </div>
-                  {props.annotationContents.length === 0
+                  {Object.values(props.annotationContents).length === 0
                     ? <div class="empty-marker"><b>No annotations yet available</b></div>
                     : props.filteredAnnotationContents.length === 0
                       ? <div class="empty-marker"><b>No annotations matching search</b></div>

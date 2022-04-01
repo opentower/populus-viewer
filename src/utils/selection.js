@@ -94,7 +94,5 @@ function textNodeToRect(textNode, start, end) {
   range.selectNode(textNode);
   if (start) range.setStart(textNode, start)
   if (end) range.setEnd(textNode, end)
-  console.log(start,end)
-  console.log(range)
   return range.getBoundingClientRect();
 }

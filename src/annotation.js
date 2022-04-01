@@ -1,7 +1,7 @@
 import { h, createRef, Component } from 'preact';
 import * as Layout from "./utils/layout.js"
 import * as Matrix from "matrix-js-sdk"
-import { spaceChild, mscPdfHighlight, mscPdfText } from "./constants.js"
+import { spaceChild } from "./constants.js"
 import { UserColor } from "./utils/colors.js"
 import QuadPoints from './utils/quadPoints.js'
 import Client from './client.js'

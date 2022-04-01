@@ -47,7 +47,6 @@ export default class Invite extends Component {
   removeMembers = _ => this.setState({ adding: false })
 
   render(props, state) {
-    console.log(state)
     const additions = state.adding && Client.client.getUsers()
       .filter(u => !state.memberIds.includes(u.userId))
       .filter(u => u.displayName.toUpperCase().includes(state.search.toUpperCase()))
