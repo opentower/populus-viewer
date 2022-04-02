@@ -396,6 +396,7 @@ function AnnotationListingComment(props) {
       <div class="annotation-listing-info">
         <div class="annotation-listing-features">
           {props.annotationLocation.isPrivate() ? Icons.lock : null}
+          {props.annotationLocation.getOrientation() === "parent" ? Icons.eyeOff : null}
         </div>
         <div class="annotation-listing-creator"><MemberPill member={props.creator} /></div>
       </div>

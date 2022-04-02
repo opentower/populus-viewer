@@ -141,6 +141,7 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
 .annotation-listing-features > svg {
   height:14px;
   width:14px;
+  padding-right:5px;
 }
 
 .annotation-listing-features {

@@ -2,7 +2,7 @@ import * as Icons from "./icons.js"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
-import { spaceChild, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscPdfHighlight, populusHighlight } from "./constants.js"
+import { spaceChild, spaceParent, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscPdfHighlight, populusHighlight } from "./constants.js"
 import { textFromPdfSelection } from './utils/selection.js'
 import { processRegex } from './processRegex.js'
 import { UserColor } from './utils/colors.js'
@@ -80,17 +80,18 @@ export default class MessagePanel extends Component {
       }
       const highlightData = this.props.focus.location[mscPdfHighlight]
       const textData = this.props.focus.location[mscPdfText]
-      const childContent = {
-        via: [theDomain],
-        [mscLocation]: {
-          // TODO should also set the content property of the msc highlight with fallback text
-          [populusHighlight]: Object.assign(this.props.focus.location[populusHighlight], diff),
-          ...(highlightData && {[mscPdfHighlight]: highlightData}),
-          ...(textData && {[mscPdfText]: textData})
-        }
+      const locationData = {
+        // TODO should also set the content property of the msc highlight with fallback text
+        [populusHighlight]: Object.assign(this.props.focus.location[populusHighlight], diff),
+        ...(highlightData && {[mscPdfHighlight]: highlightData}),
+        ...(textData && {[mscPdfText]: textData})
       }
+      const newContent = { via: [theDomain], [mscLocation]: locationData }
       Client.client
-        .sendStateEvent(this.props.resourceId, spaceChild, childContent, this.props.focus.getChild())
+        .sendStateEvent(this.props.resourceId, spaceChild, newContent, this.props.focus.getChild())
+        .catch(e => alert(e))
+      Client.client
+        .sendStateEvent(this.props.focus.getChild(), spaceParent, newContent, this.props.resourceId)
         .catch(e => alert(e))
     }
   }

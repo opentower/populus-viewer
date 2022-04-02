@@ -34,16 +34,8 @@ export default class RoomSettings extends Component {
   async initialize() {
     const visibility = await Client.client.getRoomDirectoryVisibility(this.props.room.roomId)
     this.initialVisibility = visibility
-    const parents = this.roomState.getStateEvents(spaceParent)
-    const references = parents.map(parent => {
-      const parentRoom = Client.client.getRoom(parent.getStateKey())
-      const reference = parentRoom.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild, this.props.room.roomId)
-      return reference
-    })
-    this.setState({
-      references,
-      visibility: visibility.visibility
-    })
+    const references = this.roomState.getStateEvents(spaceParent)
+    this.setState({ references, visibility: visibility.visibility })
   }
 
   handleJoinRuleChange = e => {
@@ -110,35 +102,28 @@ export default class RoomSettings extends Component {
 
   publishReferences() {
     const theDomain = Client.client.getDomain()
-    this.state.references.forEach(reference => {
+    for (const reference of this.state.references) {
       const theLocation = new Location(reference)
-      if (!theLocation.isPrivate()) return
-      delete theLocation.location[populusHighlight].private
+      if (!theLocation.isValid()) continue
       const childContent = {
         via: [theDomain],
         [mscLocation]: theLocation.location
       }
       Client.client
-        .sendStateEvent(reference.getRoomId(), spaceChild, childContent, this.props.room.roomId)
+        .sendStateEvent(theLocation.getParent(), spaceChild, childContent, this.props.room.roomId)
         .catch(e => alert(e))
-    })
+    }
   }
 
   hideReferences() {
-    const theDomain = Client.client.getDomain()
-    this.state.references.forEach(reference => {
+    for (const reference of this.state.references) {
       const theLocation = new Location(reference)
-      if (!theLocation?.location?.[populusHighlight]) return
-      if (theLocation.isPrivate()) return
-      theLocation.location[populusHighlight].private = true
-      const childContent = {
-        via: [theDomain],
-        [mscLocation]: theLocation.location
-      }
+      if (!theLocation.isValid()) continue
+      const childContent = {}
       Client.client
-        .sendStateEvent(reference.getRoomId(), spaceChild, childContent, this.props.room.roomId)
+        .sendStateEvent(theLocation.getParent(), spaceChild, childContent, this.props.room.roomId)
         .catch(e => alert(e))
-    })
+    }
   }
 
   uploadAvatar = _ => this.avatarImageInput.current.click()

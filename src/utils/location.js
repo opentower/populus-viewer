@@ -68,6 +68,11 @@ export default class Location {
     return null
   }
 
+  getOrientation() {
+    if (this.event.getType() === spaceParent) return "parent"
+    if (this.event.getType() === spaceChild) return "child"
+  }
+
   getParent() {
     if (this.event.getType() === spaceParent) return this.event.getStateKey()
     if (this.event.getType() === spaceChild) return this.event.getRoomId()

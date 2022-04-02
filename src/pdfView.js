@@ -57,7 +57,6 @@ export default class PdfView extends Component {
     this.prevScrollTop = 0
     this.checkForSelection = this.checkForSelection.bind(this)
     this.handleKeydown = this.handleKeydown.bind(this)
-    this.handleTimeline = this.handleTimeline.bind(this)
     this.handleAccountData = this.handleAccountData.bind(this)
     this.handleStateUpdate = this.handleStateUpdate.bind(this)
     this.userColor = new UserColor(Client.client.getUserId())
@@ -71,7 +70,6 @@ export default class PdfView extends Component {
     document.addEventListener("selectionchange", this.checkForSelection)
     document.addEventListener('keydown', this.handleKeydown)
     this.initializeAnnotations()
-    Client.client.on("Room.timeline", this.handleTimeline)
     Client.client.on("RoomState.events", this.handleStateUpdate)
     Client.client.on("Room.accountData", this.handleAccountData)
   }
@@ -79,27 +77,19 @@ export default class PdfView extends Component {
   componentWillUnmount() {
     document.removeEventListener("selectionchange", this.checkForSelection)
     document.removeEventListener('keydown', this.handleKeydown)
-    Client.client.off("Room.timeline", this.handleTimeline)
     Client.client.off("RoomState.events", this.handleStateUpdate)
     Client.client.off("Room.accountData", this.handleAccountData)
   }
 
   handleStateUpdate = e => {
-    if (e.getRoomId() === this.state.roomId && e.getType() === spaceChild) {
+    if ((e.getRoomId() === this.state.roomId && e.getType() === spaceChild) ||
+      (e.getStateKey() === this.state.roomId && e.getType() === spaceParent)) {
       this.updateAnnotation(new Location(e))
     }
   }
 
-  handleTimeline (_event, room) {
-    if (room?.roomId in this.annotationChildEvents) {
-      this.updateAnnotation(this.annotationChildEvents[room.roomId])
-    }
-  }
-
   handleAccountData = (e, room) => {
-    if (room?.roomId in this.annotationChildEvents) {
-      this.updateAnnotation(this.annotationChildEvents[room.roomId])
-    } else if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
+    if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
       const theContent = e.getContent()
       if (theContent.page !== this.props.pageFocused && theContent.deviceId !== Client.deviceId) {
         Toast.set(
@@ -193,6 +183,8 @@ export default class PdfView extends Component {
   commitPin = (theX, theY) => {
     if (!onlineOrAlert()) return
     const theDomain = Client.client.getDomain()
+    const theRoomState = this.state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const theLevels = theRoomState.getStateEvents("m.room.power_levels")
     const newY = this.annotationLayerWrapper.current.scrollHeight - theY
     const locationData = {
       [mscPdfText]: {
@@ -215,6 +207,11 @@ export default class PdfView extends Component {
       Client.client.createRoom({
         visibility: "public",
         name: `pindrop on page ${this.getPage()}`,
+        power_level_content_override: {
+          users: Object.assign(theLevels[0].getContent().users, {
+            [Client.client.getUserId()]: 100
+          })
+        },
         initial_state: [{
           type: "m.room.join_rules",
           state_key: "",
@@ -515,7 +512,26 @@ export default class PdfView extends Component {
       alert("Only moderators can close annotations that they didn't create")
       return
     }
-    Client.client.sendStateEvent(this.state.roomId, spaceChild, {}, this.state.focus.getChild())
+    const discussionId = this.state.focus.getChild()
+    const resourceId = this.state.roomId
+    Client.client.sendStateEvent(resourceId, spaceChild, {}, discussionId)
+    Client.client.sendStateEvent(discussionId, spaceParent, {}, resourceId)
+      .catch(e => {
+        switch (e) {
+          case "M_FORBIDDEN" : {
+            Toast.set(<Fragment>
+              <div>Annotation still visible to creator</div>
+              <div style="margin-top:10px">
+                Because you're not a moderator for that annotation you just
+                deleted, it will remain visible to its creator and members,
+                although it won't be visible to other viewers of this PDF.
+              </div>
+            </Fragment>)
+            break
+          }
+          default : console.log(e)
+        }
+      })
     this.unsetFocus()
   }
 
@@ -553,21 +569,46 @@ export default class PdfView extends Component {
   }
 
   updateAnnotation = loc => {
+    let eventStore
+    if (loc.getOrientation() === "child") eventStore = this.annotationChildEvents
+    else if (loc.getOrientation() === "parent") eventStore = this.annotationParentEvents
     this.setState(oldState => {
       const filteredLoc = this.filterAnnotations(oldState.annotationFilter, {null: loc})
       const isInsertable = this.insertable(loc)
-      if (isInsertable) this.annotationChildEvents[loc.getChild()] = loc
-      else delete this.annotationChildEvents[loc.getChild()]
+      if (isInsertable) eventStore[loc.getChild()] = loc
+      else delete eventStore[loc.getChild()]
       let filteredAnnotationContents = oldState.filteredAnnotationContents
       if (filteredLoc.length > 0 && isInsertable) { // if it passes the filter
-        // check if it's already there, and either replace or insert it
+        // check if it's already there, and either replace (where appropriate) or insert it
         const idx = filteredAnnotationContents.findIndex(annot => annot.getChild() === loc.getChild())
-        if (idx > -1) filteredAnnotationContents[idx] = filteredLoc[0]
-        else filteredAnnotationContents.push(filteredLoc[0])
-      } else { // if it doesn't pass, make sure it's not in the filtered annotation contents
-        filteredAnnotationContents = filteredAnnotationContents
-          .filter(annot => annot.getChild() !== loc.getChild())
+        if (idx > -1) {
+          // we don't replace children with parents - children are higher priority
+          if (filteredAnnotationContents[idx].getOrientation() === "parent") filteredAnnotationContents[idx] = loc
+          if (loc.getOrientation() === "child") filteredAnnotationContents[idx] = loc
+        } else filteredAnnotationContents.push(filteredLoc[0])
+      } else { // if it doesn't pass, check if it's already there
+        const idx = filteredAnnotationContents.findIndex(annot => annot.getChild() === loc.getChild())
+        if (idx > -1 && filteredAnnotationContents[idx].getOrientation() === loc.getOrientation()) {
+          // if it is there, replace with an appropriate fallback, or just remove it,
+          switch (loc.getOrientation()) {
+            case "child" : {
+              // If there's a fallback parent available, use that
+              const maybeParent = this.annotationParentEvents[loc.getChild()]
+              if (maybeParent) filteredAnnotationContents[idx] = maybeParent
+              else filteredAnnotationContents = filteredAnnotationContents.filter(annot => annot.getChild() !== loc.getChild())
+              break
+            }
+            case "parent" : {
+              // If there's a fallback child available, use that
+              const maybeChild = this.annotationChildEvents[loc.getChild()]
+              if (maybeChild) filteredAnnotationContents[idx] = maybeChild
+              else filteredAnnotationContents = filteredAnnotationContents.filter(annot => annot.getChild() !== loc.getChild())
+              break
+            }
+          }
+        }
       }
+      console.log(filteredAnnotationContents)
       return {filteredAnnotationContents}
     })
   }
@@ -583,12 +624,23 @@ export default class PdfView extends Component {
 
   initializeAnnotations = _ => {
     if (this.state.room) {
+      const allParents = Client.client.getVisibleRooms()
+        .map(room => room.getLiveTimeline())
+        .map(timeline => timeline.getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceParent))
+      for (const parent of [].concat(...allParents)) {
+        if (parent.getStateKey() === this.state.roomId) {
+          if (parent.getTs() < 1648936377334) continue // don't load old parents, for legacy compatibility
+          const loc = new Location(parent)
+          if (this.insertable(loc)) this.annotationParentEvents[loc.getChild()] = loc
+        }
+      }
       const locations = this.state.room.getLiveTimeline()
         .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
         .map(ev => new Location(ev))
         .filter(this.insertable)
       for (const loc of locations) this.annotationChildEvents[loc.getChild()] = loc
-      this.setState({filteredAnnotationContents: this.filterAnnotations(this.state.annotationFilter, this.annotationChildEvents)})
+      const mergedLocations = Object.assign({}, this.annotationParentEvents, this.annotationChildEvents)
+      this.setState({filteredAnnotationContents: this.filterAnnotations(this.state.annotationFilter, mergedLocations)})
     } else setTimeout(this.initializeAnnotations, 500) // keep polling until the room is available
   }
 
@@ -715,7 +767,7 @@ export default class PdfView extends Component {
               focus={state.focus}
               setAnnotationFilter={this.setAnnotationFilter}
               annotationFilter={state.annotationFilter}
-              annotationContents={this.annotationChildEvents}
+              annotationContents={Object.assign({}, this.annotationParentEvents, this.annotationChildEvents)}
               filteredAnnotationContents={state.filteredAnnotationContents}
               focusByRoomId={this.focusByRoomId}
               focusNext={this.focusNext}
