@@ -122,7 +122,7 @@ class Pindrop extends Component {
     if (nextProps.pdfHeightAdjustedPx === this.props.pdfHeightAdjustedPx) return
     if (!this.positioned) {
       this.left = this.props.location.getRect().left
-      this.top = this.props.pdfHeightAdjustedPx - this.props.location.getRect().top
+      this.top = nextProps.pdfHeightAdjustedPx - this.props.location.getRect().top
     }
   }
 
