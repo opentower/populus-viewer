@@ -85,7 +85,7 @@ export default class SpacesManager extends Component {
   isCollection(room) {
     const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const creation = roomState.getStateEvents("m.room.create", "")
-    const isSpace = creation.getContent()?.type === "m.space"
+    const isSpace = creation?.getContent()?.type === "m.space"
     return isSpace && !Resource.hasResource(room)
   }
 
@@ -332,7 +332,7 @@ class SpaceListing extends Component {
               activeClick={this.toggleChild}
               roomId={child.room_id}
               avatarUrl={child.avatar_url}
-              name={child.name || child.canonical_alias.slice(1) || "?"}
+              name={child.name || child?.canonical_alias?.slice(1) || "?"}
             />)
           : null // insert loading bling here.
         }
