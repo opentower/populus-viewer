@@ -6,6 +6,7 @@ import { sanitizeHtmlParams, mscMarkupMsgKey, mscLocation } from './constants.js
 import { processLinks } from './links.js'
 import UserInfoHeader from './userInfoHeader.js'
 import MessageFrame from './messageFrame.js'
+import MediaModal from './mediaModal.js'
 import 'emoji-picker-element'
 import Location from './utils/location.js'
 import Client from './client.js'
@@ -370,6 +371,12 @@ export class ImageMessage extends Component {
     ? Client.client.getHttpUriForMxcFromHS(this.props.event.getContent().info.thumbnail_url)
     : Client.client.getHttpUriForMxcFromHS(this.props.event.getContent().url)
 
+  showPreview = _ => {
+    MediaModal.set(<img
+      src={Client.client.getHttpUriForMxcFromHS(this.props.event.getContent().url)}
+    />)
+  }
+
   // TODO need some sort of modal popup providing a preview of the full video
   render(props) {
     return <MessageFrame
@@ -377,7 +384,7 @@ export class ImageMessage extends Component {
       reactions={props.reactions}
       event={props.event}>
         <div class="message-body image-upload">
-          <img class="media-message-thumbnail" src={this.url} />
+          <img onclick={this.showPreview} class="media-message-thumbnail" src={this.url} />
         </div>
     </MessageFrame>
   }

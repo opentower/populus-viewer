@@ -18,6 +18,7 @@ import Location from './utils/location.js'
 import { textFromPdfSelection, rectsFromPdfSelection } from './utils/selection.js'
 import SyncIndicator from './syncIndicator.js'
 import Toast from "./toast.js"
+import MediaModal from "./mediaModal.js"
 import { onlineOrAlert } from "./utils/alerts.js"
 import ToolTip from "./utils/tooltip.js"
 import * as Icons from "./icons.js"
@@ -702,6 +703,7 @@ export default class PdfView extends Component {
         : false
       }
       onPointerMove={this.handlePointerMove}>
+      <MediaModal />
       <Router onChange={this.handleRouteChange} />
       {this.getLoadingStatus()}
       <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">

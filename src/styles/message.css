@@ -296,6 +296,10 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
   border-radius:20px;
 }
 
+img.media-message-thumbnail {
+  cursor: pointer;
+}
+
 .image-message-preview,
 .video-message-preview {
   margin:10px;

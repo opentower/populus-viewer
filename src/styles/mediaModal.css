@@ -1,0 +1,57 @@
+#media-modal {
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  display:flex;
+  justify-content:center;
+  align-content:center;
+  z-index:20;
+  overflow-y:auto;
+}
+
+#media-modal-background {
+  position: fixed;
+  top: 0px;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  background:black;
+  opacity:0.5;
+  overscroll-behavior:none;
+}
+
+#media-modal-close > svg {
+  vertical-align:middle;
+}
+
+#media-modal-close {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  height:36px;
+  width:36px;
+  cursor:pointer;
+  border-radius:30px;
+  background:rgba(255,255,255,.5);
+  border:none;
+  z-index:22;
+}
+
+#media-modal-content{
+  position: relative;
+  opacity:1;
+  margin:auto;
+  max-width:calc(100vw);
+  z-index:21;
+  overscroll-behavior:contain;
+}
+
+html[data-scrollbars="hidden"] #media-modal-content {
+  scrollbar-width: none;
+}
+
+html[data-scrollbars="hidden"] #media-modal-content::-webkit-scrollbar {
+  display: none;
+}
