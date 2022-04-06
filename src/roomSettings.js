@@ -136,67 +136,64 @@ export default class RoomSettings extends Component {
   }
 
   render(props, state) {
-    if (state.visibility) {
-      return <Fragment>
-        <h3 id="modalHeader">Room Settings</h3>
-        <form id="room-settings-form">
-          <label htmlFor="room-avatar">Room Avatar</label>
-          {state.previewUrl
-            ? <img onclick={this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
-            : <div key="room-settings-avatar-selector" onclick={this.uploadAvatar} id="room-settings-avatar-selector" />}
-          <input name="room-avatar" id="room-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
-          <div id="room-settings-avatar-info" />
-          <label htmlFor="room-name">Room Name</label>
-          <input name="room-name"
-            type="text"
-            class="styled-input"
-            value={state.roomName}
-            onkeydown={this.handleKeydown}
-            onInput={this.handleNameInput} />
-          <div id="room-settings-name-info" />
-          <label htmlFor="visibilty">Visibility</label>
-          <select class="styled-input" value={state.visibility} name="joinRule" onchange={this.handleVisibilityChange}>
-            <option value="private">Private</option>
-            <option value="public">Publically Listed</option>
-          </select>
-          <div id="room-settings-visibility-info">
-            {state.visibility === "public"
-              ? "the room will appear in public listings"
-              : "the room will be hidden from other users"
-            }
-          </div>
-          <label htmlFor="joinRule">Join Rule</label>
-          <select class="styled-input" value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
-            <option value="public">Public</option>
-            <option value="invite">Invite-Only</option>
-          </select>
-          <div id="room-settings-join-info">
-            {state.joinRule === "public"
-              ? "anyone who can find the room may join"
-              : "an explicit invitation is required before joining"
-            }
-          </div>
-          { props.joinLink
-            ? <Fragment>
-                <label>Join Link</label>
-                <pre id="room-settings-join-link">{this.joinLink}</pre>
-              </Fragment>
-            : null
+    return <Fragment>
+      <h3 id="modalHeader">Room Settings</h3>
+      <form id="room-settings-form">
+        <label htmlFor="room-avatar">Room Avatar</label>
+        {state.previewUrl
+          ? <img onclick={this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
+          : <div key="room-settings-avatar-selector" onclick={this.uploadAvatar} id="room-settings-avatar-selector" />}
+        <input name="room-avatar" id="room-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
+        <div id="room-settings-avatar-info" />
+        <label htmlFor="room-name">Room Name</label>
+        <input name="room-name"
+          type="text"
+          class="styled-input"
+          value={state.roomName}
+          onkeydown={this.handleKeydown}
+          onInput={this.handleNameInput} />
+        <div id="room-settings-name-info" />
+        <label htmlFor="visibilty">Visibility</label>
+        <select disabled={!state.visibility} class="styled-input" value={state.visibility} name="joinRule" onchange={this.handleVisibilityChange}>
+          <option value="private">Private</option>
+          <option value="public">Publically Listed</option>
+        </select>
+        <div id="room-settings-visibility-info">
+          {state.visibility === "public"
+            ? "the room will appear in public listings"
+            : "the room will be hidden from other users"
           }
-          <div id="room-settings-submit-wrapper">
-            <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
-            <button className="styled-button" onClick={this.cancel} >Cancel</button>
-            {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
-          </div>
-          {this.state.progress
-            ? <div id="room-settings-progress">
-              <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
-            </div>
-            : null
+        </div>
+        <label htmlFor="joinRule">Join Rule</label>
+        <select class="styled-input" value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
+          <option value="public">Public</option>
+          <option value="invite">Invite-Only</option>
+        </select>
+        <div id="room-settings-join-info">
+          {state.joinRule === "public"
+            ? "anyone who can find the room may join"
+            : "an explicit invitation is required before joining"
           }
-        </form>
-      </Fragment>
-    }
-    return <span id="settings-loading">loading...</span>
+        </div>
+        { props.joinLink
+          ? <Fragment>
+              <label>Join Link</label>
+              <pre id="room-settings-join-link">{this.joinLink}</pre>
+            </Fragment>
+          : null
+        }
+        <div id="room-settings-submit-wrapper">
+          <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
+          <button className="styled-button" onClick={this.cancel} >Cancel</button>
+          {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
+        </div>
+        {this.state.progress
+          ? <div id="room-settings-progress">
+            <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
+          </div>
+          : null
+        }
+      </form>
+    </Fragment>
   }
 }

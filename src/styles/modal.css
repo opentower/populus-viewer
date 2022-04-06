@@ -35,6 +35,7 @@
   padding-right:30px;
   z-index:21;
   overscroll-behavior:contain;
+  animation: slide-in .5s ease-out;
 }
 
 html[data-scrollbars="hidden"] #modalContent {
@@ -43,6 +44,17 @@ html[data-scrollbars="hidden"] #modalContent {
 
 html[data-scrollbars="hidden"] #modalContent::-webkit-scrollbar {
   display: none;
+}
+
+@keyframes slide-in {
+    0% { 
+      top: -30px; 
+      opacity:0;
+    }
+    100% { 
+      top: 0px; 
+      opacity:1;
+    }
 }
 
 #modalHeader {
