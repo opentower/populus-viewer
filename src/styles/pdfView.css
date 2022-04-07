@@ -40,6 +40,11 @@
   touch-action:none;
 }
 
+.panel-handle > div {
+  position:relative;
+  right:10px;
+}
+
 .panel-handle:hover {
   opacity:1;
 }
