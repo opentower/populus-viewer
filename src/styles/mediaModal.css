@@ -44,7 +44,6 @@
   opacity:1;
   margin:auto;
   max-width:calc(100vw);
-  z-index:21;
   overscroll-behavior:contain;
 }
 

@@ -30,10 +30,8 @@ export default class MediaModal extends Component {
           <button id="media-modal-close" onclick={this.hideMediaModal}>
             {Icons.close}
           </button>
-          <div id="media-modal-content" onclick={this.hideMediaModal}>
-            <div id="media-modal-content-tight-wrapper" onclick={this.catchClick}>
-              {state.content}
-            </div>
+          <div id="media-modal-content">
+            {state.content}
           </div>
         </div>
       : null
