@@ -10,6 +10,13 @@ import { textFromPdfSelection, rectsFromPdfSelection } from './utils/selection.j
 import { mscLocation, mscPdfText, mscPdfHighlight, populusHighlight, spaceChild, spaceParent } from "./constants.js"
 
 export default class PdfPage extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { pdfFitRatio: 1 }
+    this.pdfScale = 3
+    // single source of truth for PDF scale, pdfcanvas w/h are pdf dimensions (in userspace units) times scale
+  }
+
   textLayer = createRef()
 
   annotationLayer = createRef()
@@ -24,9 +31,11 @@ export default class PdfPage extends Component {
 
   isTarget = e => e.target === this.annotationLayer.current.base
 
+  setPdfFitRatio = pdfFitRatio => this.setState({pdfFitRatio})
+
   generateLocation = sel => {
     const theSelectedText = textFromPdfSelection(sel)
-    const clientRects = rectsFromPdfSelection(sel, this.annotationLayerWrapper.current, this.props.pdfFitRatio * this.props.zoomFactor)
+    const clientRects = rectsFromPdfSelection(sel, this.annotationLayerWrapper.current, this.state.pdfFitRatio * this.props.zoomFactor)
     const boundingClientRect = unionRects(clientRects)
     const clientQuads = clientRects.map(rect => QuadPoints.fromRectIn(rect, this.annotationLayerWrapper.current))
     const boundingQuad = QuadPoints.fromRectIn(boundingClientRect, this.annotationLayerWrapper.current)
@@ -161,13 +170,13 @@ export default class PdfPage extends Component {
     }).catch(e => alert(e))
   }
 
-  render(props) {
-    return <div id="document-wrapper" data-annotations-hidden={!props.annotationsVisible}>
+  render(props, state) {
+    const dynamicDocumentStyle = { "--pdfFitRatio": state.pdfFitRatio }
+    return <div id="document-wrapper" style={dynamicDocumentStyle} data-annotations-hidden={!props.annotationsVisible}>
       <PdfCanvas
-        setPdfWidthPx={props.setPdfWidthPx}
         setPdfDimensions={props.setPdfDimensions}
-        setPdfFitRatio={props.setPdfFitRatio}
-        pdfScale={props.pdfScale}
+        setPdfFitRatio={this.setPdfFitRatio}
+        pdfScale={this.pdfScale}
         annotationLayer={this.annotationLayer}
         textLayer={this.textLayer}
         searchString={props.searchString}
@@ -184,8 +193,8 @@ export default class PdfPage extends Component {
         pindropMode={props.pindropMode}
         annotationLayerWrapper={this.annotationLayerWrapper}
         filteredAnnotationContents={props.filteredAnnotationContents}
-        pdfWidthAdjustedPx={props.pdfWidthAdjustedPx}
-        pdfHeightAdjustedPx={props.pdfHeightAdjustedPx}
+        pdfWidthAdjustedPx={props.pdfWidthAdjustedPx / state.pdfFitRatio}
+        pdfHeightAdjustedPx={props.pdfHeightAdjustedPx / state.pdfFitRatio}
         zoomFactor={props.zoomFactor}
         pageFocused={props.pageFocused}
         roomId={props.roomId}
