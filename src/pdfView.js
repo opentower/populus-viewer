@@ -3,7 +3,6 @@ import Router from 'preact-router';
 import './styles/pdfView.css'
 import './styles/content-container.css'
 import * as Matrix from "matrix-js-sdk"
-import { unionRects } from "./utils/layout.js"
 import Chat from "./chat.js"
 import RoomIcon from "./roomIcon.js"
 import AnnotationListing from "./annotationListing.js"
@@ -12,14 +11,11 @@ import PdfPage from "./pdfPage.js"
 import History from './history.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
-import QuadPoints from "./utils/quadPoints.js"
-import { mscLocation, mscPdfText, mscPdfHighlight, populusHighlight, spaceChild, spaceParent, lastViewed } from "./constants.js"
+import { spaceChild, spaceParent, lastViewed } from "./constants.js"
 import Location from './utils/location.js'
-import { textFromPdfSelection, rectsFromPdfSelection } from './utils/selection.js'
 import SyncIndicator from './syncIndicator.js'
 import Toast from "./toast.js"
 import MediaModal from "./mediaModal.js"
-import { onlineOrAlert } from "./utils/alerts.js"
 import ToolTip from "./utils/tooltip.js"
 import * as Icons from "./icons.js"
 import { UserColor } from "./utils/colors.js"
@@ -139,11 +135,7 @@ export default class PdfView extends Component {
     }
   }
 
-  annotationLayer = createRef()
-
-  textLayer = createRef()
-
-  annotationLayerWrapper = createRef()
+  page = createRef()
 
   documentView = createRef()
 
@@ -167,7 +159,7 @@ export default class PdfView extends Component {
   }
 
   releasePin = e => {
-    if (e.target === this.annotationLayer.current.base) {
+    if (this.page.current.isTarget(e)) {
       const theX = e.altKey
         ? Math.round((e.offsetX - 14) / 14) * 14
         : e.offsetX - 14
@@ -181,142 +173,24 @@ export default class PdfView extends Component {
     }
   }
 
-  commitPin = (theX, theY) => {
-    if (!onlineOrAlert()) return
-    const theDomain = Client.client.getDomain()
-    const theRoomState = this.state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const theLevels = theRoomState.getStateEvents("m.room.power_levels")
-    const newY = this.annotationLayerWrapper.current.scrollHeight - theY
-    const locationData = {
-      [mscPdfText]: {
-        page_index: this.getPage(),
-        rect: {
-          left: theX,
-          right: theX + 10,
-          top: newY,
-          bottom: newY - 10
-        },
-        name: "Comment",
-        contents: "" // highlight contents, per PDF spec. TODO Fill this with the first chat message text, or fallback text
-      },
-      [populusHighlight]: {
-        activityStatus: "pending",
-        creator: Client.client.getUserId()
-      }
-    }
-    if (this.state.pindropMode?.x) {
-      Client.client.createRoom({
-        visibility: "public",
-        name: `pindrop on page ${this.getPage()}`,
-        power_level_content_override: {
-          users: Object.assign(theLevels[0].getContent().users, {
-            [Client.client.getUserId()]: 100
-          })
-        },
-        initial_state: [{
-          type: "m.room.join_rules",
-          state_key: "",
-          content: {join_rule: "public"}
-        },
-        {
-          type: spaceParent, // we indicate that the current room is the parent
-          content: {
-            via: [theDomain],
-            [mscLocation]: locationData
-          },
-          state_key: this.state.roomId
-        }
-        ]
-      }).then(roominfo => {
-        // set child event in pdfRoom State
-        const childContent = {
-          via: [theDomain],
-          [mscLocation]: locationData
-        }
-        const fakeEvent = new Matrix.MatrixEvent({
-          type: "m.space.child",
-          origin_server_ts: new Date().getTime(),
-          room_id: this.state.roomId,
-          sender: Client.client.getUserId(),
-          state_key: roominfo.room_id,
-          content: childContent
-        })
-        this.setFocus(new Location(fakeEvent))
-        this.setState({ chatVisible: true })
-        document.removeEventListener("click", this.releasePin)
-        this.setState({pindropMode: null })
-        return Client.client
-          .sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
-          .then(_ => roominfo)
-      }).catch(e => alert(e))
-    }
-  }
-
-  generateLocation = sel => {
-    const theSelectedText = textFromPdfSelection(sel)
-    const clientRects = rectsFromPdfSelection(sel, this.annotationLayerWrapper.current, this.state.pdfFitRatio * this.state.zoomFactor)
-    const boundingClientRect = unionRects(clientRects)
-    const clientQuads = clientRects.map(rect => QuadPoints.fromRectIn(rect, this.annotationLayerWrapper.current))
-    const boundingQuad = QuadPoints.fromRectIn(boundingClientRect, this.annotationLayerWrapper.current)
-    // ↑ We've set the dimensions of the text layer in such a way that it's 72dpi, scaled up with a CSS transform.
-    // So we can omit the DPI parameter here.
-    return {
-      [mscPdfHighlight]: {
-        page_index: this.getPage(),
-        rect: boundingQuad.getBoundingRect(),
-        quad_points: clientQuads.map(quad => quad.getArray()),
-        contents: "", // highlight contents, per PDF spec. Fill this with the first chat message text, or fallback text
-        text_content: theSelectedText // the actual highlighted text
-      },
-      [populusHighlight]: {
-        activityStatus: "pending",
-        creator: Client.client.getUserId()
-      }
-    }
-  }
+  generateLocation = sel => this.page.current.generateLocation(sel)
 
   commitHighlight = _ => {
-    if (!onlineOrAlert()) return
-    const theSelection = window.getSelection()
-    if (theSelection.isCollapsed) return
-    const theSelectedText = textFromPdfSelection(theSelection)
-    // ↑ We've set the dimensions of the text layer in such a way that it's 72dpi, scaled up with a CSS transform.
-    // So we can omit the DPI parameter here.
-    const theDomain = Client.client.getDomain()
-    const locationData = this.generateLocation(theSelection)
-    // TODO: we should set room_alias_name and name, in a useful way based on the selection
-    Client.client.createRoom({
-      visibility: "public",
-      name: `highlighted passage on page ${this.getPage()}`,
-      topic: theSelectedText,
-      initial_state: [{
-        type: "m.room.join_rules",
-        state_key: "",
-        content: {join_rule: "public"}
-      },
-      {
-        type: spaceParent, // we indicate that the current room is the parent
-        content: { via: [theDomain], [mscLocation]: locationData },
-        state_key: this.state.roomId
-      }
-      ]
-    }).then(roominfo => {
-      // set child event in pdfRoom State
-      theSelection.removeAllRanges()
-      const childContent = { via: [theDomain], [mscLocation]: locationData }
-      // We focus on a new fake placeholder event to insert the highlight immediately
-      const fakeEvent = new Matrix.MatrixEvent({
-        type: "m.space.child",
-        origin_server_ts: new Date().getTime(),
-        room_id: this.state.roomId,
-        sender: Client.client.getUserId(),
-        state_key: roominfo.room_id,
-        content: childContent
-      })
-      this.setFocus(new Location(fakeEvent))
-      this.setState({ chatVisible: true })
-      return Client.client.sendStateEvent(this.state.roomId, spaceChild, childContent, roominfo.room_id)
-    }).catch(e => alert(e))
+    this.page.current.commitHighlight()
+      .then(fakeEvent => {
+        this.setFocus(new Location(fakeEvent))
+        this.setState({ chatVisible: true })
+      }).catch(e => alert(e))
+  }
+
+  commitPin = (theX, theY) => {
+    this.page.current.commitPin(theX, theY)
+      .then(fakeEvent => {
+        this.setFocus(new Location(fakeEvent))
+        this.setState({ chatVisible: true })
+      }).catch(e => alert(e))
+    document.removeEventListener("click", this.releasePin)
+    this.setState({pindropMode: null })
   }
 
   setPdfDimensions = (pdfHeightPx, pdfWidthPx) => {
@@ -454,9 +328,7 @@ export default class PdfView extends Component {
 
   checkForSelection () {
     if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
-    const hasSelection = !window.getSelection().isCollapsed &&
-                       this.textLayer.current.contains(window.getSelection().getRangeAt(0).endContainer) &&
-                       this.textLayer.current.contains(window.getSelection().getRangeAt(0).startContainer)
+    const hasSelection = this.page.current.hasSelection()
     this.selectionTimeout = setTimeout(200, this.setState({hasSelection}))
     // timeout to avoid excessive rerendering
   }
@@ -609,7 +481,6 @@ export default class PdfView extends Component {
           }
         }
       }
-      console.log(filteredAnnotationContents)
       return {filteredAnnotationContents}
     })
   }
@@ -708,8 +579,6 @@ export default class PdfView extends Component {
       {this.getLoadingStatus()}
       <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
         <PdfPage
-          annotationLayer={this.annotationLayer}
-          annotationLayerWrapper={this.annotationLayerWrapper}
           annotationsVisible={state.annotationsVisible}
           filteredAnnotationContents={state.filteredAnnotationContents}
           focus={state.focus}
@@ -718,8 +587,11 @@ export default class PdfView extends Component {
           resourceAlias={props.resourceAlias}
           pdfHeightAdjustedPx={state.pdfHeightPx / state.pdfFitRatio}
           pdfScale={this.pdfScale}
+          pdfFitRatio={state.pdfFitRatio}
           pdfWidthAdjustedPx={state.pdfWidthPx / state.pdfFitRatio}
           pindropMode={state.pindropMode}
+          ref={this.page}
+          room={state.room}
           roomId={state.roomId}
           searchString={state.searchString}
           secondaryFocus={state.secondaryFocus}
@@ -731,7 +603,6 @@ export default class PdfView extends Component {
           setPdfText={this.setPdfText}
           setPdfWidthPx={this.setPdfWidthPx}
           setTotalPages={this.setTotalPages}
-          textLayer={this.textLayer}
           zoomFactor={state.zoomFactor}
         />
       </div>
