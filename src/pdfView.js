@@ -43,14 +43,11 @@ export default class PdfView extends Component {
       loadingStatus: "loading...",
       pdfWidthPx: null,
       pdfHeightPx: null,
-      pdfFitRatio: 1,
       zoomFactor: null,
       pinching: false
     }
     this.annotationChildEvents = {}
     this.annotationParentEvents = {}
-    this.pdfScale = 3
-    // single source of truth for PDF scale, pdfcanvas w/h are pdf dimensions (in userspace units) times scale
     this.prevScrollTop = 0
     this.checkForSelection = this.checkForSelection.bind(this)
     this.handleKeydown = this.handleKeydown.bind(this)
@@ -201,8 +198,6 @@ export default class PdfView extends Component {
     const zoomFactor = this.state.zoomFactor || Math.max(Math.min(heightratio, widthratio, 5), 1)
     this.setState({pdfHeightPx, pdfWidthPx, zoomFactor})
   }
-
-  setPdfFitRatio = pdfFitRatio => this.setState({pdfFitRatio})
 
   setPdfText = pdfText => { this.pdfText = pdfText }
 
@@ -548,7 +543,6 @@ export default class PdfView extends Component {
     const dynamicDocumentStyle = {
       "--pdfZoomFactor": state.zoomFactor,
       "--navHeight": `${state.navHeight}px`,
-      "--pdfFitRatio": state.pdfFitRatio,
       "--pdfWidthPx": `${state.pdfWidthPx}px`,
       "--pdfHeightPx": `${state.pdfHeightPx}px`,
       "--sidePanelVisible": state.panelVisible ? 1 : 0,
@@ -585,10 +579,8 @@ export default class PdfView extends Component {
           initFocus={this.initFocus}
           pageFocused={this.getPage()}
           resourceAlias={props.resourceAlias}
-          pdfHeightAdjustedPx={state.pdfHeightPx / state.pdfFitRatio}
-          pdfScale={this.pdfScale}
-          pdfFitRatio={state.pdfFitRatio}
-          pdfWidthAdjustedPx={state.pdfWidthPx / state.pdfFitRatio}
+          pdfHeightAdjustedPx={state.pdfHeightPx}
+          pdfWidthAdjustedPx={state.pdfWidthPx}
           pindropMode={state.pindropMode}
           ref={this.page}
           room={state.room}
@@ -598,10 +590,8 @@ export default class PdfView extends Component {
           setFocus={this.setFocus}
           setResource={this.setResource}
           setPdfDimensions={this.setPdfDimensions}
-          setPdfFitRatio={this.setPdfFitRatio}
           setPdfLoadingStatus={this.setPdfLoadingStatus}
           setPdfText={this.setPdfText}
-          setPdfWidthPx={this.setPdfWidthPx}
           setTotalPages={this.setTotalPages}
           zoomFactor={state.zoomFactor}
         />
