@@ -258,7 +258,6 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
 
 .reply-preface {
     position:relative;
-    left:-5px;
     color:#ababab;
     font-size:10pt;
     padding-bottom:5px;
