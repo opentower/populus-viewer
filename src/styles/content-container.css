@@ -3,7 +3,7 @@
     overflow:auto;
     height: calc(100% - var(--navHeight));
     width: var(--contentWidth);
-    --leftToCenter: max(0px, calc(50% - (var(--pdfWidthPx) * var(--pdfZoomFactor)) / 2));
+    --leftToCenter: max(0px, calc(50% - (var(--contentWidthPx) * var(--pdfZoomFactor)) / 2));
     transition: var(--transitionSizing)
 }
 

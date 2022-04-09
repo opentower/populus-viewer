@@ -238,7 +238,7 @@ export default class PdfCanvas extends Component {
   render(props) {
     return (
       <Fragment>
-        <canvas ref={this.canvas} data-page={props.pageFocused} id="pdf-canvas" />
+        <canvas ref={this.canvas} data-page={props.pageFocused} class="pdf-canvas" />
         <div style="z-index:3" ref={this.props.textLayer} class="text-layer" />
       </Fragment>
     )

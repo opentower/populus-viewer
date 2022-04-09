@@ -543,8 +543,8 @@ export default class PdfView extends Component {
     const dynamicDocumentStyle = {
       "--pdfZoomFactor": state.zoomFactor,
       "--navHeight": `${state.navHeight}px`,
-      "--pdfWidthPx": `${state.pdfWidthPx}px`,
-      "--pdfHeightPx": `${state.pdfHeightPx}px`,
+      "--contentWidthPx": `${state.pdfWidthPx}px`,
+      "--contentHeightPx": `${state.pdfHeightPx}px`,
       "--sidePanelVisible": state.panelVisible ? 1 : 0,
       "--chatVisible": state.chatVisible ? 1 : 0,
       "--listingVisible": state.listingVisible ? 1 : 0,
@@ -579,8 +579,8 @@ export default class PdfView extends Component {
           initFocus={this.initFocus}
           pageFocused={this.getPage()}
           resourceAlias={props.resourceAlias}
-          pdfHeightAdjustedPx={state.pdfHeightPx}
-          pdfWidthAdjustedPx={state.pdfWidthPx}
+          pdfHeightPx={state.pdfHeightPx}
+          pdfWidthPx={state.pdfWidthPx}
           pindropMode={state.pindropMode}
           ref={this.page}
           room={state.room}

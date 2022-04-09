@@ -171,7 +171,12 @@ export default class PdfPage extends Component {
   }
 
   render(props, state) {
-    const dynamicDocumentStyle = { "--pdfFitRatio": state.pdfFitRatio }
+    const dynamicDocumentStyle = {
+      "--pdfFitRatio": state.pdfFitRatio,
+      "--pdfWidthPx": `${props.pdfWidthPx}px`,
+      "--pdfHeightPx": `${props.pdfHeightPx}px`
+    }
+    console.log(dynamicDocumentStyle)
     return <div class="page-wrapper" style={dynamicDocumentStyle} data-annotations-hidden={!props.annotationsVisible}>
       <PdfCanvas
         setPdfDimensions={props.setPdfDimensions}
@@ -193,8 +198,8 @@ export default class PdfPage extends Component {
         pindropMode={props.pindropMode}
         annotationLayerWrapper={this.annotationLayerWrapper}
         filteredAnnotationContents={props.filteredAnnotationContents}
-        pdfWidthAdjustedPx={props.pdfWidthAdjustedPx / state.pdfFitRatio}
-        pdfHeightAdjustedPx={props.pdfHeightAdjustedPx / state.pdfFitRatio}
+        pdfWidthAdjustedPx={props.pdfWidthPx / state.pdfFitRatio}
+        pdfHeightAdjustedPx={props.pdfHeightPx / state.pdfFitRatio}
         zoomFactor={props.zoomFactor}
         pageFocused={props.pageFocused}
         roomId={props.roomId}
