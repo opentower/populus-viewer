@@ -1,4 +1,4 @@
-#text-layer { 
+.text-layer { 
     position: absolute;
     left: 0;
     top: 0;
@@ -12,9 +12,9 @@
     /* a slight skootch here to make up for span padding */
 }
 
-[data-pindrop-mode] #text-layer { display:none; }
+[data-pindrop-mode] .text-layer { display:none; }
 
-#text-layer > span {
+.text-layer > span {
     color:transparent;
     position: absolute;
     white-space: pre;
@@ -26,7 +26,7 @@
     padding:4px; 
 }
 
-#text-layer > br {
+.text-layer > br {
   color: transparent;
   position: absolute;
   white-space: pre;
@@ -35,7 +35,7 @@
   user-select:text;
 }
 
-#text-layer mark {
+.text-layer mark {
     color:transparent;
     background:black;
     padding:2px;
@@ -43,7 +43,7 @@
     left:-5px;
 }
 
-#text-layer span::selection {
+.text-layer span::selection {
     color:transparent;
     background:var(--selectColor);
 }

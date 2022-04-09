@@ -24,12 +24,12 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
     height: calc(var(--pdfHeightPx) * var(--pdfZoomFactor))
 }
 
-#document-wrapper {
+.page-wrapper {
     transform-origin : top left;
     transform: scale(var(--pdfZoomFactor));
 }
 
-#document-wrapper canvas {
+.page-wrapper canvas {
     position:relative;
     z-index:-1; /* prevents an apparent stacking bug in chromium */
     width: var(--pdfWidthPx);
@@ -46,7 +46,7 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
     animation-timing-function:ease;
 }
 
-#annotation-layer , #text-layer {
+.annotation-layer , .text-layer {
     transform-origin : top left;
     transform : scale(var(--pdfFitRatio));
     overflow:visible;
