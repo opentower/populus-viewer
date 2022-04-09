@@ -95,7 +95,7 @@ export default class AnnotationLayer extends Component {
       <div
         ref={props.annotationLayerWrapper}
         data-annotation-focused={!!props.focus}
-        id="annotation-layer">
+        class="annotation-layer">
         {this.getAnnotations()}
         {props.pindropMode?.x ? <PindropPreview coordinates={props.pindropMode} /> : null}
       </div>

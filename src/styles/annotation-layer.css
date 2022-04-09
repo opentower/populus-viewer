@@ -1,4 +1,4 @@
-#annotation-layer { 
+.annotation-layer { 
     position: absolute;
     line-height:1;
     overflow:visible;
@@ -6,7 +6,7 @@
     top: 0;
 }
 
-#annotation-layer span {
+.annotation-layer span {
     position: absolute;
     white-space: pre;
     cursor: text;
@@ -14,58 +14,58 @@
     pointer-events: auto !important;
 }
 
-#annotation-layer span.annotation-pindrop { 
+.annotation-layer span.annotation-pindrop { 
     cursor: pointer;
     padding:2px;
     border-radius:30px;
     border: 2px solid transparent;
 }
 
-#annotation-layer span.annotation-pindrop svg {
+.annotation-layer span.annotation-pindrop svg {
   height:14px;
   width:16px;
 }
 
-#annotation-layer span.annotation-pindrop[data-focused] { 
+.annotation-layer span.annotation-pindrop[data-focused] { 
     border: 2px solid var(--user_light);
 }
 
-#annotation-layer span.annotation-pindrop[data-annotation-typing] {
+.annotation-layer span.annotation-pindrop[data-annotation-typing] {
     animation: pulse-color 1s infinite;
 }
 
-#annotation-layer span.annotation-pindrop-preview { 
+.annotation-layer span.annotation-pindrop-preview { 
     animation: pulse-opacity 1s infinite;
 }
 
-#annotation-layer .inline-annotations {
+.annotation-layer .inline-annotations {
     opacity:0.2;
     transition: opacity 0.25s ease;
 }
 
-#annotation-layer[data-annotation-focused] .inline-annotations {
+.annotation-layer[data-annotation-focused] .inline-annotations {
   opacity:0.1
 }
 
-#annotation-layer .inline-annotations span {
+.annotation-layer .inline-annotations span {
     background-color:var(--user_solid);
 }
 
-#annotation-layer .annotation-bartab {
+.annotation-layer .annotation-bartab {
     opacity:0.5;
     background-color:var(--user_solid);
 }
 
-#annotation-layer .annotation-bartab:hover {
+.annotation-layer .annotation-bartab:hover {
     opacity:1;
 }
 
-#annotation-layer > div[data-focused] > .inline-annotations,
-#annotation-layer .annotation-bartab:hover + .inline-annotations {
+.annotation-layer > div[data-focused] > .inline-annotations,
+.annotation-layer .annotation-bartab:hover + .inline-annotations {
     opacity:0.3;
 }
 
-#annotation-layer > div[data-annotation-typing] > .inline-annotations {
+.annotation-layer > div[data-annotation-typing] > .inline-annotations {
     animation: pulse-half-opacity 2s infinite; 
     animation-timing-function:ease;
 }
@@ -75,15 +75,15 @@
     visibility: hidden;
 }
 
-#annotation-layer > div[data-focused] > .annotation-bartab,
-#annotation-layer > div[data-focused] > .inline-annotations {
+.annotation-layer > div[data-focused] > .annotation-bartab,
+.annotation-layer > div[data-focused] > .inline-annotations {
     visibility:visible;
 }
 
-[data-pindrop-mode] #annotation-layer * {
+[data-pindrop-mode] .annotation-layer * {
     cursor:unset !important;
 }
 
-[data-pindrop-mode] #annotation-layer { 
+[data-pindrop-mode] .annotation-layer { 
     cursor: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNCIgaGVpZ2h0PSIyNCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiIGNsYXNzPSJmZWF0aGVyIGZlYXRoZXItbWFwLXBpbiI+PHBhdGggZD0iTTIxIDEwYzAgNy05IDEzLTkgMTNzLTktNi05LTEzYTkgOSAwIDAgMSAxOCAweiI+PC9wYXRoPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTAiIHI9IjMiPjwvY2lyY2xlPjwvc3ZnPg==) 16 16, pointer !important;
 }

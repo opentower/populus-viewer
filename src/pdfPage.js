@@ -172,7 +172,7 @@ export default class PdfPage extends Component {
 
   render(props, state) {
     const dynamicDocumentStyle = { "--pdfFitRatio": state.pdfFitRatio }
-    return <div id="document-wrapper" style={dynamicDocumentStyle} data-annotations-hidden={!props.annotationsVisible}>
+    return <div class="page-wrapper" style={dynamicDocumentStyle} data-annotations-hidden={!props.annotationsVisible}>
       <PdfCanvas
         setPdfDimensions={props.setPdfDimensions}
         setPdfFitRatio={this.setPdfFitRatio}
