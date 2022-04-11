@@ -107,6 +107,7 @@ export default class PdfCanvas extends Component {
         const content = await page.getTextContent()
         this.pdfText[i] = content.items.map(item => item.str).join(" ")
       }
+      this.props.setPdfText(this.pdfText)
     }
   }
 
