@@ -111,6 +111,7 @@ export default class PdfContent extends Component {
         resourceAlias={props.resourceAlias}
         pdfHeightPx={state.mainPageHeightPx}
         pdfWidthPx={state.mainPageWidthPx}
+        fixedSide={secondaryPageVisible ? "left" : null}
         pindropMode={primaryPindrop}
         ref={this.mainPage}
         room={props.room}
@@ -130,6 +131,7 @@ export default class PdfContent extends Component {
           annotationsVisible={props.annotationsVisible}
           filteredAnnotationContents={props.filteredAnnotationContents}
           focus={props.focus}
+          fixedSide={secondaryPageVisible ? "right" : null}
           pageFocused={props.pageFocused + 1}
           resourceAlias={props.resourceAlias}
           pdfHeightPx={state.secondaryPageHeightPx}

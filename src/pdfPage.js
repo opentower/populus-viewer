@@ -198,6 +198,7 @@ export default class PdfPage extends Component {
         filteredAnnotationContents={props.filteredAnnotationContents}
         pdfWidthAdjustedPx={props.pdfWidthPx / state.pdfFitRatio}
         pdfHeightAdjustedPx={props.pdfHeightPx / state.pdfFitRatio}
+        fixedSide={props.fixedSide}
         zoomFactor={props.zoomFactor}
         pageFocused={props.pageFocused}
         roomId={props.roomId}

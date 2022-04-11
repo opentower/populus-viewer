@@ -59,7 +59,7 @@ export default class Navbar extends Component {
 
   bottomWrapper = createRef()
 
-  toolTipOffset = [0,30]
+  toolTipOffset = [0, 30]
 
   handleInput = e => {
     if (/^[0-9]*$/.test(e.target.value)) this.setState({value: e.target.value})
