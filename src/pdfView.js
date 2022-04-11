@@ -242,15 +242,17 @@ export default class PdfView extends Component {
   }
 
   prevPage = _ => {
+    const sparePages = this.content.current.state.showSecondary ? 1 : 0
     if (this.getPage() > 1) {
-      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.getPage() - 1}/`)
+      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${Math.max(1, this.getPage() - (1 + sparePages))}/`)
       this.contentContainer.current.scrollTop = this.contentContainer.current.scrollHeight
     }
   }
 
   nextPage = _ => {
-    if (this.getPage() < this.state.totalPages) {
-      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.getPage() + 1}/`)
+    const sparePages = this.content.current.state.showSecondary ? 1 : 0
+    if (this.getPage() + sparePages < this.state.totalPages) {
+      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.getPage() + sparePages + 1}/`)
       this.contentContainer.current.scrollTop = 0
     }
   }
