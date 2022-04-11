@@ -241,22 +241,6 @@ export default class PdfView extends Component {
     this.focusNextInArray(clone.reverse())
   }
 
-  prevPage = _ => {
-    const sparePages = this.content.current.state.showSecondary ? 1 : 0
-    if (this.getPage() > 1) {
-      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${Math.max(1, this.getPage() - (1 + sparePages))}/`)
-      this.contentContainer.current.scrollTop = this.contentContainer.current.scrollHeight
-    }
-  }
-
-  nextPage = _ => {
-    const sparePages = this.content.current.state.showSecondary ? 1 : 0
-    if (this.getPage() + sparePages < this.state.totalPages) {
-      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.getPage() + sparePages + 1}/`)
-      this.contentContainer.current.scrollTop = 0
-    }
-  }
-
   hideChat = _ => this.setState({chatVisible: false})
 
   showChat = _ => {
@@ -316,23 +300,6 @@ export default class PdfView extends Component {
     if (e.key === '+' || e.key === '=') this.setZoom(zoomFactor => zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(zoomFactor => zoomFactor - 0.1)
     if (e.key === "Esc" || e.key === "Escape") History.push("/")
-    if (e.shiftKey) return // don't capture shift-modified arrow keys, these change the text selection
-    if (e.key === 'j' || e.key === "ArrowRight") this.nextPage()
-    if (e.key === 'k' || e.key === "ArrowLeft") this.prevPage()
-    if (e.key === "ArrowUp") {
-      e.preventDefault() // block default scrolling behavior
-      this.contentContainer.current.scroll({
-        top: this.contentContainer.current.scrollTop - 100,
-        left: this.contentContainer.current.scrollLeft
-      })
-    }
-    if (e.key === "ArrowDown") {
-      e.preventDefault() // block default scrolling behavior
-      this.contentContainer.current.scroll({
-        top: this.contentContainer.current.scrollTop + 100,
-        left: this.contentContainer.current.scrollLeft
-      })
-    }
   }
 
   openAnnotation = _ => {
@@ -633,15 +600,15 @@ export default class PdfView extends Component {
         focus={state.focus}
         roomId={state.roomId}
         room={state.room}
-        focusNext={this.focusNext}
-        focusPrev={this.focusPrev}
+        content={this.content}
+        contentContainer={this.contentContainer}
+        resourceAlias={this.props.resourceAlias}
         nextPage={this.nextPage}
         prevPage={this.prevPage}
         searchString={state.searchString}
         contentWidthPx={state.contentWidthPx}
         annotationsVisible={state.annotationsVisible}
         toggleAnnotations={this.toggleAnnotations}
-        toggleSecondary={this.content.current?.toggleSecondary}
         setNavHeight={this.setNavHeight}
         showSearch={this.showSearch}
         startPindrop={this.startPindrop}

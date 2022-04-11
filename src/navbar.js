@@ -25,6 +25,34 @@ export default class Navbar extends Component {
     };
   }
 
+  componentDidMount() {
+    document.addEventListener('keydown', this.handleKeydown)
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('keydown', this.handleKeydown)
+  }
+
+  handleKeydown = e => {
+    if (e.shiftKey) return // don't capture shift-modified arrow keys, these change the text selection
+    if (e.key === 'j' || e.key === "ArrowRight") this.nextPage()
+    if (e.key === 'k' || e.key === "ArrowLeft") this.prevPage()
+    if (e.key === "ArrowUp") {
+      e.preventDefault() // block default scrolling behavior
+      this.props.contentContainer.current.scroll({
+        top: this.props.contentContainer.current.scrollTop - 100,
+        left: this.props.contentContainer.current.scrollLeft
+      })
+    }
+    if (e.key === "ArrowDown") {
+      e.preventDefault() // block default scrolling behavior
+      this.props.contentContainer.current.scroll({
+        top: this.props.contentContainer.current.scrollTop + 100,
+        left: this.props.contentContainer.current.scrollLeft
+      })
+    }
+  }
+
   pageTotal = createRef()
 
   pageInput = createRef()
@@ -36,6 +64,22 @@ export default class Navbar extends Component {
   handleInput = e => {
     if (/^[0-9]*$/.test(e.target.value)) this.setState({value: e.target.value})
     else this.setState({ value: "" })
+  }
+
+  prevPage = _ => {
+    const sparePages = this.props.content.current.state.showSecondary ? 1 : 0
+    if (this.props.pageFocused > 1) {
+      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${Math.max(1, this.props.pageFocused - (1 + sparePages))}/`)
+      this.props.contentContainer.current.scrollTop = this.props.contentContainer.current.scrollHeight
+    }
+  }
+
+  nextPage = _ => {
+    const sparePages = this.props.content.current.state.showSecondary ? 1 : 0
+    if (this.props.pageFocused + sparePages < this.props.total) {
+      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.props.pageFocused + sparePages + 1}/`)
+      this.props.contentContainer.current.scrollTop = 0
+    }
   }
 
   handlePageFocus = _ => this.setState({ pageFocused: true, value: "" })
@@ -112,7 +156,7 @@ export default class Navbar extends Component {
           </ToolTip>
           <ToolTip content="Go to previous page (k, ←)" offset={this.toolTipOffset}>
             <button disabled={props.pageFocused > 1 ? null : "disabled"}
-              onclick={props.prevPage}>{Icons.chevronLeft}
+              onclick={this.prevPage}>{Icons.chevronLeft}
             </button>
           </ToolTip>
           <form onSubmit={this.handleSubmit}>
@@ -132,7 +176,7 @@ export default class Navbar extends Component {
           </form>
           <ToolTip content="Go to next page (j, →)" offset={this.toolTipOffset}>
             <button disabled={props.total > props.pageFocused ? null : "disabled"} 
-              onclick={props.nextPage}>{Icons.chevronRight}
+              onclick={this.nextPage}>{Icons.chevronRight}
             </button>
           </ToolTip>
           <ToolTip content="Go to next annotation (Alt + Tab)" offset={[0, 30]}>
@@ -170,7 +214,7 @@ export default class Navbar extends Component {
             <button  onClick={props.startPindrop}>{Icons.pin}</button>
           </ToolTip>
           <ToolTip content="Toggle Two-Up View" theme="bordered">
-            <button  onClick={props.toggleSecondary}>{Icons.columns}</button>
+        <button onClick={props.content.current?.toggleSecondary}>{Icons.columns}</button>
           </ToolTip>
           <ToolTip content="Search Within PDF" theme="bordered">
             <button onClick={props.showSearch}>{Icons.search}</button>
