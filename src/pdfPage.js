@@ -176,7 +176,6 @@ export default class PdfPage extends Component {
       "--pdfWidthPx": `${props.pdfWidthPx}px`,
       "--pdfHeightPx": `${props.pdfHeightPx}px`
     }
-    console.log(dynamicDocumentStyle)
     return <div class="page-wrapper" style={dynamicDocumentStyle} data-annotations-hidden={!props.annotationsVisible}>
       <PdfCanvas
         setPdfDimensions={props.setPdfDimensions}
@@ -187,7 +186,6 @@ export default class PdfPage extends Component {
         searchString={props.searchString}
         resourceAlias={props.resourceAlias}
         pageFocused={props.pageFocused}
-        initFocus={props.initFocus}
         setResource={props.setResource}
         setTotalPages={props.setTotalPages}
         setPdfText={props.setPdfText}

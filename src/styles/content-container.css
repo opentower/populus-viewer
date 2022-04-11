@@ -16,17 +16,21 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
 
 #document-view {
     position:relative;
-    display: inline-block;
+    display: flex;
     left: var(--leftToCenter);
     /* the below forces chrome to recalculate overflow on zoom It's not
      * necessary for Firefox or Webkit ... Not seeing an effect any more, so
      * this bug may be fixed on newer chromium */
-    height: calc(var(--pdfHeightPx) * var(--pdfZoomFactor))
+    height: var(--contentHeightPx);
+    width: var(--contentWidthPx); 
+    transform-origin : top left;
+    transform: scale(var(--pdfZoomFactor));
 }
 
 .page-wrapper {
-    transform-origin : top left;
-    transform: scale(var(--pdfZoomFactor));
+  position:relative;
+    /* transform-origin : top left; */
+    /* transform: scale(var(--pdfZoomFactor)); */
 }
 
 .page-wrapper canvas {

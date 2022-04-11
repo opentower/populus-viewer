@@ -71,7 +71,7 @@ export default class PdfCanvas extends Component {
     const theRoom = await Client.client.getRoomWithState(room_id).catch(this.catchFetchPdfError(alias))
     if (this.errorCondition) return
     const thePdf = new Resource(theRoom)
-    this.props.setResource(theRoom)
+    if (this.props.setResource) this.props.setResource(theRoom)
     this.setState({pdfIdentifier: thePdf.url})
     if (!PdfCanvas.PDFStore[thePdf.url]) {
       PdfCanvas.PDFStore[thePdf.url] = window.fetch(thePdf.httpUrl)
@@ -99,14 +99,15 @@ export default class PdfCanvas extends Component {
   }
 
   async gatherText(pdfIdentifier) {
-    const pdf = await PdfCanvas.PDFStore[pdfIdentifier]
-    this.pdfText = {}
-    for (let i = 1; i < pdf.numPages + 1; i++) {
-      const page = await pdf.getPage(i)
-      const content = await page.getTextContent()
-      this.pdfText[i] = content.items.map(item => item.str).join(" ")
+    if (this.props.setPdfText) {
+      const pdf = await PdfCanvas.PDFStore[pdfIdentifier]
+      this.pdfText = {}
+      for (let i = 1; i < pdf.numPages + 1; i++) {
+        const page = await pdf.getPage(i)
+        const content = await page.getTextContent()
+        this.pdfText[i] = content.items.map(item => item.str).join(" ")
+      }
     }
-    this.props.setPdfText(this.pdfText)
   }
 
   // because rendering is async, we need a way to cancel pending render tasks and

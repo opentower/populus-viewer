@@ -86,7 +86,7 @@ export default class Navbar extends Component {
   }
 
   render(props, state) {
-    if (props.pdfWidthPx) { // don't render until width is set
+    if (props.contentWidthPx) { // don't render until width is set
       return <nav id="page-nav">
           <Pages total={props.total}
             handleClick={this.handleClick}
@@ -168,6 +168,9 @@ export default class Navbar extends Component {
           </ToolTip>
           <ToolTip content="Add Pin" theme="bordered">
             <button  onClick={props.startPindrop}>{Icons.pin}</button>
+          </ToolTip>
+          <ToolTip content="Toggle Two-Up View" theme="bordered">
+            <button  onClick={props.toggleSecondary}>{Icons.columns}</button>
           </ToolTip>
           <ToolTip content="Search Within PDF" theme="bordered">
             <button onClick={props.showSearch}>{Icons.search}</button>
