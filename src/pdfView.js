@@ -13,6 +13,7 @@ import Client from './client.js'
 import Navbar from "./navbar.js"
 import { spaceChild, spaceParent, lastViewed } from "./constants.js"
 import Location from './utils/location.js'
+import Resource from './utils/resource.js'
 import SyncIndicator from './syncIndicator.js'
 import Toast from "./toast.js"
 import MediaModal from "./mediaModal.js"
@@ -162,8 +163,9 @@ export default class PdfView extends Component {
     if (this.errorCondition) return
     const room = await Client.client.getRoomWithState(room_id).catch(this.catchFetchResourceError)
     if (this.errorCondition) return
-    console.log(room.roomId)
-    this.setState({room}, _ => this.props.roomFocused
+    const resource = new Resource(room)
+    const mimetype = resource.mimetype
+    this.setState({room, mimetype}, _ => this.props.roomFocused
       ? this.focusByRoomId(this.props.roomFocused)
       : null)
   }
@@ -184,7 +186,7 @@ export default class PdfView extends Component {
     this.setState({contentHeightPx, contentWidthPx, zoomFactor})
   }
 
-  setPdfText = pdfText => { this.pdfText = pdfText }
+  setSearchText = searchText => { this.searchText = searchText }
 
   // XXX : may need to debounce eventually
   setAnnotationFilter = annotationFilter => this.setState({
@@ -386,7 +388,7 @@ export default class PdfView extends Component {
       return <div id="document-view-loading">{this.state.loadingStatus}</div>
     }
     if (typeof this.state.loadingStatus === "number") {
-      return <div id="document-view-loading">Downloading Pdf...
+      return <div id="document-view-loading">Downloading...
           <progress class="styled-progress" max="1" value={this.state.loadingStatus} />
         </div>
     }
@@ -497,7 +499,7 @@ export default class PdfView extends Component {
 
   render(props, state) {
     const dynamicDocumentStyle = {
-      "--pdfZoomFactor": state.zoomFactor,
+      "--zoomFactor": state.zoomFactor,
       "--navHeight": `${state.navHeight}px`,
       "--contentWidthPx": `${state.contentWidthPx}px`,
       "--contentHeightPx": `${state.contentHeightPx}px`,
@@ -527,7 +529,7 @@ export default class PdfView extends Component {
       <MediaModal />
       <Router onChange={this.handleRouteChange} />
       {this.getLoadingStatus()}
-      {state.room
+      {state.mimetype === "application/pdf"
         ? <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
           <PdfContent
             annotationsVisible={state.annotationsVisible}
@@ -545,7 +547,7 @@ export default class PdfView extends Component {
             setFocus={this.setFocus}
             setContentDimensions={this.setContentDimensions}
             setPdfLoadingStatus={this.setLoadingStatus}
-            setPdfText={this.setPdfText}
+            setPdfText={this.setSearchText}
             setTotalPages={this.setTotalPages}
             showChat={this.showChat}
             zoomFactor={state.zoomFactor}
@@ -577,7 +579,7 @@ export default class PdfView extends Component {
               setSearch={this.setSearch}
               endSearch={this.endSearch}
               hideListing={this.hideListing}
-              pdfText={this.pdfText}
+              pdfText={this.searchText}
               resourceAlias={props.resourceAlias}
               roomFocused={props.roomFocused}
             />
@@ -631,7 +633,7 @@ export default class PdfView extends Component {
         startPindrop={this.startPindrop}
         pindropMode={state.pindropMode}
         setZoom={this.setZoom} />
-      <div id="pdf-mobile-buttons">
+      <div id="content-mobile-buttons">
         <button title="open options" id="panel-toggle" onclick={this.openSidebar}>
           {state.chatVisible || state.listingVisible ? null : Icons.menu }
         </button>

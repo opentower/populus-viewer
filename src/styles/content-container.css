@@ -3,7 +3,7 @@
     overflow:auto;
     height: calc(100% - var(--navHeight));
     width: var(--contentWidth);
-    --leftToCenter: max(0px, calc(50% - (var(--contentWidthPx) * var(--pdfZoomFactor)) / 2));
+    --leftToCenter: max(0px, calc(50% - (var(--contentWidthPx) * var(--zoomFactor)) / 2));
     transition: var(--transitionSizing)
 }
 
@@ -24,14 +24,10 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
     height: var(--contentHeightPx);
     width: var(--contentWidthPx); 
     transform-origin : top left;
-    transform: scale(var(--pdfZoomFactor));
+    transform: scale(var(--zoomFactor));
 }
 
-.page-wrapper {
-  position:relative;
-    /* transform-origin : top left; */
-    /* transform: scale(var(--pdfZoomFactor)); */
-}
+.page-wrapper { position:relative; }
 
 .page-wrapper canvas {
     position:relative;
@@ -59,7 +55,7 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
     user-select:none;
 }
 
-#pdf-mobile-buttons {
+#content-mobile-buttons {
     position:fixed;
     z-index:7;
     top:0px;
@@ -71,7 +67,7 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
     pointer-events:none;
 }
 
-#pdf-mobile-buttons[data-hide-buttons] {
+#content-mobile-buttons[data-hide-buttons] {
     top:-50px;
     transition: var(--transitionSizing);
 }
@@ -84,7 +80,7 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
     pointer-events:all;
 }
 
-#pdf-mobile-buttons > button {
+#content-mobile-buttons > button {
     border:none;
     outline:none;
     font-size:24px;
@@ -94,7 +90,7 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
     cursor:pointer;
 }
 
-#pdf-mobile-buttons > button:last-child {
+#content-mobile-buttons > button:last-child {
     float:right
 }
 
@@ -113,7 +109,7 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
 
 /* Medium devices (landscape tablets, 768px and up) */
 @media only screen and (min-width: 768px) {
-    #pdf-mobile-buttons {
+    #content-mobile-buttons {
       display:none;
     }
 
