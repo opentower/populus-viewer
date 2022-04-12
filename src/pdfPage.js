@@ -85,7 +85,7 @@ export default class PdfPage extends Component {
       {
         type: spaceParent, // we indicate that the current room is the parent
         content: { via: [theDomain], [mscLocation]: locationData },
-        state_key: this.props.roomId
+        state_key: this.props.room.roomId
       }
       ]
     }).then(roominfo => {
@@ -96,12 +96,12 @@ export default class PdfPage extends Component {
       const fakeEvent = new Matrix.MatrixEvent({
         type: "m.space.child",
         origin_server_ts: new Date().getTime(),
-        room_id: this.props.roomId,
+        room_id: this.props.room.roomId,
         sender: Client.client.getUserId(),
         state_key: roominfo.room_id,
         content: childContent
       })
-      Client.client.sendStateEvent(this.props.roomId, spaceChild, childContent, roominfo.room_id)
+      Client.client.sendStateEvent(this.props.room.roomId, spaceChild, childContent, roominfo.room_id)
       return fakeEvent
     })
   }
@@ -148,7 +148,7 @@ export default class PdfPage extends Component {
           via: [theDomain],
           [mscLocation]: locationData
         },
-        state_key: this.props.roomId
+        state_key: this.props.room.roomId
       }
       ]
     }).then(roominfo => {
@@ -160,12 +160,12 @@ export default class PdfPage extends Component {
       const fakeEvent = new Matrix.MatrixEvent({
         type: "m.space.child",
         origin_server_ts: new Date().getTime(),
-        room_id: this.props.roomId,
+        room_id: this.props.room.roomId,
         sender: Client.client.getUserId(),
         state_key: roominfo.room_id,
         content: childContent
       })
-      Client.client.sendStateEvent(this.props.roomId, spaceChild, childContent, roominfo.room_id)
+      Client.client.sendStateEvent(this.props.room.roomId, spaceChild, childContent, roominfo.room_id)
       return fakeEvent
     }).catch(e => alert(e))
   }
@@ -202,7 +202,7 @@ export default class PdfPage extends Component {
         fixedSide={props.fixedSide}
         zoomFactor={props.zoomFactor}
         pageFocused={props.pageFocused}
-        roomId={props.roomId}
+        roomId={props.room.roomId}
         setFocus={props.setFocus}
         focus={props.focus}
         secondaryFocus={props.secondaryFocus}

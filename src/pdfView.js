@@ -25,7 +25,6 @@ export default class PdfView extends Component {
     super(props)
     const maybeState = History.history.location.state
     this.state = {
-      roomId: null,
       focus: null,
       secondaryFocus: null, // for temporarily focusing an extra location
       totalPages: null,
@@ -77,14 +76,14 @@ export default class PdfView extends Component {
   }
 
   handleStateUpdate = e => {
-    if ((e.getRoomId() === this.state.roomId && e.getType() === spaceChild) ||
-      (e.getStateKey() === this.state.roomId && e.getType() === spaceParent)) {
+    if ((e.getRoomId() === this.state.room?.roomId && e.getType() === spaceChild) ||
+      (e.getStateKey() === this.state.room?.roomId && e.getType() === spaceParent)) {
       this.updateAnnotation(new Location(e))
     }
   }
 
   handleAccountData = (e, room) => {
-    if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
+    if (room.roomId === this.state.room?.roomId && this.props.pageFocused && e.getType() === lastViewed) {
       const theContent = e.getContent()
       if (theContent.page !== this.props.pageFocused && theContent.deviceId !== Client.deviceId) {
         Toast.set(
@@ -163,7 +162,8 @@ export default class PdfView extends Component {
     if (this.errorCondition) return
     const room = await Client.client.getRoomWithState(room_id).catch(this.catchFetchResourceError)
     if (this.errorCondition) return
-    this.setState({room, roomId: room.roomId}, _ => this.props.roomFocused
+    console.log(room.roomId)
+    this.setState({room}, _ => this.props.roomFocused
       ? this.focusByRoomId(this.props.roomFocused)
       : null)
   }
@@ -303,8 +303,8 @@ export default class PdfView extends Component {
 
   handleRouteChange = _ => {
     // sets the last viewed page for later retrieval
-    if (!this.props.pageFocused || !this.props.resourceAlias || !this.state.roomId) return
-    Client.client.setRoomAccountData(this.state.roomId, lastViewed, {
+    if (!this.props.pageFocused || !this.props.resourceAlias || !this.state.room?.roomId) return
+    Client.client.setRoomAccountData(this.state.room.roomId, lastViewed, {
       deviceId: Client.deviceId,
       ...(parseInt(this.props.pageFocused, 10) && { page: this.props.pageFocused })
     })
@@ -337,7 +337,7 @@ export default class PdfView extends Component {
       return
     }
     const discussionId = this.state.focus.getChild()
-    const resourceId = this.state.roomId
+    const resourceId = this.state.room.roomId
     Client.client.sendStateEvent(resourceId, spaceChild, {}, discussionId)
     Client.client.sendStateEvent(discussionId, spaceParent, {}, resourceId)
       .catch(e => {
@@ -451,7 +451,7 @@ export default class PdfView extends Component {
         .map(room => room.getLiveTimeline())
         .map(timeline => timeline.getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceParent))
       for (const parent of [].concat(...allParents)) {
-        if (parent.getStateKey() === this.state.roomId) {
+        if (parent.getStateKey() === this.state.room.roomId) {
           if (parent.getTs() < 1648936377334) continue // don't load old parents, for legacy compatibility
           const loc = new Location(parent)
           if (this.insertable(loc)) this.annotationParentEvents[loc.getChild()] = loc
@@ -540,7 +540,6 @@ export default class PdfView extends Component {
             pindropMode={state.pindropMode}
             setPindropMode={this.setPindropMode}
             room={state.room}
-            roomId={state.roomId}
             searchString={state.searchString}
             secondaryFocus={state.secondaryFocus}
             setFocus={this.setFocus}
@@ -561,7 +560,7 @@ export default class PdfView extends Component {
               setFocus={this.setFocus}
               setSecondaryFocus={this.setSecondaryFocus}
               unsetFocus={this.unsetFocus}
-              resourceId={state.roomId}
+              resourceId={state.room?.roomId}
               resourceAlias={props.resourceAlias}
               pageFocused={this.getPage()}
               hasSelection={state.hasSelection}
@@ -583,7 +582,7 @@ export default class PdfView extends Component {
               roomFocused={props.roomFocused}
             />
           : <AnnotationListing
-              roomId={state.roomId}
+              roomId={state.room?.roomId}
               class="panel-widget-2"
               focus={state.focus}
               setAnnotationFilter={this.setAnnotationFilter}
@@ -597,7 +596,7 @@ export default class PdfView extends Component {
             />
           }
         <div class="panel-widget-controls">
-          {state.room ? <RoomIcon roomId={state.roomId} size={42} name={state.room.name} avatarUrl={state.room.getMxcAvatarUrl()} /> : null }
+          {state.room ? <RoomIcon roomId={state.room.roomId} size={42} name={state.room.name} avatarUrl={state.room.getMxcAvatarUrl()} /> : null }
           <hr />
           <ToolTip placement="left" content="Show chat">
             <button data-active={state.chatVisible} disabled={!state.focus} id="show-chat" onclick={this.toggleChat}>
@@ -619,7 +618,7 @@ export default class PdfView extends Component {
         resourceAlias={props.resourceAlias}
         total={state.totalPages}
         focus={state.focus}
-        roomId={state.roomId}
+        roomId={state.room?.roomId}
         room={state.room}
         content={this.content}
         contentContainer={this.contentContainer}

@@ -114,7 +114,6 @@ export default class PdfContent extends Component {
         pindropMode={primaryPindrop}
         ref={this.mainPage}
         room={props.room}
-        roomId={props.roomId}
         searchString={props.searchString}
         secondaryFocus={props.secondaryFocus}
         setFocus={props.setFocus}
@@ -138,7 +137,6 @@ export default class PdfContent extends Component {
           pindropMode={secondaryPindrop}
           ref={this.secondaryPage}
           room={props.room}
-          roomId={props.roomId}
           searchString={props.searchString}
           secondaryFocus={props.secondaryFocus}
           setFocus={props.setFocus}
