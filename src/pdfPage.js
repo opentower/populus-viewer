@@ -183,6 +183,7 @@ export default class PdfPage extends Component {
         pdfScale={this.pdfScale}
         annotationLayer={this.annotationLayer}
         textLayer={this.textLayer}
+        room={props.room}
         searchString={props.searchString}
         resourceAlias={props.resourceAlias}
         pageFocused={props.pageFocused}

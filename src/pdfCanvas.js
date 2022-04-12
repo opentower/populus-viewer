@@ -38,7 +38,7 @@ export default class PdfCanvas extends Component {
   }
 
   componentDidMount() {
-    this.fetchPdf(`#${this.props.resourceAlias}`)
+    this.fetchPdf()
     // fetch will fail if the initial sync isn't complete, but that should be handled by the splash page
     this.props.textLayer.current.addEventListener('click', e => {
       e.preventDefault() // this should prevent touch-to-search on mobile chrome
@@ -51,11 +51,11 @@ export default class PdfCanvas extends Component {
 
   canvas = createRef()
 
-  catchFetchPdfError = alias => e => {
+  catchFetchPdfError = e => {
     Toast.set(<Fragment>
       <h3 id="toast-header">Couldn't fetch the PDF...</h3>
       <div>Tried to fetch: </div>
-      <pre>{alias}</pre>
+      <pre>{this.props.resourceAlias}</pre>
       <div>Here's the error message:</div>
       <pre>{e.message}</pre>
     </Fragment>)
@@ -63,16 +63,8 @@ export default class PdfCanvas extends Component {
     this.errorCondition = true
   }
 
-  async fetchPdf (alias) {
-    const {room_id, servers} = await Client.client.getRoomIdForAlias(alias).catch(this.catchFetchPdfError(alias))
-    if (this.errorCondition) return
-    await Client.client.joinRoom(room_id, { viaServers: servers }).catch(this.catchFetchPdfError(alias))
-    if (this.errorCondition) return
-    const theRoom = await Client.client.getRoomWithState(room_id).catch(this.catchFetchPdfError(alias))
-    if (this.errorCondition) return
-    const thePdf = new Resource(theRoom)
-    if (this.props.setResource) this.props.setResource(theRoom)
-    this.setState({pdfIdentifier: thePdf.url})
+  async fetchPdf () {
+    const thePdf = new Resource(this.props.room)
     if (!PdfCanvas.PDFStore[thePdf.url]) {
       PdfCanvas.PDFStore[thePdf.url] = window.fetch(thePdf.httpUrl)
         .then(async response => {
@@ -89,9 +81,10 @@ export default class PdfCanvas extends Component {
           return theClone.arrayBuffer()
         })
         .then(array => PDFJS.getDocument(array).promise)
-        .catch(this.catchFetchPdfError(alias))
-    } else { console.log(`found pdf for ${theRoom.name} in store` ) }
+        .catch(this.catchFetchPdfError)
+    } else { console.log(`found pdf for ${this.props.room.name} in store` ) }
     if (this.errorCondition) return
+    this.setState({pdfIdentifier: thePdf.url})
     PdfCanvas.PDFStore[thePdf.url]
       .then(pdf => this.props.setTotalPages(pdf.numPages))
       .then(this.resolveFetch)

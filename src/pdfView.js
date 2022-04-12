@@ -66,6 +66,7 @@ export default class PdfView extends Component {
     this.initializeAnnotations()
     Client.client.on("RoomState.events", this.handleStateUpdate)
     Client.client.on("Room.accountData", this.handleAccountData)
+    this.fetchResource()
   }
 
   componentWillUnmount() {
@@ -142,7 +143,26 @@ export default class PdfView extends Component {
 
   setNavHeight = px => this.setState({ navHeight: px })
 
-  setResource = room => {
+  catchFetchResourceError = e => {
+    Toast.set(<Fragment>
+      <h3 id="toast-header">Couldn't fetch the resource...</h3>
+      <div>Tried to fetch: </div>
+      <pre>{this.props.resourceAlias}</pre>
+      <div>Here's the error message:</div>
+      <pre>{e.message}</pre>
+    </Fragment>)
+    History.push('/')
+    this.errorCondition = true
+  }
+
+  fetchResource = async _ => {
+    const {room_id, servers} = await Client.client.getRoomIdForAlias(`#${this.props.resourceAlias}`)
+      .catch(this.catchFetchResourceError)
+    if (this.errorCondition) return
+    await Client.client.joinRoom(room_id, { viaServers: servers }).catch(this.catchFetchResourceError)
+    if (this.errorCondition) return
+    const room = await Client.client.getRoomWithState(room_id).catch(this.catchFetchResourceError)
+    if (this.errorCondition) return
     this.setState({room, roomId: room.roomId}, _ => this.props.roomFocused
       ? this.focusByRoomId(this.props.roomFocused)
       : null)
@@ -491,7 +511,6 @@ export default class PdfView extends Component {
     const hideUntilWidthAvailable = {
       visibility: state.contentHeightPx ? null : "hidden"
     }
-
     return <div
       style={dynamicDocumentStyle}
       id="content-container"
@@ -508,31 +527,33 @@ export default class PdfView extends Component {
       <MediaModal />
       <Router onChange={this.handleRouteChange} />
       {this.getLoadingStatus()}
-      <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
-        <PdfContent
-          annotationsVisible={state.annotationsVisible}
-          filteredAnnotationContents={state.filteredAnnotationContents}
-          ref={this.content}
-          focus={state.focus}
-          pageFocused={this.getPage()}
-          totalPages={state.totalPages}
-          resourceAlias={props.resourceAlias}
-          pindropMode={state.pindropMode}
-          setPindropMode={this.setPindropMode}
-          room={state.room}
-          roomId={state.roomId}
-          searchString={state.searchString}
-          secondaryFocus={state.secondaryFocus}
-          setFocus={this.setFocus}
-          setResource={this.setResource}
-          setContentDimensions={this.setContentDimensions}
-          setPdfLoadingStatus={this.setLoadingStatus}
-          setPdfText={this.setPdfText}
-          setTotalPages={this.setTotalPages}
-          showChat={this.showChat}
-          zoomFactor={state.zoomFactor}
-        />
-      </div>
+      {state.room
+        ? <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
+          <PdfContent
+            annotationsVisible={state.annotationsVisible}
+            filteredAnnotationContents={state.filteredAnnotationContents}
+            ref={this.content}
+            focus={state.focus}
+            pageFocused={this.getPage()}
+            totalPages={state.totalPages}
+            resourceAlias={props.resourceAlias}
+            pindropMode={state.pindropMode}
+            setPindropMode={this.setPindropMode}
+            room={state.room}
+            roomId={state.roomId}
+            searchString={state.searchString}
+            secondaryFocus={state.secondaryFocus}
+            setFocus={this.setFocus}
+            setContentDimensions={this.setContentDimensions}
+            setPdfLoadingStatus={this.setLoadingStatus}
+            setPdfText={this.setPdfText}
+            setTotalPages={this.setTotalPages}
+            showChat={this.showChat}
+            zoomFactor={state.zoomFactor}
+          />
+        </div>
+        : null
+      }
       <div id="sidepanel">
         <PanelHandle visible={state.chatVisible} id="panel-handle-1" offsetVar="--dragOffset-1" contentContainer={this.contentContainer} />
         {state.focus

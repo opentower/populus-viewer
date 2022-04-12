@@ -76,7 +76,6 @@ export default class PdfContent extends Component {
   }
 
   commitPin = (theX, theY, thePage) => {
-    console.log(thePage)
     if (thePage === "primary") thePage = this.mainPage.current
     else if (thePage === "secondary") thePage = this.secondaryPage.current
     else return
