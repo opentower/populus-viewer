@@ -623,7 +623,6 @@ export default class PdfView extends Component {
         room={state.room}
         content={this.content}
         contentContainer={this.contentContainer}
-        resourceAlias={this.props.resourceAlias}
         nextPage={this.nextPage}
         prevPage={this.prevPage}
         searchString={state.searchString}
