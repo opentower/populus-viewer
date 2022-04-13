@@ -21,7 +21,7 @@ import ToolTip from "./utils/tooltip.js"
 import * as Icons from "./icons.js"
 import { UserColor } from "./utils/colors.js"
 
-export default class PdfView extends Component {
+export default class ContentView extends Component {
   constructor(props) {
     super(props)
     const maybeState = History.history.location.state
