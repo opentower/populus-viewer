@@ -80,6 +80,7 @@ export default class AnnotationLayer extends Component {
             key={loc.event.getId()}
             focused={focusId === annotationId}
             typing={this.state.typing[annotationId]}
+            fixedSide={this.props.fixedSide}
             setFocus={this.props.setFocus}
             pdfWidthAdjustedPx={this.props.pdfWidthAdjustedPx}
             pdfHeightAdjustedPx={this.props.pdfHeightAdjustedPx}
@@ -194,6 +195,7 @@ class Highlight extends Component {
   userColor = new UserColor(this.props.location.getCreator())
 
   render(props) {
+    const rightSide = props.fixedSide ? props.fixedSide === "right" : this.rightSide
     if (!this.props.pdfWidthAdjustedPx) return null
     const spans = this.clientRects.map(
       rect => <RectSpan
@@ -212,7 +214,7 @@ class Highlight extends Component {
       id={this.roomId}>
       <BarTab
         pdfWidthAdjustedPx={props.pdfWidthAdjustedPx}
-        rightSide={this.rightSide}
+        rightSide={rightSide}
         rect={this.boundingRect}
         zoomFactor={props.zoomFactor}
         setFocus={this.setFocus} />

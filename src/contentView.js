@@ -7,12 +7,13 @@ import Chat from "./chat.js"
 import RoomIcon from "./roomIcon.js"
 import AnnotationListing from "./annotationListing.js"
 import SearchResults from "./searchResults.js"
-import PdfPage from "./pdfPage.js"
+import PdfContent from "./pdfContent.js"
 import History from './history.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
 import { spaceChild, spaceParent, lastViewed } from "./constants.js"
 import Location from './utils/location.js'
+import Resource from './utils/resource.js'
 import SyncIndicator from './syncIndicator.js'
 import Toast from "./toast.js"
 import MediaModal from "./mediaModal.js"
@@ -20,12 +21,11 @@ import ToolTip from "./utils/tooltip.js"
 import * as Icons from "./icons.js"
 import { UserColor } from "./utils/colors.js"
 
-export default class PdfView extends Component {
+export default class ContentView extends Component {
   constructor(props) {
     super(props)
     const maybeState = History.history.location.state
     this.state = {
-      roomId: null,
       focus: null,
       secondaryFocus: null, // for temporarily focusing an extra location
       totalPages: null,
@@ -41,8 +41,8 @@ export default class PdfView extends Component {
       annotationFilter: maybeState ? maybeState.searchString : "",
       searchString: "",
       loadingStatus: "loading...",
-      pdfWidthPx: null,
-      pdfHeightPx: null,
+      contentWidthPx: null,
+      contentHeightPx: null,
       zoomFactor: null,
       pinching: false
     }
@@ -66,6 +66,7 @@ export default class PdfView extends Component {
     this.initializeAnnotations()
     Client.client.on("RoomState.events", this.handleStateUpdate)
     Client.client.on("Room.accountData", this.handleAccountData)
+    this.fetchResource()
   }
 
   componentWillUnmount() {
@@ -76,14 +77,14 @@ export default class PdfView extends Component {
   }
 
   handleStateUpdate = e => {
-    if ((e.getRoomId() === this.state.roomId && e.getType() === spaceChild) ||
-      (e.getStateKey() === this.state.roomId && e.getType() === spaceParent)) {
+    if ((e.getRoomId() === this.state.room?.roomId && e.getType() === spaceChild) ||
+      (e.getStateKey() === this.state.room?.roomId && e.getType() === spaceParent)) {
       this.updateAnnotation(new Location(e))
     }
   }
 
   handleAccountData = (e, room) => {
-    if (room.roomId === this.state.roomId && this.props.pageFocused && e.getType() === lastViewed) {
+    if (room.roomId === this.state.room?.roomId && this.props.pageFocused && e.getType() === lastViewed) {
       const theContent = e.getContent()
       if (theContent.page !== this.props.pageFocused && theContent.deviceId !== Client.deviceId) {
         Toast.set(
@@ -132,18 +133,39 @@ export default class PdfView extends Component {
     }
   }
 
-  page = createRef()
-
   documentView = createRef()
 
   contentContainer = createRef()
+
+  content = createRef()
 
   pointerCache = []
 
   setNavHeight = px => this.setState({ navHeight: px })
 
-  setResource = room => {
-    this.setState({room, roomId: room.roomId}, _ => this.props.roomFocused
+  catchFetchResourceError = e => {
+    Toast.set(<Fragment>
+      <h3 id="toast-header">Couldn't fetch the resource...</h3>
+      <div>Tried to fetch: </div>
+      <pre>{this.props.resourceAlias}</pre>
+      <div>Here's the error message:</div>
+      <pre>{e.message}</pre>
+    </Fragment>)
+    History.push('/')
+    this.errorCondition = true
+  }
+
+  fetchResource = async _ => {
+    const {room_id, servers} = await Client.client.getRoomIdForAlias(`#${this.props.resourceAlias}`)
+      .catch(this.catchFetchResourceError)
+    if (this.errorCondition) return
+    await Client.client.joinRoom(room_id, { viaServers: servers }).catch(this.catchFetchResourceError)
+    if (this.errorCondition) return
+    const room = await Client.client.getRoomWithState(room_id).catch(this.catchFetchResourceError)
+    if (this.errorCondition) return
+    const resource = new Resource(room)
+    const mimetype = resource.mimetype
+    this.setState({room, mimetype}, _ => this.props.roomFocused
       ? this.focusByRoomId(this.props.roomFocused)
       : null)
   }
@@ -151,55 +173,20 @@ export default class PdfView extends Component {
   startPindrop = _ => {
     setTimeout(_ => {
       this.setState({pindropMode: {}})
-      document.addEventListener("click", this.releasePin)
+      document.addEventListener("click", this.content.current.releasePin)
     }, 200)
   }
 
-  releasePin = e => {
-    if (this.page.current.isTarget(e)) {
-      const theX = e.altKey
-        ? Math.round((e.offsetX - 14) / 14) * 14
-        : e.offsetX - 14
-      const theY = e.altKey
-        ? Math.round((e.offsetY - 14) / 14) * 14
-        : e.offsetY - 14
-      this.setState({pindropMode: {x: theX, y: theY} })
-    } else {
-      document.removeEventListener("click", this.releasePin)
-      this.setState({pindropMode: null })
-    }
-  }
-
-  generateLocation = sel => this.page.current.generateLocation(sel)
-
-  commitHighlight = _ => {
-    this.page.current.commitHighlight()
-      .then(fakeEvent => {
-        this.setFocus(new Location(fakeEvent))
-        this.setState({ chatVisible: true })
-      }).catch(e => alert(e))
-  }
-
-  commitPin = (theX, theY) => {
-    this.page.current.commitPin(theX, theY)
-      .then(fakeEvent => {
-        this.setFocus(new Location(fakeEvent))
-        this.setState({ chatVisible: true })
-      }).catch(e => alert(e))
-    document.removeEventListener("click", this.releasePin)
-    this.setState({pindropMode: null })
-  }
-
-  setPdfDimensions = (pdfHeightPx, pdfWidthPx) => {
+  setContentDimensions = (contentHeightPx, contentWidthPx) => {
     const width = document.body.clientWidth
     const height = document.body.clientHeight - this.state.navHeight - 10
-    const heightratio = height / pdfHeightPx
-    const widthratio = width / pdfWidthPx
+    const heightratio = height / contentHeightPx
+    const widthratio = width / contentWidthPx
     const zoomFactor = this.state.zoomFactor || Math.max(Math.min(heightratio, widthratio, 5), 1)
-    this.setState({pdfHeightPx, pdfWidthPx, zoomFactor})
+    this.setState({contentHeightPx, contentWidthPx, zoomFactor})
   }
 
-  setPdfText = pdfText => { this.pdfText = pdfText }
+  setSearchText = searchText => { this.searchText = searchText }
 
   // XXX : may need to debounce eventually
   setAnnotationFilter = annotationFilter => this.setState({
@@ -209,7 +196,7 @@ export default class PdfView extends Component {
 
   setTotalPages = totalPages => this.setState({totalPages})
 
-  setPdfLoadingStatus = loadingStatus => this.setState({loadingStatus})
+  setLoadingStatus = loadingStatus => this.setState({loadingStatus})
 
   setSearch = searchString => this.setState({searchString})
 
@@ -276,20 +263,6 @@ export default class PdfView extends Component {
     this.focusNextInArray(clone.reverse())
   }
 
-  prevPage = _ => {
-    if (this.getPage() > 1) {
-      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.getPage() - 1}/`)
-      this.contentContainer.current.scrollTop = this.contentContainer.current.scrollHeight
-    }
-  }
-
-  nextPage = _ => {
-    if (this.getPage() < this.state.totalPages) {
-      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.getPage() + 1}/`)
-      this.contentContainer.current.scrollTop = 0
-    }
-  }
-
   hideChat = _ => this.setState({chatVisible: false})
 
   showChat = _ => {
@@ -302,6 +275,8 @@ export default class PdfView extends Component {
     if (oldState.chatVisible) this.hideChat()
     else this.showChat()
   })
+
+  setPindropMode = mode => this.setState({pindropMode: mode})
 
   hideListing = _ => this.setState({listingVisible: false})
 
@@ -323,15 +298,15 @@ export default class PdfView extends Component {
 
   checkForSelection () {
     if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
-    const hasSelection = this.page.current.hasSelection()
+    const hasSelection = this.content.current.hasSelection()
     this.selectionTimeout = setTimeout(200, this.setState({hasSelection}))
     // timeout to avoid excessive rerendering
   }
 
   handleRouteChange = _ => {
     // sets the last viewed page for later retrieval
-    if (!this.props.pageFocused || !this.props.resourceAlias || !this.state.roomId) return
-    Client.client.setRoomAccountData(this.state.roomId, lastViewed, {
+    if (!this.props.pageFocused || !this.props.resourceAlias || !this.state.room?.roomId) return
+    Client.client.setRoomAccountData(this.state.room.roomId, lastViewed, {
       deviceId: Client.deviceId,
       ...(parseInt(this.props.pageFocused, 10) && { page: this.props.pageFocused })
     })
@@ -347,29 +322,12 @@ export default class PdfView extends Component {
     if (e.key === '+' || e.key === '=') this.setZoom(zoomFactor => zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(zoomFactor => zoomFactor - 0.1)
     if (e.key === "Esc" || e.key === "Escape") History.push("/")
-    if (e.shiftKey) return // don't capture shift-modified arrow keys, these change the text selection
-    if (e.key === 'j' || e.key === "ArrowRight") this.nextPage()
-    if (e.key === 'k' || e.key === "ArrowLeft") this.prevPage()
-    if (e.key === "ArrowUp") {
-      e.preventDefault() // block default scrolling behavior
-      this.contentContainer.current.scroll({
-        top: this.contentContainer.current.scrollTop - 100,
-        left: this.contentContainer.current.scrollLeft
-      })
-    }
-    if (e.key === "ArrowDown") {
-      e.preventDefault() // block default scrolling behavior
-      this.contentContainer.current.scroll({
-        top: this.contentContainer.current.scrollTop + 100,
-        left: this.contentContainer.current.scrollLeft
-      })
-    }
   }
 
   openAnnotation = _ => {
     this.setState({ annotationsVisible: true })
-    if (this.state.pindropMode?.x) this.commitPin(this.state.pindropMode.x, this.state.pindropMode.y)
-    else this.commitHighlight()
+    if (this.state.pindropMode?.x) this.content.current.commitPin(this.state.pindropMode.x, this.state.pindropMode.y, this.state.pindropMode.page)
+    else this.content.current.commitHighlight()
   }
 
   closeAnnotation = _ => {
@@ -381,7 +339,7 @@ export default class PdfView extends Component {
       return
     }
     const discussionId = this.state.focus.getChild()
-    const resourceId = this.state.roomId
+    const resourceId = this.state.room.roomId
     Client.client.sendStateEvent(resourceId, spaceChild, {}, discussionId)
     Client.client.sendStateEvent(discussionId, spaceParent, {}, resourceId)
       .catch(e => {
@@ -425,12 +383,12 @@ export default class PdfView extends Component {
   setSecondaryFocus = secondaryFocus => this.setState({ secondaryFocus })
 
   getLoadingStatus() {
-    if (this.state.pdfHeightPx) return null
+    if (this.state.contentHeightPx) return null
     if (typeof this.state.loadingStatus === "string") {
       return <div id="document-view-loading">{this.state.loadingStatus}</div>
     }
     if (typeof this.state.loadingStatus === "number") {
-      return <div id="document-view-loading">Downloading Pdf...
+      return <div id="document-view-loading">Downloading...
           <progress class="styled-progress" max="1" value={this.state.loadingStatus} />
         </div>
     }
@@ -495,7 +453,7 @@ export default class PdfView extends Component {
         .map(room => room.getLiveTimeline())
         .map(timeline => timeline.getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceParent))
       for (const parent of [].concat(...allParents)) {
-        if (parent.getStateKey() === this.state.roomId) {
+        if (parent.getStateKey() === this.state.room.roomId) {
           if (parent.getTs() < 1648936377334) continue // don't load old parents, for legacy compatibility
           const loc = new Location(parent)
           if (this.insertable(loc)) this.annotationParentEvents[loc.getChild()] = loc
@@ -541,10 +499,10 @@ export default class PdfView extends Component {
 
   render(props, state) {
     const dynamicDocumentStyle = {
-      "--pdfZoomFactor": state.zoomFactor,
+      "--zoomFactor": state.zoomFactor,
       "--navHeight": `${state.navHeight}px`,
-      "--contentWidthPx": `${state.pdfWidthPx}px`,
-      "--contentHeightPx": `${state.pdfHeightPx}px`,
+      "--contentWidthPx": `${state.contentWidthPx}px`,
+      "--contentHeightPx": `${state.contentHeightPx}px`,
       "--sidePanelVisible": state.panelVisible ? 1 : 0,
       "--chatVisible": state.chatVisible ? 1 : 0,
       "--listingVisible": state.listingVisible ? 1 : 0,
@@ -553,7 +511,7 @@ export default class PdfView extends Component {
       "touch-action": this.state.pinching ? "none" : null
     }
     const hideUntilWidthAvailable = {
-      visibility: state.pdfHeightPx ? null : "hidden"
+      visibility: state.contentHeightPx ? null : "hidden"
     }
     return <div
       style={dynamicDocumentStyle}
@@ -571,31 +529,32 @@ export default class PdfView extends Component {
       <MediaModal />
       <Router onChange={this.handleRouteChange} />
       {this.getLoadingStatus()}
-      <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
-        <PdfPage
-          annotationsVisible={state.annotationsVisible}
-          filteredAnnotationContents={state.filteredAnnotationContents}
-          focus={state.focus}
-          initFocus={this.initFocus}
-          pageFocused={this.getPage()}
-          resourceAlias={props.resourceAlias}
-          pdfHeightPx={state.pdfHeightPx}
-          pdfWidthPx={state.pdfWidthPx}
-          pindropMode={state.pindropMode}
-          ref={this.page}
-          room={state.room}
-          roomId={state.roomId}
-          searchString={state.searchString}
-          secondaryFocus={state.secondaryFocus}
-          setFocus={this.setFocus}
-          setResource={this.setResource}
-          setPdfDimensions={this.setPdfDimensions}
-          setPdfLoadingStatus={this.setPdfLoadingStatus}
-          setPdfText={this.setPdfText}
-          setTotalPages={this.setTotalPages}
-          zoomFactor={state.zoomFactor}
-        />
-      </div>
+      {state.mimetype === "application/pdf"
+        ? <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
+          <PdfContent
+            annotationsVisible={state.annotationsVisible}
+            filteredAnnotationContents={state.filteredAnnotationContents}
+            ref={this.content}
+            focus={state.focus}
+            pageFocused={this.getPage()}
+            totalPages={state.totalPages}
+            resourceAlias={props.resourceAlias}
+            pindropMode={state.pindropMode}
+            setPindropMode={this.setPindropMode}
+            room={state.room}
+            searchString={state.searchString}
+            secondaryFocus={state.secondaryFocus}
+            setFocus={this.setFocus}
+            setContentDimensions={this.setContentDimensions}
+            setPdfLoadingStatus={this.setLoadingStatus}
+            setPdfText={this.setSearchText}
+            setTotalPages={this.setTotalPages}
+            showChat={this.showChat}
+            zoomFactor={state.zoomFactor}
+          />
+        </div>
+        : null
+      }
       <div id="sidepanel">
         <PanelHandle visible={state.chatVisible} id="panel-handle-1" offsetVar="--dragOffset-1" contentContainer={this.contentContainer} />
         {state.focus
@@ -603,11 +562,11 @@ export default class PdfView extends Component {
               setFocus={this.setFocus}
               setSecondaryFocus={this.setSecondaryFocus}
               unsetFocus={this.unsetFocus}
-              resourceId={state.roomId}
+              resourceId={state.room?.roomId}
               resourceAlias={props.resourceAlias}
               pageFocused={this.getPage()}
               hasSelection={state.hasSelection}
-              generateLocation={this.generateLocation}
+              generateLocation={this.content.current.generateLocation}
               secondaryFocus={state.secondaryFocus}
               focus={state.focus} />
           : <div class="panel-widget-1" />
@@ -620,12 +579,12 @@ export default class PdfView extends Component {
               setSearch={this.setSearch}
               endSearch={this.endSearch}
               hideListing={this.hideListing}
-              pdfText={this.pdfText}
+              pdfText={this.searchText}
               resourceAlias={props.resourceAlias}
               roomFocused={props.roomFocused}
             />
           : <AnnotationListing
-              roomId={state.roomId}
+              roomId={state.room?.roomId}
               class="panel-widget-2"
               focus={state.focus}
               setAnnotationFilter={this.setAnnotationFilter}
@@ -639,7 +598,7 @@ export default class PdfView extends Component {
             />
           }
         <div class="panel-widget-controls">
-          {state.room ? <RoomIcon roomId={state.roomId} size={42} name={state.room.name} avatarUrl={state.room.getMxcAvatarUrl()} /> : null }
+          {state.room ? <RoomIcon roomId={state.room.roomId} size={42} name={state.room.name} avatarUrl={state.room.getMxcAvatarUrl()} /> : null }
           <hr />
           <ToolTip placement="left" content="Show chat">
             <button data-active={state.chatVisible} disabled={!state.focus} id="show-chat" onclick={this.toggleChat}>
@@ -661,14 +620,12 @@ export default class PdfView extends Component {
         resourceAlias={props.resourceAlias}
         total={state.totalPages}
         focus={state.focus}
-        roomId={state.roomId}
+        roomId={state.room?.roomId}
         room={state.room}
-        focusNext={this.focusNext}
-        focusPrev={this.focusPrev}
-        nextPage={this.nextPage}
-        prevPage={this.prevPage}
+        content={this.content}
+        contentContainer={this.contentContainer}
         searchString={state.searchString}
-        pdfWidthPx={state.pdfWidthPx}
+        contentWidthPx={state.contentWidthPx}
         annotationsVisible={state.annotationsVisible}
         toggleAnnotations={this.toggleAnnotations}
         setNavHeight={this.setNavHeight}
@@ -676,7 +633,7 @@ export default class PdfView extends Component {
         startPindrop={this.startPindrop}
         pindropMode={state.pindropMode}
         setZoom={this.setZoom} />
-      <div id="pdf-mobile-buttons">
+      <div id="content-mobile-buttons">
         <button title="open options" id="panel-toggle" onclick={this.openSidebar}>
           {state.chatVisible || state.listingVisible ? null : Icons.menu }
         </button>

@@ -2,7 +2,7 @@ import { h, render, Fragment, Component } from 'preact'
 import Router from 'preact-router'
 import WelcomeView from './welcome.js'
 import LoginView from './login.js'
-import PdfView from './pdfView.js'
+import ContentView from './contentView.js'
 import SplashView from './splash.js'
 import Modal from "./modal.js"
 import Toast from "./toast.js"
@@ -67,7 +67,7 @@ class PopulusViewer extends Component {
         <Toast />
         <Router history={History.history}>
           <WelcomeView path="/" logoutHandler={this.logoutHandler} />
-          <PdfView path="/:resourceAlias/:pageFocused?/:roomFocused?" />
+          <ContentView path="/:resourceAlias/:pageFocused?/:roomFocused?" />
         </Router>
     </Fragment>
   }
