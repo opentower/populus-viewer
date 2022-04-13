@@ -122,7 +122,9 @@ export default class RoomList extends Component {
       const tags = Object.keys(room.tags).filter(tag => tag.slice(0, 2) === 'u.')
       const state = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
       // TODO: could make the below smarter to search by displayname as well as userID.
-      const roomMembers = state.getMembers().map(m => m.userId)
+      const roomMemberIds = state.getMembers().map(m => m.userId)
+      const roomMemberNames = state.getMembers().map(m => m.name)
+      const roomMembers = roomMemberIds.concat(roomMemberNames)
       const parents = state.getStateEvents("m.space.parent").map(e => Client.client.getRoom(e.getStateKey())?.name).filter(e => e)
       return searchNames.every(name => room.name.toLowerCase().includes(name.toLowerCase())) &&
         (searchIds.length > 0 ? searchIds.some(id => room.roomId === id) : true) &&
