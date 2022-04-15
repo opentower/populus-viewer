@@ -1,7 +1,7 @@
 import { h, Fragment, createRef, Component } from 'preact';
 import * as Matrix from "matrix-js-sdk"
 import { UserColor } from './utils/colors.js'
-import PdfUpload from './pdfUpload.js'
+import FileUpload from './fileUpload.js'
 import RoomList from './roomList.js'
 import SpacesManager from './spacesManager.js'
 import Client from './client.js'
@@ -144,7 +144,7 @@ export default class WelcomeView extends Component {
       </header>
       <div id="welcome-container">
         {state.view === "UPLOAD"
-          ? <PdfUpload showMainView={this.showMainView} />
+          ? <FileUpload showMainView={this.showMainView} />
           : state.view === "PROFILE"
             ? <ProfileInformation logoutHandler={props.logoutHandler} showMainView={this.showMainView} />
             : state.view === "NOTIF"

@@ -1,16 +1,16 @@
 import { h, createRef, Component } from 'preact';
-import './styles/pdfUpload.css'
+import './styles/fileUpload.css'
 import { mscResourceData, spaceChild } from "./constants.js"
 import { onlineOrAlert } from "./utils/alerts.js"
 import Client from './client.js'
 
-export default class PdfUpload extends Component {
+export default class FileUpload extends Component {
   constructor(props) {
     super(props)
     this.state = {
       querying: false,
       aliasAvailable: false,
-      pdfvalid: false,
+      fileValid: false,
       name: "",
       alias: "",
       details: false
@@ -64,10 +64,20 @@ export default class PdfUpload extends Component {
 
   validatePdf = _ => {
     const theFile = this.fileLoader.current.files[0]
-    if (theFile.type === "application/pdf") this.setState({pdfvalid: true})
-    else {
-      this.setState({pdfvalid: false})
-      alert("Please make sure that the file you're uploading is a pdf.")
+    let fileValid = false
+    switch (theFile.type) {
+      case "application/pdf" : fileValid = true
+      case "audio/wav"  : fileValid = true
+      case "audio/mpeg"  : fileValid = true
+      case "audio/mp4"  : fileValid = true
+      case "audio/x-m4a"  : fileValid = true
+      case "audio/aac"  : fileValid = true
+      case "audio/aacp" : fileValid = true
+      case "audio/flac" : fileValid = true
+    }
+    this.setState({fileValid})
+    if (!fileValid) {
+      alert("Please make sure that the file you're uploading is of a supported filetype: pdf, wav, mp3, mp4, m4a, aac, or flac.")
       this.mainForm.current.reset()
     }
   }
@@ -98,7 +108,7 @@ export default class PdfUpload extends Component {
           "m.file": {
             url: mxc,
             name: theFile.name,
-            mimetype: "application/pdf",
+            mimetype: theFile.type,
             size: theFile.size
           }
         }
@@ -125,16 +135,21 @@ export default class PdfUpload extends Component {
   }
 
   render (_, state) {
-    return <div id="pdf-upload">
-      <h2> Upload a new PDF</h2>
-      <form id="pdfUploadForm" ref={this.mainForm} onsubmit={this.uploadFile}>
-        <label for="pdf"> Pdf to discuss</label>
-        <input name="pdf" oninput={this.validatePdf} ref={this.fileLoader} accept="application/pdf" type="file" />
+    return <div id="file-upload">
+      <h2> Upload a new file</h2>
+      <form id="file-upload-form" ref={this.mainForm} onsubmit={this.uploadFile}>
+        <label for="file"> file to discuss</label>
+        <input name="file"
+          oninput={this.validatePdf}
+          ref={this.fileLoader}
+          accept="application/pdf, audio/wav, audio/mpeg, audio/x-m4a, audio/mp4, audio/aac, audio/aacp, audio/flac"
+          type="file"
+        />
         <label for="discussion" >Name for Discussion</label>
         <input name="discussion" value={state.name} onkeydown={this.keydownHandler} oninput={this.nameInputHandler} ref={this.roomNameInput} type="text" />
         {state.details
           ? null
-          : <div class="pdfupload-form-detail">{
+          : <div class="file-upload-form-detail">{
             state.querying
               ? "querying..."
               : state.aliasAvailable
@@ -153,12 +168,12 @@ export default class PdfUpload extends Component {
         />
         <details open={state.details} ontoggle={this.handleToggle}>
           <summary>Advanced Settings</summary>
-          <div class="pdfupload-details-wrapper">
+          <div class="file-upload-details-wrapper">
             <label for="discussion" >Canonical Alias</label>
             <input name="discussion" value={state.alias} placeholder={this.toAlias(state.name)} oninput={this.aliasInputHandler} ref={this.roomAliasInput} type="text" />
             {!state.details
               ? null
-              : <div class="pdfupload-form-detail">{
+              : <div class="file-upload-form-detail">{
                 state.querying
                   ? "querying..."
                   : state.aliasAvailable
@@ -169,13 +184,13 @@ export default class PdfUpload extends Component {
             }
           </div>
         </details>
-        <div id="pdfUploadFormSubmit">
-          <button disabled={state.progress || state.querying || !state.aliasAvailable || !state.pdfvalid} class="styled-button" ref={this.submitButton} type="submit">
+        <div id="file-upload-form-submit">
+          <button disabled={state.progress || state.querying || !state.aliasAvailable || !state.fileValid} class="styled-button" ref={this.submitButton} type="submit">
             { state.progress ? "Uploading..." : "Create Discussion" }
           </button>
         </div>
         {state.progress
-          ? <div id="pdfUploadFormProgress">
+          ? <div id="file-upload-form-progress">
             <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
           </div>
           : null

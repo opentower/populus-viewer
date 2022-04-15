@@ -1,57 +1,57 @@
-#pdf-upload {
+#file-upload {
   max-width: 800px;
   width: 90vw;
   padding-top:1em;
 }
 
-#pdfUploadForm {
+#file-upload-form {
     border: 1px black solid;
     margin: 1em;
     padding: 1em;
 }
 
-#pdfUploadForm {
+#file-upload-form {
     display:grid;
     grid-template-columns: 180px 1fr;
 }
 
-#pdfUploadForm label {
+#file-upload-form label {
     grid-column: 1 / 2 ;
 }
 
- #pdfUploadForm input, #pdfUploadForm textarea {
+ #file-upload-form input, #file-upload-form textarea {
     grid-column: 2 / 3 ;
     margin-bottom:.5em;
     border:none;
     background:#ededed
 }
 
-#pdfUploadForm details {
+#file-upload-form details {
     grid-column: 1 / 3 ;
     margin-bottom:.5em;
 }
 
-.pdfupload-details-wrapper {
+.file-upload-details-wrapper {
   padding-top:.5em;
   display:grid;
   grid-template-columns: 180px 1fr;
 }
 
-#pdfUploadForm > textarea {
+#file-upload-form > textarea {
     resize: vertical;
     min-height:50px;
 }
 
-#pdfUploadFormSubmit {
+#file-upload-form-submit {
     grid-column: 1 / 2 ;
 }
 
-#pdfUploadFormProgress {
+#file-upload-form-progress {
     text-align:right;
     grid-column: 2 / 3 ;
 }
 
-.pdfupload-form-detail {
+.file-upload-form-detail {
     color:#ababab;
     grid-column: 2 / 3 ;
     font-size:10pt;
@@ -59,22 +59,22 @@
     top:-8px;
 }
 
-#pdfUploadFormProgress progress {
+#file-upload-form-progress progress {
   width: 100%;
   height: 80%;
 }
 
 @media only screen and (max-width: 600px) {
-    #pdfUploadForm,
-    .pdfupload-details-wrapper {
+    #file-upload-form,
+    .file-upload-details-wrapper {
       grid-template-columns: 1fr;
     }
 
-    #pdfUploadForm details, 
-    #pdfUploadFormProgress, 
-    .pdfupload-form-detail,
-    #pdfUploadForm input, 
-    #pdfUploadForm textarea { 
+    #file-upload-form details, 
+    #file-upload-form-progress, 
+    .file-upload-form-detail,
+    #file-upload-form input, 
+    #file-upload-form textarea { 
         grid-column: 1 / 2;
         min-width: 0px; /* helps prevent overflow on very narrow viewports */
     }
