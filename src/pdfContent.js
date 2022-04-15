@@ -101,7 +101,8 @@ export default class PdfContent extends Component {
     const secondaryPageVisible = state.showSecondary && props.pageFocused < props.totalPages
     const primaryPindrop = props.pindropMode?.page === "primary" ? props.pindropMode : null
     const secondaryPindrop = props.pindropMode?.page === "secondary" ? props.pindropMode : null
-    return <Fragment>
+    const hideUntilWidthAvailable = { visibility: state.mainPageHeightPx ? null : "hidden" }
+    return <div style={hideUntilWidthAvailable} id="document-view">
       <PdfPage
         annotationsVisible={props.annotationsVisible}
         filteredAnnotationContents={props.filteredAnnotationContents}
@@ -147,6 +148,6 @@ export default class PdfContent extends Component {
         />
         : null
       }
-    </Fragment>
+    </div>
   }
 }

@@ -3,7 +3,6 @@
     overflow:auto;
     height: calc(100% - var(--navHeight));
     width: var(--contentWidth);
-    --leftToCenter: max(0px, calc(50% - (var(--contentWidthPx) * var(--zoomFactor)) / 2));
     transition: var(--transitionSizing)
 }
 
@@ -17,7 +16,7 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
 #document-view {
     position:relative;
     display: flex;
-    left: var(--leftToCenter);
+    left: max(0px, calc(50% - (var(--contentWidthPx) * var(--zoomFactor)) / 2));
     /* the below forces chrome to recalculate overflow on zoom It's not
      * necessary for Firefox or Webkit ... Not seeing an effect any more, so
      * this bug may be fixed on newer chromium */
@@ -25,6 +24,13 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
     width: var(--contentWidthPx); 
     transform-origin : top left;
     transform: scale(var(--zoomFactor));
+}
+
+#audio-view {
+    position:relative;
+    display: flex;
+    height:calc(100% - var(--navHeight));
+    align-items:center;
 }
 
 .page-wrapper { position:relative; }

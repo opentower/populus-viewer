@@ -8,6 +8,7 @@ import RoomIcon from "./roomIcon.js"
 import AnnotationListing from "./annotationListing.js"
 import SearchResults from "./searchResults.js"
 import PdfContent from "./pdfContent.js"
+import AudioContent from "./audioContent.js"
 import History from './history.js'
 import Client from './client.js'
 import Navbar from "./navbar.js"
@@ -132,8 +133,6 @@ export default class ContentView extends Component {
       this.setZoom(_ => this.initialZoom * (touchDistance / this.initialDistance))
     }
   }
-
-  documentView = createRef()
 
   contentContainer = createRef()
 
@@ -497,6 +496,43 @@ export default class ContentView extends Component {
     })
   }
 
+  getContent() {
+    if (this.state.mimetype === "application/pdf") {
+      return <PdfContent
+            annotationsVisible={this.state.annotationsVisible}
+            filteredAnnotationContents={this.state.filteredAnnotationContents}
+            ref={this.content}
+            focus={this.state.focus}
+            pageFocused={this.getPage()}
+            totalPages={this.state.totalPages}
+            resourceAlias={this.props.resourceAlias}
+            pindropMode={this.state.pindropMode}
+            setPindropMode={this.setPindropMode}
+            room={this.state.room}
+            searchString={this.state.searchString}
+            secondaryFocus={this.state.secondaryFocus}
+            setFocus={this.setFocus}
+            setContentDimensions={this.setContentDimensions}
+            setPdfLoadingStatus={this.setLoadingStatus}
+            setPdfText={this.setSearchText}
+            setTotalPages={this.setTotalPages}
+            showChat={this.showChat}
+            zoomFactor={this.state.zoomFactor}
+          />
+    } else if (this.state.mimetype?.match(/^audio/)) {
+      return <AudioContent 
+            annotationsVisible={this.state.annotationsVisible}
+            filteredAnnotationContents={this.state.filteredAnnotationContents}
+            ref={this.content}
+            resourceAlias={this.props.resourceAlias}
+            room={this.state.room}
+            focus={this.state.focus}
+            setContentDimensions={this.setContentDimensions}
+            setAudioLoadingStatus={this.setLoadingStatus}
+          />
+    } else return null
+  }
+
   render(props, state) {
     const dynamicDocumentStyle = {
       "--zoomFactor": state.zoomFactor,
@@ -509,9 +545,6 @@ export default class ContentView extends Component {
       "--chatFocused": state.focus ? 1 : 0,
       "--selectColor": this.userColor.solid,
       "touch-action": this.state.pinching ? "none" : null
-    }
-    const hideUntilWidthAvailable = {
-      visibility: state.contentHeightPx ? null : "hidden"
     }
     return <div
       style={dynamicDocumentStyle}
@@ -529,32 +562,7 @@ export default class ContentView extends Component {
       <MediaModal />
       <Router onChange={this.handleRouteChange} />
       {this.getLoadingStatus()}
-      {state.mimetype === "application/pdf"
-        ? <div style={hideUntilWidthAvailable} ref={this.documentView} id="document-view">
-          <PdfContent
-            annotationsVisible={state.annotationsVisible}
-            filteredAnnotationContents={state.filteredAnnotationContents}
-            ref={this.content}
-            focus={state.focus}
-            pageFocused={this.getPage()}
-            totalPages={state.totalPages}
-            resourceAlias={props.resourceAlias}
-            pindropMode={state.pindropMode}
-            setPindropMode={this.setPindropMode}
-            room={state.room}
-            searchString={state.searchString}
-            secondaryFocus={state.secondaryFocus}
-            setFocus={this.setFocus}
-            setContentDimensions={this.setContentDimensions}
-            setPdfLoadingStatus={this.setLoadingStatus}
-            setPdfText={this.setSearchText}
-            setTotalPages={this.setTotalPages}
-            showChat={this.showChat}
-            zoomFactor={state.zoomFactor}
-          />
-        </div>
-        : null
-      }
+      {this.getContent()}
       <div id="sidepanel">
         <PanelHandle visible={state.chatVisible} id="panel-handle-1" offsetVar="--dragOffset-1" contentContainer={this.contentContainer} />
         {state.focus
