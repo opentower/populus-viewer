@@ -158,13 +158,14 @@ export default class DocumentNavbar extends Component {
               onclick={this.prevPage}>{Icons.chevronLeft}
             </button>
           </ToolTip>
-          <form onSubmit={this.handleSubmit}>
+          <form class="nav-position" onSubmit={this.handleSubmit}>
             <ToolTip content="Show page navigation" offset={this.toolTipOffset}>
               <button class={state.pageViewVisible ? "nav-toggled" : null}
                 onclick={this.togglePageNav}>{Icons.page}
               </button>
             </ToolTip>
             <input type="text"
+              id="nav-page-input"
               ref={this.pageInput}
               value={state.pageFocused ? state.value : props.pageFocused}
               onblur={this.handlePageBlur}

@@ -11,7 +11,8 @@ import PdfContent from "./pdfContent.js"
 import AudioContent from "./audioContent.js"
 import History from './history.js'
 import Client from './client.js'
-import Navbar from "./navbar.js"
+import DocumentNavbar from "./documentNavbar.js"
+import MediaNavbar from "./mediaNavbar.js"
 import { spaceChild, spaceParent, lastViewed } from "./constants.js"
 import Location from './utils/location.js'
 import Resource from './utils/resource.js'
@@ -29,7 +30,7 @@ export default class ContentView extends Component {
     this.state = {
       focus: null,
       secondaryFocus: null, // for temporarily focusing an extra location
-      totalPages: null,
+      resourceLength: null,
       navHeight: 75,
       panelVisible: false,
       chatVisible: false,
@@ -59,7 +60,7 @@ export default class ContentView extends Component {
     // listener with the proper `this` reference
   }
 
-  getPage() { return parseInt(this.props.pageFocused, 10) || 1 }
+  getPosition() { return parseInt(this.props.resourcePosition, 10) || 1 }
 
   componentDidMount() {
     document.addEventListener("selectionchange", this.checkForSelection)
@@ -85,9 +86,9 @@ export default class ContentView extends Component {
   }
 
   handleAccountData = (e, room) => {
-    if (room.roomId === this.state.room?.roomId && this.props.pageFocused && e.getType() === lastViewed) {
+    if (room.roomId === this.state.room?.roomId && this.props.resourcePosition && e.getType() === lastViewed) {
       const theContent = e.getContent()
-      if (theContent.page !== this.props.pageFocused && theContent.deviceId !== Client.deviceId) {
+      if (theContent.page !== this.props.resourcePosition && theContent.deviceId !== Client.deviceId) {
         Toast.set(
           <Fragment>
             <h3 id="toast-header">Hey!</h3>
@@ -193,7 +194,7 @@ export default class ContentView extends Component {
     filteredAnnotationContents: this.filterAnnotations(annotationFilter, this.annotationChildEvents)
   })
 
-  setTotalPages = totalPages => this.setState({totalPages})
+  setResourceLength = resourceLength => this.setState({resourceLength})
 
   setLoadingStatus = loadingStatus => this.setState({loadingStatus})
 
@@ -233,7 +234,7 @@ export default class ContentView extends Component {
     const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
     if (theAnnotation) {
       const focus = new Location(theAnnotation)
-      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${focus.getPageIndex() || this.getPage()}/${roomId}`)
+      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${focus.getPageIndex() || this.getPosition()}/${roomId}`)
       const listingVisible = document.body.offsetWidth <= 600 ? false : this.state.listingVisible
       this.setState({ focus, secondaryFocus: null, chatVisible: true, listingVisible })
     }
@@ -304,10 +305,11 @@ export default class ContentView extends Component {
 
   handleRouteChange = _ => {
     // sets the last viewed page for later retrieval
-    if (!this.props.pageFocused || !this.props.resourceAlias || !this.state.room?.roomId) return
+    if (!this.props.resourcePosition || !this.props.resourceAlias || !this.state.room?.roomId) return
+    if (!this.state.mimetype === "application/pdf") return
     Client.client.setRoomAccountData(this.state.room.roomId, lastViewed, {
       deviceId: Client.deviceId,
-      ...(parseInt(this.props.pageFocused, 10) && { page: this.props.pageFocused })
+      ...(parseInt(this.props.resourcePosition, 10) && { page: this.props.resourcePosition})
     })
     this.refreshFocus()
   }
@@ -365,11 +367,11 @@ export default class ContentView extends Component {
     // If you replace the element AND unset chat visibility in one update, then
     // the annotation panel jumps to the left
     this.setState({secondaryFocus: null, focus: null}, _ => this.setState({chatVisible: false}))
-    History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.props.pageFocused}/`)
+    History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.props.resourcePosition}/`)
   }
 
   setFocus = focus => {
-    History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.props.pageFocused}/${focus.getChild()}/`)
+    History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.props.resourcePosition}/${focus.getChild()}/`)
     this.setState({secondaryFocus: null, focus, chatVisible: true })
   }
 
@@ -496,15 +498,15 @@ export default class ContentView extends Component {
     })
   }
 
-  getContent() {
+  getContentComponent() {
     if (this.state.mimetype === "application/pdf") {
       return <PdfContent
             annotationsVisible={this.state.annotationsVisible}
             filteredAnnotationContents={this.state.filteredAnnotationContents}
             ref={this.content}
             focus={this.state.focus}
-            pageFocused={this.getPage()}
-            totalPages={this.state.totalPages}
+            pageFocused={this.getPosition()}
+            totalPages={this.state.resourceLength}
             resourceAlias={this.props.resourceAlias}
             pindropMode={this.state.pindropMode}
             setPindropMode={this.setPindropMode}
@@ -515,7 +517,7 @@ export default class ContentView extends Component {
             setContentDimensions={this.setContentDimensions}
             setPdfLoadingStatus={this.setLoadingStatus}
             setPdfText={this.setSearchText}
-            setTotalPages={this.setTotalPages}
+            setTotalPages={this.setResourceLength}
             showChat={this.showChat}
             zoomFactor={this.state.zoomFactor}
           />
@@ -525,11 +527,56 @@ export default class ContentView extends Component {
             filteredAnnotationContents={this.state.filteredAnnotationContents}
             ref={this.content}
             resourceAlias={this.props.resourceAlias}
+            currentTime={this.getPosition()}
             room={this.state.room}
             focus={this.state.focus}
+            setAudioDuration={this.setResourceLength}
             setContentDimensions={this.setContentDimensions}
             setAudioLoadingStatus={this.setLoadingStatus}
           />
+    } else return null
+  }
+
+  getNavComponent() {
+    if (this.state.mimetype === "application/pdf") {
+      return <DocumentNavbar hasSelection={this.state.hasSelection}
+        openAnnotation={this.openAnnotation}
+        closeAnnotation={this.closeAnnotation}
+        hasAnnotations={this.state.filteredAnnotationContents.length > 0}
+        pageFocused={this.getPosition()}
+        resourceAlias={this.props.resourceAlias}
+        total={this.state.resourceLength}
+        focus={this.state.focus}
+        roomId={this.state.room?.roomId}
+        room={this.state.room}
+        content={this.content}
+        contentContainer={this.contentContainer}
+        contentWidthPx={this.state.contentWidthPx}
+        annotationsVisible={this.state.annotationsVisible}
+        toggleAnnotations={this.toggleAnnotations}
+        setNavHeight={this.setNavHeight}
+        showSearch={this.showSearch}
+        startPindrop={this.startPindrop}
+        pindropMode={this.state.pindropMode}
+        setZoom={this.setZoom} />
+    } else if (this.state.mimetype?.match(/^audio/)) {
+      return <MediaNavbar hasSelection={this.state.hasSelection}
+        openAnnotation={this.openAnnotation}
+        closeAnnotation={this.closeAnnotation}
+        hasAnnotations={this.state.filteredAnnotationContents.length > 0}
+        timeStamp={this.getPosition()}
+        resourceAlias={this.props.resourceAlias}
+        total={this.state.resourceLength}
+        focus={this.state.focus}
+        roomId={this.state.room?.roomId}
+        room={this.state.room}
+        content={this.content}
+        contentContainer={this.contentContainer}
+        contentWidthPx={this.state.contentWidthPx}
+        annotationsVisible={this.state.annotationsVisible}
+        toggleAnnotations={this.toggleAnnotations}
+        setNavHeight={this.setNavHeight}
+        />
     } else return null
   }
 
@@ -562,7 +609,7 @@ export default class ContentView extends Component {
       <MediaModal />
       <Router onChange={this.handleRouteChange} />
       {this.getLoadingStatus()}
-      {this.getContent()}
+      {this.getContentComponent()}
       <div id="sidepanel">
         <PanelHandle visible={state.chatVisible} id="panel-handle-1" offsetVar="--dragOffset-1" contentContainer={this.contentContainer} />
         {state.focus
@@ -572,7 +619,6 @@ export default class ContentView extends Component {
               unsetFocus={this.unsetFocus}
               resourceId={state.room?.roomId}
               resourceAlias={props.resourceAlias}
-              pageFocused={this.getPage()}
               hasSelection={state.hasSelection}
               generateLocation={this.content.current.generateLocation}
               secondaryFocus={state.secondaryFocus}
@@ -620,27 +666,7 @@ export default class ContentView extends Component {
           </ToolTip>
         </div>
       </div>
-      <Navbar hasSelection={state.hasSelection}
-        openAnnotation={this.openAnnotation}
-        closeAnnotation={this.closeAnnotation}
-        hasAnnotations={state.filteredAnnotationContents.length > 0}
-        pageFocused={this.getPage()}
-        resourceAlias={props.resourceAlias}
-        total={state.totalPages}
-        focus={state.focus}
-        roomId={state.room?.roomId}
-        room={state.room}
-        content={this.content}
-        contentContainer={this.contentContainer}
-        searchString={state.searchString}
-        contentWidthPx={state.contentWidthPx}
-        annotationsVisible={state.annotationsVisible}
-        toggleAnnotations={this.toggleAnnotations}
-        setNavHeight={this.setNavHeight}
-        showSearch={this.showSearch}
-        startPindrop={this.startPindrop}
-        pindropMode={state.pindropMode}
-        setZoom={this.setZoom} />
+      {this.getNavComponent()}
       <div id="content-mobile-buttons">
         <button title="open options" id="panel-toggle" onclick={this.openSidebar}>
           {state.chatVisible || state.listingVisible ? null : Icons.menu }
