@@ -48,11 +48,12 @@
     "sanitize-html": "^2.3.3",
     "tippy.js": "^6.3.7",
     "url": "^0.11.0",
+    "wavesurfer.js": "^6.1.0",
     "workbox-cacheable-response": "^6.5.1",
     "workbox-expiration": "^6.5.1",
     "workbox-precaching": "^6.5.1",
     "workbox-routing": "^6.5.1",
     "workbox-strategies": "^6.5.1",
-    "workbox-webpack-plugin": "^6.5.1"
+    "workbox-webpack-plugin": "^6.3.0"
   }
 }
