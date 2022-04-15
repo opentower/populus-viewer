@@ -665,6 +665,6 @@ class PanelHandle extends Component {
   }
 
   render(props) {
-    if (props.visible) return <div id={props.id} onpointerdown={this.startDrag} class="panel-handle"><div>⋮</div></div>
+    if (props.visible) return <div id={props.id} onpointerdown={this.startDrag} class="panel-handle"><div>{Icons.handleVertical}</div></div>
   }
 }
