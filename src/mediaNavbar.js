@@ -133,9 +133,9 @@ class Progress extends Component {
 
   render(props) {
     return <div class="nav-position">
-      <span ref={this.timeCurrent} id="nav-total-pages">{this.toTime(props.timeStamp)}</span>
+      <span ref={this.timeCurrent} id="nav-time-elapsed">{this.toTime(props.timeStamp)}</span>
       <span>/</span>
-      <span ref={this.timeTotal} id="nav-total-pages">{this.toTime(props.total)}</span>
+      <span ref={this.timeTotal} id="nav-time-total">{this.toTime(props.total)}</span>
     </div>
   }
 }

@@ -158,6 +158,10 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
 @media only screen and (max-width: 600px) {
     .nav-position > input { display:none }
     .nav-position > span { display:none }
+    #nav-time-elapsed { 
+      display:inline-block;
+      padding-right:5px
+    }
 }
 
 .nav-position > button {
