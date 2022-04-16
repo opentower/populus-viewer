@@ -8,3 +8,7 @@ html[data-scrollbars="hidden"] wave {
 }
 
 html[data-scrollbars="hidden"] wave::-webkit-scrollbar { display: none; }
+
+.wavesurfer-region {
+  opacity: 0.3
+}

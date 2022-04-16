@@ -2,11 +2,17 @@ import { h, createRef, Fragment, Component } from 'preact';
 import Resource from './utils/resource.js'
 import Location from './utils/location.js'
 import WaveSurfer from 'wavesurfer.js'
+import Client from './client.js'
+import { UserColor } from './utils/colors.js'
+import Regions from 'wavesurfer.js/src/plugin/regions/'
 import './styles/audioContent.css'
 
 export default class AudioContent extends Component {
   constructor(props) {
     super(props)
+    this.state = {
+      regions: []
+    }
     this.hasFetched = new Promise((resolve, reject) => {
       this.resolveFetch = resolve
       this.rejectFetch = reject
@@ -17,21 +23,52 @@ export default class AudioContent extends Component {
 
   componentWillUnmount() { this.wavesurfer.destroy() }
 
-  hasSelection() {
-    return false
+  hasSelection() { return !!this.selection }
+
+  audioView = createRef()
+
+  createSelection = (start, end) => {
+    const userId = Client.client.getUserId()
+    const color = new UserColor(userId).solid
+    this.selection = this.wavesurfer.addRegion({ start, end, color })
   }
+
+  clearSelection = _ => {
+    this.selection.remove()
+    this.selection = null
+  }
+
+  handlePointerdown = e => {
+    if (["WAVE","REGION","HANDLE"].includes(e.target.tagName)) {
+      if (this.selection) return // do nothing if there's already a selection
+      const percentAcross = (e.clientX + e.target.scrollLeft) / e.target.scrollWidth
+      this.longPressTimeout = setTimeout(_ => {
+        this.wavesurfer.seekTo(percentAcross)
+        this.createSelection(percentAcross * this.wavesurfer.getDuration(), percentAcross * this.wavesurfer.getDuration() + 5)
+      }, 2000) 
+    } else {
+      clearTimeout(this.longPressTimeout)
+      this.clearSelection()
+    } 
+  }
+
+  handlePointerup = _ => clearTimeout(this.longPressTimeout)
 
   static Store = {}
 
   waveform = createRef()
 
   play = _ => {
-    this.wavesurfer.seekAndCenter(this.wavesurfer.getCurrentTime() / this.wavesurfer.getDuration() )
-    //this gets a little dicy, just because you want all the repositioning to
-    //be done *before* there's any risk of scroll events unsetting the autoCenter
-    this.lastLeft = this.wavesurfer.drawer.wrapper.scrollLeft
-    this.wavesurfer.drawer.params.autoCenter = true
-    this.wavesurfer.play()
+    if (this.selection) {
+      this.selection.play()
+    } else {
+      this.wavesurfer.seekAndCenter(this.wavesurfer.getCurrentTime() / this.wavesurfer.getDuration() )
+      //this gets a little dicy, just because you want all the repositioning to
+      //be done *before* there's any risk of scroll events unsetting the autoCenter
+      this.lastLeft = this.wavesurfer.drawer.wrapper.scrollLeft
+      this.wavesurfer.drawer.params.autoCenter = true
+      this.wavesurfer.play()
+    }
   }
 
   pause = _ => this.wavesurfer.pause()
@@ -60,12 +97,13 @@ export default class AudioContent extends Component {
   }
 
   drawAudio = audio => {
-    this.props.setAudioLoadingStatus("rendering waveform...")
+    this.props.setAudioLoadingStatus("Rendering waveform...")
     this.wavesurfer = new WaveSurfer.create({
       container: '#waveform',
-      scrollParent: true
+      scrollParent: true,
+      plugins: [ Regions.create() ],
     })
-    this.wavesurfer.loadBlob(audio)
+    this.wavesurfer.load(URL.createObjectURL(audio)) // URL indirection here so that we can eventually prerender
     this.wavesurfer.on('ready', _ => {
       this.props.setAudioLoadingStatus(null)
       const width = document.body.clientWidth
@@ -74,6 +112,7 @@ export default class AudioContent extends Component {
       this.props.setAudioDuration(Math.ceil(this.wavesurfer.getDuration()))
       if (this.props.currentTime) this.wavesurfer.seekAndCenter(this.props.currentTime / duration)
       this.props.setContentDimensions(height,width)
+      this.setState({regions: [<WaveRegion wavesurfer={this.wavesurfer}/>]})
     });
     this.wavesurfer.on('scroll', e => { 
       if (Math.abs(this.lastLeft - e.target.scrollLeft) > 25) {
@@ -84,9 +123,28 @@ export default class AudioContent extends Component {
     })
   }
 
-  render() {
-    return <div id="audio-view">
-      <div ref={this.waveform} onscroll={this.handleScroll} id="waveform"></div>
+  render(props, state) {
+    return <div id="audio-view" ref={this.audioView} onPointerdown={this.handlePointerdown} onPointerup={this.handlePointerup}>
+      <div ref={this.waveform}  id="waveform"></div>
     </div>
+  }
+}
+
+class WaveRegion extends Component {
+
+  componentDidMount() {
+    console.log(this.props.start)
+    this.region = this.props.wavesurfer.addRegion({
+      start: this.props.start,
+      end: this.props.start + 5,
+    })
+  }
+
+  componentWillUnmount() {
+    this.region.remove()
+  }
+
+  render() { 
+    console.log("rendered")
   }
 }

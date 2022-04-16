@@ -1,7 +1,6 @@
 import { h, createRef, Fragment, Component } from 'preact';
 import './styles/pdfView.css'
 import * as PDFJS from "pdfjs-dist/webpack"
-import Client from './client.js'
 import Toast from "./toast.js"
 import History from './history.js'
 import Resource from "./utils/resource.js"
