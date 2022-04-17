@@ -1,6 +1,7 @@
 import { h, createRef, Fragment, Component } from 'preact';
 import Resource from './utils/resource.js'
 import Location from './utils/location.js'
+import History from './history.js'
 import WaveSurfer from 'wavesurfer.js'
 import Client from './client.js'
 import { UserColor } from './utils/colors.js'
@@ -39,8 +40,10 @@ export default class AudioContent extends Component {
   }
 
   clearSelection = _ => {
-    this.selection.remove()
-    this.selection = null
+    if (this.selection) {
+      this.selection.remove()
+      this.selection = null
+    }
   }
 
   handlePointerdown = e => {
@@ -119,6 +122,10 @@ export default class AudioContent extends Component {
       if (this.props.currentTime) this.wavesurfer.seekAndCenter(this.props.currentTime / duration)
       this.props.setContentDimensions(height,width)
     });
+    this.wavesurfer.on('seek', _ => {
+      const timeSec = Math.floor(this.wavesurfer.getCurrentTime())
+      History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/`)
+    });
     this.wavesurfer.on('scroll', e => { 
       if (Math.abs(this.lastLeft - e.target.scrollLeft) > 25) {
         this.wavesurfer.drawer.params.autoCenter = false;
@@ -135,7 +142,7 @@ export default class AudioContent extends Component {
       onPointerup={this.cancelPointer}
       onPointerout={this.cancelPointer}
     >
-      <div ref={this.waveform}  id="waveform"></div>
+      <div ref={this.waveform} id="waveform"></div>
     </div>
   }
 }

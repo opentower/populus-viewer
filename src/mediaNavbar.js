@@ -117,6 +117,10 @@ class Progress extends Component {
     this.props.content.current.wavesurfer.on("audioprocess", this.updateTime)
   }
 
+  componentWillUnmount() {
+    this.props.content.current.wavesurfer.off("audioprocess", this.updateTime)
+  }
+
   updateTime = _ => {
     if (this.updateLock) return
     this.updateLock = true
@@ -134,9 +138,9 @@ class Progress extends Component {
     const timeStamp = this.toTime(props.timeStamp)
     const timeTotal = this.toTime(props.total)
     return <div class="nav-position">
-      <span ref={this.timeCurrent} style={{width: `${timeStamp.length}ch`}} id="nav-time-elapsed">{this.toTime(props.timeStamp)}</span>
+      <span ref={this.timeCurrent} style={{width: `${timeStamp.length + .5 }ch`}} id="nav-time-elapsed">{this.toTime(props.timeStamp)}</span>
       <span>/</span>
-      <span ref={this.timeTotal} style={{width: `${timeTotal.length}ch`}} id="nav-time-total">{this.toTime(props.total)}</span>
+      <span ref={this.timeTotal} style={{width: `${timeTotal.length + .5}ch`}} id="nav-time-total">{this.toTime(props.total)}</span>
     </div>
   }
 }
