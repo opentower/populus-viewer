@@ -535,6 +535,7 @@ export default class ContentView extends Component {
             room={this.state.room}
             secondaryFocus={this.state.secondaryFocus}
             setFocus={this.setFocus}
+            unsetFocus={this.unsetFocus}
             focus={this.state.focus}
             setAudioDuration={this.setResourceLength}
             setContentDimensions={this.setContentDimensions}

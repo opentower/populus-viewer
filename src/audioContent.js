@@ -211,7 +211,13 @@ export default class AudioContent extends Component {
     if (this.props.secondaryFocus && this.filterAnnotations(this.props.secondaryFocus)) annotationData.push(this.props.secondaryFocus)
     // We add the focus back in if it's on the page but got screened out of filteredAnnotationContents
     if (this.props.focus && this.filterAnnotations(this.props.focus) && !didFocus) annotationData.push(this.props.focus)
-    const annotations = annotationData.map(loc => <WaveRegion setFocus={this.props.setFocus} wavesurfer={this.wavesurfer} key={loc.event.getId()} location={loc} />)
+    const annotations = annotationData.map(loc => <WaveRegion 
+      setFocus={this.props.setFocus}
+      wavesurfer={this.wavesurfer} 
+      key={loc.event.getId()}
+      focused={this.props.focus?.getChild() === loc.getChild()}
+      location={loc} 
+    />)
     return annotations
   }
 
@@ -222,7 +228,7 @@ export default class AudioContent extends Component {
       onPointerup={this.cancelPointer}
       onPointerout={this.cancelPointer}
     >
-      <div ref={this.waveform} id="waveform">
+      <div ref={this.waveform} data-annotations-focused={this.props.focus} id="waveform">
         {state.ready ? this.getAnnotations() : null}
       </div>
     </div>
@@ -244,7 +250,14 @@ class WaveRegion extends Component {
     this.region.on("click", this.setFocus)
   }
 
-  setFocus = _ => this.props.setFocus(this.props.location)
+  componentDidUpdate() {
+    if (this.props.focused) this.region.element.dataset.focused = true
+    else delete this.region.element.dataset.focused
+  }
+
+  setFocus = _ => {
+    this.props.setFocus(this.props.location)
+  }
 
   componentWillUnmount() {
     this.region.remove()
