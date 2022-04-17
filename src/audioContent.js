@@ -52,7 +52,7 @@ export default class AudioContent extends Component {
     } 
   }
 
-  handlePointerup = _ => clearTimeout(this.longPressTimeout)
+  cancelPointer = _ => clearTimeout(this.longPressTimeout)
 
   static Store = {}
 
@@ -124,7 +124,12 @@ export default class AudioContent extends Component {
   }
 
   render(props, state) {
-    return <div id="audio-view" ref={this.audioView} onPointerdown={this.handlePointerdown} onPointerup={this.handlePointerup}>
+    return <div id="audio-view" 
+      ref={this.audioView}
+      onPointerdown={this.handlePointerdown}
+      onPointerup={this.cancelPointer}
+      onPointerout={this.cancelPointer}
+    >
       <div ref={this.waveform}  id="waveform"></div>
     </div>
   }
