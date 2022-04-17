@@ -76,7 +76,7 @@ export default class DocumentNavbar extends Component {
             <button onclick={this.play}>{Icons.playButton}
             </button>
           </ToolTip>
-          <Progress resourceAlias={this.props.resourceAlias} timeStamp={this.props.timeStamp} content={this.props.content} total={props.total} />
+          <Progress resourceAlias={props.resourceAlias} timeStamp={props.timeStamp} content={props.content} total={props.total} />
           <ToolTip content="Pause" offset={this.toolTipOffset}>
             <button onclick={this.pause}>{Icons.pauseButton}
             </button>
@@ -115,10 +115,7 @@ export default class DocumentNavbar extends Component {
 class Progress extends Component {
   componentDidMount() {
     this.props.content.current.wavesurfer.on("audioprocess", this.updateTime)
-  }
-
-  componentWillUnmount() {
-    this.props.content.current.wavesurfer.off("audioprocess", this.updateTime)
+    // don't need to take off, wavesurfer is destroyed when view changes
   }
 
   updateTime = _ => {

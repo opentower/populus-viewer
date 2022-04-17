@@ -88,9 +88,11 @@ export default class PdfContent extends Component {
     this.props.setPindropMode(null)
   }
 
-  generateLocation = sel => {
-    if (this.mainPage.current.hasSelection()) return this.mainPage.current.generateLocation(sel)
-    if (this.secondaryPage?.current?.hasSelection()) return this.secondaryPage?.current?.generateLocation(sel)
+  generateLocation = _ => {
+    const theSelection = window.getSelection()
+    if (theSelection.isCollapsed) return
+    if (this.mainPage.current.hasSelection()) return this.mainPage.current.generateLocation(theSelection)
+    if (this.secondaryPage?.current?.hasSelection()) return this.secondaryPage?.current?.generateLocation(theSelection)
   }
 
   hasSelection = _ => {

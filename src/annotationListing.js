@@ -3,7 +3,7 @@ import './styles/annotationListing.css'
 import * as Matrix from "matrix-js-sdk"
 import { renderLatexInElement } from './latex.js'
 import { processLinks } from './links.js'
-import { spaceChild, populusHighlight, mscPdfHighlight, mscMarkupMsgKey } from "./constants.js"
+import { spaceChild, mscMarkupMsgKey } from "./constants.js"
 import Client from './client.js'
 import MemberPill from './memberPill.js'
 import { UserColor } from './utils/colors.js'
@@ -17,7 +17,7 @@ export default class AnnotationListing extends Component {
     super(props)
     this.state = {
       typing: {},
-      sort: "Page",
+      sort: "Activity",
       sortOrder: 1,
       searchFocus: false
     }
@@ -252,15 +252,18 @@ export default class AnnotationListing extends Component {
                       : Icons.sortAsc
                     }
                   </button>
-                  <button data-current-button={state.sort === "Page"}
-                          onClick={this.sortByPage}
-                          class="styled-button">Page</button>
                   <button data-current-button={state.sort === "Activity"}
-                          onClick={this.sortByActivity}
-                          class="styled-button">Activity</button>
+                    onClick={this.sortByActivity}
+                    class="styled-button">Activity</button>
                   <button data-current-button={state.sort === "Creation"}
-                          onClick={this.sortByCreation}
-                          class="styled-button">Creation</button>
+                    onClick={this.sortByCreation}
+                    class="styled-button">Creation</button>
+                  {props.mimetype === "application/pdf" 
+                    ? <button data-current-button={state.sort === "Page"}
+                        onClick={this.sortByPage}
+                        class="styled-button">Page</button>
+                    : null
+                  }
                 </div>
                   {Object.values(props.annotationContents).length === 0
                     ? <div class="empty-marker"><b>No annotations yet available</b></div>
@@ -344,15 +347,20 @@ class AnnotationListingEntry extends Component {
   render(props, state) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
     const focused = props.focus?.getChild() === props.annotationLocation.getChild()
+    const annotationType = props.annotationLocation.getType()
     return <div style={this.userColor.styleVariables}
       data-annotation-entry-typing={typing}
       data-annotation-entry-focused={focused}
       ref={this.entry}
       onclick={this.handleClick}
       class="annotation-listing-entry">
-      {props.annotationLocation.getType() === "text"
+      { annotationType === "text"
         ? <div class="annotation-listing-pin-icon">
             {Icons.pin} <span>on page {props.annotationLocation.getPageIndex()}</span>
+          </div>
+        : annotationType === "audio-interval"
+        ? <div class="annotation-listing-headphones-icon">
+            {Icons.headphones} <span>From {props.annotationLocation.getIntervalStart() / 1000} to {props.annotationLocation.getIntervalEnd() / 1000}</span>
           </div>
         : <div class="annotation-listing-topic">
             <span class="annotation-listing-topic-icon">{Icons.quote}</span>{state.topic}

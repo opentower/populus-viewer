@@ -327,8 +327,12 @@ export default class ContentView extends Component {
 
   openAnnotation = _ => {
     this.setState({ annotationsVisible: true })
-    if (this.state.pindropMode?.x) this.content.current.commitPin(this.state.pindropMode.x, this.state.pindropMode.y, this.state.pindropMode.page)
-    else this.content.current.commitHighlight()
+    if (this.state.mimetype === "application/pdf") {
+      if (this.state.pindropMode?.x) this.content.current.commitPin(this.state.pindropMode.x, this.state.pindropMode.y, this.state.pindropMode.page)
+      else this.content.current.commitHighlight()
+    } else if (this.state.mimetype?.match(/^audio/)) {
+      this.content.current.commitRegion()
+    }
   }
 
   closeAnnotation = _ => {
@@ -641,6 +645,7 @@ export default class ContentView extends Component {
               roomId={state.room?.roomId}
               class="panel-widget-2"
               focus={state.focus}
+              mimetype={state.mimetype}
               setAnnotationFilter={this.setAnnotationFilter}
               annotationFilter={state.annotationFilter}
               annotationContents={Object.assign({}, this.annotationParentEvents, this.annotationChildEvents)}

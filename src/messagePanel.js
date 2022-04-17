@@ -2,8 +2,7 @@ import * as Icons from "./icons.js"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
-import { spaceChild, spaceParent, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscPdfHighlight, populusHighlight } from "./constants.js"
-import { textFromPdfSelection } from './utils/selection.js'
+import { spaceChild, spaceParent, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscAudioInterval, mscPdfHighlight, populusHighlight } from "./constants.js"
 import { processRegex } from './processRegex.js'
 import { UserColor } from './utils/colors.js'
 import Client from './client.js'
@@ -80,11 +79,13 @@ export default class MessagePanel extends Component {
       }
       const highlightData = this.props.focus.location[mscPdfHighlight]
       const textData = this.props.focus.location[mscPdfText]
+      const audioIntervalData = this.props.focus.location[mscAudioInterval]
       const locationData = {
         // TODO should also set the content property of the msc highlight with fallback text
         [populusHighlight]: Object.assign(this.props.focus.location[populusHighlight], diff),
         ...(highlightData && {[mscPdfHighlight]: highlightData}),
-        ...(textData && {[mscPdfText]: textData})
+        ...(textData && {[mscPdfText]: textData}),
+        ...(audioIntervalData && {[mscAudioInterval]: audioIntervalData})
       }
       const newContent = { via: [theDomain], [mscLocation]: locationData }
       Client.client
@@ -97,9 +98,7 @@ export default class MessagePanel extends Component {
   }
 
   sendSelection = async _ => {
-    const theSelection = window.getSelection()
-    if (theSelection.isCollapsed) return
-    const locationData = this.props.generateLocation(theSelection)
+    const locationData = this.props.generateLocation()
     const theContent = {
       body: "created an annotation",
       msgtype: "m.emote",

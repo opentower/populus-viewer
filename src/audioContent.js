@@ -4,9 +4,12 @@ import Location from './utils/location.js'
 import History from './history.js'
 import WaveSurfer from 'wavesurfer.js'
 import Client from './client.js'
+import * as Matrix from "matrix-js-sdk"
 import { UserColor } from './utils/colors.js'
+import { onlineOrAlert } from "./utils/alerts.js"
 import Regions from 'wavesurfer.js/src/plugin/regions/'
 import './styles/audioContent.css'
+import { mscLocation, mscAudioInterval, populusHighlight, spaceChild, spaceParent } from "./constants.js"
 
 export default class AudioContent extends Component {
   constructor(props) {
@@ -37,6 +40,7 @@ export default class AudioContent extends Component {
       color,
       drag: false,
     })
+    document.dispatchEvent(new Event("selectionchange"))
   }
 
   clearSelection = _ => {
@@ -44,6 +48,64 @@ export default class AudioContent extends Component {
       this.selection.remove()
       this.selection = null
     }
+    document.dispatchEvent(new Event("selectionchange"))
+  }
+
+  generateLocation = _ => {
+    return {
+      [mscAudioInterval]: {
+        start: Math.floor(this.selection.start * 1000),
+        end: Math.floor(this.selection.end * 1000)
+      },
+      [populusHighlight]: {
+        activityStatus: "pending",
+        creator: Client.client.getUserId()
+      }
+    }
+  }
+
+  commitRegion = _ => {
+    if (!onlineOrAlert()) return
+    const theDomain = Client.client.getDomain()
+    const theRoomState = this.props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const theLevels = theRoomState.getStateEvents("m.room.power_levels")
+    const locationData = this.generateLocation()
+    // TODO: we should set room_alias_name and name, in a useful way based on the selection
+    return Client.client.createRoom({
+      visibility: "public",
+      name: `highlighted interval from ${this.selection.start} to ${this.selection.end}`,
+      power_level_content_override: {
+        users: Object.assign({}, theLevels[0].getContent().users, {
+          [Client.client.getUserId()]: 100
+        })
+      },
+      initial_state: [{
+        type: "m.room.join_rules",
+        state_key: "",
+        content: {join_rule: "public"}
+      },
+      {
+        type: spaceParent, // we indicate that the current room is the parent
+        content: { via: [theDomain], [mscLocation]: locationData },
+        state_key: this.props.room.roomId
+      }
+      ]
+    }).then(roominfo => {
+      // set child event in pdfRoom State
+      this.clearSelection()
+      const childContent = { via: [theDomain], [mscLocation]: locationData }
+      // We focus on a new fake placeholder event to potentially insert the highlight immediately
+      const fakeEvent = new Matrix.MatrixEvent({
+        type: "m.space.child",
+        origin_server_ts: new Date().getTime(),
+        room_id: this.props.room.roomId,
+        sender: Client.client.getUserId(),
+        state_key: roominfo.room_id,
+        content: childContent
+      })
+      Client.client.sendStateEvent(this.props.room.roomId, spaceChild, childContent, roominfo.room_id)
+      return fakeEvent
+    })
   }
 
   handlePointerdown = e => {
