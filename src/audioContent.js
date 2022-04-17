@@ -30,7 +30,12 @@ export default class AudioContent extends Component {
   createSelection = (start, end) => {
     const userId = Client.client.getUserId()
     const color = new UserColor(userId).solid
-    this.selection = this.wavesurfer.addRegion({ start, end, color })
+    this.selection = this.wavesurfer.addRegion({ 
+      start, 
+      end, 
+      color,
+      drag: false,
+    })
   }
 
   clearSelection = _ => {
@@ -41,6 +46,7 @@ export default class AudioContent extends Component {
   handlePointerdown = e => {
     if (["WAVE","REGION","HANDLE"].includes(e.target.tagName)) {
       if (this.selection) return // do nothing if there's already a selection
+      clearTimeout(this.longPressTimeout)
       const percentAcross = (e.clientX + e.target.scrollLeft) / e.target.scrollWidth
       this.longPressTimeout = setTimeout(_ => {
         this.wavesurfer.seekTo(percentAcross)
@@ -112,7 +118,6 @@ export default class AudioContent extends Component {
       this.props.setAudioDuration(Math.ceil(this.wavesurfer.getDuration()))
       if (this.props.currentTime) this.wavesurfer.seekAndCenter(this.props.currentTime / duration)
       this.props.setContentDimensions(height,width)
-      this.setState({regions: [<WaveRegion wavesurfer={this.wavesurfer}/>]})
     });
     this.wavesurfer.on('scroll', e => { 
       if (Math.abs(this.lastLeft - e.target.scrollLeft) > 25) {
