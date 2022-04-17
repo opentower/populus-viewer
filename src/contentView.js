@@ -533,6 +533,8 @@ export default class ContentView extends Component {
             resourceAlias={this.props.resourceAlias}
             currentTime={this.getPosition()}
             room={this.state.room}
+            secondaryFocus={this.state.secondaryFocus}
+            setFocus={this.setFocus}
             focus={this.state.focus}
             setAudioDuration={this.setResourceLength}
             setContentDimensions={this.setContentDimensions}

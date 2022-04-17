@@ -36,15 +36,7 @@ export default class AnnotationLayer extends Component {
     }
   }
 
-  filterAnnotations (loc) {
-    return (
-      loc.isValid() &&
-      loc.getPageIndex() === parseInt(this.props.pageFocused, 10) &&
-      ( loc.getStatus() !== "pending" ||
-        (loc.getStatus() === "pending" && loc.getCreator() === Client.client.getUserId())
-      )
-    )
-  }
+  filterAnnotations  = loc => loc.getPageIndex() === parseInt(this.props.pageFocused, 10)
 
   getAnnotations() {
     const theRoom = Client.client.getRoom(this.props.roomId)

@@ -183,6 +183,7 @@ export default class AudioContent extends Component {
       this.props.setAudioDuration(Math.ceil(this.wavesurfer.getDuration()))
       if (this.props.currentTime) this.wavesurfer.seekAndCenter(this.props.currentTime / duration)
       this.props.setContentDimensions(height,width)
+      this.setState({ready: true})
     });
     this.wavesurfer.on('seek', _ => {
       const timeSec = Math.floor(this.wavesurfer.getCurrentTime())
@@ -197,6 +198,23 @@ export default class AudioContent extends Component {
     })
   }
 
+  filterAnnotations = loc => loc.getType() === "audio-interval"
+
+  getAnnotations() {
+    let didFocus = false
+    const annotationData = this.props.filteredAnnotationContents
+      .filter(loc => {
+        if (loc.getChild() === this.props.focus?.getChild()) didFocus = true
+        return this.filterAnnotations(loc)
+      })
+    // We add the secondary focus
+    if (this.props.secondaryFocus && this.filterAnnotations(this.props.secondaryFocus)) annotationData.push(this.props.secondaryFocus)
+    // We add the focus back in if it's on the page but got screened out of filteredAnnotationContents
+    if (this.props.focus && this.filterAnnotations(this.props.focus) && !didFocus) annotationData.push(this.props.focus)
+    const annotations = annotationData.map(loc => <WaveRegion setFocus={this.props.setFocus} wavesurfer={this.wavesurfer} key={loc.event.getId()} location={loc} />)
+    return annotations
+  }
+
   render(props, state) {
     return <div id="audio-view" 
       ref={this.audioView}
@@ -204,7 +222,9 @@ export default class AudioContent extends Component {
       onPointerup={this.cancelPointer}
       onPointerout={this.cancelPointer}
     >
-      <div ref={this.waveform} id="waveform"></div>
+      <div ref={this.waveform} id="waveform">
+        {state.ready ? this.getAnnotations() : null}
+      </div>
     </div>
   }
 }
@@ -212,18 +232,23 @@ export default class AudioContent extends Component {
 class WaveRegion extends Component {
 
   componentDidMount() {
-    console.log(this.props.start)
+    const color = new UserColor(this.props.location.getCreator()).solid
     this.region = this.props.wavesurfer.addRegion({
-      start: this.props.start,
-      end: this.props.start + 5,
+      start: this.props.location.getIntervalStart() / 1000,
+      end: this.props.location.getIntervalEnd() / 1000,
+      drag:false,
+      resize:false,
+      id: this.props.location.event.getId(),
+      color
     })
+    this.region.on("click", this.setFocus)
   }
+
+  setFocus = _ => this.props.setFocus(this.props.location)
 
   componentWillUnmount() {
     this.region.remove()
   }
 
-  render() { 
-    console.log("rendered")
-  }
+  render() { }
 }
