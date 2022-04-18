@@ -34,6 +34,7 @@ export default class AudioContent extends Component {
   createSelection = (start, end) => {
     const userId = Client.client.getUserId()
     const color = new UserColor(userId).solid
+    this.clearSelection()
     this.pause()
     this.selection = this.wavesurfer.addRegion({ 
       start, 
@@ -111,7 +112,6 @@ export default class AudioContent extends Component {
 
   handlePointerdown = e => {
     if (["WAVE","REGION","HANDLE"].includes(e.target.tagName)) {
-      if (this.selection) return // do nothing if there's already a selection
       clearTimeout(this.longPressTimeout)
       const percentAcross = (e.clientX + e.target.scrollLeft) / e.target.scrollWidth
       this.longPressTimeout = setTimeout(_ => {
