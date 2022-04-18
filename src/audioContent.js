@@ -171,10 +171,16 @@ export default class AudioContent extends Component {
     this.props.setAudioLoadingStatus("Rendering waveform...")
     this.wavesurfer = new WaveSurfer.create({
       container: '#waveform',
+      backend: 'MediaElement',
+      barWidth: 5,
       scrollParent: true,
       plugins: [ Regions.create() ],
     })
-    this.wavesurfer.load(URL.createObjectURL(audio)) // URL indirection here so that we can eventually prerender
+    this.pcm = []
+    for (let i = 0; i < 2048; i++) {
+      this.pcm.push((Math.random() * 2) - 1)
+    }
+    this.wavesurfer.load(URL.createObjectURL(audio), this.pcm) // URL indirection here so that we can eventually prerender
     this.wavesurfer.on('ready', _ => {
       this.props.setAudioLoadingStatus(null)
       const width = document.body.clientWidth
@@ -186,8 +192,10 @@ export default class AudioContent extends Component {
       this.setState({ready: true})
     });
     this.wavesurfer.on('seek', _ => {
-      const timeSec = Math.floor(this.wavesurfer.getCurrentTime())
-      History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/`)
+      if (this.state.ready) {
+        const timeSec = Math.floor(this.wavesurfer.getCurrentTime())
+        History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/`)
+      }
     });
     this.wavesurfer.on('scroll', e => { 
       if (Math.abs(this.lastLeft - e.target.scrollLeft) > 25) {
