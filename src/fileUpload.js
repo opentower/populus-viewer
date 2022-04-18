@@ -95,6 +95,7 @@ export default class FileUpload extends Component {
     const theAlias = this.state.alias.length > 0 ? this.state.alias : this.toAlias(this.state.name)
     const theTopic = this.roomTopicInput.current.value
     const mxc = await Client.client.uploadContent(theFile, { progressHandler: this.progressHandler })
+      .catch(alert)
     this.submitButton.current.setAttribute("disabled", true)
     const { room_id } = await Client.client.createRoom({
       room_alias_name: theAlias,
@@ -127,7 +128,7 @@ export default class FileUpload extends Component {
           [spaceChild]: 0
         }
       }
-    }).catch(e => { alert(e); })
+    }).catch(alert)
     // make sure we've got the room before returning to the main view
     await Client.client.getRoomWithState(room_id)
     this.mainForm.current.reset()
@@ -138,7 +139,7 @@ export default class FileUpload extends Component {
     return <div id="file-upload">
       <h2> Upload a new file</h2>
       <form id="file-upload-form" ref={this.mainForm} onsubmit={this.uploadFile}>
-        <label for="file"> file to discuss</label>
+        <label for="file"> File to Discuss</label>
         <input name="file"
           oninput={this.validateFile}
           ref={this.fileLoader}

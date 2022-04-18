@@ -238,12 +238,13 @@ class RoomEntry extends Component {
     const canInvite = props.room.getLiveTimeline()
       .getState(Matrix.EventTimeline.FORWARDS)
       .hasSufficientPowerLevelFor("invite", userMember.powerLevel)
-    return <div style={this.roomColor.styleVariables} class="room-listing-entry" id={props.room.roomId}>
+    const canonicalAlias = props.room.getCanonicalAlias()?.slice(1)
+    if (canonicalAlias) return <div style={this.roomColor.styleVariables} class="room-listing-entry" id={props.room.roomId}>
       <AvatarPanel getLastViewedPage={this.getLastViewedPage} room={props.room} />
       <div data-room-entry-buttons-visible={state.buttonsVisible} class="room-listing-body">
         <div class="room-listing-heading">
           {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
-          <a href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.room.getCanonicalAlias().slice(1))}/${this.getLastViewedPage()}`}>{props.room.name}</a>
+          <a href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(canonicalAlias)}/${this.getLastViewedPage()}`}>{props.room.name}</a>
         </div>
         <div class="room-listing-data">
           <RoomTagListing room={props.room} />
@@ -410,8 +411,9 @@ class AnnotationData extends Component {
   }
 
   handleLoadNew = _ => {
-    History.push(
-      `/${encodeURIComponent(this.props.room.getCanonicalAlias().slice(1))}/${this.props.getLastViewedPage() || 1}/`,
+    const canonicalAlias = this.props.room.getCanonicalAlias()?.slice(1)
+    if (canonicalAlias) History.push(
+      `/${encodeURIComponent(canonicalAlias)}/${this.props.getLastViewedPage() || 1}/`,
       {searchString: "~unread"}
     )
   }
