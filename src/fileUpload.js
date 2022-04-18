@@ -62,18 +62,18 @@ export default class FileUpload extends Component {
     }, 1000)
   }
 
-  validatePdf = _ => {
+  validateFile = _ => {
     const theFile = this.fileLoader.current.files[0]
     let fileValid = false
     switch (theFile.type) {
       case "application/pdf" : fileValid = true
-      case "audio/wav"  : fileValid = true
-      case "audio/mpeg"  : fileValid = true
-      case "audio/mp4"  : fileValid = true
+      case "audio/wav"    : fileValid = true
+      case "audio/mpeg"   : fileValid = true
+      case "audio/mp4"    : fileValid = true
       case "audio/x-m4a"  : fileValid = true
-      case "audio/aac"  : fileValid = true
-      case "audio/aacp" : fileValid = true
-      case "audio/flac" : fileValid = true
+      case "audio/aac"    : fileValid = true
+      case "audio/aacp"   : fileValid = true
+      case "audio/flac"   : fileValid = true
     }
     this.setState({fileValid})
     if (!fileValid) {
@@ -140,7 +140,7 @@ export default class FileUpload extends Component {
       <form id="file-upload-form" ref={this.mainForm} onsubmit={this.uploadFile}>
         <label for="file"> file to discuss</label>
         <input name="file"
-          oninput={this.validatePdf}
+          oninput={this.validateFile}
           ref={this.fileLoader}
           accept="application/pdf, audio/wav, audio/mpeg, audio/x-m4a, audio/mp4, audio/aac, audio/aacp, audio/flac"
           type="file"
