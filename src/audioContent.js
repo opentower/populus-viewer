@@ -34,6 +34,7 @@ export default class AudioContent extends Component {
   createSelection = (start, end) => {
     const userId = Client.client.getUserId()
     const color = new UserColor(userId).solid
+    this.pause()
     this.selection = this.wavesurfer.addRegion({ 
       start, 
       end, 
@@ -200,6 +201,7 @@ export default class AudioContent extends Component {
     this.wavesurfer.on('scroll', e => { 
       if (Math.abs(this.lastLeft - e.target.scrollLeft) > 25) {
         this.wavesurfer.drawer.params.autoCenter = false;
+        this.cancelPointer()
       } else {
         this.lastLeft = e.target.scrollLeft
       }
