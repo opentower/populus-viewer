@@ -14,6 +14,10 @@ html[data-scrollbars="hidden"] wave::-webkit-scrollbar { display: none; }
   transition: opacity 0.25s ease;
 }
 
+.wavesurfer-handle {
+  width:10px !important;
+}
+
 #waveform[data-annotations-focused] .wavesurfer-region {
   opacity: 0.1;
 }
