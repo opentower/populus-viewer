@@ -27,6 +27,13 @@ export default class AudioContent extends Component {
 
   componentWillUnmount() { this.wavesurfer.destroy() }
 
+  componentDidUpdate(prev) {
+    if (this.props.focus !== prev.focus ) {
+      const duration = this.wavesurfer.getDuration()
+      this.wavesurfer.seekAndCenter(this.props.focus.getIntervalStart() / (duration * 1000))
+    }
+  }
+
   hasSelection() { return !!this.selection }
 
   audioView = createRef()
@@ -267,8 +274,11 @@ class WaveRegion extends Component {
     else delete this.region.element.dataset.focused
   }
 
-  setFocus = _ => {
-    this.props.setFocus(this.props.location)
+  setFocus = e => {
+    if (!this.props.focused) {
+      e.stopPropagation() //prevent a secondary seek
+      this.props.setFocus(this.props.location)
+    }
   }
 
   componentWillUnmount() {

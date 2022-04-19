@@ -306,7 +306,6 @@ export default class ContentView extends Component {
   handleRouteChange = _ => {
     // sets the last viewed page for later retrieval
     if (!this.props.resourcePosition || !this.props.resourceAlias || !this.state.room?.roomId) return
-    if (!this.state.mimetype === "application/pdf") return
     Client.client.setRoomAccountData(this.state.room.roomId, lastViewed, {
       deviceId: Client.deviceId,
       ...(parseInt(this.props.resourcePosition, 10) && { page: this.props.resourcePosition})
