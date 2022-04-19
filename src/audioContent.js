@@ -106,7 +106,8 @@ export default class AudioContent extends Component {
         content: childContent
       })
       Client.client.sendStateEvent(this.props.room.roomId, spaceChild, childContent, roominfo.room_id)
-      return fakeEvent
+      this.props.setFocus(new Location(fakeEvent))
+      this.props.showChat()
     })
   }
 
@@ -222,12 +223,12 @@ export default class AudioContent extends Component {
     // We add the focus back in if it's on the page but got screened out of filteredAnnotationContents
     if (this.props.focus && this.filterAnnotations(this.props.focus) && !didFocus) annotationData.push(this.props.focus)
     const annotations = annotationData.map(loc => <WaveRegion 
-      setFocus={this.props.setFocus}
-      wavesurfer={this.wavesurfer} 
-      key={loc.event.getId()}
-      focused={this.props.focus?.getChild() === loc.getChild()}
-      location={loc} 
-    />)
+        setFocus={this.props.setFocus}
+        wavesurfer={this.wavesurfer} 
+        key={loc.event.getId()}
+        focused={this.props.focus?.getChild() === loc.getChild()}
+        location={loc} 
+      />)
     return annotations
   }
 
@@ -257,6 +258,7 @@ class WaveRegion extends Component {
       id: this.props.location.event.getId(),
       color
     })
+    if (this.props.focused) this.region.element.dataset.focused = true
     this.region.on("click", this.setFocus)
   }
 

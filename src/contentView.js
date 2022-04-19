@@ -354,8 +354,9 @@ export default class ContentView extends Component {
               <div>Annotation still visible to creator</div>
               <div style="margin-top:10px">
                 Because you're not a moderator for that annotation you just
-                deleted, it will remain visible to its creator and members,
-                although it won't be visible to other viewers of this PDF.
+                removed, it has been detatched but not deleted: it will remain
+                visible to its creator and members, although it won't be
+                visible to other viewers of this resource.
               </div>
             </Fragment>)
             break
@@ -537,6 +538,7 @@ export default class ContentView extends Component {
             setFocus={this.setFocus}
             unsetFocus={this.unsetFocus}
             focus={this.state.focus}
+            showChat={this.showChat}
             setAudioDuration={this.setResourceLength}
             setContentDimensions={this.setContentDimensions}
             setAudioLoadingStatus={this.setLoadingStatus}
