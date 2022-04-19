@@ -28,9 +28,12 @@ export default class AudioContent extends Component {
   componentWillUnmount() { this.wavesurfer.destroy() }
 
   componentDidUpdate(prev) {
-    if (this.props.focus !== prev.focus ) {
-      const duration = this.wavesurfer.getDuration()
-      this.wavesurfer.seekAndCenter(this.props.focus.getIntervalStart() / (duration * 1000))
+    if (this.state.ready) {
+      if (this.props.focus?.getChild() !== prev.focus?.getChild() ) {
+        // focusing new annotation: jump to that 
+        const duration = this.wavesurfer.getDuration()
+        this.wavesurfer.seekAndCenter(this.props.focus.getIntervalStart() / (duration * 1000))
+      }
     }
   }
 
@@ -196,14 +199,16 @@ export default class AudioContent extends Component {
       const height = document.body.clientHeight
       const duration = Math.ceil(this.wavesurfer.getDuration())
       this.props.setAudioDuration(Math.ceil(this.wavesurfer.getDuration()))
-      if (this.props.currentTime) this.wavesurfer.seekAndCenter(this.props.currentTime / duration)
+      if (this.props.timeStamp) this.wavesurfer.seekAndCenter(this.props.timeStamp / duration)
       this.props.setContentDimensions(height,width)
       this.setState({ready: true})
     });
     this.wavesurfer.on('seek', _ => {
       if (this.state.ready) {
         const timeSec = Math.floor(this.wavesurfer.getCurrentTime())
-        History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/`)
+        const focus = this.props.roomFocused
+        if (focus) History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/${focus}`)
+        else History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/`)
       }
     });
     this.wavesurfer.on('scroll', e => { 

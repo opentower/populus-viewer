@@ -76,7 +76,13 @@ export default class DocumentNavbar extends Component {
             <button onclick={this.play}>{Icons.playButton}
             </button>
           </ToolTip>
-          <Progress resourceAlias={props.resourceAlias} timeStamp={props.timeStamp} content={props.content} total={props.total} />
+          <Progress 
+            resourceAlias={props.resourceAlias}
+            timeStamp={props.timeStamp}
+            content={props.content}
+            total={props.total} 
+            roomFocused={props.roomFocused}
+          />
           <ToolTip content="Pause" offset={this.toolTipOffset}>
             <button onclick={this.pause}>{Icons.pauseButton}
             </button>
@@ -122,7 +128,9 @@ class Progress extends Component {
     if (this.updateLock) return
     this.updateLock = true
     const timeSec = Math.floor(this.props.content.current.wavesurfer.getCurrentTime())
-    History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/`)
+    const focus = this.props.roomFocused
+    if (focus) History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/${focus}`)
+    else History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/`)
     setTimeout(_ => this.updateLock = false, 1000)
   }
 

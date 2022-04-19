@@ -531,8 +531,9 @@ export default class ContentView extends Component {
             filteredAnnotationContents={this.state.filteredAnnotationContents}
             ref={this.content}
             resourceAlias={this.props.resourceAlias}
-            currentTime={this.getPosition()}
+            timeStamp={this.getPosition()}
             room={this.state.room}
+            roomFocused={this.props.roomFocused}
             secondaryFocus={this.state.secondaryFocus}
             setFocus={this.setFocus}
             unsetFocus={this.unsetFocus}
@@ -578,6 +579,7 @@ export default class ContentView extends Component {
         focus={this.state.focus}
         roomId={this.state.room?.roomId}
         room={this.state.room}
+        roomFocused={this.props.roomFocused}
         content={this.content}
         contentContainer={this.contentContainer}
         contentWidthPx={this.state.contentWidthPx}
