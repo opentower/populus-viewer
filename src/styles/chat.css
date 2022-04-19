@@ -25,6 +25,7 @@
   color:#565656;
 }
 
+#anchor-audio,
 #anchor-pin {
   padding:5px;
   display:flex;
@@ -32,6 +33,7 @@
   align-items:center;
 }
 
+#anchor-audio svg,
 #anchor-pin svg {
   height: 1em;
 }

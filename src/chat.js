@@ -293,18 +293,18 @@ class RedactedMessage extends Component {
 function Anchor(props) {
   return props.fullyScrolled
     ? <div>
-      <div id="anchor-quote">
-        {props.topic
-          ? <Fragment>
-            <span>{Icons.quote}</span>
-            {props.topic}
-          </Fragment>
-          : null
-        }
-      </div>
-      { props.focus.getType() === "text"
+      { props.focus.getType() === "highlight" && props.topic 
+        ? <div id="anchor-quote">
+          <span>{Icons.quote}</span>
+          {props.topic}
+        </div>
+        : props.focus.getType() === "text"
         ? <div id="anchor-pin">
             {Icons.pin} <span>on page {props.focus.getPageIndex()}</span>
+          </div>
+        : props.focus.getType() === "audio-interval"
+        ? <div id="anchor-audio">
+            {Icons.headphones} <span>from {props.focus.getIntervalStart() / 1000} to {props.focus.getIntervalEnd() / 1000}</span>
           </div>
         : null
       }
