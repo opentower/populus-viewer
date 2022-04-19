@@ -160,7 +160,8 @@ export default class DocumentNavbar extends Component {
           </ToolTip>
           <form class="nav-position" onSubmit={this.handleSubmit}>
             <ToolTip content="Show page navigation" offset={this.toolTipOffset}>
-              <button class={state.pageViewVisible ? "nav-toggled" : null}
+              <button type="button"
+                class={state.pageViewVisible ? "nav-toggled" : null}
                 onclick={this.togglePageNav}>{Icons.page}
               </button>
             </ToolTip>
