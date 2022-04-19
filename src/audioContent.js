@@ -29,7 +29,7 @@ export default class AudioContent extends Component {
 
   componentDidUpdate(prev) {
     if (this.state.ready) {
-      if (this.props.focus?.getChild() !== prev.focus?.getChild() ) {
+      if (this.props.focus && this.props.focus?.getChild() !== prev.focus?.getChild() ) {
         // focusing new annotation: jump to that 
         const duration = this.wavesurfer.getDuration()
         this.wavesurfer.seekAndCenter(this.props.focus.getIntervalStart() / (duration * 1000))
