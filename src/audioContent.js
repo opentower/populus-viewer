@@ -22,6 +22,9 @@ export default class AudioContent extends Component {
       this.resolveFetch = resolve
       this.rejectFetch = reject
     })
+    // inertia for keyboard selection
+    this.rightInertia = 1
+    this.leftInertia = 1
   }
 
   componentDidMount() { this.fetchAudio() }
@@ -157,6 +160,57 @@ export default class AudioContent extends Component {
 
   pause = _ => this.wavesurfer.pause()
 
+  playPause = _ => {
+    if (this.wavesurfer.isPlaying()) this.pause()
+    else this.play()
+  }
+
+  scrubRight = _ => {
+    clearTimeout(this.inertiaTimeout)
+    this.wavesurfer.skip(1 * this.rightInertia)
+    this.leftInertia = 1
+    this.rightInertia += .1
+    this.inertiaTimeout = setTimeout(this.resetInertia, 500)
+  }
+
+  scrubLeft = _ => {
+    clearTimeout(this.inertiaTimeout)
+    this.wavesurfer.skip(-1 * this.leftInertia)
+    this.rightInertia = 1
+    this.leftInertia += .1
+    this.inertiaTimeout = setTimeout(this.resetInertia, 500)
+  }
+
+  resetInertia = _ => {
+    this.leftInertia = 1
+    this.rightInertia = 1
+  }
+
+  selRight = _ => {
+    if (this.selection) {
+      clearTimeout(this.inertiaTimeout)
+      this.selection.onResize(.2 * this.rightInertia) 
+      this.wavesurfer.seekAndCenter(this.selection.end / this.wavesurfer.getDuration())
+      this.leftInertia = 1
+      this.rightInertia += .1
+      this.inertiaTimeout = setTimeout(this.resetInertia, 500)
+    }
+    else this.scrubRight()
+  }
+
+  selLeft = _ => {
+    if (this.selection) {
+      clearTimeout(this.inertiaTimeout)
+      this.selection.onResize(-.2 * this.leftInertia) 
+      this.wavesurfer.seekAndCenter(this.selection.end / this.wavesurfer.getDuration())
+      this.rightInertia = 1
+      this.leftInertia += .1
+      this.inertiaTimeout = setTimeout(this.resetInertia, 500)
+    }
+    else this.scrubLeft()
+  }
+
+
   async fetchAudio () {
     const theAudio = new Resource(this.props.room)
     if (!AudioContent.Store[theAudio.url]) {
@@ -205,10 +259,13 @@ export default class AudioContent extends Component {
     });
     this.wavesurfer.on('seek', _ => {
       if (this.state.ready) {
-        const timeSec = Math.floor(this.wavesurfer.getCurrentTime())
-        const focus = this.props.roomFocused
-        if (focus) History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/${focus}`)
-        else History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/`)
+        clearTimeout(this.seekTimeout)
+        this.seekTimeout = setTimeout(_ => {
+          const timeSec = Math.floor(this.wavesurfer.getCurrentTime())
+          const focus = this.props.roomFocused
+          if (focus) History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/${focus}`)
+          else History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/`)
+        }, 250)
       }
     });
     this.wavesurfer.on('scroll', e => { 

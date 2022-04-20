@@ -21,7 +21,13 @@ export default class DocumentNavbar extends Component {
     document.removeEventListener('keydown', this.handleKeydown)
   }
 
-  handleKeydown = e => { }
+  handleKeydown = e => {
+    if (e.key === 'j') this.props.content.current.scrubRight()
+    if (e.key === 'k') this.props.content.current.scrubLeft()
+    if (e.key === "ArrowRight") this.props.content.current.selRight()
+    if (e.key === "ArrowLeft") this.props.content.current.selLeft()
+    if (e.key === ' ' || e.key === "Spacebar") this.props.content.current.playPause()
+  }
 
   timeCurrent = createRef()
 
