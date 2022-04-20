@@ -4,6 +4,7 @@ import Location from './utils/location.js'
 import History from './history.js'
 import WaveSurfer from 'wavesurfer.js'
 import Client from './client.js'
+import { mulberry32, hashString } from './utils/math.js'
 import * as Matrix from "matrix-js-sdk"
 import { UserColor } from './utils/colors.js'
 import { onlineOrAlert } from "./utils/alerts.js"
@@ -189,9 +190,8 @@ export default class AudioContent extends Component {
       plugins: [ Regions.create() ],
     })
     this.pcm = []
-    for (let i = 0; i < 2048; i++) {
-      this.pcm.push((Math.random() * 2) - 1)
-    }
+    const prng = mulberry32(hashString(this.props.resourceAlias))
+    for (let i = 0; i < 2048; i++) this.pcm.push((prng() * 2) - 1)
     this.wavesurfer.load(URL.createObjectURL(audio), this.pcm) // URL indirection here so that we can eventually prerender
     this.wavesurfer.on('ready', _ => {
       this.props.setAudioLoadingStatus(null)

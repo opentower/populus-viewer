@@ -1,12 +1,8 @@
+import { hashString } from './math.js'
+
 function generateColor (username) {
   if (UserColor[username]) return UserColor[username] // memoize
-  let hash = 0
-  if (username.length === 0) return hash
-  for (let i = 0; i < username.length; i++) {
-    const chr = username.charCodeAt(i);
-    hash = ((hash << 5) - hash) + chr;
-    hash |= 0; // Convert to 32bit integer
-  }
+  const hash = hashString(username)
   UserColor[username] = hash % 360
   return UserColor[username]
 }
