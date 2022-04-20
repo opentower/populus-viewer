@@ -7,6 +7,7 @@ import { spaceChild, mscMarkupMsgKey } from "./constants.js"
 import Client from './client.js'
 import MemberPill from './memberPill.js'
 import { UserColor } from './utils/colors.js'
+import { toClockTime } from './utils/temporal.js'
 import SearchBar from './search.js'
 import { DisplayContent } from './message.js'
 import * as Icons from './icons.js'
@@ -360,7 +361,7 @@ class AnnotationListingEntry extends Component {
           </div>
         : annotationType === "audio-interval"
         ? <div class="annotation-listing-headphones-icon">
-            {Icons.headphones} <span>From {props.annotationLocation.getIntervalStart() / 1000} to {props.annotationLocation.getIntervalEnd() / 1000}</span>
+            {Icons.headphones} <span>From {toClockTime(props.annotationLocation.getIntervalStart() / 1000)} to {toClockTime(props.annotationLocation.getIntervalEnd() / 1000)}</span>
           </div>
         : <div class="annotation-listing-topic">
             <span class="annotation-listing-topic-icon">{Icons.quote}</span>{state.topic}

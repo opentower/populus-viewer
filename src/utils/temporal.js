@@ -39,3 +39,9 @@ export function dateReducer(array, milestone, mile) {
     return accumulator
   }, [])
 }
+
+export function toClockTime(sec) {
+  if (sec >= 3600) return `${Math.floor(sec / 3600)}:${Math.floor((sec % 3600) / 60)}:${Math.floor(sec % 60)}`
+  return `${Math.floor(sec / 60)}:${sec % 60 <= 9 ? 0 : ""}${Math.floor(sec % 60)}` 
+}
+

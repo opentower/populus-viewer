@@ -4,6 +4,7 @@ import * as Matrix from "matrix-js-sdk"
 import { TextMessage, AnnotationMessage, EmoteMessage, NoticeMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } from './message.js'
 import MessagePanel from './messagePanel.js'
 import { UserColor } from './utils/colors.js'
+import { toClockTime } from './utils/temporal.js'
 import { mscMarkupMsgKey } from './constants.js'
 import UserInfoHeader from './userInfoHeader.js'
 import Client from './client.js'
@@ -304,7 +305,7 @@ function Anchor(props) {
           </div>
         : props.focus.getType() === "audio-interval"
         ? <div id="anchor-audio">
-            {Icons.headphones} <span>from {props.focus.getIntervalStart() / 1000} to {props.focus.getIntervalEnd() / 1000}</span>
+            {Icons.headphones} <span>from {toClockTime(props.focus.getIntervalStart() / 1000)} to {toClockTime(props.focus.getIntervalEnd() / 1000)}</span>
           </div>
         : null
       }

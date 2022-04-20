@@ -4,7 +4,7 @@ import { UserColor } from './utils/colors.js'
 import { TextMessage } from './message.js'
 import { spaceParent, spaceChild, mscResourceData } from "./constants.js"
 import { isUnread } from './utils/unread.js'
-import { dateReducer } from './utils/dates.js'
+import { dateReducer } from './utils/temporal.js'
 import Location from './utils/location.js'
 import './styles/notifications.css'
 import Client from './client.js'

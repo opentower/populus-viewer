@@ -1,14 +1,10 @@
 import { h, createRef, Component } from 'preact';
 import * as Icons from './icons.js';
-import * as Matrix from "matrix-js-sdk"
-import Location from "./utils/location.js"
 import ToolTip from "./utils/tooltip.js"
-import { UserColor } from "./utils/colors.js"
 import './styles/navbar.css';
-import { spaceChild } from "./constants.js"
 import History from './history.js'
 import Resource from "./utils/resource.js"
-import Client from './client.js'
+import { toClockTime } from "./utils/temporal.js"
 import Modal from './modal.js'
 import Invite from './invite.js'
 
@@ -134,18 +130,13 @@ class Progress extends Component {
     setTimeout(_ => this.updateLock = false, 1000)
   }
 
-  toTime(sec) {
-    if (sec >= 3600) return `${Math.floor(sec / 3600)}:${Math.floor((sec % 3600) / 60)}:${sec % 60}`
-    return `${Math.floor(sec / 60)}:${sec % 60 <= 9 ? 0 : ""}${sec % 60}` 
-  }
-
   render(props) {
-    const timeStamp = this.toTime(props.timeStamp)
-    const timeTotal = this.toTime(props.total)
+    const timeStamp = toClockTime(props.timeStamp)
+    const timeTotal = toClockTime(props.total)
     return <div class="nav-position">
-      <span ref={this.timeCurrent} style={{width: `${timeStamp.length + .5 }ch`}} id="nav-time-elapsed">{this.toTime(props.timeStamp)}</span>
+      <span ref={this.timeCurrent} style={{width: `${timeStamp.length + .5 }ch`}} id="nav-time-elapsed">{timeStamp}</span>
       <span>/</span>
-      <span ref={this.timeTotal} style={{width: `${timeTotal.length + .5}ch`}} id="nav-time-total">{this.toTime(props.total)}</span>
+      <span ref={this.timeTotal} style={{width: `${timeTotal.length + .5}ch`}} id="nav-time-total">{timeTotal}</span>
     </div>
   }
 }
