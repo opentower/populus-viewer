@@ -77,7 +77,7 @@ export default class FileUpload extends Component {
     }
     this.setState({fileValid})
     if (!fileValid) {
-      alert("Please make sure that the file you're uploading is of a supported filetype: pdf, wav, mp3, mp4, m4a, aac, or flac.")
+      alert("Please make sure that the file you're uploading is of a supported filetype and has the right extension at the end of its name. Supported filetypes are: pdf, wav, mp3, mp4, m4a, aac, and flac.")
       this.mainForm.current.reset()
     }
   }
