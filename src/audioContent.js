@@ -29,7 +29,7 @@ export default class AudioContent extends Component {
 
   componentDidMount() { this.fetchAudio() }
 
-  componentWillUnmount() { this.wavesurfer.destroy() }
+  componentWillUnmount() { if (this.wavesurfer) this.wavesurfer.destroy() }
 
   componentDidUpdate(prev) {
     if (this.state.ready) {
