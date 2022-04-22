@@ -28,28 +28,14 @@ export class TextMessage extends Component {
 
   messageBody = createRef()
 
-  getEdits = () => {
-    return this.props.reactions[this.props.event.getId()]
-      ? this.props.reactions[this.props.event.getId()]
-        .filter(event => event.getContent()["m.relates_to"].rel_type === "m.replace")
-      : []
-  }
-
-  getCurrentEdit = () => {
-    const edits = this.getEdits()
-    // need to be smarter about ordering
-    if (edits.length > 0) { return edits[edits.length - 1].getContent()["m.new_content"] }
-    return this.props.event.getContent()
-  }
-
   render(props) {
-    const content = this.getCurrentEdit()
+    const content = this.props.event.getContent()
     const isReply = Replies.isReply(content)
     return <MessageFrame
+      canEdit={true}
       displayOnly={props.displayOnly}
       reactions={props.reactions}
-      event={props.event}
-      getCurrentEdit={this.getCurrentEdit}>
+      event={props.event}>
       <div ref={this.messageBody} class="message-body">
         {isReply ? <ReplyPreview reactions={props.reactions} event={props.event} /> : null}
         <DisplayContent content={content} />
@@ -177,24 +163,11 @@ class ReplyPreview extends Component {
     }
   }
 
-  getCurrentEdit = () => {
-    const edits = this.getEdits()
-    // need to be smarter about ordering
-    if (edits.length > 0) { return edits[edits.length - 1].getContent()["m.new_content"] }
-    return this.state.liveEvent.getContent()
-  }
-
-  getEdits = () => {
-    return this.props.reactions[this.state.liveEvent.getId()]
-      ? this.props.reactions[this.state.liveEvent.getId()]
-        .filter(event => event.getContent()["m.relates_to"].rel_type === "m.replace")
-      : []
-  }
-
   replyPreview = createRef()
 
   fromLiveEvent = _ => {
-    const content = this.getCurrentEdit()
+    const content = this.state.liveEvent?.getContent()
+    if (!content) return
     const hasHtml = (content.format === "org.matrix.custom.html") && content.formatted_body
     const isReply = Replies.isReply(content)
     const senderColors = new UserColor(this.state.liveEvent.getSender())
@@ -312,8 +285,7 @@ export class NoticeMessage extends Component {
       displayOnly={props.displayOnly}
       reactions={props.reactions}
       styleOverride={this.noticeStyle}
-      event={props.event}
-      getCurrentEdit={this.getCurrentEdit}>
+      event={props.event}>
       <div ref={this.messageBody} class="message-body">
         {isReply ? <ReplyPreview reactions={props.reactions} event={props.event} /> : null}
         <DisplayContent content={content} />

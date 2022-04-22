@@ -64,14 +64,14 @@ export default class MessageFrame extends Component {
             { props.displayOnly
               ? null
               : isUser
-                ? <ActionsOnOwnMessages canEdit={!!props.getCurrentEdit} responding={state.responding} openEditor={this.openEditor} redactMessage={this.redactMessage} />
+                ? <ActionsOnOwnMessages canEdit={props.canEdit} responding={state.responding} openEditor={this.openEditor} redactMessage={this.redactMessage} />
                 : <ActionsOnOthersMessages responding={state.responding} openEditor={this.openEditor} event={props.event} reactions={reactions} />
             }
           </MessageDecoration>
       </div>
       {state.responding
         ? isUser
-          ? <MessageEditor closeEditor={this.closeEditor} getCurrentEdit={props.getCurrentEdit} event={props.event} />
+          ? <MessageEditor closeEditor={this.closeEditor} event={props.event} />
           : <ReplyComposer closeEditor={this.closeEditor} getCurrentEdit={this.getCurrentEdit} event={props.event} />
         : null
       }
@@ -243,7 +243,7 @@ function ActionsOnOwnMessages(props) {
 class MessageEditor extends Component {
   constructor(props) {
     super(props)
-    this.currentContent = props.getCurrentEdit()
+    this.currentContent = props.event.getContent()
     if (Replies.isReply(this.currentContent)) {
       this.setState({ value: Replies.stripFallbackPlainString(this.currentContent.body) })
     } else this.setState({ value: this.currentContent.body })
@@ -307,7 +307,7 @@ class MessageEditor extends Component {
   }
 
   render(_props, state) {
-    return <div class="replyComposer">
+    return <div class="messageEditor">
       <PopupMenu.Menu
         textValue={state.value}
         textarea={this.input}

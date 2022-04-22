@@ -92,8 +92,8 @@
 }
 
 #submit-button-wrapper > button:first-child,
-.replyComposer > button:first-child,
-.messageEditor > button:first-child {
+.replyComposer > button:first-of-type,
+.messageEditor > button:first-of-type {
     border:2px solid black;
 }
 
