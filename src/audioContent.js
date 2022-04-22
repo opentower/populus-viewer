@@ -1,6 +1,7 @@
 import { h, createRef, Fragment, Component } from 'preact';
 import Resource from './utils/resource.js'
 import Location from './utils/location.js'
+import Toast from "./toast.js"
 import History from './history.js'
 import WaveSurfer from 'wavesurfer.js'
 import Client from './client.js'
@@ -210,6 +211,17 @@ export default class AudioContent extends Component {
     else this.scrubLeft()
   }
 
+  catchFetchAudioError = e => {
+    Toast.set(<Fragment>
+      <h3 id="toast-header">Couldn't fetch the audio file...</h3>
+      <div>Tried to fetch: </div>
+      <pre>{this.props.resourceAlias}</pre>
+      <div>Here's the error message:</div>
+      <pre>{e.message}</pre>
+    </Fragment>)
+    History.push('/')
+    this.errorCondition = true
+  }
 
   async fetchAudio () {
     const theAudio = new Resource(this.props.room)
@@ -228,10 +240,12 @@ export default class AudioContent extends Component {
           }
           return theClone.blob()
         })
-        .catch(this.catchFetchPdfError)
+        .catch(this.catchFetchAudioError)
     } else { console.log(`found audio for ${this.props.room.name} in store` ) }
     if (this.errorCondition) return
     AudioContent.Store[theAudio.url].then(this.drawAudio)
+    // TODO: this throws an error when the user exits the page before the audio
+    // has been drawn. it should be caught, similarly for PDF fetching
   }
 
   drawAudio = audio => {
