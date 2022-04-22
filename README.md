@@ -1,16 +1,17 @@
 # Populus-Viewer
 *Social Annotation Powered by Matrix*
 
-Populus-Viewer is a tool for decentralized social annotation,
-built on [pdfjs](https://mozilla.github.io/pdf.js/) and 
-[the Matrix protocol](https://matrix.org). You can use it to read
-PDFs and have rich discussions in the margins, with your friends, 
-classmates, or scholarly collaborators.
+Populus-Viewer is a tool for decentralized social annotation, built on
+[pdfjs](https://mozilla.github.io/pdf.js/),
+[wavesurfer.js](https://wavesurfer-js.org/) and [the Matrix
+protocol](https://matrix.org). You can use it to read PDFs or listen to audio
+and have rich discussions in the margins, with your friends, classmates, or
+scholarly collaborators.
 
-Each uploaded PDF is attached to a matrix space, and each annotation 
-to the PDF becomes a room within that space. Populus-Viewer has been 
-tested with synapse and dendrite, but should be compatible with any 
-spec-compliant matrix server.
+Each uploaded file is attached to a matrix space, and each annotation to the
+file becomes a room within that space. Populus-Viewer has been tested with
+synapse and dendrite, but should be compatible with any spec-compliant matrix
+server.
 
 To learn more or talk about the project, [find us on Matrix](https://matrix.to/#/#opentower:matrix.org).
 The project should currently be considered beta-quality. UX is 
@@ -19,15 +20,12 @@ feature requests are welcome.
 
 ## Features
 
-
-
 https://user-images.githubusercontent.com/6383381/146051091-1c1e29b8-0d6c-4b87-9f49-2247e108e34e.mp4
-
-
 
 Populus-Viewer currently supports:
 
-- Highlight and pin-drop annotations
+- Highlight and pin-drop annotations on PDFs 
+- Timespan annotations on audio files
 - Audio and video messages
 - Message edits and redactions
 - Replies and reactions
