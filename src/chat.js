@@ -305,7 +305,7 @@ function Anchor(props) {
           </div>
         : props.focus.getType() === "audio-interval"
         ? <div id="anchor-audio">
-            {Icons.headphones} <span>from {toClockTime(props.focus.getIntervalStart() / 1000)} to {toClockTime(props.focus.getIntervalEnd() / 1000)}</span>
+            {Icons.headphones} <span>From {toClockTime(props.focus.getIntervalStart() / 1000)} to {toClockTime(props.focus.getIntervalEnd() / 1000)}</span>
           </div>
         : null
       }

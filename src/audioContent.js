@@ -39,6 +39,11 @@ export default class AudioContent extends Component {
         const duration = this.wavesurfer.getDuration()
         this.wavesurfer.seekAndCenter(this.props.focus.getIntervalStart() / (duration * 1000))
       }
+      if (this.props.secondaryFocus && this.props.secondaryFocus?.getIntervalStart() !== prev.secondaryFocus?.getIntervalStart() ) {
+        // focusing new annotation message: jump to that 
+        const duration = this.wavesurfer.getDuration()
+        this.wavesurfer.seekAndCenter(this.props.secondaryFocus.getIntervalStart() / (duration * 1000))
+      }
     }
   }
 

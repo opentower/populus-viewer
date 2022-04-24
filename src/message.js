@@ -2,8 +2,9 @@ import { h, createRef, Fragment, Component } from 'preact';
 import sanitizeHtml from 'sanitize-html'
 import { renderLatexInElement } from './latex.js'
 import { UserColor } from './utils/colors.js'
-import { sanitizeHtmlParams, mscMarkupMsgKey, mscLocation } from './constants.js'
+import { sanitizeHtmlParams } from './constants.js'
 import { processLinks } from './links.js'
+import { toClockTime } from './utils/temporal.js'
 import UserInfoHeader from './userInfoHeader.js'
 import MessageFrame from './messageFrame.js'
 import MediaModal from './mediaModal.js'
@@ -11,6 +12,7 @@ import 'emoji-picker-element'
 import Location from './utils/location.js'
 import Client from './client.js'
 import * as Replies from './utils/replies.js'
+import * as Icons from './icons.js'
 import './styles/message.css'
 
 export class TextMessage extends Component {
@@ -95,31 +97,40 @@ export class AnnotationMessage extends Component {
 
   location = new Location(this.props.event)
 
-  text = this.location.getText()
-
-  pageNumber = this.location.getPageIndex()
-
   hasFocus = _ => this.location === this.props.secondaryFocus
 
   render(props) {
-    if (!this.text) return
+    if (!this.location.getType()) return
     return <MessageFrame
       styleOverride={this.hasFocus() ? {background: this.userColor.ultralight, ... this.userColor.styleVariables} : null }
       reactions={props.reactions}
       event={props.event}
       getCurrentEdit={this.getCurrentEdit}>
-      <div onClick={this.handleClick} class="message-body">
-        <span class="annotation-banner">
-          On&nbsp;
-          <a onClick={this.handleLinkClick}
-            href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${this.pageNumber}/`} >
-            page {this.pageNumber}
-          </a>:
-        </span>
-        <blockquote>
-          {this.text}
-        </blockquote>
-      </div>
+      { this.location.getText() 
+        ? <div onClick={this.handleClick} class="message-body">
+          <span class="text-annotation-banner">
+            On&nbsp;
+            <a onClick={this.handleLinkClick}
+              href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${this.location.getPageIndex()}/`} >
+              page {this.location.getPageIndex()}
+            </a>:
+          </span>
+          <blockquote>
+            {this.location.getText()}
+          </blockquote>
+        </div>
+        : <div onClick={this.handleClick} class="message-body">
+          <p>
+            <span class="audio-annotation-banner">
+              {Icons.headphones} <span>From </span>
+              <a onClick={this.handleLinkClick}
+                href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${Math.floor(this.location.getIntervalStart() / 1000)}`} >
+                {toClockTime(this.location.getIntervalStart() / 1000)} to {toClockTime(this.location.getIntervalEnd() / 1000)}
+              </a>
+            </span>
+          </p>
+        </div>
+      }
     </MessageFrame>
   }
 }
