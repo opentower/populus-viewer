@@ -7,6 +7,7 @@ import SpacesManager from './spacesManager.js'
 import Client from './client.js'
 import SearchBar from './search.js'
 import { toWords } from './utils/strings.js'
+import ToolTip from "./utils/tooltip.js"
 import * as PopupMenu from './popUpMenu.js'
 import ProfileInformation from './profileInformation.js'
 import NotificationListing from './notifications.js'
@@ -133,10 +134,17 @@ export default class WelcomeView extends Component {
           </div>
           { (!state.inputFocus || !(state.layout !== "wide")) && <Fragment>
             {state.layout !== "wide"
-              ? <button data-active={state.view === "COLLECTION"} id="welcome-collection" onClick={this.toggleCollectionVisible}>{Icons.collection}</button>
+              ? <ToolTip placement="below" content="Collection View">
+                <button
+                  data-active={state.view === "COLLECTION"} 
+                  id="welcome-collection"
+                  onClick={this.toggleCollectionVisible}>
+                  {Icons.collection}
+                </button>
+              </ToolTip>
               : null
             }
-            <button data-active={state.view === "UPLOAD"} id="welcome-upload" onClick={this.toggleUploadVisible}>{Icons.newFile}</button>
+            <UploadIcon active={state.view === "UPLOAD"} toggleUploadVisible={this.toggleUploadVisible}/>
             <WelcomeIcon active={state.view === "NOTIF"} toggleNotifVisible={this.toggleNotifVisible} />
             <WelcomeProfile active={state.view === "PROFILE"} toggleProfileVisible={this.toggleProfileVisible} />
           </Fragment>}
@@ -208,10 +216,12 @@ class WelcomeIcon extends Component {
   }
 
   render(props, state) {
-    return <button data-active={props.active} id="welcome-notifications" onClick={props.toggleNotifVisible}>
-      {Icons.bell}
-      {state.count > 0 ? <span class="small-icon-badge">{state.count}</span> : null}
-    </button>
+    return <ToolTip position="below" content="View notifications">
+        <button data-active={props.active} id="welcome-notifications" onClick={props.toggleNotifVisible}>
+        {Icons.bell}
+        {state.count > 0 ? <span class="small-icon-badge">{state.count}</span> : null}
+      </button>
+    </ToolTip>
   }
 }
 
@@ -247,11 +257,22 @@ class WelcomeProfile extends Component {
   }
 
   render(props, state) {
-    return <button data-active={props.active} id="welcome-profile" onClick={props.toggleProfileVisible} style={this.userColor.styleVariables} >
-      {state.avatarUrl
-        ? <img id="welcome-img" src={state.avatarUrl} />
-        : <span id="welcome-initial">{this.displayInitial()}</span>
-      }
-    </button>
+    return <ToolTip position="below" content="View profile">
+      <button data-active={props.active}
+        id="welcome-profile"
+        onClick={props.toggleProfileVisible}
+        style={this.userColor.styleVariables} >
+        {state.avatarUrl
+          ? <img id="welcome-img" src={state.avatarUrl} />
+          : <span id="welcome-initial">{this.displayInitial()}</span>
+        }
+      </button>
+    </ToolTip>
   }
+}
+
+function UploadIcon (props) {
+  return <ToolTip position="below" content="Upload file">
+    <button data-active={props.active} id="welcome-upload" onClick={props.toggleUploadVisible}>{Icons.newFile}</button>
+  </ToolTip>
 }
