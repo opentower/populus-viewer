@@ -118,14 +118,20 @@ html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
     cursor:pointer;
 }
 
-.panel-widget-controls > button[data-active]::after {
+.panel-widget-controls > button::after {
   position:absolute;
-  right: -2px;
+  right: -8px;
   display:inline-block;
-  border-left: 4px solid black;
+  border-left: 8px solid black;
   content:"";
   height:24px;
   border-radius:24px;
+  transition: right .5s;
+}
+
+.panel-widget-controls > button[data-active]::after {
+  right: -4px;
+  transition: right .5s;
 }
 
 .panel-widget-controls > hr {
