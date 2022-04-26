@@ -48,15 +48,18 @@ export class TagEditor extends Component {
           class="room-tag-delete-icon">{Icons.trash}</span>
         <Tag room={props.room} tag={tag} />
       </Fragment>)
-    return <div class="tag-editor">
-        <Fragment>{roomTags}</Fragment>
-        <input ref={this.newTagInput}
-          class="styled-input tag-input"
-          value={state.newTag}
-          onkeyup={this.handleKeyup}
-          onblur={this.handleBlur}
-          placeholder="new tag" />
-      </div>
+    return <Fragment>
+      <h3 id="modalHeader">Edit tags for {props.room.name}</h3>
+        <div class="tag-editor">
+          <Fragment>{roomTags}</Fragment>
+          <input ref={this.newTagInput}
+            class="styled-input tag-input"
+            value={state.newTag}
+            onkeyup={this.handleKeyup}
+            onblur={this.handleBlur}
+            placeholder="new tag" />
+        </div>
+      </Fragment>
   }
 }
 
