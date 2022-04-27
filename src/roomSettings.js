@@ -21,7 +21,8 @@ export default class RoomSettings extends Component {
       joinRule: this.initialJoinRule,
       roomName: this.initialName,
       visibility: null,
-      references: null
+      references: null,
+      view: "APPEARANCE"
     }
   }
 
@@ -126,9 +127,23 @@ export default class RoomSettings extends Component {
     }
   }
 
+  showAppearance = _ => this.setState({view: "APPEARANCE"})
+
+  showAccess = _ => this.setState({view: "ACCESS"})
+
+  showLinks = _ => this.setState({view: "LINKS"})
+
   uploadAvatar = _ => this.avatarImageInput.current.click()
 
   removeAvatar = _ => this.setState({ previewUrl: null })
+
+  getHeight = _ => {
+    switch (this.state.view) {
+      case "APPEARANCE" : return "290px"
+      case "ACCESS" : return "180px"
+      case "LINKS" : return "110px"
+    }
+  }
 
   cancel = e => {
     e.preventDefault()
@@ -138,47 +153,62 @@ export default class RoomSettings extends Component {
   render(props, state) {
     return <Fragment>
       <h3 id="modalHeader">Room Settings</h3>
-      <form id="room-settings-form">
-        <label htmlFor="room-avatar">Room Avatar</label>
-        {state.previewUrl
-          ? <img onclick={this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
-          : <div key="room-settings-avatar-selector" onclick={this.uploadAvatar} id="room-settings-avatar-selector" />}
-        <input name="room-avatar" id="room-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
-        <div id="room-settings-avatar-info" />
-        <label htmlFor="room-name">Room Name</label>
-        <input name="room-name"
-          type="text"
-          class="styled-input"
-          value={state.roomName}
-          onkeydown={this.handleKeydown}
-          onInput={this.handleNameInput} />
-        <div id="room-settings-name-info" />
-        <label htmlFor="visibilty">Visibility</label>
-        <select disabled={!state.visibility} class="styled-input" value={state.visibility} name="joinRule" onchange={this.handleVisibilityChange}>
-          <option value="private">Private</option>
-          <option value="public">Publically Listed</option>
-        </select>
-        <div id="room-settings-visibility-info">
-          {state.visibility === "public"
-            ? "the room will appear in public listings"
-            : "the room will be hidden from other users"
-          }
-        </div>
-        <label htmlFor="joinRule">Join Rule</label>
-        <select class="styled-input" value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
-          <option value="public">Public</option>
-          <option value="invite">Invite-Only</option>
-        </select>
-        <div id="room-settings-join-info">
-          {state.joinRule === "public"
-            ? "anyone who can find the room may join"
-            : "an explicit invitation is required before joining"
-          }
-        </div>
-        { props.joinLink
+      <div id="room-settings-select-view" class="select-view">
+        <button onClick={this.showAppearance} data-current-button={state.view==="APPEARANCE"}>Appearance</button>
+        <button onClick={this.showAccess} data-current-button={state.view==="ACCESS"}>Access</button>
+        {props.joinLink ? <button onClick={this.showLinks} data-current-button={state.view==="LINKS"}>Links</button> : null}
+      </div>
+      <form 
+        style={{height: this.getHeight()}}
+        id="room-settings-form">
+        {state.view === "APPEARANCE"
           ? <Fragment>
+            <label htmlFor="room-avatar">Room Avatar</label>
+            {state.previewUrl
+              ? <img onclick={this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
+              : <div key="room-settings-avatar-selector" onclick={this.uploadAvatar} id="room-settings-avatar-selector" />}
+            <input name="room-avatar" id="room-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
+            <div id="room-settings-avatar-info" />
+            <label htmlFor="room-name">Room Name</label>
+            <input name="room-name"
+              type="text"
+              class="styled-input"
+              value={state.roomName}
+              onkeydown={this.handleKeydown}
+              onInput={this.handleNameInput} />
+            <div id="room-settings-name-info" />
+          </Fragment>
+          : state.view === "ACCESS"
+          ? <Fragment>
+            <label htmlFor="visibilty">Visibility</label>
+            <select disabled={!state.visibility} class="styled-input" value={state.visibility} name="joinRule" onchange={this.handleVisibilityChange}>
+              <option value="private">Private</option>
+              <option value="public">Publically Listed</option>
+            </select>
+            <div id="room-settings-visibility-info">
+              {state.visibility === "public"
+                ? "the room will appear in public listings"
+                : "the room will be hidden from other users"
+              }
+            </div>
+            <label htmlFor="joinRule">Join Rule</label>
+            <select class="styled-input" value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
+              <option value="public">Public</option>
+              <option value="invite">Invite-Only</option>
+            </select>
+            <div id="room-settings-join-info">
+              {state.joinRule === "public"
+                ? "anyone who can find the room may join"
+                : "an explicit invitation is required before joining"
+              }
+            </div>
+          </Fragment>
+          : state.view === "LINKS" ? <Fragment>
               <label>Join Link</label>
               <pre id="room-settings-join-link">{this.joinLink}</pre>
+              <div class="room-settings-link-info">
+                Clicking this link will cause an attempt to join this room
+              </div>
             </Fragment>
           : null
         }

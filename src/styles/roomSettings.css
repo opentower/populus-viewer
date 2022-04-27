@@ -2,6 +2,12 @@
   display: grid;
   grid-template-columns: 100px 1fr;
   align-items: center;
+  transition: height .25s ease;
+  overflow:hidden;
+}
+
+#room-settings-select-view {
+  padding-bottom:20px;
 }
 
 #room-settings-form label {
@@ -31,6 +37,7 @@ div#room-settings-avatar-selector {
 
 #room-settings-avatar-info,
 #room-settings-name-info,
+.room-settings-link-info,
 #room-settings-visibility-info,
 #room-settings-join-info {
   grid-column: 2/3;
@@ -54,6 +61,7 @@ html[data-scrollbars="hidden"] #room-settings-join-link::-webkit-scrollbar { dis
 
 #room-settings-name-info,
 #room-settings-avatar-info,
+.room-settings-link-info,
 #room-settings-visibility-info,
 #room-settings-join-info {
   padding-bottom:15px;
