@@ -14,12 +14,14 @@ export default class RoomSettings extends Component {
     this.initialJoinRule = this.roomState.getJoinRule()
     this.initialName = props.room.name
     this.initialVisibility = null
+    this.initialReadability = props.room.getGuestAccess()
     this.joinLink = `${window.location.protocol}//${window.location.hostname}${window.location.pathname}` +
       `?join=${encodeURIComponent(props.room.roomId)}&via=${Client.client.getDomain()}`
     this.state = {
       previewUrl: props.room.getAvatarUrl(`https://${Client.client.getDomain()}`, 300, 300, "crop"),
       joinRule: this.initialJoinRule,
       roomName: this.initialName,
+      readability: this.initialReadability ? "world" : "members",
       visibility: null,
       references: null,
       view: "APPEARANCE"
@@ -41,6 +43,10 @@ export default class RoomSettings extends Component {
 
   handleJoinRuleChange = e => {
     this.setState({ joinRule: e.target.value })
+  }
+
+  handleReadabilityChange = e => {
+    this.setState({ readability: e.target.value })
   }
 
   handleNameInput = e => {
@@ -65,6 +71,7 @@ export default class RoomSettings extends Component {
     if (this.state.visibility !== this.initialVisibility) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.visibility).catch(this.raiseErr)
     if (this.state.joinRule !== this.initialJoinRule) await this.updateJoinRule()
     if (this.state.roomName !== this.initialRoomName) await Client.client.setRoomName(this.props.room.roomId, this.state.roomName).catch(this.raiseErr)
+    if (this.state.readability !== this.initialReadability) await Client.client.setGuestAccess(this.props.room.roomId, {allowRead: this.state.readability}).catch(this.raiseErr)
     if (theImage && /^image/.test(theImage.type)) {
       const {width, height} = await loadImageElement(theImage)
       await Client.client.uploadContent(theImage, { progressHandler: this.progressHandler })
@@ -138,10 +145,11 @@ export default class RoomSettings extends Component {
   removeAvatar = _ => this.setState({ previewUrl: null })
 
   getHeight = _ => {
+    const wide = (document.body.offsetWidth > 600)
     switch (this.state.view) {
-      case "APPEARANCE" : return "290px"
-      case "ACCESS" : return "180px"
-      case "LINKS" : return "110px"
+      case "APPEARANCE" : return (wide ? "290px" : "370px")
+      case "ACCESS" : return (wide ?  "240px" : "400px")
+      case "LINKS" : return (wide ? "130px" : "180px")
     }
   }
 
@@ -159,14 +167,17 @@ export default class RoomSettings extends Component {
         {props.joinLink ? <button onClick={this.showLinks} data-current-button={state.view==="LINKS"}>Links</button> : null}
       </div>
       <form 
-        style={{height: this.getHeight()}}
+        style={{height:this.getHeight()}}
         id="room-settings-form">
         {state.view === "APPEARANCE"
           ? <Fragment>
             <label htmlFor="room-avatar">Room Avatar</label>
-            {state.previewUrl
-              ? <img onclick={this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
-              : <div key="room-settings-avatar-selector" onclick={this.uploadAvatar} id="room-settings-avatar-selector" />}
+            <div id="room-settings-avatar-wrapper">
+              {state.previewUrl
+                ? <img onclick={this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
+                : <div key="room-settings-avatar-selector" onclick={this.uploadAvatar} id="room-settings-avatar-selector" />}
+              {state.previewUrl ? <button id="room-settings-clear-avatar" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
+            </div>
             <input name="room-avatar" id="room-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
             <div id="room-settings-avatar-info" />
             <label htmlFor="room-name">Room Name</label>
@@ -180,15 +191,15 @@ export default class RoomSettings extends Component {
           </Fragment>
           : state.view === "ACCESS"
           ? <Fragment>
-            <label htmlFor="visibilty">Visibility</label>
+            <label htmlFor="visibilty">Discovery</label>
             <select disabled={!state.visibility} class="styled-input" value={state.visibility} name="joinRule" onchange={this.handleVisibilityChange}>
               <option value="private">Private</option>
               <option value="public">Publically Listed</option>
             </select>
             <div id="room-settings-visibility-info">
               {state.visibility === "public"
-                ? "the room will appear in public listings"
-                : "the room will be hidden from other users"
+                ? "the room will appear in room search results"
+                : "the room will not appear in room search results"
               }
             </div>
             <label htmlFor="joinRule">Join Rule</label>
@@ -200,6 +211,17 @@ export default class RoomSettings extends Component {
               {state.joinRule === "public"
                 ? "anyone who can find the room may join"
                 : "an explicit invitation is required before joining"
+              }
+            </div>
+            <label htmlFor="readability">Readability</label>
+            <select class="styled-input" value={state.readability} name="readability" onchange={this.handleReadabilityChange}>
+              <option value="members">Members Only</option>
+              <option value="world">World Readable</option>
+            </select>
+            <div id="room-settings-join-info">
+              {state.readability === "world"
+                ? "guests can see what's happening in the room"
+                : "only room members can see what's happening in the room"
               }
             </div>
           </Fragment>
@@ -215,7 +237,6 @@ export default class RoomSettings extends Component {
         <div id="room-settings-submit-wrapper">
           <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
           <button className="styled-button" onClick={this.cancel} >Cancel</button>
-          {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
         </div>
         {this.state.progress
           ? <div id="room-settings-progress">

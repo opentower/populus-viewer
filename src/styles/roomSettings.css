@@ -27,6 +27,26 @@
     margin:auto;
 }
 
+
+#room-settings-avatar-wrapper {
+  position:relative
+}
+
+#room-settings-clear-avatar {
+  position: absolute;
+  bottom:10px;
+  right:10px;
+  border:none;
+  background:rgba(255,255,255,.5);
+  border-radius:5px;
+  transition:background .25s ease;
+  cursor: pointer;
+}
+
+#room-settings-clear-avatar:hover {
+  background:rgba(255,255,255,.8);
+}
+
 div#room-settings-avatar-selector {
     background : #ababab;
 }
@@ -50,6 +70,9 @@ div#room-settings-avatar-selector {
   font-size:10pt;
   overflow-x:auto;
   user-select:all;
+  background:#ededed;
+  padding:7px;
+  margin:0px;
 }
 
 html[data-scrollbars="hidden"] #room-settings-join-link {
@@ -99,6 +122,7 @@ html[data-scrollbars="hidden"] #room-settings-join-link::-webkit-scrollbar { dis
   #room-settings-avatar-selector,
   #room-settings-progress,
   #room-settings-join-link,
+  .room-settings-link-info,
   #room-settings-join-info {
     grid-column: 1/2;
   }
