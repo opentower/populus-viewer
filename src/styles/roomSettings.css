@@ -65,11 +65,7 @@ div#room-settings-avatar-selector {
     display:none;
 }
 
-#room-settings-avatar-info,
-#room-settings-name-info,
-.room-settings-link-info,
-#room-settings-visibility-info,
-#room-settings-join-info {
+.room-settings-info {
   grid-column: 2/3;
   padding-top:5px;
   font-size:10pt;
@@ -92,11 +88,7 @@ html[data-scrollbars="hidden"] #room-settings-join-link {
 
 html[data-scrollbars="hidden"] #room-settings-join-link::-webkit-scrollbar { display: none; }
 
-#room-settings-name-info,
-#room-settings-avatar-info,
-.room-settings-link-info,
-#room-settings-visibility-info,
-#room-settings-join-info {
+.room-settings-info {
   padding-bottom:15px;
 }
 
@@ -125,15 +117,11 @@ html[data-scrollbars="hidden"] #room-settings-join-link::-webkit-scrollbar { dis
     grid-template-columns: 1fr;
   }
 
-  #room-settings-name-info,
-  #room-settings-visibility-info,
+  .room-settings-info,
   #room-settings-submit-wrapper,
-  #room-settings-avatar-info,
   #room-settings-avatar-selector,
   #room-settings-progress,
-  #room-settings-join-link,
-  .room-settings-link-info,
-  #room-settings-join-info {
+  #room-settings-join-link {
     grid-column: 1/2;
   }
 }

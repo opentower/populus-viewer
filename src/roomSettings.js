@@ -3,8 +3,9 @@ import Client from './client.js'
 import * as Matrix from "matrix-js-sdk"
 import { loadImageElement } from "./utils/media.js"
 import Location from './utils/location.js'
+import Resource from './utils/resource.js'
 import Modal from './modal.js'
-import { mscLocation, joinRule, spaceParent, populusHighlight, spaceChild } from './constants.js';
+import { mscLocation, joinRule, spaceParent, spaceChild } from './constants.js';
 import "./styles/roomSettings.css"
 
 export default class RoomSettings extends Component {
@@ -14,7 +15,6 @@ export default class RoomSettings extends Component {
     this.initialJoinRule = this.roomState.getJoinRule()
     this.mayChangeJoinRule = this.roomState.maySendStateEvent(Matrix.EventType.RoomJoinRules, Client.client.getUserId())
     this.mayChangeAvatar = this.roomState.maySendStateEvent(Matrix.EventType.RoomAvatar, Client.client.getUserId())
-    this.powerLevels = this.roomState.getStateEvents(Matrix.EventType.RoomPowerLevels, "")?.getContent()
     this.initialName = props.room.name
     this.mayChangeName = this.roomState.maySendStateEvent(Matrix.EventType.RoomName, Client.client.getUserId())
     this.initialVisibility = null
@@ -22,12 +22,21 @@ export default class RoomSettings extends Component {
     this.mayChangeReadability = this.roomState.maySendStateEvent(Matrix.EventType.RoomHistoryVisibility, Client.client.getUserId())
     this.joinLink = `${window.location.protocol}//${window.location.hostname}${window.location.pathname}` +
       `?join=${encodeURIComponent(props.room.roomId)}&via=${Client.client.getDomain()}`
+    this.powerLevels = this.roomState.getStateEvents(Matrix.EventType.RoomPowerLevels, "")?.getContent()
+    this.mayChangePowerLevels = this.roomState.maySendStateEvent(Matrix.EventType.RoomPowerLevels, Client.client.getUserId())
+
+    this.initialAnnotationPowerLevel = this.getPowerLevelForStateEvent(spaceChild)
+    this.initialCanAnnotate =  this.initialAnnotationPowerLevel >= 100 ? "admin" 
+        : this.initialAnnotationPowerLevel >= 50 ? "mod"
+        : "member",
+
     this.state = {
       previewUrl: props.room.getAvatarUrl(`https://${Client.client.getDomain()}`, 300, 300, "crop"),
       joinRule: this.initialJoinRule,
       roomName: this.initialName,
       readability: this.initialReadability,
       visibility: null,
+      canAnnotate: this.initialCanAnnotate,
       references: null,
       view: "APPEARANCE"
     }
@@ -35,6 +44,17 @@ export default class RoomSettings extends Component {
 
   componentDidMount () {
     this.initialize()
+  }
+
+  getPowerLevelForStateEvent = s => {
+    console.log(this.powerLevels.events[s])
+    if (s in this.powerLevels?.events) return this.powerLevels.events[s]
+    let sendStatePowerLevel = 50
+    if (this.powerLevels) {
+      const pl = this.powerLevels?.state_default
+      if (Number.isSafeInteger(pl)) sendStatePowerLevel = pl
+    }
+    return sendStatePowerLevel
   }
 
   avatarImageInput = createRef()
@@ -62,6 +82,10 @@ export default class RoomSettings extends Component {
     this.setState({ readability: e.target.value })
   }
 
+  handleAnnotationChange = e => {
+    this.setState({ canAnnotate: e.target.value })
+  }
+
   handleNameInput = e => {
     this.setState({ roomName: e.target.value })
   }
@@ -86,6 +110,18 @@ export default class RoomSettings extends Component {
     if (this.state.readability !== this.initialReadability) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomHistoryVisibility, {
       history_visibility: this.state.readability
     }).catch(this.raiseErr)
+
+    if (this.state.canAnnotate !== this.initialCanAnnotate) {
+      if (!this.powerLevels.events) this.powerLevels.events = {}
+      if (this.state.canAnnotate === "admin") this.powerLevels.events[spaceChild] = 100
+      if (this.state.canAnnotate === "mod") this.powerLevels.events[spaceChild] = 50
+      if (this.state.canAnnotate === "member") this.powerLevels.events[spaceChild] = 0
+    }
+    
+    // if I update power levels, then send the updated contents
+    if (this.state.canAnnotate !== this.initialCanAnnotate) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomPowerLevels, 
+      this.powerLevels).catch(this.raiseErr)
+
     if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
       const {width, height} = await loadImageElement(this.avatarImage)
       await Client.client.uploadContent(this.avatarImage, { progressHandler: this.progressHandler })
@@ -189,6 +225,8 @@ export default class RoomSettings extends Component {
 
   showRoles = _ => this.setState({view: "ROLES"})
 
+  showPermissions = _ => this.setState({view: "PERMISSIONS"})
+
   uploadAvatar = _ => this.avatarImageInput.current.click()
 
   removeAvatar = _ => this.setState({ previewUrl: null })
@@ -216,6 +254,7 @@ export default class RoomSettings extends Component {
         <button onClick={this.showAppearance} data-current-button={state.view==="APPEARANCE"}>Appearance</button>
         <button onClick={this.showAccess} data-current-button={state.view==="ACCESS"}>Access</button>
         <button onClick={this.showRoles} data-current-button={state.view==="ROLES"}>Roles</button>
+        <button onClick={this.showPermissions} data-current-button={state.view==="PERMISSIONS"}>Permissions</button>
         {props.joinLink ? <button onClick={this.showLinks} data-current-button={state.view==="LINKS"}>Links</button> : null}
       </div>
       <form 
@@ -231,7 +270,7 @@ export default class RoomSettings extends Component {
               {state.previewUrl && this.mayChangeAvatar ? <button id="room-settings-clear-avatar" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
             </div>
             <input name="room-avatar" id="room-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
-            <div id="room-settings-avatar-info" />
+            <div class="room-settings-info" />
             <label htmlFor="room-name">Room Name</label>
             <input name="room-name"
               type="text"
@@ -240,7 +279,7 @@ export default class RoomSettings extends Component {
               disabled={!this.mayChangeName}
               onkeydown={this.handleKeydown}
               onInput={this.handleNameInput} />
-            <div id="room-settings-name-info" />
+            <div class="room-settings-info" />
           </Fragment>
           : state.view === "ACCESS"
           ? <Fragment>
@@ -249,7 +288,7 @@ export default class RoomSettings extends Component {
               <option value="private">Private</option>
               <option value="public">Publicly Listed</option>
             </select>
-            <div id="room-settings-visibility-info">
+            <div class="room-settings-info">
               {state.visibility === "public"
                 ? "the room will appear in room search results"
                 : "the room will not appear in room search results"
@@ -260,7 +299,7 @@ export default class RoomSettings extends Component {
               <option value="public">Public</option>
               <option value="invite">Invite-Only</option>
             </select>
-            <div id="room-settings-join-info">
+            <div class="room-settings-info">
               {state.joinRule === "public"
                 ? "anyone who can find the room may join"
                 : "an explicit invitation is required before joining"
@@ -271,7 +310,7 @@ export default class RoomSettings extends Component {
               <option value="shared">Members Only</option>
               <option value="world_readable">World Readable</option>
             </select>
-            <div id="room-settings-join-info">
+            <div class="room-settings-info">
               {state.readability === "world_readable"
                 ? "guests can see what's happening in the room"
                 : "only room members can see what's happening in the room"
@@ -281,7 +320,7 @@ export default class RoomSettings extends Component {
           : state.view === "LINKS" ? <Fragment>
               <label>Join Link</label>
               <pre id="room-settings-join-link">{this.joinLink}</pre>
-              <div class="room-settings-link-info">
+              <div class="room-settings-info">
                 Clicking this link will cause an attempt to join this room
               </div>
             </Fragment>
@@ -298,6 +337,25 @@ export default class RoomSettings extends Component {
               <h5>Other Roles</h5>
               {this.getOtherRoles()}
             </div>
+          </Fragment>
+          : state.view === "PERMISSIONS" ? <Fragment>
+            { Resource.hasResource(props.room) 
+                ? <Fragment>
+                  <label htmlFor="annotate">Annotate</label>
+                  <select class="styled-input" value={state.canAnnotate} disabled={!this.mayChangePowerLevels} name="annotate" onchange={this.handleAnnotationChange}>
+                    <option value="admin">Administrators only</option>
+                    <option value="mod">Moderators and above</option>
+                    <option value="member">Any member</option>
+                  </select>
+                  <div class="room-settings-info">
+                    {state.canAnnotate === "admin" ? "only admins can create annotations"
+                      : state.canAnnotate === "mod" ? "only moderators can create annotations"
+                      : "any room member can create annotations"
+                    }
+                  </div>
+                </Fragment>
+                : null 
+            }
           </Fragment>
           : null
         }

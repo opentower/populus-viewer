@@ -61,6 +61,7 @@ body[data-modal-visible] {
 .select-view {
   display:flex;
   gap:10px;
+  overflow-y:auto;
 }
 
 .select-view > button {

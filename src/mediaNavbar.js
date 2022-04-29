@@ -11,6 +11,9 @@ import Invite from './invite.js'
 export default class DocumentNavbar extends Component {
   constructor(props) {
     super(props);
+    // Could add a listener to update this live
+    const roomState = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    this.canAnnotate = roomState.maySendStateEvent(spaceChild, Client.client.getUserId())
   }
 
   componentDidMount() {
@@ -65,7 +68,7 @@ export default class DocumentNavbar extends Component {
             <button onclick={this.mainMenu}>{Icons.home}</button>
           </ToolTip>
           <ToolTip content="Add annotation (Alt + a)" offset={this.toolTipOffset} >
-            <button disabled={(props.hasSelection || props.pindropMode?.x) ? null : "disabled"}
+            <button disabled={this.canAnnotate && props.hasSelection ? null : "disabled"}
               onclick={props.openAnnotation}>{Icons.addAnnotation}
             </button>
           </ToolTip>
