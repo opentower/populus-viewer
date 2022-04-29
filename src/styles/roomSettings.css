@@ -6,6 +6,16 @@
   overflow:hidden;
 }
 
+.room-settings-role-list h5 {
+  margin-top:0px;
+  margin-bottom:5px;
+}
+
+.room-settings-role-list {
+  grid-column: 1/3;
+  margin-bottom:20px;
+}
+
 #room-settings-select-view {
   padding-bottom:20px;
 }

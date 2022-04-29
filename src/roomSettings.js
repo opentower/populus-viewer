@@ -14,6 +14,7 @@ export default class RoomSettings extends Component {
     this.initialJoinRule = this.roomState.getJoinRule()
     this.mayChangeJoinRule = this.roomState.maySendStateEvent(Matrix.EventType.RoomJoinRules, Client.client.getUserId())
     this.mayChangeAvatar = this.roomState.maySendStateEvent(Matrix.EventType.RoomAvatar, Client.client.getUserId())
+    this.powerLevels = this.roomState.getStateEvents(Matrix.EventType.RoomPowerLevels, "")?.getContent()
     this.initialName = props.room.name
     this.mayChangeName = this.roomState.maySendStateEvent(Matrix.EventType.RoomName, Client.client.getUserId())
     this.initialVisibility = null
@@ -40,10 +41,9 @@ export default class RoomSettings extends Component {
 
   async initialize() {
     let sendStatePowerLevel = 50
-    const powerLevelsEvent = this.roomState.getStateEvents(Matrix.EventType.RoomPowerLevels, "")
     const me = this.props.room.getMember(Client.client.getUserId())
-    if (powerLevelsEvent) {
-      const pl = powerLevelsEvent.getContent()?.state_default
+    if (this.powerLevels) {
+      const pl = this.powerLevels?.state_default
       if (Number.isSafeInteger(pl)) sendStatePowerLevel = pl
     }
     if (me.powerLevel >= sendStatePowerLevel) this.canChangeVisibility = true 
@@ -148,11 +148,46 @@ export default class RoomSettings extends Component {
     }
   }
 
+  getAdmins = _ => {
+    if (!this.powerLevels?.users) return
+    let admins = []
+    for (const user in this.powerLevels.users) {
+      if (this.powerLevels.users[user] === 100)
+        admins.push(<div class="room-settings-admin-listing" key={user}>{user}</div>)
+    }
+    if (admins.length > 0) return admins
+    else return <div>No admins!</div>
+  }
+
+  getMods = _ => {
+    if (!this.powerLevels?.users) return
+    let mods = []
+    for (const user in this.powerLevels.users) {
+      if (this.powerLevels.users[user] === 50)
+        mods.push(<div class="room-settings-moderator-listing" key={user}>{user}</div>)
+    }
+    if (mods.length > 0) return mods 
+    else return <div>none</div>
+  }
+
+  getOtherRoles = _ => {
+    if (!this.powerLevels?.users) return
+    let others = []
+    for (const user in this.powerLevels.users) {
+      if (this.powerLevels.users[user] !== 100 && this.powerLevels.users[user] !== 50)
+        others.push(<div class="room-settings-otherrole-listing" key={user}>{user}</div>)
+    }
+    if (others.length > 0) return others
+    else return <div>none</div>
+  }
+
   showAppearance = _ => this.setState({view: "APPEARANCE"})
 
   showAccess = _ => this.setState({view: "ACCESS"})
 
   showLinks = _ => this.setState({view: "LINKS"})
+
+  showRoles = _ => this.setState({view: "ROLES"})
 
   uploadAvatar = _ => this.avatarImageInput.current.click()
 
@@ -165,6 +200,7 @@ export default class RoomSettings extends Component {
       case "APPEARANCE" : return `${(wide ? 290 : 370) + progressFactor}px`
       case "ACCESS" : return `${(wide ? 240 : 400) + progressFactor}px`
       case "LINKS" : return `${(wide ? 130 : 180) + progressFactor}px`
+      default : return "fit-content"
     }
   }
 
@@ -179,6 +215,7 @@ export default class RoomSettings extends Component {
       <div id="room-settings-select-view" class="select-view">
         <button onClick={this.showAppearance} data-current-button={state.view==="APPEARANCE"}>Appearance</button>
         <button onClick={this.showAccess} data-current-button={state.view==="ACCESS"}>Access</button>
+        <button onClick={this.showRoles} data-current-button={state.view==="ROLES"}>Roles</button>
         {props.joinLink ? <button onClick={this.showLinks} data-current-button={state.view==="LINKS"}>Links</button> : null}
       </div>
       <form 
@@ -248,6 +285,20 @@ export default class RoomSettings extends Component {
                 Clicking this link will cause an attempt to join this room
               </div>
             </Fragment>
+          : state.view === "ROLES" ? <Fragment>
+            <div class="room-settings-role-list">
+              <h5>Administrators</h5>
+              {this.getAdmins()}
+            </div>
+            <div class="room-settings-role-list">
+              <h5>Moderators</h5>
+              {this.getMods()}
+            </div>
+            <div class="room-settings-role-list">
+              <h5>Other Roles</h5>
+              {this.getOtherRoles()}
+            </div>
+          </Fragment>
           : null
         }
         <div id="room-settings-submit-wrapper">
