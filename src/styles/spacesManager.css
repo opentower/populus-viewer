@@ -92,10 +92,14 @@
 
 #current-discussions-list,
 #available-discussions-list {
-  max-height:60vh;
   padding-top:20px;
+  overflow:auto;
+}
+
+#manage-discussion-list-wrapper {
   transition: height .25s ease;
   overflow:auto;
+  max-height:60vh;
 }
 
 

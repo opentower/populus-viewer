@@ -42,8 +42,11 @@
 }
 
 #invite-add-members, #invite-remove-members {
-  max-height:60vh;
   padding-top:10px;
-  overflow-y: auto;
+}
+
+#invite-select-wrapper {
   transition:height .25s ease;
+  overflow-y: auto;
+  max-height:60vh;
 }

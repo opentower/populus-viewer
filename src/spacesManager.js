@@ -358,7 +358,17 @@ class AddChild extends Component {
     }
   }
 
+  componentDidMount () {
+    this.updateHeight()
+  }
+
+  componentDidUpdate () {
+    this.updateHeight()
+  }
+
   currentList = createRef()
+
+  currentListWrapper = createRef()
 
   handleScroll = _ => {
     clearTimeout(this.debounceTimeout)
@@ -369,6 +379,8 @@ class AddChild extends Component {
       }
     }, 500)
   }
+
+  updateHeight = _ => this.currentListWrapper.current.style.height = `${this.currentList.current.scrollHeight}px`
 
   addDiscussions = _ => this.setState({adding: true})
 
@@ -397,14 +409,16 @@ class AddChild extends Component {
         <button onClick={this.addDiscussions} data-current-button={state.adding}>Add Discussions</button>
         <button onClick={this.removeDiscussions} data-current-button={!state.adding}>Remove Discussions</button>
       </div>
-      {state.adding
-        ? <div style={{height: `${availableDiscussions.length * 28}px`}} id="available-discussions-list">
-          { availableDiscussions.map(room => <AvailableDiscussionListing key={room.roomId} room={room} collection={props.room} />) }
-        </div>
-        : <div style={{height: `${currentDiscussions.length * 28}px`}} onscroll={this.handleScroll} ref={this.currentList} id="current-discussions-list">
-          { currentDiscussions.map(child => <CurrentDiscussionListing key={child.room_id} child={child} collection={props.room} />) }
-        </div>
-      }
+      <div id="manage-discussion-list-wrapper" ref={this.currentListWrapper}>
+        {state.adding
+          ? <div ref={this.currentList} id="available-discussions-list">
+            { availableDiscussions.map(room => <AvailableDiscussionListing key={room.roomId} room={room} collection={props.room} />) }
+          </div>
+          : <div onscroll={this.handleScroll} ref={this.currentList} id="current-discussions-list">
+            { currentDiscussions.map(child => <CurrentDiscussionListing key={child.room_id} child={child} collection={props.room} />) }
+          </div>
+        }
+      </div>
     </Fragment>
   }
 }

@@ -2,6 +2,9 @@
   display: grid;
   grid-template-columns: 100px 1fr;
   align-items: center;
+}
+
+#room-settings-form-wrapper {
   transition: height .25s ease;
   overflow:hidden;
 }

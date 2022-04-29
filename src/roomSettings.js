@@ -42,20 +42,15 @@ export default class RoomSettings extends Component {
     }
   }
 
-  componentDidMount () {
-    this.initialize()
+  componentDidMount () { this.initialize() }
+
+  componentDidUpdate () {
+    this.settingsFormWrapper.current.style.height = `${this.settingsForm.current.scrollHeight}px`
   }
 
-  getPowerLevelForStateEvent = s => {
-    console.log(this.powerLevels.events[s])
-    if (s in this.powerLevels?.events) return this.powerLevels.events[s]
-    let sendStatePowerLevel = 50
-    if (this.powerLevels) {
-      const pl = this.powerLevels?.state_default
-      if (Number.isSafeInteger(pl)) sendStatePowerLevel = pl
-    }
-    return sendStatePowerLevel
-  }
+  settingsFormWrapper = createRef()
+
+  settingsForm = createRef()
 
   avatarImageInput = createRef()
 
@@ -144,6 +139,17 @@ export default class RoomSettings extends Component {
 
   raiseErr = _ => alert("Something went wrong. You may not have permission to adjust some of these settings.")
 
+  getPowerLevelForStateEvent = s => {
+    console.log(this.powerLevels.events[s])
+    if (s in this.powerLevels?.events) return this.powerLevels.events[s]
+    let sendStatePowerLevel = 50
+    if (this.powerLevels) {
+      const pl = this.powerLevels?.state_default
+      if (Number.isSafeInteger(pl)) sendStatePowerLevel = pl
+    }
+    return sendStatePowerLevel
+  }
+
   updatePreview = _ => {
     this.avatarImage = this.avatarImageInput.current.files[0]
     if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
@@ -231,17 +237,6 @@ export default class RoomSettings extends Component {
 
   removeAvatar = _ => this.setState({ previewUrl: null })
 
-  getHeight = _ => {
-    const wide = (document.body.offsetWidth > 600)
-    const progressFactor = this.state.progress ? 50 : 0
-    switch (this.state.view) {
-      case "APPEARANCE" : return `${(wide ? 290 : 370) + progressFactor}px`
-      case "ACCESS" : return `${(wide ? 240 : 400) + progressFactor}px`
-      case "LINKS" : return `${(wide ? 130 : 180) + progressFactor}px`
-      default : return "fit-content"
-    }
-  }
-
   cancel = e => {
     e.preventDefault()
     Modal.hide()
@@ -257,119 +252,121 @@ export default class RoomSettings extends Component {
         <button onClick={this.showPermissions} data-current-button={state.view==="PERMISSIONS"}>Permissions</button>
         {props.joinLink ? <button onClick={this.showLinks} data-current-button={state.view==="LINKS"}>Links</button> : null}
       </div>
-      <form 
-        style={{height:this.getHeight()}}
-        id="room-settings-form">
-        {state.view === "APPEARANCE"
-          ? <Fragment>
-            <label htmlFor="room-avatar">Room Avatar</label>
-            <div id="room-settings-avatar-wrapper">
-              {state.previewUrl
-                ? <img onclick={this.mayChangeAvatar && this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
-                : <div key="room-settings-avatar-selector" onclick={this.mayChangeAvatar && this.uploadAvatar} id="room-settings-avatar-selector" />}
-              {state.previewUrl && this.mayChangeAvatar ? <button id="room-settings-clear-avatar" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
-            </div>
-            <input name="room-avatar" id="room-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
-            <div class="room-settings-info" />
-            <label htmlFor="room-name">Room Name</label>
-            <input name="room-name"
-              type="text"
-              class="styled-input"
-              value={state.roomName}
-              disabled={!this.mayChangeName}
-              onkeydown={this.handleKeydown}
-              onInput={this.handleNameInput} />
-            <div class="room-settings-info" />
-          </Fragment>
-          : state.view === "ACCESS"
-          ? <Fragment>
-            <label htmlFor="visibility">Discovery</label>
-            <select disabled={!state.visibility} class="styled-input" value={state.visibility} name="visibility" onchange={this.handleVisibilityChange}>
-              <option value="private">Private</option>
-              <option value="public">Publicly Listed</option>
-            </select>
-            <div class="room-settings-info">
-              {state.visibility === "public"
-                ? "the room will appear in room search results"
-                : "the room will not appear in room search results"
-              }
-            </div>
-            <label htmlFor="joinRule">Join Rule</label>
-            <select class="styled-input" value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
-              <option value="public">Public</option>
-              <option value="invite">Invite-Only</option>
-            </select>
-            <div class="room-settings-info">
-              {state.joinRule === "public"
-                ? "anyone who can find the room may join"
-                : "an explicit invitation is required before joining"
-              }
-            </div>
-            <label htmlFor="readability">Readability</label>
-            <select class="styled-input" value={state.readability} disabled={!this.mayChangeReadability} name="readability" onchange={this.handleReadabilityChange}>
-              <option value="shared">Members Only</option>
-              <option value="world_readable">World Readable</option>
-            </select>
-            <div class="room-settings-info">
-              {state.readability === "world_readable"
-                ? "guests can see what's happening in the room"
-                : "only room members can see what's happening in the room"
-              }
-            </div>
-          </Fragment>
-          : state.view === "LINKS" ? <Fragment>
-              <label>Join Link</label>
-              <pre id="room-settings-join-link">{this.joinLink}</pre>
+      <div ref={this.settingsFormWrapper} id="room-settings-form-wrapper">
+        <form 
+          ref={this.settingsForm}
+          id="room-settings-form">
+          {state.view === "APPEARANCE"
+            ? <Fragment>
+              <label htmlFor="room-avatar">Room Avatar</label>
+              <div id="room-settings-avatar-wrapper">
+                {state.previewUrl
+                  ? <img onclick={this.mayChangeAvatar && this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
+                  : <div key="room-settings-avatar-selector" onclick={this.mayChangeAvatar && this.uploadAvatar} id="room-settings-avatar-selector" />}
+                {state.previewUrl && this.mayChangeAvatar ? <button id="room-settings-clear-avatar" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
+              </div>
+              <input name="room-avatar" id="room-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
+              <div class="room-settings-info" />
+              <label htmlFor="room-name">Room Name</label>
+              <input name="room-name"
+                type="text"
+                class="styled-input"
+                value={state.roomName}
+                disabled={!this.mayChangeName}
+                onkeydown={this.handleKeydown}
+                onInput={this.handleNameInput} />
+              <div class="room-settings-info" />
+            </Fragment>
+            : state.view === "ACCESS"
+            ? <Fragment>
+              <label htmlFor="visibility">Discovery</label>
+              <select disabled={!state.visibility} class="styled-input" value={state.visibility} name="visibility" onchange={this.handleVisibilityChange}>
+                <option value="private">Private</option>
+                <option value="public">Publicly Listed</option>
+              </select>
               <div class="room-settings-info">
-                Clicking this link will cause an attempt to join this room
+                {state.visibility === "public"
+                  ? "the room will appear in room search results"
+                  : "the room will not appear in room search results"
+                }
+              </div>
+              <label htmlFor="joinRule">Join Rule</label>
+              <select class="styled-input" value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
+                <option value="public">Public</option>
+                <option value="invite">Invite-Only</option>
+              </select>
+              <div class="room-settings-info">
+                {state.joinRule === "public"
+                  ? "anyone who can find the room may join"
+                  : "an explicit invitation is required before joining"
+                }
+              </div>
+              <label htmlFor="readability">Readability</label>
+              <select class="styled-input" value={state.readability} disabled={!this.mayChangeReadability} name="readability" onchange={this.handleReadabilityChange}>
+                <option value="shared">Members Only</option>
+                <option value="world_readable">World Readable</option>
+              </select>
+              <div class="room-settings-info">
+                {state.readability === "world_readable"
+                  ? "guests can see what's happening in the room"
+                  : "only room members can see what's happening in the room"
+                }
               </div>
             </Fragment>
-          : state.view === "ROLES" ? <Fragment>
-            <div class="room-settings-role-list">
-              <h5>Administrators</h5>
-              {this.getAdmins()}
-            </div>
-            <div class="room-settings-role-list">
-              <h5>Moderators</h5>
-              {this.getMods()}
-            </div>
-            <div class="room-settings-role-list">
-              <h5>Other Roles</h5>
-              {this.getOtherRoles()}
-            </div>
-          </Fragment>
-          : state.view === "PERMISSIONS" ? <Fragment>
-            { Resource.hasResource(props.room) 
-                ? <Fragment>
-                  <label htmlFor="annotate">Annotate</label>
-                  <select class="styled-input" value={state.canAnnotate} disabled={!this.mayChangePowerLevels} name="annotate" onchange={this.handleAnnotationChange}>
-                    <option value="admin">Administrators only</option>
-                    <option value="mod">Moderators and above</option>
-                    <option value="member">Any member</option>
-                  </select>
-                  <div class="room-settings-info">
-                    {state.canAnnotate === "admin" ? "only admins can create annotations"
-                      : state.canAnnotate === "mod" ? "only moderators can create annotations"
-                      : "any room member can create annotations"
-                    }
-                  </div>
-                </Fragment>
-                : null 
-            }
-          </Fragment>
-          : null
-        }
-        <div id="room-settings-submit-wrapper">
-          <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
-          <button className="styled-button" onClick={this.cancel} >Cancel</button>
-        </div>
-        {this.state.progress
-          ? <div id="room-settings-progress">
-            <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
+            : state.view === "LINKS" ? <Fragment>
+                <label>Join Link</label>
+                <pre id="room-settings-join-link">{this.joinLink}</pre>
+                <div class="room-settings-info">
+                  Clicking this link will cause an attempt to join this room
+                </div>
+              </Fragment>
+            : state.view === "ROLES" ? <Fragment>
+              <div class="room-settings-role-list">
+                <h5>Administrators</h5>
+                {this.getAdmins()}
+              </div>
+              <div class="room-settings-role-list">
+                <h5>Moderators</h5>
+                {this.getMods()}
+              </div>
+              <div class="room-settings-role-list">
+                <h5>Other Roles</h5>
+                {this.getOtherRoles()}
+              </div>
+            </Fragment>
+            : state.view === "PERMISSIONS" ? <Fragment>
+              { Resource.hasResource(props.room) 
+                  ? <Fragment>
+                    <label htmlFor="annotate">Annotate</label>
+                    <select class="styled-input" value={state.canAnnotate} disabled={!this.mayChangePowerLevels} name="annotate" onchange={this.handleAnnotationChange}>
+                      <option value="admin">Administrators only</option>
+                      <option value="mod">Moderators and above</option>
+                      <option value="member">Any member</option>
+                    </select>
+                    <div class="room-settings-info">
+                      {state.canAnnotate === "admin" ? "only admins can create annotations"
+                        : state.canAnnotate === "mod" ? "only moderators can create annotations"
+                        : "any room member can create annotations"
+                      }
+                    </div>
+                  </Fragment>
+                  : null 
+              }
+            </Fragment>
+            : null
+          }
+          <div id="room-settings-submit-wrapper">
+            <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
+            <button className="styled-button" onClick={this.cancel} >Cancel</button>
           </div>
-          : null
-        }
-      </form>
+          {this.state.progress
+            ? <div id="room-settings-progress">
+              <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
+            </div>
+            : null
+          }
+        </form>
+      </div>
     </Fragment>
   }
 }

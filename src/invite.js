@@ -1,4 +1,4 @@
-import { h, Fragment, Component } from 'preact';
+import { h, Fragment, createRef, Component } from 'preact';
 import UserPill from './userPill.js'
 import MemberPill from './memberPill.js'
 import Client from './client.js'
@@ -25,11 +25,22 @@ export default class Invite extends Component {
 
   componentDidMount () {
     Client.client.on("RoomMember.membership", this.updateMembership)
+    this.updateHeight()
   }
 
   componentWillUnmount () {
     Client.client.off("RoomMember.membership", this.updateMembership)
   }
+
+  componentDidUpdate () {
+    this.updateHeight()
+  }
+
+  inviteSelect = createRef()
+
+  inviteSelectWrapper = createRef()
+
+  updateHeight = _ => this.inviteSelectWrapper.current.style.height = `${this.inviteSelect.current.scrollHeight}px`
 
   updateMembership = event => {
     const joins = this.props.room.getMembersWithMembership("join")
@@ -61,18 +72,20 @@ export default class Invite extends Component {
         <button onClick={this.addMembers} data-current-button={state.adding}>Add Members</button>
         <button onClick={this.removeMembers} data-current-button={!state.adding}>Remove Members</button>
       </div>
-      { state.adding
-        ? <div style={{height: `${(additions.length * 40) + 50}px` }} id="invite-add-members">
-          <div>
-            { additions.map(u => <Invitation user={u} room={props.room} key={u.userId} />) }
+      <div ref={this.inviteSelectWrapper} id="invite-select-wrapper">
+        { state.adding
+          ? <div ref={this.inviteSelect} id="invite-add-members">
+            <div>
+              { additions.map(u => <Invitation user={u} room={props.room} key={u.userId} />) }
+            </div>
+            <ServerResults search={state.search} memberIds={state.memberIds} additions={additions} room={props.room} />
           </div>
-          <ServerResults search={state.search} memberIds={state.memberIds} additions={additions} room={props.room} />
-        </div>
-        : <div style={{height: `${(removals.length + invites.length) * 40}px`}}id="invite-remove-members">
-          { removals.map(m => <Removal member={m} room={props.room} key={m.userId} />) }
-          { invites.map(m => <Disinvitation member={m} room={props.room} key={m.userId} />) }
-        </div>
-      }
+          : <div ref={this.inviteSelect} id="invite-remove-members">
+            { removals.map(m => <Removal member={m} room={props.room} key={m.userId} />) }
+            { invites.map(m => <Disinvitation member={m} room={props.room} key={m.userId} />) }
+          </div>
+        }
+      </div>
     </Fragment>
   }
 }
