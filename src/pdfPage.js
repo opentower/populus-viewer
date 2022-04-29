@@ -69,7 +69,7 @@ export default class PdfPage extends Component {
     const locationData = this.generateLocation(theSelection)
     // TODO: we should set room_alias_name and name, in a useful way based on the selection
     return Client.client.createRoom({
-      visibility: "public",
+      visibility: "private",
       name: `highlighted passage on page ${this.props.pageFocused}`,
       power_level_content_override: {
         users: Object.assign({}, theLevels[0].getContent().users, {
@@ -130,7 +130,7 @@ export default class PdfPage extends Component {
       }
     }
     return Client.client.createRoom({
-      visibility: "public",
+      visibility: "private",
       name: `pindrop on page ${this.props.pageFocused}`,
       power_level_content_override: {
         users: Object.assign({}, theLevels[0].getContent().users, {

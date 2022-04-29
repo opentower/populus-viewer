@@ -12,16 +12,20 @@ export default class RoomSettings extends Component {
     super(props)
     this.roomState = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     this.initialJoinRule = this.roomState.getJoinRule()
+    this.mayChangeJoinRule = this.roomState.maySendStateEvent(Matrix.EventType.RoomJoinRules, Client.client.getUserId())
+    this.mayChangeAvatar = this.roomState.maySendStateEvent(Matrix.EventType.RoomAvatar, Client.client.getUserId())
     this.initialName = props.room.name
+    this.mayChangeName = this.roomState.maySendStateEvent(Matrix.EventType.RoomName, Client.client.getUserId())
     this.initialVisibility = null
-    this.initialReadability = props.room.getGuestAccess()
+    this.initialReadability = props.room.getHistoryVisibility()
+    this.mayChangeReadability = this.roomState.maySendStateEvent(Matrix.EventType.RoomHistoryVisibility, Client.client.getUserId())
     this.joinLink = `${window.location.protocol}//${window.location.hostname}${window.location.pathname}` +
       `?join=${encodeURIComponent(props.room.roomId)}&via=${Client.client.getDomain()}`
     this.state = {
       previewUrl: props.room.getAvatarUrl(`https://${Client.client.getDomain()}`, 300, 300, "crop"),
       joinRule: this.initialJoinRule,
       roomName: this.initialName,
-      readability: this.initialReadability ? "world" : "members",
+      readability: this.initialReadability,
       visibility: null,
       references: null,
       view: "APPEARANCE"
@@ -35,6 +39,15 @@ export default class RoomSettings extends Component {
   avatarImageInput = createRef()
 
   async initialize() {
+    let sendStatePowerLevel = 50
+    const powerLevelsEvent = this.roomState.getStateEvents(Matrix.EventType.RoomPowerLevels, "")
+    const me = this.props.room.getMember(Client.client.getUserId())
+    if (powerLevelsEvent) {
+      const pl = powerLevelsEvent.getContent()?.state_default
+      if (Number.isSafeInteger(pl)) sendStatePowerLevel = pl
+    }
+    if (me.powerLevel >= sendStatePowerLevel) this.canChangeVisibility = true 
+    // assume you can if you have 50 power---per advice from #matrix-spec, since this is implementation-dependent
     const visibility = await Client.client.getRoomDirectoryVisibility(this.props.room.roomId)
     this.initialVisibility = visibility
     const references = this.roomState.getStateEvents(spaceParent)
@@ -67,27 +80,28 @@ export default class RoomSettings extends Component {
 
   handleSubmit = async e => {
     e.preventDefault()
-    const theImage = this.avatarImageInput.current.files[0]
     if (this.state.visibility !== this.initialVisibility) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.visibility).catch(this.raiseErr)
     if (this.state.joinRule !== this.initialJoinRule) await this.updateJoinRule()
     if (this.state.roomName !== this.initialRoomName) await Client.client.setRoomName(this.props.room.roomId, this.state.roomName).catch(this.raiseErr)
-    if (this.state.readability !== this.initialReadability) await Client.client.setGuestAccess(this.props.room.roomId, {allowRead: this.state.readability}).catch(this.raiseErr)
-    if (theImage && /^image/.test(theImage.type)) {
-      const {width, height} = await loadImageElement(theImage)
-      await Client.client.uploadContent(theImage, { progressHandler: this.progressHandler })
+    if (this.state.readability !== this.initialReadability) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomHistoryVisibility, {
+      history_visibility: this.state.readability
+    }).catch(this.raiseErr)
+    if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
+      const {width, height} = await loadImageElement(this.avatarImage)
+      await Client.client.uploadContent(this.avatarImage, { progressHandler: this.progressHandler })
         .then(e => Client.client
-          .sendStateEvent(this.props.room.roomId, "m.room.avatar", {
+          .sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomAvatar, {
             info: {
               w: width,
               h: height,
-              mimetype: theImage.type ? theImage.type : "application/octet-stream",
-              size: theImage.size
+              mimetype: this.avatarImage.type ? this.avatarImage.type : "application/octet-stream",
+              size: this.avatarImage.size
             },
             url: e
           }, "")
         )
     } else if (!this.state.previewUrl) {
-      Client.client.sendStateEvent(this.props.room.roomId, "m.room.avatar", {}, "")
+      Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomAvatar, {}, "")
     }
     Modal.hide()
   }
@@ -95,9 +109,9 @@ export default class RoomSettings extends Component {
   raiseErr = _ => alert("Something went wrong. You may not have permission to adjust some of these settings.")
 
   updatePreview = _ => {
-    const theImage = this.avatarImageInput.current.files[0]
-    if (theImage && /^image/.test(theImage.type)) {
-      this.setState({previewUrl: URL.createObjectURL(this.avatarImageInput.current.files[0]) })
+    this.avatarImage = this.avatarImageInput.current.files[0]
+    if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
+      this.setState({previewUrl: URL.createObjectURL(this.avatarImage) })
     }
   }
 
@@ -146,10 +160,11 @@ export default class RoomSettings extends Component {
 
   getHeight = _ => {
     const wide = (document.body.offsetWidth > 600)
+    const progressFactor = this.state.progress ? 50 : 0
     switch (this.state.view) {
-      case "APPEARANCE" : return (wide ? "290px" : "370px")
-      case "ACCESS" : return (wide ?  "240px" : "400px")
-      case "LINKS" : return (wide ? "130px" : "180px")
+      case "APPEARANCE" : return `${(wide ? 290 : 370) + progressFactor}px`
+      case "ACCESS" : return `${(wide ? 240 : 400) + progressFactor}px`
+      case "LINKS" : return `${(wide ? 130 : 180) + progressFactor}px`
     }
   }
 
@@ -174,9 +189,9 @@ export default class RoomSettings extends Component {
             <label htmlFor="room-avatar">Room Avatar</label>
             <div id="room-settings-avatar-wrapper">
               {state.previewUrl
-                ? <img onclick={this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
-                : <div key="room-settings-avatar-selector" onclick={this.uploadAvatar} id="room-settings-avatar-selector" />}
-              {state.previewUrl ? <button id="room-settings-clear-avatar" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
+                ? <img onclick={this.mayChangeAvatar && this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
+                : <div key="room-settings-avatar-selector" onclick={this.mayChangeAvatar && this.uploadAvatar} id="room-settings-avatar-selector" />}
+              {state.previewUrl && this.mayChangeAvatar ? <button id="room-settings-clear-avatar" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
             </div>
             <input name="room-avatar" id="room-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
             <div id="room-settings-avatar-info" />
@@ -185,16 +200,17 @@ export default class RoomSettings extends Component {
               type="text"
               class="styled-input"
               value={state.roomName}
+              disabled={!this.mayChangeName}
               onkeydown={this.handleKeydown}
               onInput={this.handleNameInput} />
             <div id="room-settings-name-info" />
           </Fragment>
           : state.view === "ACCESS"
           ? <Fragment>
-            <label htmlFor="visibilty">Discovery</label>
-            <select disabled={!state.visibility} class="styled-input" value={state.visibility} name="joinRule" onchange={this.handleVisibilityChange}>
+            <label htmlFor="visibility">Discovery</label>
+            <select disabled={!state.visibility} class="styled-input" value={state.visibility} name="visibility" onchange={this.handleVisibilityChange}>
               <option value="private">Private</option>
-              <option value="public">Publically Listed</option>
+              <option value="public">Publicly Listed</option>
             </select>
             <div id="room-settings-visibility-info">
               {state.visibility === "public"
@@ -214,12 +230,12 @@ export default class RoomSettings extends Component {
               }
             </div>
             <label htmlFor="readability">Readability</label>
-            <select class="styled-input" value={state.readability} name="readability" onchange={this.handleReadabilityChange}>
-              <option value="members">Members Only</option>
-              <option value="world">World Readable</option>
+            <select class="styled-input" value={state.readability} disabled={!this.mayChangeReadability} name="readability" onchange={this.handleReadabilityChange}>
+              <option value="shared">Members Only</option>
+              <option value="world_readable">World Readable</option>
             </select>
             <div id="room-settings-join-info">
-              {state.readability === "world"
+              {state.readability === "world_readable"
                 ? "guests can see what's happening in the room"
                 : "only room members can see what's happening in the room"
               }

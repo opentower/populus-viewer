@@ -94,7 +94,7 @@ export default class AudioContent extends Component {
     const locationData = this.generateLocation()
     // TODO: we should set room_alias_name and name, in a useful way based on the selection
     return Client.client.createRoom({
-      visibility: "public",
+      visibility: "private",
       name: `highlighted interval from ${this.selection.start} to ${this.selection.end}`,
       power_level_content_override: {
         users: Object.assign({}, theLevels[0].getContent().users, {
