@@ -12,23 +12,25 @@ export default class RoomSettings extends Component {
   constructor(props) {
     super(props)
     this.roomState = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+
     this.initialJoinRule = this.roomState.getJoinRule()
     this.mayChangeJoinRule = this.roomState.maySendStateEvent(Matrix.EventType.RoomJoinRules, Client.client.getUserId())
+
     this.mayChangeAvatar = this.roomState.maySendStateEvent(Matrix.EventType.RoomAvatar, Client.client.getUserId())
+
     this.initialName = props.room.name
     this.mayChangeName = this.roomState.maySendStateEvent(Matrix.EventType.RoomName, Client.client.getUserId())
-    this.initialVisibility = null
+
     this.initialReadability = props.room.getHistoryVisibility()
     this.mayChangeReadability = this.roomState.maySendStateEvent(Matrix.EventType.RoomHistoryVisibility, Client.client.getUserId())
+
     this.joinLink = `${window.location.protocol}//${window.location.hostname}${window.location.pathname}` +
       `?join=${encodeURIComponent(props.room.roomId)}&via=${Client.client.getDomain()}`
     this.powerLevels = this.roomState.getStateEvents(Matrix.EventType.RoomPowerLevels, "")?.getContent()
-    this.mayChangePowerLevels = this.roomState.maySendStateEvent(Matrix.EventType.RoomPowerLevels, Client.client.getUserId())
 
-    this.initialAnnotationPowerLevel = this.getPowerLevelForStateEvent(spaceChild)
-    this.initialCanAnnotate =  this.initialAnnotationPowerLevel >= 100 ? "admin" 
-        : this.initialAnnotationPowerLevel >= 50 ? "mod"
-        : "member",
+    console.log(this.powerLevels)
+
+    this.member = props.room.getMember(Client.client.getUserId())
 
     this.state = {
       previewUrl: props.room.getAvatarUrl(`https://${Client.client.getDomain()}`, 300, 300, "crop"),
@@ -44,9 +46,7 @@ export default class RoomSettings extends Component {
 
   componentDidMount () { this.initialize() }
 
-  componentDidUpdate () {
-    this.settingsFormWrapper.current.style.height = `${this.settingsForm.current.scrollHeight}px`
-  }
+  componentDidUpdate () { this.resize() }
 
   settingsFormWrapper = createRef()
 
@@ -54,46 +54,44 @@ export default class RoomSettings extends Component {
 
   avatarImageInput = createRef()
 
+  setInvitePowerLevel = createRef()
+
+  setKickPowerLevel = createRef()
+
+  setBanPowerLevel = createRef()
+
+  setRedactPowerLevel = createRef()
+
+  setAnnotationPowerLevel = createRef()
+
   async initialize() {
     let sendStatePowerLevel = 50
-    const me = this.props.room.getMember(Client.client.getUserId())
     if (this.powerLevels) {
       const pl = this.powerLevels?.state_default
       if (Number.isSafeInteger(pl)) sendStatePowerLevel = pl
     }
-    if (me.powerLevel >= sendStatePowerLevel) this.canChangeVisibility = true 
+    if (this.member.powerLevel >= sendStatePowerLevel) this.mayChangeVisibility = true 
     // assume you can if you have 50 power---per advice from #matrix-spec, since this is implementation-dependent
     const visibility = await Client.client.getRoomDirectoryVisibility(this.props.room.roomId)
     this.initialVisibility = visibility
     const references = this.roomState.getStateEvents(spaceParent)
     this.setState({ references, visibility: visibility.visibility })
+    this.resize()
   }
 
-  handleJoinRuleChange = e => {
-    this.setState({ joinRule: e.target.value })
-  }
+  resize = _ => this.settingsFormWrapper.current.style.height = `${this.settingsForm.current.scrollHeight}px`
 
-  handleReadabilityChange = e => {
-    this.setState({ readability: e.target.value })
-  }
+  handleJoinRuleChange = e => this.setState({ joinRule: e.target.value })
 
-  handleAnnotationChange = e => {
-    this.setState({ canAnnotate: e.target.value })
-  }
+  handleReadabilityChange = e => this.setState({ readability: e.target.value })
 
-  handleNameInput = e => {
-    this.setState({ roomName: e.target.value })
-  }
+  handleNameInput = e => this.setState({ roomName: e.target.value })
 
-  handleKeydown = e => {
-    e.stopPropagation() // don't go to global keypress handler
-  }
+  handleKeydown = e => e.stopPropagation() // don't go to global keypress handler
 
   handleUploadAvatar = _ => this.avatarImageInput.current.click()
 
-  handleVisibilityChange = e => {
-    this.setState({ visibility: e.target.value })
-  }
+  handleVisibilityChange = e => this.setState({ visibility: e.target.value })
 
   progressHandler = (progress) => this.setState({progress})
 
@@ -106,15 +104,19 @@ export default class RoomSettings extends Component {
       history_visibility: this.state.readability
     }).catch(this.raiseErr)
 
-    if (this.state.canAnnotate !== this.initialCanAnnotate) {
-      if (!this.powerLevels.events) this.powerLevels.events = {}
-      if (this.state.canAnnotate === "admin") this.powerLevels.events[spaceChild] = 100
-      if (this.state.canAnnotate === "mod") this.powerLevels.events[spaceChild] = 50
-      if (this.state.canAnnotate === "member") this.powerLevels.events[spaceChild] = 0
-    }
+    if (this.setInvitePowerLevel.current.updatedValue()) this.powerLevels.invite = this.setInvitePowerLevel.current.updatedValue().updated
+    if (this.setBanPowerLevel.current.updatedValue()) this.powerLevels.ban = this.setBanPowerLevel.current.updatedValue().updated
+    if (this.setKickPowerLevel.current.updatedValue()) this.powerLevels.kick= this.setKickPowerLevel.current.updatedValue().updated
+    if (this.setRedactPowerLevel.current.updatedValue()) this.powerLevels.redact = this.setRedactPowerLevel.current.updatedValue().updated
+    if (this.setAnnotationPowerLevel.current.updatedValue()) this.powerLevels.events[spaceChild] = this.setAnnotationPowerLevel.current.updatedValue().updated
+
+    const powerLevelsUpdated = !! (this.setBanPowerLevel.current.updatedValue()) ||
+      !! (this.setKickPowerLevel.current.updatedValue()) ||
+      !! (this.setRedactPowerLevel.current.updatedValue()) ||
+      !!(this.setAnnotationPowerLevel.current.updatedValue())
     
     // if I update power levels, then send the updated contents
-    if (this.state.canAnnotate !== this.initialCanAnnotate) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomPowerLevels, 
+    if (powerLevelsUpdated) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomPowerLevels, 
       this.powerLevels).catch(this.raiseErr)
 
     if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
@@ -138,17 +140,6 @@ export default class RoomSettings extends Component {
   }
 
   raiseErr = _ => alert("Something went wrong. You may not have permission to adjust some of these settings.")
-
-  getPowerLevelForStateEvent = s => {
-    console.log(this.powerLevels.events[s])
-    if (s in this.powerLevels?.events) return this.powerLevels.events[s]
-    let sendStatePowerLevel = 50
-    if (this.powerLevels) {
-      const pl = this.powerLevels?.state_default
-      if (Number.isSafeInteger(pl)) sendStatePowerLevel = pl
-    }
-    return sendStatePowerLevel
-  }
 
   updatePreview = _ => {
     this.avatarImage = this.avatarImageInput.current.files[0]
@@ -280,7 +271,11 @@ export default class RoomSettings extends Component {
             : state.view === "ACCESS"
             ? <Fragment>
               <label htmlFor="visibility">Discovery</label>
-              <select disabled={!state.visibility} class="styled-input" value={state.visibility} name="visibility" onchange={this.handleVisibilityChange}>
+              <select disabled={!state.visibility || !this.mayChangeVisibility}
+                class="styled-input"
+                value={state.visibility}
+                name="visibility"
+                onchange={this.handleVisibilityChange}>
                 <option value="private">Private</option>
                 <option value="public">Publicly Listed</option>
               </select>
@@ -337,18 +332,46 @@ export default class RoomSettings extends Component {
             : state.view === "PERMISSIONS" ? <Fragment>
               { Resource.hasResource(props.room) 
                   ? <Fragment>
-                    <label htmlFor="annotate">Annotate</label>
-                    <select class="styled-input" value={state.canAnnotate} disabled={!this.mayChangePowerLevels} name="annotate" onchange={this.handleAnnotationChange}>
-                      <option value="admin">Administrators only</option>
-                      <option value="mod">Moderators and above</option>
-                      <option value="member">Any member</option>
-                    </select>
-                    <div class="room-settings-info">
-                      {state.canAnnotate === "admin" ? "only admins can create annotations"
-                        : state.canAnnotate === "mod" ? "only moderators can create annotations"
-                        : "any room member can create annotations"
-                      }
-                    </div>
+                    <ConfigurePowerForKey
+                      ref={this.setInvitePowerLevel}
+                      powerLevels={this.powerLevels}
+                      powerKey="invite"
+                      label="Invite"
+                      member={this.member}
+                      resize={this.resize}
+                      act="invite new members" />
+                    <ConfigurePowerForKey
+                      ref={this.setKickPowerLevel}
+                      powerLevels={this.powerLevels}
+                      powerKey="kick"
+                      label="Kick"
+                      member={this.member}
+                      resize={this.resize}
+                      act="remove users from the room" />
+                    <ConfigurePowerForKey
+                      ref={this.setBanPowerLevel}
+                      powerLevels={this.powerLevels}
+                      powerKey="ban"
+                      label="Ban"
+                      member={this.member}
+                      resize={this.resize}
+                      act="remove users and ban them from rejoining" />
+                    <ConfigurePowerForKey
+                      ref={this.setRedactPowerLevel}
+                      powerLevels={this.powerLevels}
+                      powerKey="redact"
+                      label="Redact"
+                      member={this.member}
+                      resize={this.resize}
+                      act="remove any message from the room" />
+                    <ConfigurePowerForState 
+                      ref={this.setAnnotationPowerLevel}
+                      powerLevels={this.powerLevels}
+                      type={spaceChild}
+                      label="Annotate"
+                      member={this.member}
+                      resize={this.resize}
+                      act="create annotations" />
                   </Fragment>
                   : null 
               }
@@ -368,5 +391,131 @@ export default class RoomSettings extends Component {
         </form>
       </div>
     </Fragment>
+  }
+}
+
+class ConfigurePowerForState extends Component {
+  constructor(props) {
+    super(props)
+    this.mayChangePowerLevel = this.mayChangePowerLevelForStateEvent()
+    this.initialPowerLevel = this.getPowerLevelForStateEvent()
+    this.initialRole =  this.initialPowerLevel >= 100 ? "admin" 
+        : this.initialPowerLevel >= 50 ? "mod"
+        : "member"
+
+    this.isMod = props.member.powerLevels >= 50
+    this.isAdmin = props.member.powerLevels >= 100
+    this.state = { requiredRole: this.initialRole }
+  }
+
+  getPowerLevelForStateEvent = _ => {
+    if (this.props.type in this.props.powerLevels?.events) return this.props.powerLevels.events[this.props.type]
+    let sendStatePowerLevel = 50
+    if (this.props.powerLevels) {
+      const pl = this.props.powerLevels?.state_default
+      if (Number.isSafeInteger(pl)) sendStatePowerLevel = pl
+    }
+    return sendStatePowerLevel
+  }
+
+  handleChange = e => this.setState({ requiredRole: e.target.value }, this.props.resize)
+  
+  // but the maximum you can change it to is your own power level
+  mayChangePowerLevelForStateEvent = _ => {
+    if (Matrix.EventType.RoomPowerLevels in this.props.powerLevels?.events) {
+      // forbidden if it's already set higher than your own level
+      if (this.props.member.powerLevel < getPowerLevelForStateEvent(this.props.type)) return false
+      // or if you can't send power level events
+      const toAdjustPowerLevels = this.props.powerLevels.events[Matrix.EventType.RoomPowerLevels]
+      return (this.props.member.powerLevel >= toAdjustPowerLevels)
+    }
+    return true
+  }
+
+  updatedValue = _ => {
+    if (this.state.requiredRole === this.initialRole) return null
+    if (this.state.requiredRole === "admin") return {updated:100}
+    if (this.state.requiredRole === "mod") return {updated: 50}
+    if (this.state.requiredRole === "member") return {updated: 0}
+    // use object here to avoid 0-is-falsy footgun
+  }
+
+  render(props, state) {
+    return <Fragment>
+        <label htmlFor={props.label}>{props.label}</label>
+        <select class="styled-input" value={state.requiredRole} disabled={!this.mayChangePowerLevel} name={props.label} onchange={this.handleChange}>
+          <option value="admin">Administrators only</option>
+          <option value="mod">Moderators and above</option>
+          <option value="member">Any member</option>
+        </select>
+        <div class="room-settings-info">
+          {state.requiredRole === "admin" ? `Only admins can ${props.act}`
+            : state.requiredRole === "mod" ? `Admins and moderators can ${props.act}`
+            : `Any room member can ${props.act}`
+          }
+        </div>
+      </Fragment>
+  }
+}
+
+class ConfigurePowerForKey extends Component {
+  constructor(props) {
+    super(props)
+    this.mayChangePowerLevel = this.mayChangePowerLevelForKey()
+    this.initialPowerLevel = this.getPowerLevelForKey()
+    this.initialRole =  this.initialPowerLevel >= 100 ? "admin" 
+        : this.initialPowerLevel >= 50 ? "mod"
+        : "member"
+
+    this.isMod = props.member.powerLevels >= 50
+    this.isAdmin = props.member.powerLevels >= 100
+    this.state = { requiredRole: this.initialRole }
+  }
+
+  getPowerLevelForKey = _ => {
+    if (this.props.powerKey in this.props.powerLevels) return this.props.powerLevels[this.props.powerKey]
+    if (this.props.powerKey === "events_default") return 0
+    // if there's no powerlevel event, the state_default is zero, but that's
+    // irrelevant because mayChange below will return true.
+    return 50
+  }
+
+  handleChange = e => this.setState({ requiredRole: e.target.value }, this.props.resize)
+  
+  // but the maximum you can change it to is your own power level
+  mayChangePowerLevelForKey = _ => {
+    if (Matrix.EventType.RoomPowerLevels in this.props.powerLevels?.events) {
+      // forbidden if your powerlevel is lower than the current value
+      if (this.props.member.powerLevel < getPowerLevelForKey(this.props.powerKey)) return false
+      // or if you can't send power level events
+      const toAdjustPowerLevels = this.props.powerLevels.events[Matrix.EventType.RoomPowerLevels]
+      return (this.props.member.powerLevel >= toAdjustPowerLevels)
+    }
+    return true
+  }
+
+  updatedValue = _ => {
+    if (this.state.requiredRole === this.initialRole) return null
+    if (this.state.requiredRole === "admin") return {updated:100}
+    if (this.state.requiredRole === "mod") return {updated: 50}
+    if (this.state.requiredRole === "member") return {updated: 0}
+    // use object here to avoid 0-is-falsy footgun
+  }
+
+  render(props, state) {
+    return <Fragment>
+        <label htmlFor={props.label}>{props.label}</label>
+        <select class="styled-input" value={state.requiredRole} disabled={!this.mayChangePowerLevel} name={props.label} onchange={this.handleChange}>
+          <option value="admin">Administrators only</option>
+          <option value="mod">Moderators and above</option>
+          <option value="member">Any member</option>
+        </select>
+        <div class="room-settings-info">
+          {state.requiredRole === "admin" ? `Only admins can ${props.act}`
+            : state.requiredRole === "mod" ? `Admins and moderators can ${props.act}`
+            : `Any room member can ${props.act}`
+          }
+        </div>
+      </Fragment>
   }
 }
