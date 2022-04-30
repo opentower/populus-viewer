@@ -28,8 +28,6 @@ export default class RoomSettings extends Component {
       `?join=${encodeURIComponent(props.room.roomId)}&via=${Client.client.getDomain()}`
     this.powerLevels = this.roomState.getStateEvents(Matrix.EventType.RoomPowerLevels, "")?.getContent()
 
-    console.log(this.powerLevels)
-
     this.member = props.room.getMember(Client.client.getUserId())
 
     this.state = {
@@ -61,6 +59,8 @@ export default class RoomSettings extends Component {
   setBanPowerLevel = createRef()
 
   setRedactPowerLevel = createRef()
+
+  setMessagePowerLevel = createRef()
 
   setAnnotationPowerLevel = createRef()
 
@@ -108,11 +108,16 @@ export default class RoomSettings extends Component {
     if (this.setBanPowerLevel.current.updatedValue()) this.powerLevels.ban = this.setBanPowerLevel.current.updatedValue().updated
     if (this.setKickPowerLevel.current.updatedValue()) this.powerLevels.kick= this.setKickPowerLevel.current.updatedValue().updated
     if (this.setRedactPowerLevel.current.updatedValue()) this.powerLevels.redact = this.setRedactPowerLevel.current.updatedValue().updated
-    if (this.setAnnotationPowerLevel.current.updatedValue()) this.powerLevels.events[spaceChild] = this.setAnnotationPowerLevel.current.updatedValue().updated
+    if (this.setMessagePowerLevel.current?.updatedValue()) this.powerLevels.events_default = this.setMessagePowerLevel.current.updatedValue().updated
+    if (this.setAnnotationPowerLevel.current?.updatedValue()) this.powerLevels.events[spaceChild] = this.setAnnotationPowerLevel.current.updatedValue().updated
 
-    const powerLevelsUpdated = !! (this.setBanPowerLevel.current.updatedValue()) ||
-      !! (this.setKickPowerLevel.current.updatedValue()) ||
-      !! (this.setRedactPowerLevel.current.updatedValue()) ||
+
+
+    const powerLevelsUpdated = !!(this.setInvitePowerLevel.current.updatedValue()) ||
+      !!(this.setBanPowerLevel.current.updatedValue()) ||
+      !!(this.setKickPowerLevel.current.updatedValue()) ||
+      !!(this.setRedactPowerLevel.current.updatedValue()) ||
+      !!(this.setMessagePowerLevel.current.updatedValue()) ||
       !!(this.setAnnotationPowerLevel.current.updatedValue())
     
     // if I update power levels, then send the updated contents
@@ -330,41 +335,51 @@ export default class RoomSettings extends Component {
               </div>
             </Fragment>
             : state.view === "PERMISSIONS" ? <Fragment>
-              { Resource.hasResource(props.room) 
-                  ? <Fragment>
-                    <ConfigurePowerForKey
-                      ref={this.setInvitePowerLevel}
+                <ConfigurePowerForKey
+                  ref={this.setInvitePowerLevel}
+                  powerLevels={this.powerLevels}
+                  powerKey="invite"
+                  label="Invite"
+                  member={this.member}
+                  resize={this.resize}
+                  act="invite new members" />
+                <ConfigurePowerForKey
+                  ref={this.setKickPowerLevel}
+                  powerLevels={this.powerLevels}
+                  powerKey="kick"
+                  label="Kick"
+                  member={this.member}
+                  resize={this.resize}
+                  act="remove users from the room" />
+                <ConfigurePowerForKey
+                  ref={this.setBanPowerLevel}
+                  powerLevels={this.powerLevels}
+                  powerKey="ban"
+                  label="Ban"
+                  member={this.member}
+                  resize={this.resize}
+                  act="remove users and ban them from rejoining" />
+                <ConfigurePowerForKey
+                  ref={this.setRedactPowerLevel}
+                  powerLevels={this.powerLevels}
+                  powerKey="redact"
+                  label="Redact"
+                  member={this.member}
+                  resize={this.resize}
+                  act="remove any message from the room" />
+                {props.room.getType() === Matrix.RoomType.Space 
+                  ? null
+                  : <ConfigurePowerForKey
+                      ref={this.setMessagePowerLevel}
                       powerLevels={this.powerLevels}
-                      powerKey="invite"
-                      label="Invite"
+                      powerKey="events_default"
+                      label="Message"
                       member={this.member}
                       resize={this.resize}
-                      act="invite new members" />
-                    <ConfigurePowerForKey
-                      ref={this.setKickPowerLevel}
-                      powerLevels={this.powerLevels}
-                      powerKey="kick"
-                      label="Kick"
-                      member={this.member}
-                      resize={this.resize}
-                      act="remove users from the room" />
-                    <ConfigurePowerForKey
-                      ref={this.setBanPowerLevel}
-                      powerLevels={this.powerLevels}
-                      powerKey="ban"
-                      label="Ban"
-                      member={this.member}
-                      resize={this.resize}
-                      act="remove users and ban them from rejoining" />
-                    <ConfigurePowerForKey
-                      ref={this.setRedactPowerLevel}
-                      powerLevels={this.powerLevels}
-                      powerKey="redact"
-                      label="Redact"
-                      member={this.member}
-                      resize={this.resize}
-                      act="remove any message from the room" />
-                    <ConfigurePowerForState 
+                      act="send messages" />
+                }
+               { Resource.hasResource(props.room)
+                   ? <ConfigurePowerForState 
                       ref={this.setAnnotationPowerLevel}
                       powerLevels={this.powerLevels}
                       type={spaceChild}
@@ -372,7 +387,6 @@ export default class RoomSettings extends Component {
                       member={this.member}
                       resize={this.resize}
                       act="create annotations" />
-                  </Fragment>
                   : null 
               }
             </Fragment>
@@ -491,7 +505,7 @@ class ConfigurePowerForKey extends Component {
   mayChangePowerLevelForKey = _ => {
     if (Matrix.EventType.RoomPowerLevels in this.props.powerLevels?.events) {
       // forbidden if your powerlevel is lower than the current value
-      if (this.props.member.powerLevel < getPowerLevelForKey(this.props.powerKey)) return false
+      if (this.props.member.powerLevel < this.getPowerLevelForKey(this.props.powerKey)) return false
       // or if you can't send power level events
       const toAdjustPowerLevels = this.props.powerLevels.events[Matrix.EventType.RoomPowerLevels]
       return (this.props.member.powerLevel >= toAdjustPowerLevels)
