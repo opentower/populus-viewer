@@ -401,7 +401,8 @@ class ConfigurePowerForState extends Component {
     this.initialPowerLevel = this.getPowerLevelForStateEvent()
     this.initialRole =  this.initialPowerLevel >= 100 ? "admin" 
         : this.initialPowerLevel >= 50 ? "mod"
-        : "member"
+        : this.initialPowerLevel === 0 ? "member"
+        : "custom"
 
     this.isMod = props.member.powerLevels >= 50
     this.isAdmin = props.member.powerLevels >= 100
@@ -438,6 +439,7 @@ class ConfigurePowerForState extends Component {
     if (this.state.requiredRole === "mod") return {updated: 50}
     if (this.state.requiredRole === "member") return {updated: 0}
     // use object here to avoid 0-is-falsy footgun
+    // it shouldn't be possible to return "custom", since those values can be displayed but not set ATM
   }
 
   render(props, state) {
@@ -447,11 +449,13 @@ class ConfigurePowerForState extends Component {
           <option value="admin">Administrators only</option>
           <option value="mod">Moderators and above</option>
           <option value="member">Any member</option>
+          {this.initialRole === "custom" ? <option value="custom">Custom Value</option>: null}
         </select>
         <div class="room-settings-info">
           {state.requiredRole === "admin" ? `Only admins can ${props.act}`
             : state.requiredRole === "mod" ? `Admins and moderators can ${props.act}`
-            : `Any room member can ${props.act}`
+            : state.requiredRole === "member" ? `Any room member can ${props.act}`
+            : `Powerlevel ${this.initialPowerLevel} is required to ${props.act}`
           }
         </div>
       </Fragment>
@@ -463,9 +467,10 @@ class ConfigurePowerForKey extends Component {
     super(props)
     this.mayChangePowerLevel = this.mayChangePowerLevelForKey()
     this.initialPowerLevel = this.getPowerLevelForKey()
-    this.initialRole =  this.initialPowerLevel >= 100 ? "admin" 
-        : this.initialPowerLevel >= 50 ? "mod"
-        : "member"
+    this.initialRole =  this.initialPowerLevel === 100 ? "admin" 
+        : this.initialPowerLevel === 50 ? "mod"
+        : this.initialPowerLevel === 0 ? "member"
+        : "custom"
 
     this.isMod = props.member.powerLevels >= 50
     this.isAdmin = props.member.powerLevels >= 100
@@ -500,6 +505,7 @@ class ConfigurePowerForKey extends Component {
     if (this.state.requiredRole === "mod") return {updated: 50}
     if (this.state.requiredRole === "member") return {updated: 0}
     // use object here to avoid 0-is-falsy footgun
+    // it shouldn't be possible to return "custom", since those values can be displayed but not set ATM
   }
 
   render(props, state) {
@@ -509,11 +515,13 @@ class ConfigurePowerForKey extends Component {
           <option value="admin">Administrators only</option>
           <option value="mod">Moderators and above</option>
           <option value="member">Any member</option>
+          {this.initialRole === "custom" ? <option value="custom">Custom Value</option>: null}
         </select>
         <div class="room-settings-info">
           {state.requiredRole === "admin" ? `Only admins can ${props.act}`
             : state.requiredRole === "mod" ? `Admins and moderators can ${props.act}`
-            : `Any room member can ${props.act}`
+            : state.requiredRole === "member" ? `Any room member can ${props.act}`
+            : `Powerlevel ${this.initialPowerLevel} is required to ${props.act}`
           }
         </div>
       </Fragment>
