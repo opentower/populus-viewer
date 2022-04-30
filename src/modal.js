@@ -22,11 +22,12 @@ export default class Modal extends Component {
     this.setState({content, title})
   }
 
+  //TODO: implement focus-trap to prevent focus from escaping modal
   render(_, state) {
     return state.content
       ? <div id="modalPopup">
         <div id="modalBackground" onclick={this.hideModal} />
-        <div id="modalContent">
+        <div role="dialog" aria-modal="true" id="modalContent">
           <button id="dismissModal" onclick={this.hideModal}>
             {Icons.close}
           </button>
