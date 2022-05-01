@@ -36,8 +36,8 @@ export default class RoomSettings extends Component {
       roomName: this.initialName,
       readability: this.initialReadability,
       visibility: null,
-      canAnnotate: this.initialCanAnnotate,
       references: null,
+      //TODO: need to hoist setPowerLevel state to here, so that it's maintained across tab changes
       view: "APPEARANCE"
     }
   }
@@ -51,18 +51,6 @@ export default class RoomSettings extends Component {
   settingsForm = createRef()
 
   avatarImageInput = createRef()
-
-  setInvitePowerLevel = createRef()
-
-  setKickPowerLevel = createRef()
-
-  setBanPowerLevel = createRef()
-
-  setRedactPowerLevel = createRef()
-
-  setMessagePowerLevel = createRef()
-
-  setAnnotationPowerLevel = createRef()
 
   async initialize() {
     let sendStatePowerLevel = 50
@@ -95,6 +83,18 @@ export default class RoomSettings extends Component {
 
   progressHandler = (progress) => this.setState({progress})
 
+  roleToPowerLevel = role => role === "admin" ? 100
+      : role === "mod" ? 50
+      : 0 // should never be called on "custom" power level
+  
+  powerLevelsUpdated = _ => 
+      !!this.state.invite ||
+      !!this.state.ban ||
+      !!this.state.kick ||
+      !!this.state.redact ||
+      !!this.state.events_default ||
+      !!this.state[spaceChild] 
+
   handleSubmit = async e => {
     e.preventDefault()
     if (this.state.visibility !== this.initialVisibility) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.visibility).catch(this.raiseErr)
@@ -104,24 +104,15 @@ export default class RoomSettings extends Component {
       history_visibility: this.state.readability
     }).catch(this.raiseErr)
 
-    if (this.setInvitePowerLevel.current.updatedValue()) this.powerLevels.invite = this.setInvitePowerLevel.current.updatedValue().updated
-    if (this.setBanPowerLevel.current.updatedValue()) this.powerLevels.ban = this.setBanPowerLevel.current.updatedValue().updated
-    if (this.setKickPowerLevel.current.updatedValue()) this.powerLevels.kick= this.setKickPowerLevel.current.updatedValue().updated
-    if (this.setRedactPowerLevel.current.updatedValue()) this.powerLevels.redact = this.setRedactPowerLevel.current.updatedValue().updated
-    if (this.setMessagePowerLevel.current?.updatedValue()) this.powerLevels.events_default = this.setMessagePowerLevel.current.updatedValue().updated
-    if (this.setAnnotationPowerLevel.current?.updatedValue()) this.powerLevels.events[spaceChild] = this.setAnnotationPowerLevel.current.updatedValue().updated
+    if (this.state.invite) this.powerLevels.invite = this.roleToPowerLevel(this.state.invite)
+    if (this.state.ban) this.powerLevels.ban = this.roleToPowerLevel(this.state.ban)
+    if (this.state.kick) this.powerLevels.kick = this.roleToPowerLevel(this.state.kick)
+    if (this.state.redact) this.powerLevels.redact = this.roleToPowerLevel(this.state.redact)
+    if (this.state.events_default) this.powerLevels.events_default = this.roleToPowerLevel(this.state.events_default)
+    if (this.state[spaceChild]) this.powerLevels.events[spaceChild] = this.roleToPowerLevel(this.state[spaceChild])
 
-
-
-    const powerLevelsUpdated = !!(this.setInvitePowerLevel.current.updatedValue()) ||
-      !!(this.setBanPowerLevel.current.updatedValue()) ||
-      !!(this.setKickPowerLevel.current.updatedValue()) ||
-      !!(this.setRedactPowerLevel.current.updatedValue()) ||
-      !!(this.setMessagePowerLevel.current.updatedValue()) ||
-      !!(this.setAnnotationPowerLevel.current.updatedValue())
-    
     // if I update power levels, then send the updated contents
-    if (powerLevelsUpdated) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomPowerLevels, 
+    if (this.powerLevelsUpdated()) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomPowerLevels, 
       this.powerLevels).catch(this.raiseErr)
 
     if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
@@ -233,6 +224,8 @@ export default class RoomSettings extends Component {
 
   removeAvatar = _ => this.setState({ previewUrl: null })
 
+  setPowerLevelRole = (s,role) => this.setState({[s]:role})
+
   cancel = e => {
     e.preventDefault()
     Modal.hide()
@@ -336,53 +329,59 @@ export default class RoomSettings extends Component {
             </Fragment>
             : state.view === "PERMISSIONS" ? <Fragment>
                 <ConfigurePowerForKey
-                  ref={this.setInvitePowerLevel}
+                  setPowerLevelRole={this.setPowerLevelRole}
                   powerLevels={this.powerLevels}
                   powerKey="invite"
+                  requiredRole={state.invite}
                   label="Invite"
                   member={this.member}
                   resize={this.resize}
                   act="invite new members" />
                 <ConfigurePowerForKey
-                  ref={this.setKickPowerLevel}
+                  setPowerLevelRole={this.setPowerLevelRole}
                   powerLevels={this.powerLevels}
                   powerKey="kick"
                   label="Kick"
+                  requiredRole={state.kick}
                   member={this.member}
                   resize={this.resize}
                   act="remove users from the room" />
                 <ConfigurePowerForKey
-                  ref={this.setBanPowerLevel}
+                  setPowerLevelRole={this.setPowerLevelRole}
                   powerLevels={this.powerLevels}
                   powerKey="ban"
                   label="Ban"
+                  requiredRole={state.ban}
                   member={this.member}
                   resize={this.resize}
                   act="remove users and ban them from rejoining" />
                 <ConfigurePowerForKey
-                  ref={this.setRedactPowerLevel}
+                  setPowerLevelRole={this.setPowerLevelRole}
                   powerLevels={this.powerLevels}
                   powerKey="redact"
                   label="Redact"
+                  requiredRole={state.redact}
                   member={this.member}
                   resize={this.resize}
                   act="remove any message from the room" />
                 {props.room.getType() === Matrix.RoomType.Space 
                   ? null
                   : <ConfigurePowerForKey
-                      ref={this.setMessagePowerLevel}
+                      setPowerLevelRole={this.setPowerLevelRole}
                       powerLevels={this.powerLevels}
                       powerKey="events_default"
                       label="Message"
+                      requiredRole={state.events_default}
                       member={this.member}
                       resize={this.resize}
                       act="send messages" />
                 }
                { Resource.hasResource(props.room)
                    ? <ConfigurePowerForState 
-                      ref={this.setAnnotationPowerLevel}
+                      setPowerLevelRole={this.setPowerLevelRole}
                       powerLevels={this.powerLevels}
                       type={spaceChild}
+                      requiredRole={state[spaceChild]}
                       label="Annotate"
                       member={this.member}
                       resize={this.resize}
@@ -420,7 +419,6 @@ class ConfigurePowerForState extends Component {
 
     this.isMod = props.member.powerLevels >= 50
     this.isAdmin = props.member.powerLevels >= 100
-    this.state = { requiredRole: this.initialRole }
   }
 
   getPowerLevelForStateEvent = _ => {
@@ -433,8 +431,11 @@ class ConfigurePowerForState extends Component {
     return sendStatePowerLevel
   }
 
-  handleChange = e => this.setState({ requiredRole: e.target.value }, this.props.resize)
-  
+  handleChange = e => {
+    if (e.target.value === this.initialRole) this.props.setPowerLevelRole(this.props.type, undefined)
+    else this.props.setPowerLevelRole(this.props.type, e.target.value)
+  }
+
   // but the maximum you can change it to is your own power level
   mayChangePowerLevelForStateEvent = _ => {
     if (Matrix.EventType.RoomPowerLevels in this.props.powerLevels?.events) {
@@ -447,28 +448,20 @@ class ConfigurePowerForState extends Component {
     return true
   }
 
-  updatedValue = _ => {
-    if (this.state.requiredRole === this.initialRole) return null
-    if (this.state.requiredRole === "admin") return {updated:100}
-    if (this.state.requiredRole === "mod") return {updated: 50}
-    if (this.state.requiredRole === "member") return {updated: 0}
-    // use object here to avoid 0-is-falsy footgun
-    // it shouldn't be possible to return "custom", since those values can be displayed but not set ATM
-  }
-
-  render(props, state) {
+  render(props) {
+    const currentRole = props.requiredRole || this.initialRole
     return <Fragment>
         <label htmlFor={props.label}>{props.label}</label>
-        <select class="styled-input" value={state.requiredRole} disabled={!this.mayChangePowerLevel} name={props.label} onchange={this.handleChange}>
-          <option value="admin">Administrators only</option>
-          <option value="mod">Moderators and above</option>
+        <select class="styled-input" value={currentRole} disabled={!this.mayChangePowerLevel} name={props.label} onchange={this.handleChange}>
+          <option disabled={props.member.powerLevels < 100} value="admin">Administrators only</option>
+          <option disabled={props.member.powerLevels < 50} value="mod">Moderators and above</option>
           <option value="member">Any member</option>
           {this.initialRole === "custom" ? <option value="custom">Custom Value</option>: null}
         </select>
         <div class="room-settings-info">
-          {state.requiredRole === "admin" ? `Only admins can ${props.act}`
-            : state.requiredRole === "mod" ? `Admins and moderators can ${props.act}`
-            : state.requiredRole === "member" ? `Any room member can ${props.act}`
+          {currentRole === "admin" ? `Only admins can ${props.act}`
+            : currentRole === "mod" ? `Admins and moderators can ${props.act}`
+            : currentRole === "member" ? `Any room member can ${props.act}`
             : `Powerlevel ${this.initialPowerLevel} is required to ${props.act}`
           }
         </div>
@@ -485,10 +478,6 @@ class ConfigurePowerForKey extends Component {
         : this.initialPowerLevel === 50 ? "mod"
         : this.initialPowerLevel === 0 ? "member"
         : "custom"
-
-    this.isMod = props.member.powerLevels >= 50
-    this.isAdmin = props.member.powerLevels >= 100
-    this.state = { requiredRole: this.initialRole }
   }
 
   getPowerLevelForKey = _ => {
@@ -499,7 +488,10 @@ class ConfigurePowerForKey extends Component {
     return 50
   }
 
-  handleChange = e => this.setState({ requiredRole: e.target.value }, this.props.resize)
+  handleChange = e => {
+    if (e.target.value === this.initialRole) this.props.setPowerLevelRole(this.props.powerKey, undefined)
+    else this.props.setPowerLevelRole(this.props.powerKey, e.target.value)
+  }
   
   // but the maximum you can change it to is your own power level
   mayChangePowerLevelForKey = _ => {
@@ -513,28 +505,20 @@ class ConfigurePowerForKey extends Component {
     return true
   }
 
-  updatedValue = _ => {
-    if (this.state.requiredRole === this.initialRole) return null
-    if (this.state.requiredRole === "admin") return {updated:100}
-    if (this.state.requiredRole === "mod") return {updated: 50}
-    if (this.state.requiredRole === "member") return {updated: 0}
-    // use object here to avoid 0-is-falsy footgun
-    // it shouldn't be possible to return "custom", since those values can be displayed but not set ATM
-  }
-
-  render(props, state) {
+  render(props) {
+    const currentRole = props.requiredRole || this.initialRole
     return <Fragment>
         <label htmlFor={props.label}>{props.label}</label>
-        <select class="styled-input" value={state.requiredRole} disabled={!this.mayChangePowerLevel} name={props.label} onchange={this.handleChange}>
+        <select class="styled-input" value={currentRole} disabled={!this.mayChangePowerLevel} name={props.label} onchange={this.handleChange}>
           <option value="admin">Administrators only</option>
           <option value="mod">Moderators and above</option>
           <option value="member">Any member</option>
           {this.initialRole === "custom" ? <option value="custom">Custom Value</option>: null}
         </select>
         <div class="room-settings-info">
-          {state.requiredRole === "admin" ? `Only admins can ${props.act}`
-            : state.requiredRole === "mod" ? `Admins and moderators can ${props.act}`
-            : state.requiredRole === "member" ? `Any room member can ${props.act}`
+          {currentRole === "admin" ? `Only admins can ${props.act}`
+            : currentRole === "mod" ? `Admins and moderators can ${props.act}`
+            : currentRole === "member" ? `Any room member can ${props.act}`
             : `Powerlevel ${this.initialPowerLevel} is required to ${props.act}`
           }
         </div>
