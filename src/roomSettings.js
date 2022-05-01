@@ -18,8 +18,8 @@ export default class RoomSettings extends Component {
 
     this.mayChangeAvatar = this.roomState.maySendStateEvent(Matrix.EventType.RoomAvatar, Client.client.getUserId())
 
-    this.initialName = props.room.name
-    this.mayChangeName = this.roomState.maySendStateEvent(Matrix.EventType.RoomName, Client.client.getUserId())
+    this.initialRoomName = props.room.name
+    this.mayChangeRoomName = this.roomState.maySendStateEvent(Matrix.EventType.RoomName, Client.client.getUserId())
 
     this.initialReadability = props.room.getHistoryVisibility()
     this.mayChangeReadability = this.roomState.maySendStateEvent(Matrix.EventType.RoomHistoryVisibility, Client.client.getUserId())
@@ -33,7 +33,7 @@ export default class RoomSettings extends Component {
     this.state = {
       previewUrl: props.room.getAvatarUrl(`https://${Client.client.getDomain()}`, 300, 300, "crop"),
       joinRule: this.initialJoinRule,
-      roomName: this.initialName,
+      roomName: this.initialRoomName,
       readability: this.initialReadability,
       visibility: null,
       references: null,
@@ -61,7 +61,7 @@ export default class RoomSettings extends Component {
     if (this.member.powerLevel >= sendStatePowerLevel) this.mayChangeVisibility = true 
     // assume you can if you have 50 power---per advice from #matrix-spec, since this is implementation-dependent
     const visibility = await Client.client.getRoomDirectoryVisibility(this.props.room.roomId)
-    this.initialVisibility = visibility
+    this.initialVisibility = visibility.visibility
     const references = this.roomState.getStateEvents(spaceParent)
     this.setState({ references, visibility: visibility.visibility })
     this.resize()
@@ -88,10 +88,10 @@ export default class RoomSettings extends Component {
       : 0 // should never be called on "custom" power level
   
   powerLevelsUpdated = _ => 
-      !!this.state.invite ||
-      !!this.state.ban ||
-      !!this.state.kick ||
-      !!this.state.redact ||
+      !!this.state.invite         ||
+      !!this.state.ban            ||
+      !!this.state.kick           ||
+      !!this.state.redact         ||
       !!this.state.events_default ||
       !!this.state[spaceChild] 
 
@@ -232,6 +232,13 @@ export default class RoomSettings extends Component {
   }
 
   render(props, state) {
+    const updated = this.powerLevelsUpdated()            ||
+      this.state.visibility !== this.initialVisibility   ||
+      this.state.joinRule !== this.initialJoinRule       ||
+      this.state.roomName !== this.initialRoomName       ||
+      this.state.readability !== this.initialReadability ||
+      this.avatarImage && /^image/.test(this.avatarImage.type)
+
     return <Fragment>
       <h3 id="modalHeader">Room Settings</h3>
       <div id="room-settings-select-view" class="select-view">
@@ -261,7 +268,7 @@ export default class RoomSettings extends Component {
                 type="text"
                 class="styled-input"
                 value={state.roomName}
-                disabled={!this.mayChangeName}
+                disabled={!this.mayChangeRoomName}
                 onkeydown={this.handleKeydown}
                 onInput={this.handleNameInput} />
               <div class="room-settings-info" />
@@ -392,7 +399,7 @@ export default class RoomSettings extends Component {
             : null
           }
           <div id="room-settings-submit-wrapper">
-            <button className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
+            <button disabled={!updated} className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
             <button className="styled-button" onClick={this.cancel} >Cancel</button>
           </div>
           {this.state.progress
