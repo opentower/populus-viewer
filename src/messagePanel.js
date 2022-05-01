@@ -117,6 +117,7 @@ export default class MessagePanel extends Component {
     const theRoom = Client.client.getRoom(props.focus.getChild())
     const userMember = theRoom?.getMember(Client.client.getUserId())
     const isAdmin = userMember ? userMember.powerLevel >= 100 : false
+    if (theRoom && !theRoom.maySendMessage()) return <div id="message-panel-disabled">Read-only Discussion</div>
     return <div style={this.userColor.styleVariables} id="messageComposer">
       {this.getInput()}
       <div id="submit-button-wrapper">

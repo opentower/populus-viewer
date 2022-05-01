@@ -149,6 +149,16 @@
     background-color:var(--user_dark);
 }
 
+#message-panel-disabled { 
+  padding: 5px;
+  padding-left: 15px;
+  font-size:10pt;
+  color: white;
+  font-weight: bold;
+  background: #ababab;
+  border-top: 1px #ababab solid;
+}
+
 #mediaUploaderHidden {
   display:none;
 }
