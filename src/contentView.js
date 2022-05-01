@@ -298,7 +298,8 @@ export default class ContentView extends Component {
 
   checkForSelection () {
     if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
-    const hasSelection = this.content.current.hasSelection()
+    const hasSelection = !!(this.content.current?.hasSelection())
+    // false if there's no current content
     this.selectionTimeout = setTimeout(200, this.setState({hasSelection}))
     // timeout to avoid excessive rerendering
   }
