@@ -531,13 +531,6 @@ class AdminList extends Component {
     this.state = { search: "" }
   }
 
-  toggleAdmin = user => {
-    const newUsers = Object.assign ({}, this.props.users)
-    if (newUsers[user] !== 100) newUsers[user] = 100
-    else delete newUsers[user]
-    this.props.setUsers(newUsers)
-  }
-
   getAdmins = _ => {
     let admins = []
     for (const user in this.props.users) {
@@ -567,13 +560,26 @@ class AdminList extends Component {
     else return <div class="room-settings-role-empty">No admins!</div>
   }
 
+  toggleAdmin = user => {
+    const newUsers = Object.assign ({}, this.props.users)
+    if (newUsers[user] !== 100) newUsers[user] = 100
+    else delete newUsers[user]
+    this.props.setUsers(newUsers)
+  }
+
+  addAdmin = user => {
+    const newUsers = Object.assign ({}, this.props.users)
+    if (newUsers[user] !== 100) newUsers[user] = 100
+    this.props.setUsers(newUsers)
+  }
+
   canAdd = this.props.room.getMember(Client.client.getUserId()).powerLevel >= 50
 
   render(props) {
     return <div class="room-settings-role-list">
       <h5>Administrators</h5>
       {this.getAdmins()}
-      {this.canAdd ? <AddRole users={props.users} toggleRole={this.toggleAdmin} room={props.room}/> : null}
+      {this.canAdd ? <AddRole users={props.users} addRole={this.addAdmin} room={props.room}/> : null}
     </div>
   }
 }
@@ -600,7 +606,7 @@ class AddRole extends Component {
       console.log(theirPower, myPower)
       if (theirPower >= myPower) return // TODO could trigger a transitent explainer here.
     }
-    this.props.toggleRole(userId.trim())
+    this.props.addRole(userId.trim())
   }
 
   render(props, state) {
@@ -658,13 +664,19 @@ class ModList extends Component {
     this.props.setUsers(newUsers)
   }
 
+  addMod = user => {
+    const newUsers = Object.assign ({}, this.props.users)
+    if (newUsers[user] !== 50) newUsers[user] = 50
+    this.props.setUsers(newUsers)
+  }
+
   canAdd = this.props.room.getMember(Client.client.getUserId()).powerLevel >= 50
 
   render(props) {
     return <div class="room-settings-role-list">
       <h5>Moderators</h5>
       {this.getMods()}
-      {this.canAdd ? <AddRole users={props.users} toggleRole={this.toggleMod} room={props.room}/> : null}
+      {this.canAdd ? <AddRole users={props.users} addRole={this.addMod} room={props.room}/> : null}
     </div>
   }
 }
