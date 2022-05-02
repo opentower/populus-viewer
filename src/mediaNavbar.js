@@ -1,14 +1,17 @@
 import { h, createRef, Component } from 'preact';
 import * as Icons from './icons.js';
+import * as Matrix from "matrix-js-sdk"
+import { spaceChild } from "./constants.js"
 import ToolTip from "./utils/tooltip.js"
 import './styles/navbar.css';
 import History from './history.js'
 import Resource from "./utils/resource.js"
+import Client from './client.js'
 import { toClockTime } from "./utils/temporal.js"
 import Modal from './modal.js'
 import Invite from './invite.js'
 
-export default class DocumentNavbar extends Component {
+export default class MediaNavbar extends Component {
   constructor(props) {
     super(props);
     // Could add a listener to update this live
