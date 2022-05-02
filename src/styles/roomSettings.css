@@ -35,16 +35,16 @@
     width:100%;
     object-fit:cover;
     border-radius:10px;
-    grid-column: 2 / 3 ;
     margin:auto;
 }
 
 
 #room-settings-avatar-wrapper {
-  position:relative
+  position:relative;
+  grid-column: 1 / 3;
 }
 
-#room-settings-clear-avatar {
+#room-settings-change-avatar {
   position: absolute;
   bottom:10px;
   right:10px;
@@ -55,7 +55,7 @@
   cursor: pointer;
 }
 
-#room-settings-clear-avatar:hover {
+#room-settings-change-avatar:hover {
   background:rgba(255,255,255,.8);
 }
 
@@ -184,7 +184,7 @@ html[data-scrollbars="hidden"] #room-settings-join-link::-webkit-scrollbar { dis
 
   .room-settings-info,
   #room-settings-submit-wrapper,
-  #room-settings-avatar-selector,
+  #room-settings-avatar-wrapper,
   #room-settings-progress,
   #room-settings-join-link {
     grid-column: 1/2;

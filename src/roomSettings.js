@@ -35,7 +35,7 @@ export default class RoomSettings extends Component {
     this.member = props.room.getMember(Client.client.getUserId())
 
     this.state = {
-      previewUrl: props.room.getAvatarUrl(`https://${Client.client.getDomain()}`, 300, 300, "crop"),
+      previewUrl: props.room.getAvatarUrl(`https://${Client.client.getDomain()}`, 400, 400, "crop"),
       joinRule: this.initialJoinRule,
       roomName: this.initialRoomName,
       readability: this.initialReadability,
@@ -248,12 +248,12 @@ export default class RoomSettings extends Component {
           id="room-settings-form">
           {state.view === "APPEARANCE"
             ? <Fragment>
-              <label htmlFor="room-avatar">Room Avatar</label>
               <div id="room-settings-avatar-wrapper">
                 {state.previewUrl
                   ? <img onclick={this.mayChangeAvatar && this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
                   : <div key="room-settings-avatar-selector" onclick={this.mayChangeAvatar && this.uploadAvatar} id="room-settings-avatar-selector" />}
-                {state.previewUrl && this.mayChangeAvatar ? <button id="room-settings-clear-avatar" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
+                {state.previewUrl && this.mayChangeAvatar ? <button id="room-settings-change-avatar" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
+                {!state.previewUrl && this.mayChangeAvatar ? <button id="room-settings-change-avatar" type="button" onclick={this.uploadAvatar}>Add Avatar</button> : null}
               </div>
               <input name="room-avatar" id="room-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
               <div class="room-settings-info" />
