@@ -4,6 +4,8 @@ import * as Matrix from "matrix-js-sdk"
 import { loadImageElement } from "./utils/media.js"
 import Location from './utils/location.js'
 import Resource from './utils/resource.js'
+import * as Icons from './icons.js'
+import * as PopupMenu from './popUpMenu.js'
 import Modal from './modal.js'
 import { mscLocation, joinRule, spaceParent, spaceChild } from './constants.js';
 import "./styles/roomSettings.css"
@@ -27,6 +29,8 @@ export default class RoomSettings extends Component {
     this.joinLink = `${window.location.protocol}//${window.location.hostname}${window.location.pathname}` +
       `?join=${encodeURIComponent(props.room.roomId)}&via=${Client.client.getDomain()}`
     this.powerLevels = this.roomState.getStateEvents(Matrix.EventType.RoomPowerLevels, "")?.getContent()
+    // TODO: add a warning for the case where the powerLevels event is missing
+    console.log(this.powerLevels)
 
     this.member = props.room.getMember(Client.client.getUserId())
 
@@ -35,9 +39,9 @@ export default class RoomSettings extends Component {
       joinRule: this.initialJoinRule,
       roomName: this.initialRoomName,
       readability: this.initialReadability,
+      users: this.powerLevels?.users || {},
       visibility: null,
       references: null,
-      //TODO: need to hoist setPowerLevel state to here, so that it's maintained across tab changes
       view: "APPEARANCE"
     }
   }
@@ -67,7 +71,13 @@ export default class RoomSettings extends Component {
     this.resize()
   }
 
-  resize = _ => this.settingsFormWrapper.current.style.height = `${this.settingsForm.current.scrollHeight}px`
+  resize = _ => {
+    clearTimeout(this.allowOverflow)
+    this.settingsFormWrapper.current.style.height = `${this.settingsForm.current.scrollHeight}px`
+    // we pause and reactivate overflow to allow the popup menu to overflow the box.
+    this.settingsFormWrapper.current.style.overflowY = "hidden"
+    this.allowOverflow = setTimeout(_ => this.settingsFormWrapper.current.style.overflowY = "visible", 250)
+  }
 
   handleJoinRuleChange = e => this.setState({ joinRule: e.target.value })
 
@@ -93,7 +103,21 @@ export default class RoomSettings extends Component {
       !!this.state.kick           ||
       !!this.state.redact         ||
       !!this.state.events_default ||
-      !!this.state[spaceChild] 
+      !!this.state[spaceChild]    ||
+      this.rolesUpdated()
+      
+
+  rolesUpdated = _ => {
+    for (const user in this.state.users) {
+      if (!(user in this.powerLevels?.users)) return true
+      if (this.state.users[user] !== this.powerLevels?.users?.[user]) return true
+    }
+    for (const user in this.powerLevels?.users) {
+      if (!(user in this.state.users)) return true
+      if (this.state.users[user] !== this.powerLevels?.users?.[user]) return true
+    }
+    return false
+  }
 
   handleSubmit = async e => {
     e.preventDefault()
@@ -104,16 +128,17 @@ export default class RoomSettings extends Component {
       history_visibility: this.state.readability
     }).catch(this.raiseErr)
 
-    if (this.state.invite) this.powerLevels.invite = this.roleToPowerLevel(this.state.invite)
-    if (this.state.ban) this.powerLevels.ban = this.roleToPowerLevel(this.state.ban)
-    if (this.state.kick) this.powerLevels.kick = this.roleToPowerLevel(this.state.kick)
-    if (this.state.redact) this.powerLevels.redact = this.roleToPowerLevel(this.state.redact)
-    if (this.state.events_default) this.powerLevels.events_default = this.roleToPowerLevel(this.state.events_default)
-    if (this.state[spaceChild]) this.powerLevels.events[spaceChild] = this.roleToPowerLevel(this.state[spaceChild])
+    if (this.powerLevelsUpdated()) {
+      if (this.state.invite) this.powerLevels.invite = this.roleToPowerLevel(this.state.invite)
+      if (this.state.ban) this.powerLevels.ban = this.roleToPowerLevel(this.state.ban)
+      if (this.state.kick) this.powerLevels.kick = this.roleToPowerLevel(this.state.kick)
+      if (this.state.redact) this.powerLevels.redact = this.roleToPowerLevel(this.state.redact)
+      if (this.state.events_default) this.powerLevels.events_default = this.roleToPowerLevel(this.state.events_default)
+      if (this.state[spaceChild]) this.powerLevels.events[spaceChild] = this.roleToPowerLevel(this.state[spaceChild])
+      if (this.rolesUpdated()) this.powerLevels.users = this.state.users
 
-    // if I update power levels, then send the updated contents
-    if (this.powerLevelsUpdated()) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomPowerLevels, 
-      this.powerLevels).catch(this.raiseErr)
+      await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomPowerLevels, this.powerLevels).catch(this.raiseErr)
+    }
 
     if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
       const {width, height} = await loadImageElement(this.avatarImage)
@@ -177,39 +202,6 @@ export default class RoomSettings extends Component {
     }
   }
 
-  getAdmins = _ => {
-    if (!this.powerLevels?.users) return
-    let admins = []
-    for (const user in this.powerLevels.users) {
-      if (this.powerLevels.users[user] === 100)
-        admins.push(<div class="room-settings-admin-listing" key={user}>{user}</div>)
-    }
-    if (admins.length > 0) return admins
-    else return <div>No admins!</div>
-  }
-
-  getMods = _ => {
-    if (!this.powerLevels?.users) return
-    let mods = []
-    for (const user in this.powerLevels.users) {
-      if (this.powerLevels.users[user] === 50)
-        mods.push(<div class="room-settings-moderator-listing" key={user}>{user}</div>)
-    }
-    if (mods.length > 0) return mods 
-    else return <div>none</div>
-  }
-
-  getOtherRoles = _ => {
-    if (!this.powerLevels?.users) return
-    let others = []
-    for (const user in this.powerLevels.users) {
-      if (this.powerLevels.users[user] !== 100 && this.powerLevels.users[user] !== 50)
-        others.push(<div class="room-settings-otherrole-listing" key={user}>{user}</div>)
-    }
-    if (others.length > 0) return others
-    else return <div>none</div>
-  }
-
   showAppearance = _ => this.setState({view: "APPEARANCE"})
 
   showAccess = _ => this.setState({view: "ACCESS"})
@@ -225,6 +217,8 @@ export default class RoomSettings extends Component {
   removeAvatar = _ => this.setState({ previewUrl: null })
 
   setPowerLevelRole = (s,role) => this.setState({[s]:role})
+
+  setUsers = users => this.setState({users})
 
   cancel = e => {
     e.preventDefault()
@@ -321,18 +315,19 @@ export default class RoomSettings extends Component {
                 </div>
               </Fragment>
             : state.view === "ROLES" ? <Fragment>
-              <div class="room-settings-role-list">
-                <h5>Administrators</h5>
-                {this.getAdmins()}
-              </div>
-              <div class="room-settings-role-list">
-                <h5>Moderators</h5>
-                {this.getMods()}
-              </div>
-              <div class="room-settings-role-list">
-                <h5>Other Roles</h5>
-                {this.getOtherRoles()}
-              </div>
+                <AdminList 
+                  initialUsers={this.powerLevels?.users} 
+                  users={this.state.users} 
+                  setUsers={this.setUsers}
+                  room={props.room}
+                />
+                <ModList 
+                  initialUsers={this.powerLevels?.users} 
+                  users={this.state.users} 
+                  setUsers={this.setUsers}
+                  room={props.room}
+                />
+                <OtherRoleList users={this.state.users} />
             </Fragment>
             : state.view === "PERMISSIONS" ? <Fragment>
                 <ConfigurePowerForKey
@@ -423,9 +418,6 @@ class ConfigurePowerForState extends Component {
         : this.initialPowerLevel >= 50 ? "mod"
         : this.initialPowerLevel === 0 ? "member"
         : "custom"
-
-    this.isMod = props.member.powerLevels >= 50
-    this.isAdmin = props.member.powerLevels >= 100
   }
 
   getPowerLevelForStateEvent = _ => {
@@ -532,3 +524,200 @@ class ConfigurePowerForKey extends Component {
       </Fragment>
   }
 }
+
+class AdminList extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { search: "" }
+  }
+
+  toggleAdmin = user => {
+    const newUsers = Object.assign ({}, this.props.users)
+    if (newUsers[user] !== 100) newUsers[user] = 100
+    else delete newUsers[user]
+    this.props.setUsers(newUsers)
+  }
+
+  getAdmins = _ => {
+    let admins = []
+    for (const user in this.props.users) {
+      if (this.props.users[user] === 100) {
+        const activated = !(user in this.props.initialUsers) ||
+          this.props.initialUsers[user] !== this.props.users[user]
+        admins.push(<RoleListing 
+          activated={activated}
+          toggleRole={this.toggleAdmin}
+          room={this.props.room}
+          key={user}
+          user={user}
+          />)
+      }
+    }
+    for (const user in this.props.initialUsers) {
+      if (this.props.initialUsers[user] === 100 && !(user in this.props.users))
+        admins.push(<RoleListing
+          deactivated
+          toggleRole={this.toggleAdmin}
+          room={this.props.room}
+          key={user}
+          user={user}
+          />)
+    }
+    if (admins.length > 0) return admins
+    else return <div class="room-settings-role-empty">No admins!</div>
+  }
+
+  canAdd = this.props.room.getMember(Client.client.getUserId()).powerLevel >= 50
+
+  render(props) {
+    return <div class="room-settings-role-list">
+      <h5>Administrators</h5>
+      {this.getAdmins()}
+      {this.canAdd ? <AddRole users={props.users} toggleRole={this.toggleAdmin} room={props.room}/> : null}
+    </div>
+  }
+}
+
+class AddRole extends Component {
+  constructor(props) {
+    super(props)
+    this.state = { search: "" }
+  }
+
+  searchInput = createRef()
+
+  handleInput = e => this.setState({search: e.target.value})
+
+  setSearch = search => this.setState({search})
+
+  popupActions = { "@": props => <PopupMenu.Members roomId={this.props.room.roomId} {...props} />, }
+
+  addRole = userId => {
+    this.setSearch("")
+    if (Client.client.getUserId() !== userId.trim()) {
+      const theirPower = this.props.room.getMember(userId.trim()).powerLevel
+      const myPower = this.props.room.getMember(Client.client.getUserId()).powerLevel
+      console.log(theirPower, myPower)
+      if (theirPower >= myPower) return // TODO could trigger a transitent explainer here.
+    }
+    this.props.toggleRole(userId.trim())
+  }
+
+  render(props, state) {
+    return <div class="room-settings-add-role">
+      <span class="small-icon">{Icons.userPlus}</span>
+      <div class="room-settings-add-role-input-wrapper">
+        <input ref={this.searchInput} oninput={this.handleInput} value={state.search} type="text" class="styled-input" />
+        <PopupMenu.Menu
+          below={true}
+          textValue={state.search}
+          textarea={this.searchInput}
+          actions={this.popupActions}
+          getSelection={this.addRole}
+        />
+      </div>
+    </div>
+  }
+}
+
+class ModList extends Component {
+
+  getMods = _ => {
+    let mods = []
+    for (const user in this.props.users) {
+      if (this.props.users[user] === 50) {
+        const activated = !(user in this.props.initialUsers) ||
+          this.props.initialUsers[user] !== this.props.users[user]
+        mods.push(<RoleListing 
+          activated={activated}
+          toggleRole={this.toggleMod}
+          key={user}
+          room={this.props.room}
+          user={user}
+          power={50} />)
+      }
+    }
+    for (const user in this.props.initialUsers) {
+      if (this.props.initialUsers[user] === 50 && !(user in this.props.users))
+        mods.push(<RoleListing
+          deactivated
+          toggleRole={this.toggleMod}
+          key={user}
+          room={this.props.room}
+          user={user}
+          power={50} />)
+    }
+    if (mods.length > 0) return mods
+    else return <div class="room-settings-role-empty">None</div>
+  }
+
+  toggleMod = user => {
+    const newUsers = Object.assign ({}, this.props.users)
+    if (newUsers[user] !== 50) newUsers[user] = 50
+    else delete newUsers[user]
+    this.props.setUsers(newUsers)
+  }
+
+  canAdd = this.props.room.getMember(Client.client.getUserId()).powerLevel >= 50
+
+  render(props) {
+    return <div class="room-settings-role-list">
+      <h5>Moderators</h5>
+      {this.getMods()}
+      {this.canAdd ? <AddRole users={props.users} toggleRole={this.toggleMod} room={props.room}/> : null}
+    </div>
+  }
+}
+
+
+class RoleListing extends Component {
+
+  handleClick = _ => { this.props.toggleRole(this.props.user) }
+
+  canToggle = 
+    this.props.user === Client.client.getUserId() || 
+    this.props.activated ||
+    this.props.power < this.props.room.getMember(Client.client.getUserId()).powerLevel
+
+  render(props) {
+    return <button type="button"
+        data-role-deactivated={props.deactivated}
+        data-role-toggleable={this.canToggle}
+        onclick={this.canToggle ? this.handleClick : null}
+        class="room-settings-role-listing">
+        <span class="small-icon">{props.deactivated ? Icons.userPlus : Icons.userMinus}</span>
+        <span class="room-settings-role-user"> {props.user}</span>
+        {props.activated ? <span class="room-settings-role-change-info">will be added to this role</span> : null}
+        {props.deactivated ? <span class="room-settings-role-change-info">will be removed from this role</span> : null}
+        {(props.deactivated || props.activated) && Client.client.getUserId() === props.user 
+            ? <span style={{marginTop: "5px", color:"red"}} class="room-settings-role-change-info">
+                <b>Warning</b>: changing your own role can be irreversible, and can cause you to lose control of the room.
+            </span> 
+            : null
+        }
+      </button>
+  }
+}
+
+
+class OtherRoleList extends Component {
+
+  getOtherRoles = _ => {
+    let others = []
+    for (const user in this.props.users) {
+      if (this.props.users[user] !== 100 && this.props.users[user] !== 50)
+        others.push(<div class="room-settings-otherrole-listing" key={user}>{user}</div>)
+    }
+    if (others.length > 0) return others
+    else return null
+  }
+
+  render() {
+    if (!this.getOtherRoles()) return null
+    else return <div class="room-settings-role-list">
+      <h5>Other Roles</h5>
+      {this.getOtherRoles()}
+    </div>
+  }
+}
+

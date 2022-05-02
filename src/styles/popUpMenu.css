@@ -16,6 +16,8 @@
   height:20px;
   background:white;
   cursor: pointer;
+  overflow-x:hidden;
+  white-space:pre;
 }
 
 .popup-menu-item-selected-user {

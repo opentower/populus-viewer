@@ -6,7 +6,6 @@
 
 #room-settings-form-wrapper {
   transition: height .25s ease;
-  overflow:hidden;
 }
 
 .room-settings-role-list h5 {
@@ -72,6 +71,69 @@ div#room-settings-avatar-selector {
   grid-column: 2/3;
   padding-top:5px;
   font-size:10pt;
+}
+
+.room-settings-role-empty {
+  font-size: 12pt;
+  margin-top:10px;
+  margin-bottom:10px;
+}
+
+.room-settings-role-listing {
+  background:unset;
+  position: relative;
+  border:none;
+  font-size: 12pt;
+  cursor:pointer;
+  display:grid;
+  grid-template-columns: 30px 1fr;
+  align-items:center;
+  justify-items:left;
+  padding:0px;
+  margin-top:10px;
+  margin-bottom:10px;
+}
+
+.room-settings-role-listing:not([data-role-toggleable]) .small-icon {
+  color:#ababab
+}
+
+.room-settings-role-user {
+  text-align:left;
+}
+
+.room-settings-role-change-info {
+  grid-column: 2/3;
+  color: #ababab;
+  font-size:10pt;
+  text-align:left;
+}
+
+.room-settings-role-listing:hover {
+  left:5px;
+}
+
+.room-settings-add-role {
+  position: relative;
+  display:flex;
+  align-items:center;
+}
+
+.room-settings-add-role-input-wrapper { 
+  position: relative;
+  width:calc(100% - 40px);
+}
+
+.room-settings-add-role-input-wrapper #popup-menu { 
+  border:1px solid #adadad;
+}
+
+.room-settings-add-role input { 
+  width:calc(100% - 14px);
+}
+
+.room-settings-add-role .small-icon {
+  margin-right:10px;
 }
 
 #room-settings-join-link {

@@ -38,6 +38,10 @@
   animation: slide-in .5s ease-out;
 }
 
+#modalContent input {
+  outline-offset:-2px
+}
+
 html[data-scrollbars="hidden"] #modalContent {
   scrollbar-width: none;
 }

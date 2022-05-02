@@ -28,19 +28,22 @@ export class Menu extends Component {
     : null
 
   insert = (insertion, regex) => {
-    const selstart = this.props.textarea.current.selectionStart
-    const selend = this.props.textarea.current.selectionEnd
-    if (selstart === selend) {
-      const initialSegment = this.props.textValue.slice(0, selend)
-      const terminalSegment = this.props.textValue.slice(selend)
-      const newSegment = initialSegment.replace(regex, insertion)
-      this.props.setTextValue(`${newSegment}${terminalSegment}`,
-        _ => {
-          this.props.textarea.current.focus()
-          this.props.textarea.current.selectionEnd = newSegment.length
-        }
-      )
+    if (this.props.setTextValue) {
+      const selstart = this.props.textarea.current.selectionStart
+      const selend = this.props.textarea.current.selectionEnd
+      if (selstart === selend) {
+        const initialSegment = this.props.textValue.slice(0, selend)
+        const terminalSegment = this.props.textValue.slice(selend)
+        const newSegment = initialSegment.replace(regex, insertion)
+        this.props.setTextValue(`${newSegment}${terminalSegment}`,
+          _ => {
+            this.props.textarea.current.focus()
+            this.props.textarea.current.selectionEnd = newSegment.length
+          }
+        )
+      }
     }
+    if (this.props.getSelection) this.props.getSelection(insertion)
     this.cancel()
   }
 
