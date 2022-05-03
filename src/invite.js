@@ -1,6 +1,7 @@
 import { h, Fragment, createRef, Component } from 'preact';
 import UserPill from './userPill.js'
 import MemberPill from './memberPill.js'
+import * as Matrix from "matrix-js-sdk"
 import Client from './client.js'
 import SearchBar from './search.js'
 import * as Icons from './icons.js'
@@ -15,7 +16,7 @@ export default class Invite extends Component {
       .sort((u1, u2) => u1.name.toUpperCase() > u2.name.toUpperCase() ? 1 : -1)
     const memberIds = joins.map(join => join.userId).concat(invites.map(invite => invite.userId))
     this.state = {
-      adding: true,
+      view: "JOINING",
       joins,
       invites,
       memberIds,
@@ -25,7 +26,7 @@ export default class Invite extends Component {
 
   componentDidMount () {
     Client.client.on("RoomMember.membership", this.updateMembership)
-    this.updateHeight()
+    this.resize()
   }
 
   componentWillUnmount () {
@@ -33,14 +34,14 @@ export default class Invite extends Component {
   }
 
   componentDidUpdate () {
-    this.updateHeight()
+    this.resize()
   }
 
   inviteSelect = createRef()
 
   inviteSelectWrapper = createRef()
 
-  updateHeight = _ => this.inviteSelectWrapper.current.style.height = `${this.inviteSelect.current.scrollHeight}px`
+  resize = _ => this.inviteSelectWrapper.current.style.height = `${this.inviteSelect.current.scrollHeight}px`
 
   updateMembership = event => {
     const joins = this.props.room.getMembersWithMembership("join")
@@ -53,37 +54,56 @@ export default class Invite extends Component {
 
   filterMembers = search => this.setState({ search })
 
-  addMembers = _ => this.setState({ adding: true })
+  joinMembers = _ => this.setState({ view: "JOINING"})
 
-  removeMembers = _ => this.setState({ adding: false })
+  getJoinListing = _ => Client.client.getUsers()
+    .filter(u => !this.state.memberIds.includes(u.userId))
+    .filter(u => u.displayName.toUpperCase().includes(this.state.search.toUpperCase()))
+    .sort((u1, u2) => u1.displayName.toUpperCase() > u2.displayName.toUpperCase() ? 1 : -1)
+
+  kickMembers = _ => this.setState({ view: "KICKING"})
+
+  getRemovalListing = _ => this.state.joins
+    .filter(m => m.name.toUpperCase().includes(this.state.search.toUpperCase()))
+
+  getInviteListing = _ => this.state.invites
+    .filter(m => m.name.toUpperCase().includes(this.state.search.toUpperCase()))
 
   render(props, state) {
-    const additions = state.adding && Client.client.getUsers()
-      .filter(u => !state.memberIds.includes(u.userId))
-      .filter(u => u.displayName.toUpperCase().includes(state.search.toUpperCase()))
-      .sort((u1, u2) => u1.displayName.toUpperCase() > u2.displayName.toUpperCase() ? 1 : -1)
-    const removals = !state.adding && state.joins.filter(m => m.name.toUpperCase().includes(state.search.toUpperCase()))
-    const invites = !state.adding && state.invites.filter(m => m.name.toUpperCase().includes(state.search.toUpperCase()))
+    const roomState =  props.room.getLiveTimeline()
+      .getState(Matrix.EventTimeline.FORWARDS)
+    const userMember = props.room.getMember(Client.client.getUserId())
+    const canInvite = roomState.hasSufficientPowerLevelFor("invite", userMember.powerLevel)
+    const canKick = roomState.hasSufficientPowerLevelFor("kick", userMember.powerLevel)
 
     return <Fragment>
       <h3 id="modalHeader">Manage Membership {props.room.name ? `for ${props.room.name}` : ""}</h3>
       <SearchBar search={state.search} setSearch={this.filterMembers} />
       <div id="invite-select-view" class="select-view">
-        <button onClick={this.addMembers} data-current-button={state.adding}>Add Members</button>
-        <button onClick={this.removeMembers} data-current-button={!state.adding}>Remove Members</button>
+        {canInvite 
+          ? <button onClick={this.joinMembers} data-current-button={state.view === "JOINING"}> Add Members</button> 
+          : null
+        }
+        {canKick 
+          ? <button onClick={this.kickMembers} data-current-button={state.view === "KICKING"}>Remove Members</button> 
+          : null
+        }
       </div>
       <div ref={this.inviteSelectWrapper} id="invite-select-wrapper">
-        { state.adding
-          ? <div ref={this.inviteSelect} id="invite-add-members">
+        { state.view === "JOINING"
+          ? <div ref={this.inviteSelect} id="invite-join-members">
             <div>
-              { additions.map(u => <Invitation user={u} room={props.room} key={u.userId} />) }
+              { this.getJoinListing()
+                  .map(u => <Invitation user={u} room={props.room} key={u.userId} />) }
             </div>
-            <ServerResults search={state.search} memberIds={state.memberIds} additions={additions} room={props.room} />
+            <ServerResults resize={this.resize} search={state.search} memberIds={state.memberIds} additions={this.getJoinListing()} room={props.room} />
           </div>
-          : <div ref={this.inviteSelect} id="invite-remove-members">
-            { removals.map(m => <Removal member={m} room={props.room} key={m.userId} />) }
-            { invites.map(m => <Disinvitation member={m} room={props.room} key={m.userId} />) }
+          : state.view === "KICKING"
+          ? <div ref={this.inviteSelect} id="invite-kick-members">
+            { this.getRemovalListing().map(m => <Removal member={m} room={props.room} key={m.userId} />) }
+            { this.getInviteListing().map(m => <Disinvitation member={m} room={props.room} key={m.userId} />) }
           </div>
+          : null
         }
       </div>
     </Fragment>
@@ -143,7 +163,7 @@ class ServerResults extends Component {
   serverSearch = async _ => {
     this.setState({pending: true})
     const { results } = await Client.client.searchUserDirectory({term: this.props.search})
-    this.setState({results, fired: true, pending: false})
+    this.setState({results, fired: true, pending: false}, this.props.resize)
   }
 
   render(props, state) {
