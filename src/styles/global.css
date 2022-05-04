@@ -75,10 +75,16 @@ body[data-modal-visible] {
   user-select:none;
   border-bottom:2px solid white;
   transition:border .25s;
+  flex-grow: 1;
 }
 
 .select-view > button[data-current-button] {
   border-bottom:2px solid black;
+}
+
+.select-view > button[disabled] {
+  color:#cccccc;
+  cursor:not-allowed;
 }
 
 .styled-button {

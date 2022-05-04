@@ -10,16 +10,11 @@ import './styles/invite.css'
 export default class Invite extends Component {
   constructor(props) {
     super(props)
-    const joins = this.props.room.getMembersWithMembership("join")
-      .sort((u1, u2) => u1.name.toUpperCase() > u2.name.toUpperCase() ? 1 : -1)
-    const invites = this.props.room.getMembersWithMembership("invite")
-      .sort((u1, u2) => u1.name.toUpperCase() > u2.name.toUpperCase() ? 1 : -1)
-    const memberIds = joins.map(join => join.userId).concat(invites.map(invite => invite.userId))
     this.state = {
       view: "JOINING",
-      joins,
-      invites,
-      memberIds,
+      joins: this.getSortedMembership("join"),
+      invites: this.getSortedMembership("invite"),
+      bans: this.getSortedMembership("ban"),
       search: ""
     }
   }
@@ -44,30 +39,47 @@ export default class Invite extends Component {
   resize = _ => this.inviteSelectWrapper.current.style.height = `${this.inviteSelect.current.scrollHeight}px`
 
   updateMembership = event => {
-    const joins = this.props.room.getMembersWithMembership("join")
-      .sort((u1, u2) => u1.name.toUpperCase() > u2.name.toUpperCase() ? 1 : -1)
-    const invites = this.props.room.getMembersWithMembership("invite")
-      .sort((u1, u2) => u1.name.toUpperCase() > u2.name.toUpperCase() ? 1 : -1)
-    const memberIds = joins.map(join => join.userId).concat(invites.map(invite => invite.userId))
-    if (event.getRoomId() === this.props.room.roomId) this.setState({ joins, invites, memberIds })
+    if (event.getRoomId() === this.props.room.roomId) this.setState({ 
+      joins:this.getSortedMembership("join"),
+      invites:this.getSortedMembership("invite"),
+      bans:this.getSortedMembership("ban"),
+      leaves: this.getSortedMembership("leave")
+    })
   }
 
   filterMembers = search => this.setState({ search })
 
   joinMembers = _ => this.setState({ view: "JOINING"})
 
-  getJoinListing = _ => Client.client.getUsers()
-    .filter(u => !this.state.memberIds.includes(u.userId))
-    .filter(u => u.displayName.toUpperCase().includes(this.state.search.toUpperCase()))
-    .sort((u1, u2) => u1.displayName.toUpperCase() > u2.displayName.toUpperCase() ? 1 : -1)
-
   kickMembers = _ => this.setState({ view: "KICKING"})
+
+  banMembers = _ => this.setState({ view: "BANNING"})
+
+  unbanMembers = _ => this.setState({ view: "UNBANNING"})
+
+  getSortedMembership = membership => this.props.room.getMembersWithMembership(membership)
+    .sort((u1, u2) => u1.name.toUpperCase() > u2.name.toUpperCase() ? 1 : -1)
+
+  isInvitable = userId => {
+    if (this.state.joins.some(join => join.userId === userId)) return false
+    if (this.state.invites.some(invite => invite.userId === userId)) return false
+    if (this.state.bans.some(ban => ban.userId === userId)) return false
+    return true
+  }
 
   getRemovalListing = _ => this.state.joins
     .filter(m => m.name.toUpperCase().includes(this.state.search.toUpperCase()))
 
-  getInviteListing = _ => this.state.invites
+  getDisinviteListing = _ => this.state.invites
     .filter(m => m.name.toUpperCase().includes(this.state.search.toUpperCase()))
+
+  getBanListing = _ => this.state.joins
+    .filter(m => m.name.toUpperCase().includes(this.state.search.toUpperCase()))
+
+  getInviteListing = _ => Client.client.getUsers()
+    .filter(u => this.isInvitable(u.userId))
+    .filter(u => u.displayName.toUpperCase().includes(this.state.search.toUpperCase()))
+    .sort((u1, u2) => u1.displayName.toUpperCase() > u2.displayName.toUpperCase() ? 1 : -1)
 
   render(props, state) {
     const roomState =  props.room.getLiveTimeline()
@@ -75,33 +87,39 @@ export default class Invite extends Component {
     const userMember = props.room.getMember(Client.client.getUserId())
     const canInvite = roomState.hasSufficientPowerLevelFor("invite", userMember.powerLevel)
     const canKick = roomState.hasSufficientPowerLevelFor("kick", userMember.powerLevel)
+    const canBan = roomState.hasSufficientPowerLevelFor("ban", userMember.powerLevel)
+    const canUnban = roomState.hasSufficientPowerLevelFor("unban", userMember.powerLevel)
+    const inviteListing =  this.getInviteListing()
 
     return <Fragment>
       <h3 id="modalHeader">Manage Membership {props.room.name ? `for ${props.room.name}` : ""}</h3>
       <SearchBar search={state.search} setSearch={this.filterMembers} />
       <div id="invite-select-view" class="select-view">
-        {canInvite 
-          ? <button onClick={this.joinMembers} data-current-button={state.view === "JOINING"}> Add Members</button> 
-          : null
-        }
-        {canKick 
-          ? <button onClick={this.kickMembers} data-current-button={state.view === "KICKING"}>Remove Members</button> 
-          : null
-        }
+        <button disabled={!canInvite} onClick={this.joinMembers} data-current-button={state.view === "JOINING"}>Invite</button> 
+        <button disabled={!canKick} onClick={this.kickMembers} data-current-button={state.view === "KICKING"}>Remove</button> 
+        <button disabled={!canBan} onClick={this.banMembers} data-current-button={state.view === "BANNING"}>Ban</button> 
+        <button disabled={!canUnban} onClick={this.unbanMembers} data-current-button={state.view === "UNBANNING"}>Unban</button> 
       </div>
       <div ref={this.inviteSelectWrapper} id="invite-select-wrapper">
         { state.view === "JOINING"
           ? <div ref={this.inviteSelect} id="invite-join-members">
             <div>
-              { this.getJoinListing()
-                  .map(u => <Invitation user={u} room={props.room} key={u.userId} />) }
+              { inviteListing.map(u => <Invitation user={u} room={props.room} key={u.userId} />) }
             </div>
-            <ServerResults resize={this.resize} search={state.search} memberIds={state.memberIds} additions={this.getJoinListing()} room={props.room} />
+            <ServerResults resize={this.resize} search={state.search} isInvitable={this.isInvitable} inviteListing={inviteListing} room={props.room} />
           </div>
           : state.view === "KICKING"
           ? <div ref={this.inviteSelect} id="invite-kick-members">
-            { this.getRemovalListing().map(m => <Removal member={m} room={props.room} key={m.userId} />) }
-            { this.getInviteListing().map(m => <Disinvitation member={m} room={props.room} key={m.userId} />) }
+            { this.getRemovalListing().map(m => <Removal member={m} userMember={userMember} room={props.room} key={m.userId} />) }
+            { this.getDisinviteListing().map(m => <Disinvitation member={m} userMember={userMember} room={props.room} key={m.userId} />) }
+          </div>
+          : state.view === "BANNING"
+          ? <div ref={this.inviteSelect} id="invite-ban-members">
+            { this.getBanListing().map(m => <Ban member={m} userMember={userMember} room={props.room} key={m.userId} />) }
+          </div>
+          : state.view === "UNBANNING"
+          ? <div ref={this.inviteSelect} id="invite-unban-members">
+            { this.state.bans.map(m => <Unban member={m} room={props.room} key={m.userId} />) }
           </div>
           : null
         }
@@ -130,6 +148,7 @@ class Disinvitation extends Component {
     .catch(alert)
 
   render(props) {
+    if (props.userMember.powerLevel <= props.member.powerLevel) return null
     return <button class="disinvite-candidate" onclick={this.kick}>
       <span class="small-icon">{Icons.userMinus}</span>
       <MemberPill member={props.member} />
@@ -143,8 +162,37 @@ class Removal extends Component {
     .catch(alert)
 
   render(props) {
+    if (props.userMember.powerLevel <= props.member.powerLevel) return null
     return <button class="removal-candidate" onclick={this.kick}>
       <span class="small-icon">{Icons.userMinus}</span>
+      <MemberPill member={props.member} />
+    </button>
+  }
+}
+
+class Ban extends Component {
+  ban = _ => Client.client
+    .ban(this.props.room.roomId, this.props.member.userId)
+    .catch(alert)
+
+  render(props) {
+    if (props.userMember.powerLevel <= props.member.powerLevel) return null
+    return <button class="ban-candidate" onclick={this.ban}>
+      <span class="small-icon">{Icons.userX}</span>
+      <MemberPill member={props.member} />
+    </button>
+  }
+}
+
+class Unban extends Component {
+  unban = _ => Client.client
+    .unban(this.props.room.roomId, this.props.member.userId)
+    .catch(alert)
+
+  render(props) {
+    console.log(props.user)
+    return <button class="unban-candidate" onclick={this.unban}>
+      <span class="small-icon">{Icons.userCheck}</span>
       <MemberPill member={props.member} />
     </button>
   }
@@ -171,8 +219,8 @@ class ServerResults extends Component {
       visibility: props.search ? "visible" : "hidden"
     }
     const candidates = state.results
-      .filter(u => !props.additions.map(a => a.userId).includes(u.user_id))
-      .filter(u => !props.memberIds.includes(u.user_id))
+      .filter(u => !props.inviteListing.map(a => a.userId).includes(u.user_id))
+      .filter(u => props.isInvitable(u.user_id))
       .filter(u => u.display_name
         ? u.display_name.toUpperCase().includes(props.search.toUpperCase())
         : u.user_id.toUpperCase().includes(props.search.toUpperCase())

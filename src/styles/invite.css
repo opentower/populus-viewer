@@ -1,5 +1,7 @@
 .invite-candidate,
 .disinvite-candidate,
+.ban-candidate,
+.unban-candidate,
 .removal-candidate {
   display:flex;
   position:relative;
@@ -15,15 +17,20 @@
 .disinvite-candidate {
   opacity:.5
 }
+j
 
 .invite-candidate:hover,
 .disinvite-candidate:hover,
+.ban-candidate:hover
+.unban-candidate:hover
 .removal-candidate:hover {
   left:5px;
 }
 
 .invite-candidate .small-icon,
 .disinvite-candidate .small-icon,
+.ban-candidate .small-icon,
+.unban-candidate .small-icon,
 .removal-candidate .small-icon{
   padding-right: 10px;
 }
