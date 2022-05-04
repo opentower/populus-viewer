@@ -628,7 +628,7 @@ export default class ContentView extends Component {
               setFocus={this.setFocus}
               setSecondaryFocus={this.setSecondaryFocus}
               unsetFocus={this.unsetFocus}
-              resourceId={state.room?.roomId}
+              resource={state.room}
               resourceAlias={props.resourceAlias}
               hasSelection={state.hasSelection}
               generateLocation={this.content.current.generateLocation}

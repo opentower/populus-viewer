@@ -3,6 +3,7 @@ import { UserColor } from './utils/colors.js'
 import * as Icons from './icons.js'
 import * as PopupMenu from './popUpMenu.js'
 import * as Replies from './utils/replies.js'
+import * as Matrix from "matrix-js-sdk"
 import { processRegex } from './processRegex.js'
 import Client from './client.js'
 import ToolTip from './utils/tooltip.js'
@@ -64,8 +65,19 @@ export default class MessageFrame extends Component {
             { props.displayOnly
               ? null
               : isUser
-                ? <ActionsOnOwnMessages canEdit={props.canEdit} responding={state.responding} openEditor={this.openEditor} redactMessage={this.redactMessage} />
-                : <ActionsOnOthersMessages responding={state.responding} openEditor={this.openEditor} event={props.event} reactions={reactions} />
+                ? <ActionsOnOwnMessages
+                    canEdit={props.canEdit}
+                    responding={state.responding}
+                    openEditor={this.openEditor}
+                    redactMessage={this.redactMessage}
+                  />
+                : <ActionsOnOthersMessages
+                    responding={state.responding}
+                    openEditor={this.openEditor}
+                    event={props.event}
+                    redactMessage={this.props.canRedact ? this.redactMessage : null}
+                    reactions={reactions} 
+                  />
             }
           </MessageDecoration>
       </div>
@@ -218,6 +230,14 @@ class ActionsOnOthersMessages extends Component {
             {Icons.like}
             </button>
           </ToolTip>
+          {props.redactMessage 
+            ? <ToolTip placement="top-end" theme="small" content="Delete this message">
+                <button onclick={props.redactMessage} class="redact">
+                {Icons.trash}
+              </button>
+              </ToolTip>
+            : null
+          }
         </div>
     }
   }

@@ -138,6 +138,9 @@ export default class Chat extends Component {
   }
 
   render(props, state) {
+    const userMember = props.resource?.getMember(Client.client.getUserId())
+    const canRedact = !!props.resource?.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+          .hasSufficientPowerLevelFor("redact", userMember.powerLevel)
     const reactions = {}
     // XXX need to be able to handle other message types
     const messages = state.events.filter(
@@ -168,6 +171,7 @@ export default class Chat extends Component {
             <TextMessage reactions={reactions}
               setFocus={props.setFocus}
               key={event.getId()}
+              canRedact={canRedact}
               event={event} />
           )
           break;
@@ -176,6 +180,7 @@ export default class Chat extends Component {
           accumulator.push(
             <NoticeMessage reactions={reactions}
               key={event.getId()}
+              canRedact={canRedact}
               event={event} />
           )
           break;
@@ -184,6 +189,7 @@ export default class Chat extends Component {
           accumulator.push(
             <FileMessage reactions={reactions}
               key={event.getId()}
+              canRedact={canRedact}
               event={event} />
           )
           break;
@@ -196,12 +202,14 @@ export default class Chat extends Component {
                 secondaryFocus={props.secondaryFocus}
                 setSecondaryFocus={props.setSecondaryFocus}
                 key={event.getId()}
+                canRedact={canRedact}
                 event={event} />
             )
           } else {
             accumulator.push(
               <EmoteMessage reactions={reactions}
                 key={event.getId()}
+                canRedact={canRedact}
                 event={event} />
             )
           }
@@ -211,6 +219,7 @@ export default class Chat extends Component {
           accumulator.push(
             <ImageMessage reactions={reactions}
               key={event.getId()}
+              canRedact={canRedact}
               event={event} />
           )
           break;
@@ -219,6 +228,7 @@ export default class Chat extends Component {
           accumulator.push(
             <VideoMessage reactions={reactions}
               key={event.getId()}
+              canRedact={canRedact}
               event={event} />
           )
           break;
@@ -227,6 +237,7 @@ export default class Chat extends Component {
           accumulator.push(
             <AudioMessage reactions={reactions}
               key={event.getId()}
+              canRedact={canRedact}
               event={event} />
           )
           break;
@@ -256,14 +267,16 @@ export default class Chat extends Component {
         else reactions[e.getContent()["m.relates_to"].event_id] = [e]
       }
     })
+
     // has height set, so that we don't need to set height on the flexbox element
     return <div ref={this.chatWrapper} class={props.class} onscroll={this.handleScroll} id="chat-wrapper">
       <div id="chat-panel">
         <MessagePanel
           hasSelection={props.hasSelection}
           generateLocation={props.generateLocation}
-          resourceId={props.resourceId}
-          focus={props.focus} />
+          resource={props.resource}
+          focus={props.focus}
+        />
         <div id="messages">
           {messagedivs}
           <TypingIndicator key={props.focus.getChild()} roomId={props.focus.getChild()} />

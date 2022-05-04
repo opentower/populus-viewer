@@ -37,6 +37,7 @@ export class TextMessage extends Component {
       canEdit={true}
       displayOnly={props.displayOnly}
       reactions={props.reactions}
+      canRedact={props.canRedact}
       event={props.event}>
       <div ref={this.messageBody} class="message-body">
         {isReply ? <ReplyPreview reactions={props.reactions} event={props.event} /> : null}
@@ -295,6 +296,7 @@ export class NoticeMessage extends Component {
     return <MessageFrame
       displayOnly={props.displayOnly}
       reactions={props.reactions}
+      canRedact={props.canRedact}
       styleOverride={this.noticeStyle}
       event={props.event}>
       <div ref={this.messageBody} class="message-body">
@@ -336,6 +338,7 @@ export class FileMessage extends Component {
     return <MessageFrame
       displayOnly={props.displayOnly}
       reactions={props.reactions}
+      canRedact={props.canRedact}
       event={props.event} >
         <div class="message-body file-upload">
           file upload:&nbsp;
@@ -365,6 +368,7 @@ export class ImageMessage extends Component {
     return <MessageFrame
       displayOnly={props.displayOnly}
       reactions={props.reactions}
+      canRedact={props.canRedact}
       event={props.event}>
         <div class="message-body image-upload">
           <img onclick={this.showPreview} class="media-message-thumbnail" src={this.url} />
@@ -390,6 +394,7 @@ export class VideoMessage extends Component {
     return <MessageFrame
       displayOnly={props.displayOnly}
       reactions={props.reactions}
+      canRedact={props.canRedact}
       event={props.event}>
         <div class="message-body image-upload">
           <video class="media-message-thumbnail"
@@ -415,6 +420,7 @@ export class AudioMessage extends Component {
     return <MessageFrame
       displayOnly={props.displayOnly}
       reactions={props.reactions}
+      canRedact={props.canRedact}
       event={props.event}>
         <div class="message-body image-upload">
           <audio controls src={this.url} />
