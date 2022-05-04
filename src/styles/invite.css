@@ -3,21 +3,21 @@
 .ban-candidate,
 .unban-candidate,
 .removal-candidate {
-  display:flex;
+  display:grid;
+  grid-template-columns:30px 1fr;
   position:relative;
   background:none;
   border:none;
   font-size:unset;
   cursor:pointer;
   align-items:center;
+  justify-items:left;
   max-width:100%;
-  height:40px;
 }
 
 .disinvite-candidate {
   opacity:.5
 }
-j
 
 .invite-candidate:hover,
 .disinvite-candidate:hover,
@@ -33,6 +33,13 @@ j
 .unban-candidate .small-icon,
 .removal-candidate .small-icon{
   padding-right: 10px;
+}
+
+.invite-candidate-knocked {
+  grid-column: 1/3;
+  font-size:10pt;
+  color:#ababab;
+  margin-bottom:5px;
 }
 
 #invite-search-divider {

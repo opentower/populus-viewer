@@ -15,6 +15,7 @@ export default class Invite extends Component {
       joins: this.getSortedMembership("join"),
       invites: this.getSortedMembership("invite"),
       bans: this.getSortedMembership("ban"),
+      knocks: this.getSortedMembership("knock"),
       search: ""
     }
   }
@@ -40,10 +41,11 @@ export default class Invite extends Component {
 
   updateMembership = event => {
     if (event.getRoomId() === this.props.room.roomId) this.setState({ 
-      joins:this.getSortedMembership("join"),
-      invites:this.getSortedMembership("invite"),
-      bans:this.getSortedMembership("ban"),
-      leaves: this.getSortedMembership("leave")
+      joins: this.getSortedMembership("join"),
+      invites: this.getSortedMembership("invite"),
+      bans: this.getSortedMembership("ban"),
+      leaves: this.getSortedMembership("leave"),
+      knocks: this.getSortedMembership("knocks")
     })
   }
 
@@ -67,6 +69,8 @@ export default class Invite extends Component {
     return true
   }
 
+  isKnocking = userId => this.state.knocks.some(knock => knock.userId == userId)
+
   getRemovalListing = _ => this.state.joins
     .filter(m => m.name.toUpperCase().includes(this.state.search.toUpperCase()))
 
@@ -78,8 +82,12 @@ export default class Invite extends Component {
 
   getInviteListing = _ => Client.client.getUsers()
     .filter(u => this.isInvitable(u.userId))
+    .filter(u => !this.isKnocking(u.userId))
     .filter(u => u.displayName.toUpperCase().includes(this.state.search.toUpperCase()))
     .sort((u1, u2) => u1.displayName.toUpperCase() > u2.displayName.toUpperCase() ? 1 : -1)
+
+  getKnockResponseListing = _ => this.state.knocks
+    .filter(m => m.name.toUpperCase().includes(this.state.search.toUpperCase()))
 
   render(props, state) {
     const roomState =  props.room.getLiveTimeline()
@@ -104,6 +112,7 @@ export default class Invite extends Component {
         { state.view === "JOINING"
           ? <div ref={this.inviteSelect} id="invite-join-members">
             <div>
+              { this.getKnockResponseListing().map(m => <KnockResponse member={m} room={props.room} key={m.userId} />) }
               { inviteListing.map(u => <Invitation user={u} room={props.room} key={u.userId} />) }
             </div>
             <ServerResults resize={this.resize} search={state.search} isInvitable={this.isInvitable} inviteListing={inviteListing} room={props.room} />
@@ -137,7 +146,22 @@ class Invitation extends Component {
   render(props) {
     return <button class="invite-candidate" onclick={this.invite} >
       <span class="small-icon">{Icons.userPlus}</span>
-      <UserPill user={props.user} />
+      <span><UserPill user={props.user} /></span>
+    </button>
+  }
+}
+
+class KnockResponse extends Component {
+  invite = _ => Client.client
+    .invite(this.props.room.roomId, this.props.member.userId)
+    // ^^^ handles raw results from the user directory which have user_id rather than userId
+    .catch(alert)
+
+  render(props) {
+    return <button class="invite-candidate" onclick={this.invite} >
+      <span class="small-icon">{Icons.userPlus}</span>
+      <span><MemberPill user={props.member} /></span>
+      <span class="invite-candidate-knocked">has requested an invitation</span>
     </button>
   }
 }
@@ -151,7 +175,7 @@ class Disinvitation extends Component {
     if (props.userMember.powerLevel <= props.member.powerLevel) return null
     return <button class="disinvite-candidate" onclick={this.kick}>
       <span class="small-icon">{Icons.userMinus}</span>
-      <MemberPill member={props.member} />
+      <span><MemberPill member={props.member} /></span>
     </button>
   }
 }
@@ -165,7 +189,7 @@ class Removal extends Component {
     if (props.userMember.powerLevel <= props.member.powerLevel) return null
     return <button class="removal-candidate" onclick={this.kick}>
       <span class="small-icon">{Icons.userMinus}</span>
-      <MemberPill member={props.member} />
+      <span><MemberPill member={props.member} /></span>
     </button>
   }
 }
@@ -179,7 +203,7 @@ class Ban extends Component {
     if (props.userMember.powerLevel <= props.member.powerLevel) return null
     return <button class="ban-candidate" onclick={this.ban}>
       <span class="small-icon">{Icons.userX}</span>
-      <MemberPill member={props.member} />
+      <span><MemberPill member={props.member} /></span>
     </button>
   }
 }
@@ -193,7 +217,7 @@ class Unban extends Component {
     console.log(props.user)
     return <button class="unban-candidate" onclick={this.unban}>
       <span class="small-icon">{Icons.userCheck}</span>
-      <MemberPill member={props.member} />
+      <span><MemberPill member={props.member} /></span>
     </button>
   }
 }
