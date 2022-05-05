@@ -57,7 +57,9 @@
 
 #toast-content {
   position: relative;
-  background:#efefef;
+  background:var(--content-background);
+  box-shadow: 0px 2px 4px 1px rgba(0,0,0,.25);
+
   padding:10px;
   z-index:21;
 }
