@@ -17,20 +17,26 @@ export default class Modal extends Component {
     this.setState({content: null, title: null})
   }
 
-  setContent = (content, title) => {
+  setContent = (content, title, subtitle) => {
     document.body.dataset.modalVisible = true
-    this.setState({content, title})
+    this.setState({content, title, subtitle})
   }
 
   //TODO: implement focus-trap to prevent focus from escaping modal
   render(_, state) {
     return state.content
-      ? <div id="modalPopup">
-        <div id="modalBackground" onclick={this.hideModal} />
-        <div role="dialog" aria-modal="true" id="modalContent">
-          <button id="dismissModal" onclick={this.hideModal}>
-            {Icons.close}
-          </button>
+      ? <div id="modal-popup">
+        <div id="modal-background" onclick={this.hideModal} />
+        <div role="dialog" aria-modal="true" id="modal-content">
+          <div id="modal-header">
+            <h3 id="modal-title">
+              {state.title}
+            </h3>
+            <button id="dismiss-modal" onclick={this.hideModal}>
+              {Icons.close}
+            </button>
+            {state.subtitle ? <span id="modal-subtitle">{state.subtitle}</span> : null}
+          </div>
           {state.content}
         </div>
       </div>

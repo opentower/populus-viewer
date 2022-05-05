@@ -100,7 +100,6 @@ export default class Invite extends Component {
     const inviteListing =  this.getInviteListing()
 
     return <Fragment>
-      <h3 id="modalHeader">Manage Membership {props.room.name ? `for ${props.room.name}` : ""}</h3>
       <SearchBar search={state.search} setSearch={this.filterMembers} />
       <div id="invite-select-view" class="select-view">
         <button disabled={!canInvite} onClick={this.joinMembers} data-current-button={state.view === "JOINING"}>Invite</button> 

@@ -49,7 +49,6 @@ export class TagEditor extends Component {
         <Tag room={props.room} tag={tag} />
       </Fragment>)
     return <Fragment>
-      <h3 id="modalHeader">Edit tags for {props.room.name}</h3>
         <div class="tag-editor">
           <Fragment>{roomTags}</Fragment>
           <input ref={this.newTagInput}

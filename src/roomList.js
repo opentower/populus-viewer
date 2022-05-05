@@ -219,18 +219,18 @@ class RoomEntry extends Component {
 
   toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
 
-  openInvite = _ => Modal.set(<Invite room={this.props.room} />)
+  openInvite = _ => Modal.set(<Invite room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
 
-  openSettings = _ => Modal.set(<RoomSettings joinLink={true} room={this.props.room} />)
+  openSettings = _ => Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Room Settings", `for ${this.props.room.name}`)
 
-  handleEditTags = _ => Modal.set(<TagEditor room={this.props.room} />)
+  handleEditTags = _ => Modal.set(<TagEditor room={this.props.room} />, "Edit Tags", `for ${this.props.room.name}`)
 
   toggleFavorite = _ => {
     if (this.props.room.tags["m.favourite"]) Client.client.deleteRoomTag(this.props.room.roomId, "m.favourite")
     else Client.client.setRoomTag(this.props.room.roomId, "m.favourite", {order: 0.5})
   }
 
-  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />)
+  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Leave Room?", `for ${this.props.room.name}`)
 
   render (props, state) {
     const userMember = props.room.getMember(Client.client.getUserId())

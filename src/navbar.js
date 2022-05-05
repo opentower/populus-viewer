@@ -118,7 +118,7 @@ export default class DocumentNavbar extends Component {
     }
   }
 
-  openInvite = _ => Modal.set(<Invite room={this.props.room} />)
+  openInvite = _ => Modal.set(<Invite room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
 
   zoomOut = _ => this.props.setZoom(zoomFactor => zoomFactor - 0.1)
 

@@ -1,4 +1,4 @@
-#modalPopup {
+#modal-popup {
   position: fixed;
   top: 0px;
   bottom: 0px;
@@ -11,7 +11,7 @@
   overflow-y:auto;
 }
 
-#modalBackground {
+#modal-background {
   position: fixed;
   top: 0px;
   bottom: 0px;
@@ -22,7 +22,7 @@
   overscroll-behavior:none;
 }
 
-#modalContent {
+#modal-content {
   position: relative;
   background:white;
   opacity:1;
@@ -38,15 +38,15 @@
   animation: slide-in .5s ease-out;
 }
 
-#modalContent input {
+#modal-content input {
   outline-offset:-2px
 }
 
-html[data-scrollbars="hidden"] #modalContent {
+html[data-scrollbars="hidden"] #modal-content {
   scrollbar-width: none;
 }
 
-html[data-scrollbars="hidden"] #modalContent::-webkit-scrollbar {
+html[data-scrollbars="hidden"] #modal-content::-webkit-scrollbar {
   display: none;
 }
 
@@ -61,17 +61,28 @@ html[data-scrollbars="hidden"] #modalContent::-webkit-scrollbar {
     }
 }
 
-#modalHeader {
+#modal-header {
+  display:grid;
   margin-top:-10px;
-  margin-right:20px;
-
+  margin-bottom:20px;
+  grid-template-columns:1fr 24px;
+  align-items:center;
 }
 
-#dismissModal {
+#modal-title {
+  padding:0px;
+  margin:0px;
+  display:inline;
+}
+
+#modal-subtitle {
+  grid-column:1/3;
+  font-size:10pt;
+  color:var(--content-disabled-element);
+}
+
+#dismiss-modal {
   cursor:pointer;
-  position:absolute;
-  right:20px;
-  top:20px;
   background:none;
   border:none;
 }

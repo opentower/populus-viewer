@@ -16,7 +16,6 @@ export default class LeaveRoom extends Component {
 
   render(props) {
     return <Fragment>
-      <h3 id="modalHeader">Leave {props.room.name}?</h3>
       <p>
         To stop receiving updates about this room, and remove it from your room listing:</p>
       <button onClick={this.leaveRoom} class="styled-button">Leave This Room</button>

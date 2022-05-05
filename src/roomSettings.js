@@ -234,7 +234,6 @@ export default class RoomSettings extends Component {
       this.avatarImage && /^image/.test(this.avatarImage.type)
 
     return <Fragment>
-      <h3 id="modalHeader">Room Settings</h3>
       <div id="room-settings-select-view" class="select-view">
         <button onClick={this.showAppearance} data-current-button={state.view==="APPEARANCE"}>Appearance</button>
         <button onClick={this.showAccess} data-current-button={state.view==="ACCESS"}>Access</button>

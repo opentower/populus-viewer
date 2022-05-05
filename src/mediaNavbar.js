@@ -60,7 +60,7 @@ export default class MediaNavbar extends Component {
     this.setState(oldState => { return {moreOptionsVisible: !oldState.moreOptionsVisible} })
   }
 
-  openInvite = _ => Modal.set(<Invite room={this.props.room} />)
+  openInvite = _ => Modal.set(<Invite room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
 
   render(props, state) {
     if (props.contentWidthPx) { // don't render until width is set

@@ -90,7 +90,7 @@ export default class SpacesManager extends Component {
   }
 
   createCollection = _ => {
-    Modal.set(<CreateCollection />)
+    Modal.set(<CreateCollection />, "Create Collection")
   }
 
   render(props, state) {
@@ -167,7 +167,6 @@ class CreateCollection extends Component {
 
   render(_props, state) {
     return <Fragment>
-      <h3 id="modalHeader">Create Collection</h3>
       <form ref={this.mainForm} onSubmit={this.handleSubmit} id="create-collection">
         <label for="name">Collection Name</label>
         <input name="name" oninput={this.validateName} ref={this.collectionNameInput} />
@@ -255,13 +254,13 @@ class SpaceListing extends Component {
     this.setState({limit})
   }
 
-  refreshModal = _ => Modal.getTitle() === "addChild"
+  refreshModal = _ => Modal.getTitle() === "Manage Discussions"
     ? Modal.set(<AddChild
         children={Object.values(this.state.children)}
         nextBatch={this.state.nextBatch}
         pageChildren={this.pageChildren}
         room={this.props.room}
-      />, "addChild")
+      />, "Manage Discussions", `to ${this.props.room.name}`)
     : null
 
   searchMe = _ => this.props.filterSet({
@@ -279,7 +278,7 @@ class SpaceListing extends Component {
       nextBatch={this.state.nextBatch}
       pageChildren={this.pageChildren}
       room={this.props.room}
-      />, "addChild")
+      />, "Manage Discussions", `in ${this.props.room.name}`)
   }
 
   joinChild = roomId => Client.client.joinRoom(roomId, { viaServers: this.state.via[roomId] })
@@ -292,12 +291,12 @@ class SpaceListing extends Component {
 
   openSettings = _ => {
     this.setState({ actionsVisible: false })
-    Modal.set(<RoomSettings joinLink={true} room={this.props.room} />)
+    Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Room Settings", `for ${this.props.room.name}`)
   }
 
   openInvite = _ => {
     this.setState({ actionsVisible: false })
-    Modal.set(<Invite room={this.props.room} />)
+    Modal.set(<Invite room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
   }
 
   roomColor = new RoomColor(this.props.room.name)
@@ -403,7 +402,6 @@ class AddChild extends Component {
     const availableDiscussions = state.adding && state.discussions.filter(room => !childIds.includes(room.roomId))
     const currentDiscussions = !state.adding && props.children.filter(child => child.name.toLowerCase().includes(state.search.toLowerCase()))
     return <Fragment>
-      <h3 id="modalHeader">Manage Discussions in {props.room.name}</h3>
       <SearchBar search={state.search} setSearch={this.filterDiscussions} />
       <div id="manage-discussion-select-view" class="select-view">
         <button onClick={this.addDiscussions} data-current-button={state.adding}>Add Discussions</button>
