@@ -1,3 +1,7 @@
+body {
+  --welcome-header-height:50px;
+}
+
 #welcome-header {
     user-select:none;
     position:fixed;
@@ -8,7 +12,7 @@
     top:0px;
     background-color: white;
     z-index:2;
-    height:50px;
+    height:var(--welcome-header-height);
     box-shadow: 0px 2px 4px 0 rgba(0,0,0,.2);
 }
 
@@ -97,11 +101,14 @@
 }
 
 #welcome-container {
-    margin-top:50px;
+    margin-top:var(--welcome-header-height);
     width: 100%;
+    min-height:calc(100vh - var(--welcome-header-height));
     position: absolute;
     display:flex;
     justify-content:center;
+    background:var(--content-backdrop);
+    --margin-unit: 17px
 }
 
 #welcome-split {
@@ -118,7 +125,7 @@
 
 #welcome-container h2 {
   margin:0px;
-  padding-left:15px;
+  padding-left:var(--margin-unit);
 }
 
 #welcome-header-content #welcome-search-wrapper {

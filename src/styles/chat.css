@@ -153,10 +153,10 @@
   padding: 5px;
   padding-left: 15px;
   font-size:10pt;
-  color: white;
+  color: var(--contrast-text);
   font-weight: bold;
-  background: #ababab;
-  border-top: 1px #ababab solid;
+  background: var(--contrast-background);
+  border-top: 1px var(--contrast-background) solid;
 }
 
 #mediaUploaderHidden {

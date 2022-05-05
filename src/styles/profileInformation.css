@@ -1,16 +1,15 @@
 #profile-information {
   width:90vw;
   max-width:800px;
-  padding-top:1em;
+  margin-top:var(--margin-unit);
+  padding-top:calc(.5 * var(--margin-unit));
+  border: 1px solid var(--content-border);
+  height:fit-content;
+  background: var(--content-background)
 }
 
 #profileInformationForm {
-    border: 1px black solid;
-    margin: 1em;
-    padding: 1em;
-}
-
-#profileInformationForm {
+    padding: var(--margin-unit);
     display:grid;
     grid-template-columns: 180px 1fr;
 }
@@ -20,6 +19,7 @@
     display:grid;
     grid-template-columns: 180px 1fr;
     padding:10px;
+    align-items:center;
 }
 
 #profile-advanced-options > pre {
@@ -54,7 +54,7 @@ html[data-scrollbars="hidden"] #profile-advanced-options > div::-webkit-scrollba
 
 #profileInformationForm input {
     border:none;
-    background:#ededed
+    background:var(--input-background);
 }
 
 #profileSelector {

@@ -1,12 +1,12 @@
 #notifications-listing {
   width: 90vw;
   max-width: 800px;
-  padding-top:1em;
 }
 
 .notification, .invite-entry {
-  margin:10px;
-  border: 1px solid black;
+  margin:calc(.5 * var(--margin-unit));
+  border: 1px solid var(--content-border);
+  background:var(--content-background);
 }
 
 .unread-notification, .invite-entry {
@@ -49,8 +49,9 @@
 }
 
 .notification-date-indicator {
+  margin:calc(.5 * var(--margin-unit));
   font-size:10pt;
-  color:#555555
+  color:var(--backdrop-text)
 }
 
 .notification-header .sender {

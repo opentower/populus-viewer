@@ -10,6 +10,7 @@ import History from './history.js'
 import Client from './client.js'
 import './assets.js'
 import './styles/global.css'
+import './styles/colors.css'
 
 class PopulusViewer extends Component {
   constructor () {

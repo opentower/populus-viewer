@@ -1,5 +1,12 @@
 #spaces-manager {
-  padding-top:1em;
+  margin-top:var(--margin-unit);
+  padding-top:calc(.5 * var(--margin-unit));
+  padding-bottom:var(--margin-unit);
+  padding-left:var(--margin-unit);
+  padding-right:var(--margin-unit);
+  background: var(--content-background);
+  border: 1px solid var(--content-border);
+  height:fit-content;
 }
 
 #spaces-list {
@@ -11,14 +18,13 @@
 }
 
 #create-space {
-  background:white;
-  /* border: 2px #cdcdcd dashed; */
+  background:none;
   border:none;
   padding:0px;
   border-radius:15px;
   font-size:14pt;
   font-weight:bold;
-  color: #cdcdcd;
+  color: var(--content-dimmed-element);
   margin-top:16px;
   cursor:pointer;
   transition: color .5s ease;
@@ -156,7 +162,7 @@ html[data-scrollbars="hidden"] #available-discussions-list::-webkit-scrollbar {
     grid-column: 2 / 3 ;
     margin-bottom:.5em;
     border:none;
-    background:#ededed
+    background:var(--input-background);
 }
 
 .name-validation-detail {
@@ -186,11 +192,3 @@ html[data-scrollbars="hidden"] #available-discussions-list::-webkit-scrollbar {
         min-width: 0px; /* helps prevent overflow on very narrow viewports */
     }
 } 
-
-@media only screen and (min-width: 600px) {
-  .space-listing-children { padding-right:50px; }
-}
-
-@media only screen and (min-width: 1280px) {
-  .space-listing-children { padding-right:100px; }
-}

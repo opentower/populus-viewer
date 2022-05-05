@@ -141,7 +141,7 @@ div#room-settings-avatar-selector {
   font-size:10pt;
   overflow-x:auto;
   user-select:all;
-  background:#ededed;
+  background:var(--input-background);
   padding:7px;
   margin:0px;
 }

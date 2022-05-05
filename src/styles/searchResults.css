@@ -23,12 +23,12 @@
 }
 
 #pdf-search-result-panel .pdf-search-result:hover {
-    background: #efefef;
+    background: var(--input-background);
     transition: background-color 0.5s ease;
 }
 
 .pdf-search-result[data-focused-result] {
-    background: #efefef;
+    background: var(--input-background);
 }
 
 #pdf-search-result-panel .pdf-search-result {

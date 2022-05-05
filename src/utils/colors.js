@@ -14,11 +14,13 @@ export class UserColor {
     this.solid = `hsl(${this.hue},100%, 50%)`
     this.dark = `hsl(${this.hue},100%, 20%)`
     this.ultralight = `hsl(${this.hue},100%, 95%)`
+    this.ultradark = `hsl(${this.hue},100%, 10%)`
     this.styleVariables = {
       "--user_ultralight": this.ultralight,
       "--user_light": this.light,
       "--user_solid": this.solid,
-      "--user_dark": this.dark
+      "--user_dark": this.dark,
+      "--user_ultradark": this.ultradark
     }
   }
 }

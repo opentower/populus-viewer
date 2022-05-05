@@ -1,0 +1,23 @@
+html {
+  --light-gray: #ededed;
+  --mid-gray: #cdcdcd;
+  --solid-gray: #ababab;
+  --dark-gray: #555555;
+
+  /* backdrop to content, behind cards and annotatable resources */
+  --content-backdrop: var(--light-gray);
+  --backdrop-text: var(--dark-gray);
+  /* backdrop of content, e.g. cards and annotatable resources */
+  --content-background: white;
+  --content-border: rgba(0,0,0,.2);
+  --content-dimmed-element: var(--mid-gray);
+  --content-disabled-element: var(--dark-gray);
+  /* background to text inputs */
+  --input-background: var(--light-gray);
+  --input-text: black;
+  /* background to contrast text */
+  --max-contrast-background: black;
+  --high-contrast-background: var(--dark-gray);
+  --contrast-background: var(--solid-gray);
+  --contrast-text: white
+}
