@@ -282,7 +282,7 @@ class RoomEntry extends Component {
           { state.buttonsVisible ? <ToolTip placement="right" content="Toggle favorite"><button onClick={this.toggleFavorite}>{Icons.star}</button></ToolTip> : null }
           { state.buttonsVisible ? <ToolTip placement="right" content="Leave conversation"><button onClick={this.handleClose}>{Icons.exit}</button></ToolTip> : null }
           { state.buttonsVisible ? <ToolTip placement="right" content="Edit room tags"><button onClick={this.handleEditTags}>{Icons.tag}</button></ToolTip> : null }
-          { state.buttonsVisible && canInvite ? <ToolTip placement="right" content="Invite a friend"><button onClick={this.openInvite}>{Icons.userPlus}</button></ToolTip> : null }
+          { state.buttonsVisible && canInvite ? <ToolTip placement="right" content="Manage membership"><button onClick={this.openInvite}>{Icons.userPlus}</button></ToolTip> : null }
           { state.buttonsVisible && isAdmin ? <ToolTip placement="right" content="Configure room settings"><button onClick={this.openSettings}>{Icons.settings}</button></ToolTip> : null }
         </div>
       </div>

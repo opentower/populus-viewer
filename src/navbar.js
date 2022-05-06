@@ -193,7 +193,7 @@ export default class DocumentNavbar extends Component {
           </ToolTip>
         </div>
         <div ref={this.bottomWrapper} data-searchFocused={state.searchFocused} class="nav-button-wrapper bottom-wrapper">
-          <ToolTip content="Invite a friend" theme="bordered">
+          <ToolTip content="Manage membership" theme="bordered">
             <button onClick={this.openInvite}>{Icons.userPlus}
             </button>
           </ToolTip>
