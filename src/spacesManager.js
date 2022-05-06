@@ -96,6 +96,7 @@ export default class SpacesManager extends Component {
   render(props, state) {
     return <div id="spaces-manager">
       <h1>Collections</h1>
+      <hr class="styled-rule" />
       <div id="spaces-list">
         {state.spaces.map(room => <SpaceListing filterToggle={this.filterToggle} filterSet={this.filterSet} layout={props.layout} key={room.roomId} room={room} />)}
       </div>

@@ -1,20 +1,18 @@
 #file-upload {
   max-width: 800px;
-  width: 90vw;
-  margin-top:var(--margin-unit);
+  width:100%;
+  margin:var(--margin-unit);
   padding-top:calc(.5 * var(--margin-unit));
   background:var(--content-background);
   height:fit-content;
   border: 1px solid var(--content-border);
-}
-
-#file-upload-form {
-    margin: var(--margin-unit);
+  padding: var(--margin-unit);
 }
 
 #file-upload-form {
     display:grid;
     grid-template-columns: 180px 1fr;
+    margin-top: calc(.75 * var(--margin-unit));
 }
 
 #file-upload-form label {

@@ -138,6 +138,7 @@ export default class FileUpload extends Component {
   render (_, state) {
     return <div id="file-upload">
       <h2> Upload a new file</h2>
+      <hr class="styled-rule" />
       <form id="file-upload-form" ref={this.mainForm} onsubmit={this.uploadFile}>
         <label for="file"> File to Discuss</label>
         <input name="file"

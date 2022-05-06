@@ -1,17 +1,18 @@
 #profile-information {
-  width:90vw;
   max-width:800px;
-  margin-top:var(--margin-unit);
+  width:100%;
+  margin:var(--margin-unit);
   padding-top:calc(.5 * var(--margin-unit));
   border: 1px solid var(--content-border);
   height:fit-content;
-  background: var(--content-background)
+  background: var(--content-background);
+  padding: var(--margin-unit);
 }
 
 #profileInformationForm {
-    padding: var(--margin-unit);
     display:grid;
     grid-template-columns: 180px 1fr;
+    margin-top: calc(.75 * var(--margin-unit));
 }
 
 #profile-display-options,

@@ -111,6 +111,7 @@ body {
     --margin-unit: 17px
 }
 
+
 #welcome-split {
   display:grid;
   width: 90vw;
@@ -123,9 +124,13 @@ body {
   max-width:800px;
 }
 
+#welcome-container hr {
+  margin-top: calc(.5 * var(--margin-unit));
+  margin-bottom: calc(.5 * var(--margin-unit));
+}
+
 #welcome-container h2 {
   margin:0px;
-  padding-left:var(--margin-unit);
 }
 
 #welcome-header-content #welcome-search-wrapper {

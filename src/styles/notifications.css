@@ -1,10 +1,11 @@
 #notifications-listing {
-  width: 90vw;
-  max-width: 800px;
+  width: 100%;
+  margin: 0px var(--margin-unit) 0 var(--margin-unit);
+  max-width: calc(800px + (2 * var(--margin-unit)));
 }
 
 .notification, .invite-entry {
-  margin:calc(.5 * var(--margin-unit));
+  margin-top:calc(.5 * var(--margin-unit));
   border: 1px solid var(--content-border);
   background:var(--content-background);
 }
@@ -49,7 +50,7 @@
 }
 
 .notification-date-indicator {
-  margin:calc(.5 * var(--margin-unit));
+  margin-top:calc(.5 * var(--margin-unit));
   font-size:10pt;
   color:var(--backdrop-text)
 }

@@ -36,7 +36,7 @@
 
 .space-listing h3 {
   cursor:pointer;
-  margin-bottom:12px;
+  margin:5px 0px 10px 0px;
   display:inline-flex;
   align-content:center;
 }
