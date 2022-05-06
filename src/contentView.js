@@ -394,7 +394,8 @@ export default class ContentView extends Component {
       return <div id="document-view-loading">{this.state.loadingStatus}</div>
     }
     if (typeof this.state.loadingStatus === "number") {
-      return <div id="document-view-loading">Downloading...
+      return <div id="document-view-loading">
+          <span>Downloading...</span>
           <progress class="styled-progress" max="1" value={this.state.loadingStatus} />
         </div>
     }

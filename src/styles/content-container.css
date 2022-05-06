@@ -49,8 +49,12 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
     flex-direction:column;
     justify-content: center;
     align-items: center;
-    animation: pulse-opacity 2s infinite; 
     animation-timing-function:ease;
+    background: var(--content-background)
+}
+
+#document-view-loading * {
+  animation: pulse-opacity 2s infinite; 
 }
 
 .annotation-layer , .text-layer {
