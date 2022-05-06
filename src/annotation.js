@@ -36,7 +36,29 @@ export default class AnnotationLayer extends Component {
     }
   }
 
-  filterAnnotations  = loc => loc.getPageIndex() === parseInt(this.props.pageFocused, 10)
+  filterAnnotations = loc => loc.getPageIndex() === parseInt(this.props.pageFocused, 10)
+
+  sortAnnotations = (a,b) => {
+    if (!a.getRect() || !b.getRect()) return 0
+    if (a.getRect().top < b.getRect().top) return 1
+    if (b.getRect().top < a.getRect().top) return -1
+    return 0
+  }
+
+  updateGutter(gutter, loc) {
+    for (const key in gutter) {
+      if (gutter[key].getRect().bottom >= loc.getRect().top) delete gutter[key]
+    }
+    let key = 0
+    while (true) {
+      if (gutter[key]) {
+        key++
+        continue
+      }
+      gutter[key] = loc
+      return key
+    }
+  }
 
   getAnnotations() {
     const theRoom = Client.client.getRoom(this.props.roomId)
@@ -49,14 +71,19 @@ export default class AnnotationLayer extends Component {
         .filter(loc => {
           if (loc.getChild() === this.props.focus?.getChild()) didFocus = true
           return this.filterAnnotations(loc)
-        })
+        }).sort(this.sortAnnotations)
       // We add the secondary focus
       if (this.props.secondaryFocus && this.filterAnnotations(this.props.secondaryFocus)) annotationData.push(this.props.secondaryFocus)
       // We add the focus back in if it's on the page but got screened out of filteredAnnotationContents
       if (this.props.focus && this.filterAnnotations(this.props.focus) && !didFocus) annotationData.push(this.props.focus)
       // We turn the array into annontation components
+      const leftGutter = {}
+      const rightGutter = {}
       annotations = annotationData.map(loc => {
         const annotationId = loc.getChild()
+        const rightSide = this.props.fixedSide 
+          ? this.props.fixedSide === "right"
+          : loc.getChild().charCodeAt(1) % 2 === 1
         switch (loc.getType()) {
           case 'text': return <Pindrop
             key={loc.event.getId()}
@@ -66,17 +93,22 @@ export default class AnnotationLayer extends Component {
             pdfHeightAdjustedPx={this.props.pdfHeightAdjustedPx}
             setFocus={this.props.setFocus}
             location={loc} />
-          // default for legacy reasons, could switch to highlight in 2022
-          case 'highlight': return <Highlight
-            zoomFactor={this.props.zoomFactor}
-            key={loc.event.getId()}
-            focused={focusId === annotationId}
-            typing={this.state.typing[annotationId]}
-            fixedSide={this.props.fixedSide}
-            setFocus={this.props.setFocus}
-            pdfWidthAdjustedPx={this.props.pdfWidthAdjustedPx}
-            pdfHeightAdjustedPx={this.props.pdfHeightAdjustedPx}
-            location={loc} />
+          case 'highlight': {
+            let gutterDepth
+            if (rightSide) gutterDepth = this.updateGutter(rightGutter, loc)
+            else gutterDepth = this.updateGutter(leftGutter, loc)
+            return <Highlight
+              zoomFactor={this.props.zoomFactor}
+              key={loc.event.getId()}
+              focused={focusId === annotationId}
+              typing={this.state.typing[annotationId]}
+              rightSide={rightSide}
+              gutterDepth={gutterDepth}
+              setFocus={this.props.setFocus}
+              pdfWidthAdjustedPx={this.props.pdfWidthAdjustedPx}
+              pdfHeightAdjustedPx={this.props.pdfHeightAdjustedPx}
+              location={loc} />
+          }
         }
       })
     }
@@ -171,8 +203,6 @@ class Highlight extends Component {
 
   roomId = this.props.location.getChild()
 
-  rightSide = this.roomId.charCodeAt(1) % 2 === 1
-
   clientRects = this.props.location.getQuadPoints().map(qp =>
     QuadPoints.fromQuadArray(qp).toDOMRectInHeight(this.props.pdfHeightAdjustedPx)
   )
@@ -187,7 +217,6 @@ class Highlight extends Component {
   userColor = new UserColor(this.props.location.getCreator())
 
   render(props) {
-    const rightSide = props.fixedSide ? props.fixedSide === "right" : this.rightSide
     if (!this.props.pdfWidthAdjustedPx) return null
     const spans = this.clientRects.map(
       rect => <RectSpan
@@ -206,7 +235,8 @@ class Highlight extends Component {
       id={this.roomId}>
       <BarTab
         pdfWidthAdjustedPx={props.pdfWidthAdjustedPx}
-        rightSide={rightSide}
+        rightSide={props.rightSide}
+        gutterDepth={props.gutterDepth}
         rect={this.boundingRect}
         zoomFactor={props.zoomFactor}
         setFocus={this.setFocus} />
@@ -218,43 +248,20 @@ class Highlight extends Component {
 }
 
 class BarTab extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      overlapOffset: 0
-    }
-  }
-
   componentDidMount() {
     Layout.positionRelativeAt(this.getTabRect(), this.ref.current, 1)
-    this.scootch()
   }
 
   componentDidUpdate() {
     Layout.positionRelativeAt(this.getTabRect(), this.ref.current, this.props.zoomFactor)
-    this.scootch()
   }
 
   ref = createRef()
 
   getTabRect = _ => {
     return this.props.rightSide
-      ? new DOMRect(this.props.pdfWidthAdjustedPx - 10 + this.state.overlapOffset, this.props.rect.y, 3, this.props.rect.height)
-      : new DOMRect(5 - this.state.overlapOffset, this.props.rect.y, 3, this.props.rect.height)
-  }
-
-  scootch = _ => {
-    const rect = this.ref.current.getBoundingClientRect()
-    const overlaps = document.elementsFromPoint(rect.x + 1, rect.y + 1)
-      .filter(elt => {
-        const eltRect = elt.getBoundingClientRect()
-        const isAnnot = elt.className === "annotation-bartab"
-        const isPrior = elt.compareDocumentPosition(this.ref.current) === 4
-        return (isAnnot && ((eltRect.y < rect.y) || (isPrior && eltRect.y === rect.y)))
-      })
-    if (overlaps.length > 0) {
-      this.setState({overlapOffset: this.state.overlapOffset + 10})
-    }
+      ? new DOMRect(this.props.pdfWidthAdjustedPx - 10 + (this.props.gutterDepth * 10), this.props.rect.y, 3, this.props.rect.height)
+      : new DOMRect(5 - (this.props.gutterDepth * 10), this.props.rect.y, 3, this.props.rect.height)
   }
 
   render(props) {
