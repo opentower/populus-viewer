@@ -3,7 +3,8 @@
     overflow:auto;
     height: calc(100% - var(--navHeight));
     width: var(--contentWidth);
-    transition: var(--transitionSizing)
+    transition: var(--transitionSizing);
+    background: var(--content-backdrop);
 }
 
 html[data-scrollbars="hidden"] #content-container {

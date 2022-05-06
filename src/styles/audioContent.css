@@ -1,5 +1,6 @@
 #waveform {
   width: 100%;
+  background: var(--content-background)
 }
 
 html[data-scrollbars="hidden"] wave {
