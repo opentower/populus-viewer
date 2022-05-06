@@ -16,8 +16,9 @@ html {
   --input-background: var(--light-gray);
   --input-text: black;
   /* background to contrast text */
-  --max-contrast-background: black;
-  --high-contrast-background: var(--dark-gray);
+  --low-contrast-background: var(--light-gray);
   --contrast-background: var(--solid-gray);
+  --high-contrast-background: var(--dark-gray);
+  --max-contrast-background: black;
   --contrast-text: white
 }

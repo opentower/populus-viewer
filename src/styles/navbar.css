@@ -176,14 +176,14 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
 }
 
 .nav-position > button:hover {
-    color:white;
-    background:#dddddd;
+    color:var(--contrast-text);
+    background:var(--contrast-background);
     transition: background 0.5s ease;
 }
 
 .nav-position > button.nav-toggled {
-    color:white;
-    background:#ababab;
+    color:var(--contrast-text);
+    background:var(--max-contrast-background);
     transition: background 0.5s ease;
 }
 
