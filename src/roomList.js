@@ -22,7 +22,7 @@ export default class RoomList extends Component {
     super(props)
     this.state = {
       rooms: Client.client.getVisibleRooms().filter(Resource.hasResource),
-      sort: "Activity",
+      sort: "ACTIVITY",
       sortOrder: 1
     }
   }
@@ -62,26 +62,48 @@ export default class RoomList extends Component {
   }
 
   byName = (a, b) => {
-    const ts1 = a.name
-    const ts2 = b.name
-    if (ts1 > ts2) return 1 * this.state.sortOrder
-    else if (ts1 < ts2) return -1 * this.state.sortOrder
+    const n1 = a.name
+    const n2 = b.name
+    if (n1 < n2) return 1 * this.state.sortOrder
+    else if (n2 < n1) return -1 * this.state.sortOrder
+    return 0
+  }
+
+  byCreation = (a, b) => {
+    const c1 = a.getLiveTimeline()
+      .getState(Matrix.EventTimeline.FORWARDS)
+      .getStateEvents(Matrix.EventType.RoomCreate,"")
+      .getTs()
+    const c2 = b.getLiveTimeline()
+      .getState(Matrix.EventTimeline.FORWARDS)
+      .getStateEvents(Matrix.EventType.RoomCreate,"")
+      .getTs()
+    if (c1 < c2) return 1 * this.state.sortOrder
+    else if (c2 < c1) return -1 * this.state.sortOrder
     return 0
   }
 
   sortByActivity = _ => {
     this.setState(oldState =>
-      oldState.sort === "Activity"
+      oldState.sort === "ACTIVITY"
         ? { sortOrder: oldState.sortOrder * -1 }
-        : { sort: "Activity" }
+        : { sort: "ACTIVITY" }
     )
   }
 
   sortByName = _ => {
     this.setState(oldState =>
-      oldState.sort === "Name"
+      oldState.sort === "NAME"
         ? { sortOrder: oldState.sortOrder * -1 }
-        : { sort: "Name" }
+        : { sort: "NAME" }
+    )
+  }
+
+  sortByCreation = _ => {
+    this.setState(oldState =>
+      oldState.sort === "CREATION"
+        ? { sortOrder: oldState.sortOrder * -1 }
+        : { sort: "CREATION" }
     )
   }
 
@@ -93,8 +115,9 @@ export default class RoomList extends Component {
 
   getSortFunc() {
     switch (this.state.sort) {
-      case 'Activity': return this.byActivity
-      case 'Name': return this.byName
+      case 'CREATION': return this.byCreation
+      case 'ACTIVITY': return this.byActivity
+      case 'NAME': return this.byName
     }
   }
 
@@ -166,12 +189,15 @@ export default class RoomList extends Component {
             : Icons.sortAsc
           }
         </button>
-        <button data-current-button={state.sort === "Activity"}
+        <button data-current-button={state.sort === "ACTIVITY"}
                 onClick={this.sortByActivity}
                 class="styled-button">Activity</button>
-        <button data-current-button={state.sort === "Name"}
+        <button data-current-button={state.sort === "NAME"}
                 onClick={this.sortByName}
                 class="styled-button">Name</button>
+        <button data-current-button={state.sort === "CREATION"}
+                onClick={this.sortByCreation}
+                class="styled-button">Creation</button>
       </div>
       <FilterList setFilterItems={props.setFilterItems} filterItems={props.filterItems} />
       {/* TODO: We're probably going to need to debounce this rather than searching with each render, for longer lists of rooms */}
