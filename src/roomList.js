@@ -451,10 +451,12 @@ class AnnotationData extends Component {
     return <div class="room-annotation-data">
       {unread < 1
         ? null
-        : <span title="Unread conversations" onClick={this.handleLoadNew}>
-          <button class="small-icon">{Icons.annotation}</button>
-          <span class="small-icon-badge">{unread}</span>
-        </span>
+        : <ToolTip placement="right" content="Unread conversations">
+          <span onClick={this.handleLoadNew}>
+            <button class="small-icon">{Icons.annotation}</button>
+            <span class="small-icon-badge">{unread}</span>
+          </span>
+        </ToolTip>
       }
     </div>
   }
