@@ -31,7 +31,7 @@
 }
 
 #create-space:hover {
-  color: black;
+  color: var(--content-text);
 }
 
 .space-listing h3 {
@@ -72,19 +72,19 @@
 
 .space-listing-more {
   margin-left:10px;
-  background:white;
+  background:var(--content-background);
   display:inline-block;
   border-radius:5px;
   font-size:14pt;
   font-weight:bold;
   height:50px;
-  color: #cdcdcd;
+  color: var(--content-dimmed-element);
   cursor:pointer;
   transition: color .5s ease;
 }
 
 .space-listing-more:hover {
-  color:black;
+  color:var(--content-text);
 }
 
 #create-collection {
@@ -147,7 +147,7 @@ html[data-scrollbars="hidden"] #available-discussions-list::-webkit-scrollbar {
 .discussion-listing > span::-webkit-scrollbar { display: none; }
 
 .discussion-listing[data-change-pending] {
-  color:#ababab;
+  color:var(--content-text-dimmed);
 }
 
 .discussion-listing:hover {
@@ -166,7 +166,7 @@ html[data-scrollbars="hidden"] #available-discussions-list::-webkit-scrollbar {
 }
 
 .name-validation-detail {
-    color:#ababab;
+    color:var(--content-text-dimmed);
     grid-column: 2 / 3 ;
     font-size:10pt;
     position:relative;

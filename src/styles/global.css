@@ -69,17 +69,16 @@ body[data-modal-visible] {
   outline:none;
   border:none;
   padding:5px;
-  color:black;
   font-weight:bold;
-  background-color:white;
+  background:none;
   user-select:none;
-  border-bottom:2px solid white;
+  border-bottom:2px solid transparent;
   transition:border .25s;
   flex-grow: 1;
 }
 
 .select-view > button[data-current-button] {
-  border-bottom:2px solid black;
+  border-bottom:2px solid var(--max-contrast-background);
 }
 
 .select-view > button[disabled] {
@@ -90,11 +89,10 @@ body[data-modal-visible] {
 .styled-button {
   cursor:pointer;
   outline:none;
-  border:2px solid black;
+  border:2px solid var(--max-contrast-background);
   padding:2px 4px 2px 4px;
-  color:black;
   font-weight:bold;
-  background-color:white;
+  background:var(--content-background);
   user-select:none;
 }
 
@@ -135,8 +133,8 @@ body[data-modal-visible] {
 }
 
 .styled-button[data-current-button]{
-  color:white;
-  background:black;
+  color:var(--contrast-text);
+  background:var(--max-contrast-background);
 }
 
 .styled-progress::-webkit-progress-bar {
@@ -150,7 +148,7 @@ body[data-modal-visible] {
 }
 
 .styled-progress::-webkit-progress-value {
-  background: black;
+  background: var(--max-contrast-background);
 }
 
 .small-icon {
@@ -164,14 +162,14 @@ body[data-modal-visible] {
 button.small-icon { cursor:pointer }
 
 .small-icon-badge {
-  background:black;
+  background:var(--max-contrast-background);
   position:relative;
   bottom:10px;
   display:inline-flex;
   align-items: center;
   border:none;
   justify-content: space-around;
-  color:white;
+  color:var(--contrast-text);
   font-size:8pt;
   font-weight:bold;
   min-width:18px;

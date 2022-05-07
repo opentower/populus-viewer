@@ -95,7 +95,7 @@ div#room-settings-avatar-selector {
 }
 
 .room-settings-role-listing:not([data-role-toggleable]) .small-icon {
-  color:#ababab
+  color:var(--content-text-dimmed);
 }
 
 .room-settings-role-user {
@@ -104,7 +104,7 @@ div#room-settings-avatar-selector {
 
 .room-settings-role-change-info {
   grid-column: 2/3;
-  color: #ababab;
+  color:var(--content-text-dimmed);
   font-size:10pt;
   text-align:left;
 }

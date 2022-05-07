@@ -50,5 +50,5 @@
 
 #pdf-search-result-panel .page-data {
   font-size:10pt;
-  color:#565656;
+  color:var(--secondary-text);
 }

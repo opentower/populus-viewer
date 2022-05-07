@@ -53,7 +53,7 @@
 }
 
 .file-upload-form-detail {
-    color:#ababab;
+    color:var(--content-text-dimmed);
     grid-column: 2 / 3 ;
     font-size:10pt;
     position:relative;

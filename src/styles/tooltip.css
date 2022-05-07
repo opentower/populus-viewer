@@ -1,6 +1,6 @@
 .tippy-box {
-  color:white;
-  background:black;
+  color:var(--contrast-text);
+  background:var(--max-contrast-background);
   padding:5px;
   font-weight:bold;
   border-radius:5px;

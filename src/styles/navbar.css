@@ -8,7 +8,7 @@
 }
 
 #nav-background{
-    background: black;
+    background: var(--max-contrast-background);
     position:absolute;
     width:100%;
     top:0px;
@@ -47,7 +47,7 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
 
 #nav-pages > button {
     cursor:pointer;
-    background:white;
+    background:var(--content-background);
     border:2px solid black;
     min-width:40px;
     min-height:40px;
@@ -114,8 +114,8 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
 .nav-button-wrapper > button {
     cursor:pointer;
     outline:none;
-    color:white;
-    background:black;
+    color:var(--contrast-text);
+    background:none;
     border:none;
     margin:2px;
 }
@@ -125,7 +125,8 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
 }
 
 .nav-button-wrapper > button[disabled] {
-    color:gray;
+    color: var(--contrast-text-dimmed);
+    cursor:not-allowed;
 }
 
 .nav-position {
@@ -133,7 +134,7 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
     display:flex;
     align-items: center;
     justify-content: center;
-    background:white;
+    background:var(--content-background);
     font-size: 1em;
     border-radius:50px;
     height:45px;
@@ -171,7 +172,7 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
     height:35px;
     border-radius:50px;
     border:none;
-    background:white;
+    background:var(--content-background);
     transition: background 0.5s ease;
 }
 
@@ -183,7 +184,7 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
 
 .nav-position > button.nav-toggled {
     color:var(--contrast-text);
-    background:var(--max-contrast-background);
+    background:var(--contrast-background);
     transition: background 0.5s ease;
 }
 
@@ -195,8 +196,8 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
 }
 
 .currentpage {
-  background:black !important;
-  color: white;
+  background:var(--max-contrast-background) !important;
+  color: var(--contrast-text);
 }
 
 [data-pindrop-mode="unplaced"] #page-nav * { 

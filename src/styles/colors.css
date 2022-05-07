@@ -1,4 +1,5 @@
 html {
+  --light-red:#ff9394;
   --light-gray: #ededed;
   --mid-gray: #cdcdcd;
   --solid-gray: #ababab;
@@ -12,13 +13,19 @@ html {
   --content-border: rgba(0,0,0,.2);
   --content-dimmed-element: var(--mid-gray);
   --content-disabled-element: var(--dark-gray);
+  --content-text: black;
+  --content-text-dimmed: var(--solid-gray);
+  --content-secondary-text: var(--dark-gray);
   /* background to text inputs */
   --input-background: var(--light-gray);
   --input-text: black;
+  --input-invalid: var(--light-red);
   /* background to contrast text */
   --low-contrast-background: var(--light-gray);
   --contrast-background: var(--solid-gray);
   --high-contrast-background: var(--dark-gray);
   --max-contrast-background: black;
-  --contrast-text: white
+  --contrast-text: white;
+  --contrast-text-dimmed: var(--dark-gray);
+  
 }

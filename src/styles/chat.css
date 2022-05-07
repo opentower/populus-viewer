@@ -22,14 +22,14 @@
 #anchor-quote svg {
   padding-right: .25em;
   height: 1em;
-  color:#565656;
+  color:var(--secondary-text);
 }
 
 #anchor-audio,
 #anchor-pin {
   padding:5px;
   display:flex;
-  color:#565656;
+  color:var(--content-secondary-text);
   align-items:center;
 }
 
@@ -68,7 +68,7 @@
 }
 
 #submit-button-wrapper {
-  background: black
+  background: var(--max-contrast-background);
 }
 
 #submit-button-wrapper > button,
@@ -78,10 +78,9 @@
     outline:none;
     border:2px solid black;
     border-left:none;
-    color:black;
     font-weight:bold;
     transition: background-color 0.5s ease;
-    background-color:white;
+    background:var(--content-background);
 }
 
 #submit-button-wrapper > button:focus,
@@ -142,7 +141,7 @@
 #submit-button-wrapper > button:disabled {
   background-color: white;
   cursor: not-allowed;
-  color:grey;
+  color:var(--content-text-dimmed);
 }
 
 #messageComposer > button:active {

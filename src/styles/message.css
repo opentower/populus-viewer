@@ -24,7 +24,7 @@
     padding-left:12px;
     margin-right:20px;
     border-right: 5px solid var(--user_light);
-    background: white;
+    background: var(--content-background);
 }
 
 .message-from-user > .message-decoration {
@@ -51,7 +51,7 @@
     border:2px solid var(--user_light);
     padding-left:4px;
     padding-right:4px;
-    background-color:white;
+    background:var(--content-background);
     min-height:30px;
     vertical-align:bottom;
 }
@@ -93,13 +93,13 @@
 .file-upload,
 .redacted {
     font-size:10pt;
-    color:gray;
+    color:var(--content-text-dimmed);
 }
 
 /* status vanishes on sent. We probably want a warning for a "not_sent" status,
  * whuch means that sending has failed */
 .message-frame[data-event-status] {
-    color:gray;
+    color:var(--content-text-dimmed);
 }
 
 .message-frame .message-frame-status {
@@ -108,7 +108,7 @@
   bottom: 5px;
   width:300px;
   font-size:10pt;
-  color: #ababab;
+  color:var(--content-text-dimmed);
 }
 
 .message-frame .message-frame-status a {
@@ -156,7 +156,7 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
 
 
 .message-body a {
-  color:black;
+  color:var(--content-text);
 }
 
 .message-body a:hover {
@@ -217,7 +217,7 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
   flex-direction:column;
   font-size:8pt;
   padding:2px;
-  background-color:white;
+  background:var(--content-background);
   border-radius:25px;
   user-select:none;
   border:2px solid var(--user_light);
@@ -263,7 +263,7 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
 
 .reply-preface {
     position:relative;
-    color:#ababab;
+    color:var(--content-text-dimmed);
     font-size:10pt;
     padding-bottom:5px;
 }
@@ -276,7 +276,7 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
 .redacted-preview {
     padding-top:5px;
     font-size:10pt;
-    color: gray;
+    color:var(--content-text-dimmed);
 }
 
 .reply-fallback blockquote{

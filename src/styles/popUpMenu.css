@@ -14,7 +14,7 @@
 .popup-menu-item {
   padding:10px;
   height:20px;
-  background:white;
+  background:var(--content-background);
   cursor: pointer;
   overflow-x:hidden;
   white-space:pre;

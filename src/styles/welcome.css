@@ -10,7 +10,7 @@ body {
     justify-content:flex-end;
     align-items:center;
     top:0px;
-    background-color: white;
+    background: var(--content-background);
     z-index:2;
     height:var(--welcome-header-height);
     box-shadow: 0px 2px 4px 0 rgba(0,0,0,.2);

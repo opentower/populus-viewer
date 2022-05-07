@@ -4,7 +4,7 @@
   right:0px;
   margin:5px;
   font-size:8pt;
-  background:white;
+  background:var(--content-background);
   z-index:15;
   padding:0px 3px 0px 3px;
   border-radius:5px;

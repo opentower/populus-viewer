@@ -24,7 +24,7 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
     margin-top: .5em;
     padding-bottom: .5em;
     padding-left: .5em;
-    border-bottom: 1px solid #ababab;
+    border-bottom: 1px solid var(--content-border);
 }
 
 #annotation-controls button {
@@ -57,15 +57,15 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
 }
 
 #annotation-panel .annotation-listing-divider {
-    border-bottom: 1px solid #dddddd;
+    border-bottom: 1px solid var(--content-border);
     margin: 20px 60px 20px 60px;
     text-align:center;
 }
 
 #annotation-panel .annotation-listing-divider > span {
-    color: #ababab;
+    color: var(--content-text-dimmed);
     font-size:10pt;
-    background:white;
+    background:var(--content-background);
     position:relative;
     padding:10px;
     top:.5em;
@@ -93,7 +93,7 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
 
 .annotation-listing-topic {
   width: 100%;
-  color:#565656;
+  color:var(--content-secondary-text);
 }
 
 .annotation-listing-topic-icon {
@@ -109,7 +109,7 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
 .annotation-listing-headphones-icon,
 .annotation-listing-pin-icon {
   display:flex;
-  color:#565656;
+  color:var(--content-secondary-text);
   align-items:center;
 }
 
@@ -118,7 +118,7 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
   padding-top:10px;
   padding-left:5px;
   font-size:10pt;
-  color:#565656;
+  color:var(--content-secondary-text);
 }
 
 .annotation-listing-comment, .annotation-listing-comment-unread {
@@ -130,7 +130,7 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
     overflow-wrap: anywhere;
     word-break: break-word;
     hyphens: auto;
-    background:white;
+    background:var(--content-background);
 }
 
 .annotation-listing-comment-unread { border: 5px solid var(--user_light); }
@@ -151,7 +151,7 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
 .annotation-listing-features {
   height:14px;
   padding-left:5px;
-  color:#565656;
+  color:var(--content-secondary-text);
 }
 
 .annotation-listing-creator::before {
@@ -215,7 +215,7 @@ html[data-scrollbars="hidden"] .annotation-listing-comment-unread pre::-webkit-s
 }
 
 .annotation-listing-fallback {
-  color:#565656;
+  color:var(--content-secondary-text);
   text-align:center;
 }
 
@@ -228,7 +228,7 @@ html[data-scrollbars="hidden"] .annotation-listing-comment-unread pre::-webkit-s
 #annotation-panel-button-wrapper .search-bar {
   height:36px;
   border: 2px solid black;
-  background-color:white;
+  background: var(--content-background);
 }
 
 #annotation-panel-button-wrapper[data-mode="search"] .search-bar > input {
@@ -242,30 +242,10 @@ html[data-scrollbars="hidden"] .annotation-listing-comment-unread pre::-webkit-s
 }
 
 #annotation-panel-button-wrapper[data-mode="navigation"] .search-bar > input {
-  background-color:white;
+  background-color:var(--content-background);
 }
 
 #annotation-panel-button-wrapper .search-bar > .clear-icon,
 #annotation-panel-button-wrapper .search-bar > .search-icon {
   right:6px;
-}
-
-#annotation-panel-button-wrapper[data-mode="search"] button {
-  display:none;
-}
-
-#annotation-panel-button-wrapper > button {
-  height:40px;
-  font-size:14pt;
-  border-left:none;
-  transition: background-color 0.5s ease;
-}
-
-#annotation-panel-button-wrapper > button:hover {
-    background-color:#ededed;
-    transition: background-color 0.5s ease;
-}
-
-#annotation-panel-button-wrapper > button:first-child {
-    border:2px solid black;
 }

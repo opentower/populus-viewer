@@ -16,7 +16,7 @@
     top:0px;
     bottom:0px;
     box-shadow: -2px 0 4px 0 rgba(0,0,0,.2);
-    background:white;
+    background:var(--content-background);
     z-index:6;
     /* ↓ for mobile, override below */
     left: calc(
@@ -78,7 +78,7 @@
     width: var(--widget-2-width);
     min-width: var(--widget-2-width);
     border-left:1px solid #adadad;
-    background:white;
+    background:var(--content-background);
 }
 
 html[data-scrollbars="hidden"] .panel-widget-2,
@@ -98,7 +98,7 @@ html[data-scrollbars="hidden"] .panel-widget-1::-webkit-scrollbar {
   height:100%;
   position:absolute;
   right:0px;
-  background:white;
+  background:var(--content-background);
   width:calc(var(--widget-control-width)); 
   border-left:1px solid #adadad;
   display:flex;

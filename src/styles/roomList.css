@@ -114,7 +114,7 @@
 }
 
 .room-listing-heading a {
-  color:black;
+  color:var(--content-text);
 }
 
 .room-listing-data {
@@ -149,17 +149,17 @@
   border-radius:5px;
   margin-right:5px;
   border:none;
-  background:white;
+  background:none;
   font-size:12pt;
   cursor:pointer;
   padding:5px;
   white-space: nowrap;
-  color:black;
+  color:var(--content-text);
   transition:background .5s ease;
 }
 
 .room-toggle-members:hover {
-  background:var(--input-background);
+  background:var(--low-contrast-background);
   transition:background .5s ease;
 }
 

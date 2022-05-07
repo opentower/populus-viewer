@@ -24,7 +24,7 @@
 
 #modal-content {
   position: relative;
-  background:white;
+  background:var(--content-background);
   opacity:1;
   width:400px;
   min-height:150px;

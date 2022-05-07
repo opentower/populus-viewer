@@ -10,7 +10,7 @@
 }
 
 #login input:invalid, #registration input:invalid {
-    background:#ff9394;
+    background:var(--input-invalid);
 }
 
 #login form, #registration form {
@@ -56,7 +56,6 @@
 
 .sso-name {
   padding-left:20px;
-  color:black;
   text-decoration:none;
   transition: font-weight ease .2s;
 }

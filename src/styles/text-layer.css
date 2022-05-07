@@ -37,7 +37,7 @@
 
 .text-layer mark {
     color:transparent;
-    background:black;
+    background:var(--max-contrast-background);
     padding:2px;
     position:relative;
     left:-5px;
