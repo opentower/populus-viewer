@@ -1,7 +1,7 @@
 import { h, Component, createRef, Fragment } from 'preact';
 import Client from './client.js'
 import * as Matrix from "matrix-js-sdk"
-import { loadImageElement } from "./utils/media.js"
+import { loadImageElement, blurhashFromFile } from "./utils/media.js"
 import Location from './utils/location.js'
 import Resource from './utils/resource.js'
 import * as Icons from './icons.js'
@@ -30,7 +30,6 @@ export default class RoomSettings extends Component {
       `?join=${encodeURIComponent(props.room.roomId)}&via=${Client.client.getDomain()}`
     this.powerLevels = this.roomState.getStateEvents(Matrix.EventType.RoomPowerLevels, "")?.getContent()
     // TODO: add a warning for the case where the powerLevels event is missing
-    console.log(this.powerLevels)
 
     this.member = props.room.getMember(Client.client.getUserId())
 
@@ -121,6 +120,8 @@ export default class RoomSettings extends Component {
 
   handleSubmit = async e => {
     e.preventDefault()
+    this.setState({progress: "updating settings..."})
+    this.forceUpdate()
     if (this.state.visibility !== this.initialVisibility) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.visibility).catch(this.raiseErr)
     if (this.state.joinRule !== this.initialJoinRule) await this.updateJoinRule()
     if (this.state.roomName !== this.initialRoomName) await Client.client.setRoomName(this.props.room.roomId, this.state.roomName).catch(this.raiseErr)
@@ -142,6 +143,8 @@ export default class RoomSettings extends Component {
 
     if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
       const {width, height} = await loadImageElement(this.avatarImage)
+      this.setState({progress: "generating blurhash..."})
+      const blurhash = await blurhashFromFile(this.avatarImage)
       await Client.client.uploadContent(this.avatarImage, { progressHandler: this.progressHandler })
         .then(e => Client.client
           .sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomAvatar, {
@@ -149,7 +152,8 @@ export default class RoomSettings extends Component {
               w: width,
               h: height,
               mimetype: this.avatarImage.type ? this.avatarImage.type : "application/octet-stream",
-              size: this.avatarImage.size
+              size: this.avatarImage.size,
+              blurhash
             },
             url: e
           }, "")
@@ -396,7 +400,11 @@ export default class RoomSettings extends Component {
             <button disabled={!updated} className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
             <button className="styled-button" onClick={this.cancel} >Cancel</button>
           </div>
-          {this.state.progress
+          {typeof(state.progress) === "string"
+            ? <div id="room-settings-progress">
+              {state.progress}
+            </div>
+            : state.progress?.total
             ? <div id="room-settings-progress">
               <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
             </div>
@@ -602,7 +610,6 @@ class AddRole extends Component {
     if (Client.client.getUserId() !== userId.trim()) {
       const theirPower = this.props.room.getMember(userId.trim()).powerLevel
       const myPower = this.props.room.getMember(Client.client.getUserId()).powerLevel
-      console.log(theirPower, myPower)
       if (theirPower >= myPower) return // TODO could trigger a transitent explainer here.
     }
     this.props.addRole(userId.trim())

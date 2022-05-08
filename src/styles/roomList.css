@@ -81,14 +81,21 @@
   position:relative;
 }
 
-.room-listing-avatar > img:first-child {
+.room-listing-avatar-img {
   object-fit:cover;
   max-width:100%;
   opacity: 0;
   transition: opacity .25s ease;
+  z-index:5;
 }
 
-.room-listing-avatar > img:first-child[data-avatar-loaded] {
+.room-listing-avatar-canvas {
+  object-fit:cover;
+  position:absolute;
+  max-width:100%;
+}
+
+.room-listing-avatar-img[data-avatar-loaded] {
   opacity: 1
 }
 

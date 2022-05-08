@@ -1,5 +1,6 @@
-import { h, Fragment, Component } from 'preact';
+import { h, Fragment, Component, createRef } from 'preact';
 import { spaceChild, lastViewed } from "./constants.js"
+import { decode } from "blurhash"
 import Resource from "./utils/resource.js"
 import Location from "./utils/location.js"
 import * as Matrix from "matrix-js-sdk"
@@ -307,11 +308,14 @@ class AvatarPanel extends Component {
 
   componentDidMount () {
     Client.client.on("RoomState.events", this.handleStateUpdate)
+    this.drawBlurhash()
   }
 
   componentWillUnmount () {
     Client.client.off("RoomState.events", this.handleStateUpdate)
   }
+
+  avatarCanvas = createRef()
 
   handleStateUpdate = e => {
     if (e.getRoomId() === this.props.room.roomId && e.getType() === "m.room.avatar") {
@@ -326,6 +330,21 @@ class AvatarPanel extends Component {
 
   handleLoad = _ => this.setState({ loaded: true })
 
+  drawBlurhash = _ => {
+    const avatarInfo = this.state.avatarEvent?.getContent()?.info
+    if (!avatarInfo?.h || !avatarInfo?.w || !avatarInfo?.blurhash) return
+    const ctx = this.avatarCanvas.current.getContext("2d")
+    // we draw them small and scale up in CSS, following blurhash developer's advice
+    const width = 32
+    const height = Math.floor(32 * (avatarInfo.h / avatarInfo.w))
+    this.avatarCanvas.current.width = width
+    this.avatarCanvas.current.height = height
+    const imageData = ctx.createImageData(width, height);
+    const pixels = decode(avatarInfo.blurhash, width, height)
+    imageData.data.set(pixels);
+    ctx.putImageData(imageData, 0, 0);
+  }
+
   render(props, state) {
     const avatarInfo = state.avatarEvent?.getContent()?.info
     // using max/min here rather than setting the height directly so that the height doesn't affect the object-fit: cover of the image,
@@ -333,13 +352,23 @@ class AvatarPanel extends Component {
     const avatarListingStyle = avatarInfo
       ? { "min-height": Math.min(300, avatarInfo.h), "max-height": Math.min(300, avatarInfo.h) }
       : null
+    const avatarCanvasStyle = avatarInfo
+      ? { "width": avatarInfo.w }
+      : null
     return <div style={avatarListingStyle} data-has-avatar={!!state.avatarUrl} class="room-listing-avatar">
       {state.avatarUrl
-        ? <img src={state.avatarUrl}
+        ? <Fragment>
+          <canvas 
+            ref={this.avatarCanvas}
+            style={avatarCanvasStyle}
+            class="room-listing-avatar-canvas" />
+          <img src={state.avatarUrl}
             onLoad={this.handleLoad}
+            class="room-listing-avatar-img"
             data-avatar-loaded={state.loaded}
             loading="lazy"
             alt="room avatar" />
+        </Fragment>
         : null
       }
       <AnnotationData getLastViewedPage={props.getLastViewedPage} room={props.room} />

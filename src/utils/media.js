@@ -1,4 +1,5 @@
 import extractPngChunks from "png-chunks-extract"
+import { encode } from "blurhash"
 
 // The below is based on https://github.com/matrix-org/matrix-react-sdk/blob/develop/src/ContentMessages.tsx
 
@@ -8,6 +9,21 @@ const PHYS_HIDPI = [0x00, 0x00, 0x16, 0x25, 0x00, 0x00, 0x16, 0x25, 0x01]
 
 const MAX_WIDTH = 800
 const MAX_HEIGHT = 600
+
+function imagePromiseFromFile(imageFile) {
+  // Load the file into an html element
+  const img = new Image()
+  const objectUrl = URL.createObjectURL(imageFile)
+  const imgPromise = new Promise((resolve, reject) => {
+    img.onload = _ => {
+      URL.revokeObjectURL(objectUrl)
+      resolve(img)
+    }
+    img.onerror = e => reject(e)
+  })
+  img.src = objectUrl
+  return imgPromise
+}
 
 export function createThumbnail( element, inputWidth, inputHeight, mimeType) {
   return new Promise((resolve) => {
@@ -45,17 +61,7 @@ export function createThumbnail( element, inputWidth, inputHeight, mimeType) {
 }
 
 export async function loadImageElement(imageFile) {
-  // Load the file into an html element
-  const img = document.createElement("img")
-  const objectUrl = URL.createObjectURL(imageFile)
-  const imgPromise = new Promise((resolve, reject) => {
-    img.onload = _ => {
-      URL.revokeObjectURL(objectUrl)
-      resolve(img)
-    }
-    img.onerror = e => reject(e)
-  })
-  img.src = objectUrl
+  const imgPromise = imagePromiseFromFile(imageFile)
 
   // check for hi-dpi PNGs and fudge display resolution as needed.
   // this is mainly needed for macOS screencaps
@@ -79,7 +85,7 @@ export async function loadImageElement(imageFile) {
     })
   }
 
-  const [hidpi] = await Promise.all([parsePromise, imgPromise])
+  const [hidpi, img] = await Promise.all([parsePromise, imgPromise])
   const width = hidpi ? (img.width >> 1) : img.width
   const height = hidpi ? (img.height >> 1) : img.height
   return {width, height, img}
@@ -111,4 +117,17 @@ export function loadVideoElement(videoFile) {
     // urls from being used with video elements
     video.onerror = e => reject(e)
   })
+}
+
+export async function blurhashFromFile(imageFile) {
+  const imgPromise = imagePromiseFromFile(imageFile)
+  const img = await imgPromise
+  const canvas = document.createElement("canvas");
+  // could potentially speed up encoding by setting these smaller?
+  canvas.width = img.width;
+  canvas.height = img.height;
+  const context = canvas.getContext("2d");
+  context.drawImage(img, 0, 0);
+  const data = context.getImageData(0, 0, img.width, img.height);
+  return encode(data.data, data.width, data.height, 4, 4)
 }

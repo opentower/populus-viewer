@@ -36,6 +36,7 @@
   "author": "Graham Leach-Krouse",
   "license": "GPL-3.0-or-later",
   "dependencies": {
+    "blurhash": "^1.1.5",
     "buffer": "^6.0.3",
     "commonmark": "^0.30.0",
     "emoji-picker-element": "^1.8.2",
