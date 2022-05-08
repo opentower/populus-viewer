@@ -86,7 +86,7 @@
   max-width:100%;
   opacity: 0;
   transition: opacity .25s ease;
-  z-index:5;
+  z-index:1;
 }
 
 .room-listing-avatar-canvas {

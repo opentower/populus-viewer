@@ -406,7 +406,8 @@ export class ImageMessage extends Component {
             style={widthFromInfo} 
             onLoad={this.handleLoad}
             loading="lazy"
-            class="media-message-thumbnail" src={this.url} />
+            class="media-message-thumbnail"
+            src={this.url} />
           <canvas ref={this.blurhashCanvas} style={widthFromInfo} class="media-message-blurhash" />
         </div>
     </MessageFrame>
