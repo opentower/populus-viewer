@@ -324,7 +324,7 @@ class AvatarPanel extends Component {
         avatarUrl: e.getContent().url
           ? Client.client.getHttpUriForMxcFromHS(e.getContent().url, 800, 600, "scale")
           : null
-      })
+      }, this.drawBlurhash)
     }
   }
 
@@ -334,6 +334,7 @@ class AvatarPanel extends Component {
     const avatarInfo = this.state.avatarEvent?.getContent()?.info
     if (!avatarInfo?.h || !avatarInfo?.w || !avatarInfo?.blurhash) return
     const ctx = this.avatarCanvas.current.getContext("2d")
+    ctx.clearRect(0, 0, this.avatarCanvas.current.wdith, this.avatarCanvas.current.height)
     // we draw them small and scale up in CSS, following blurhash developer's advice
     const width = 32
     const height = Math.floor(32 * (avatarInfo.h / avatarInfo.w))
