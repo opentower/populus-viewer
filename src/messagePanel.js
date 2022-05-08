@@ -1,7 +1,7 @@
 import * as Icons from "./icons.js"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
-import { loadImageElement, loadVideoElement, createThumbnail } from "./utils/media.js"
+import { loadImageElement, loadVideoElement, createThumbnail, blurhashFromFile } from "./utils/media.js"
 import { spaceChild, spaceParent, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscAudioInterval, mscPdfHighlight, populusHighlight } from "./constants.js"
 import { processRegex } from './processRegex.js'
 import { UserColor } from './utils/colors.js'
@@ -277,6 +277,7 @@ class MediaUploadInput extends Component {
     const theImage = this.mediaLoader.current.files[0]
     // TODO: reject non-media mimetypes
     const {width, height, img} = await loadImageElement(theImage)
+    const blurhash = await blurhashFromFile(theImage)
     const thumbType = theImage.type === "image/jpeg" ? "image/jpeg" : "image/png"
     const thumbInfo = await createThumbnail(img, width, height, thumbType)
     const thumbMxc = await Client.client.uploadContent(thumbInfo.thumbnail, {
@@ -292,8 +293,9 @@ class MediaUploadInput extends Component {
         w: width,
         mimetype: theImage.type,
         size: theImage.size,
+        blurhash,
         thumbnail_url: thumbMxc,
-        thumbnail_info: thumbInfo.thumbnail_info
+        thumbnail_info: thumbInfo.info.thumbnail_info
       },
       msgtype: "m.image",
       url: imageMxc

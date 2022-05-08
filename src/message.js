@@ -9,6 +9,7 @@ import UserInfoHeader from './userInfoHeader.js'
 import MessageFrame from './messageFrame.js'
 import MediaModal from './mediaModal.js'
 import 'emoji-picker-element'
+import { decode } from "blurhash"
 import Location from './utils/location.js'
 import Client from './client.js'
 import * as Replies from './utils/replies.js'
@@ -349,9 +350,31 @@ export class FileMessage extends Component {
 }
 
 export class ImageMessage extends Component {
+  componentDidMount() {
+    this.drawBlurhash()
+  }
+
   userColor = new UserColor(this.props.event.getSender())
 
   isMe = this.props.event.getSender() === Client.client.getUserId()
+
+  blurhashCanvas = createRef()
+
+  drawBlurhash = _ => {
+    const info = this.props.event?.getContent()?.info
+    if (!info?.h || !info?.w || !info?.blurhash) return
+    const ctx = this.blurhashCanvas.current.getContext("2d")
+    ctx.clearRect(0, 0, this.blurhashCanvas.current.wdith, this.blurhashCanvas.current.height)
+    // we draw them small and scale up in CSS, following blurhash developer's advice
+    const width = 32
+    const height = Math.ceil(32 * (info.h / info.w))
+    this.blurhashCanvas.current.width = width
+    this.blurhashCanvas.current.height = height
+    const imageData = ctx.createImageData(width, height);
+    const pixels = decode(info.blurhash, width, height)
+    imageData.data.set(pixels);
+    ctx.putImageData(imageData, 0, 0);
+  }
 
   url = this.props.event.getContent().info.thumbnail_url
     ? Client.client.getHttpUriForMxcFromHS(this.props.event.getContent().info.thumbnail_url)
@@ -363,15 +386,28 @@ export class ImageMessage extends Component {
     />)
   }
 
+  handleLoad = _ => this.setState({ loaded: true })
+
   // TODO need some sort of modal popup providing a preview of the full video
-  render(props) {
+  render(props, state) {
+    const info = props.event.getContent()?.info.thumbnail_info || props.event?.getContent()?.info
+    const widthFromInfo = info ? { 
+      "width": `${info.w}px`,
+      "max-width": `calc(min(100% - 20px, ${info.w}px))`
+    } : null
     return <MessageFrame
       displayOnly={props.displayOnly}
       reactions={props.reactions}
       canRedact={props.canRedact}
       event={props.event}>
-        <div class="message-body image-upload">
-          <img onclick={this.showPreview} class="media-message-thumbnail" src={this.url} />
+        <div class="message-body media-message" data-media-message-loaded={state.loaded}>
+          <img 
+            onclick={this.showPreview}
+            style={widthFromInfo} 
+            onLoad={this.handleLoad}
+            loading="lazy"
+            class="media-message-thumbnail" src={this.url} />
+          <canvas ref={this.blurhashCanvas} style={widthFromInfo} class="media-message-blurhash" />
         </div>
     </MessageFrame>
   }
@@ -396,7 +432,7 @@ export class VideoMessage extends Component {
       reactions={props.reactions}
       canRedact={props.canRedact}
       event={props.event}>
-        <div class="message-body image-upload">
+        <div class="message-body media-message">
           <video class="media-message-thumbnail"
             controls
             poster={this.poster}
@@ -422,7 +458,7 @@ export class AudioMessage extends Component {
       reactions={props.reactions}
       canRedact={props.canRedact}
       event={props.event}>
-        <div class="message-body image-upload">
+        <div class="message-body media-message">
           <audio controls src={this.url} />
         </div>
     </MessageFrame>

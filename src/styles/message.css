@@ -295,9 +295,33 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
     right:0px;
 }
 
-.media-message-thumbnail {
-  max-width: calc(100% - 20px);
+.media-message {
+  position:relative;
+}
+
+.media-message img {
+  position:absolute;
+  opacity:0;
+  transition: opacity .25s ease;
+}
+
+.media-message[data-media-message-loaded] img {
+  opacity:1;
+}
+
+.media-message[data-media-message-loaded] canvas {
+  opacity:0;
+}
+
+.media-message-blurhash {
   border-radius:20px;
+  transition: opacity .25s ease;
+  pointer-events:none;
+}
+
+.media-message-thumbnail {
+  border-radius:20px;
+  max-width:calc(100% - 20px)
 }
 
 img.media-message-thumbnail {
