@@ -122,12 +122,21 @@ export function loadVideoElement(videoFile) {
 export async function blurhashFromFile(imageFile) {
   const imgPromise = imagePromiseFromFile(imageFile)
   const img = await imgPromise
+  let targetWidth = img.width
+  let targetHeight = img.height
+  if (targetHeight > 100) {
+    targetWidth = Math.floor(targetWidth * (100 / targetHeight))
+    targetHeight = 100
+  }
+  if (targetWidth > 100) {
+    targetHeight = Math.floor(targetHeight * (100 / targetWidth))
+    targetWidth = 100
+  }
   const canvas = document.createElement("canvas");
-  // could potentially speed up encoding by setting these smaller?
-  canvas.width = img.width;
-  canvas.height = img.height;
+  canvas.width = targetWidth;
+  canvas.height = targetHeight;
   const context = canvas.getContext("2d");
-  context.drawImage(img, 0, 0);
-  const data = context.getImageData(0, 0, img.width, img.height);
+  context.drawImage(img, 0, 0, targetWidth, targetHeight);
+  const data = context.getImageData(0, 0, targetWidth, targetHeight);
   return encode(data.data, data.width, data.height, 4, 4)
 }

@@ -279,8 +279,8 @@ class MediaUploadInput extends Component {
     const {width, height, img} = await loadImageElement(theImage)
     const blurhash = await blurhashFromFile(theImage)
     const thumbType = theImage.type === "image/jpeg" ? "image/jpeg" : "image/png"
-    const thumbInfo = await createThumbnail(img, width, height, thumbType)
-    const thumbMxc = await Client.client.uploadContent(thumbInfo.thumbnail, {
+    const thumbContent = await createThumbnail(img, width, height, thumbType)
+    const thumbMxc = await Client.client.uploadContent(thumbContent.thumbnail, {
       name: `${theImage.name}_800x600`,
       type: thumbType,
       progressHandler: this.progressHandler
@@ -295,7 +295,7 @@ class MediaUploadInput extends Component {
         size: theImage.size,
         blurhash,
         thumbnail_url: thumbMxc,
-        thumbnail_info: thumbInfo.info.thumbnail_info
+        thumbnail_info: thumbContent.info.thumbnail_info
       },
       msgtype: "m.image",
       url: imageMxc
