@@ -297,12 +297,18 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
 
 .media-message {
   position:relative;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
 
 .media-message img {
   position:absolute;
   opacity:0;
   transition: opacity .25s ease;
+  /* need a greater max-width here because absolutely positioned elements use
+   * the padding of the parent they're relative to when computing width*/ 
+  max-width:calc(100% - 35px)
 }
 
 .media-message[data-media-message-loaded] img {

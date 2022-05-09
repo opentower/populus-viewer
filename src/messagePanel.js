@@ -251,6 +251,7 @@ class MediaUploadInput extends Component {
       type: "image/jpeg",
       progressHandler: this.progressHandler
     })
+    const blurhash = await blurhashFromFile(thumbContent.thumbnail)
     console.log("upload video")
     const videoMxc = await Client.client.uploadContent(theVideo, { progressHandler: this.progressHandler })
     const duration = Math.round(videoElt.duration * 1000)
@@ -261,6 +262,7 @@ class MediaUploadInput extends Component {
         w: thumbContent.info.w,
         mimetype: theVideo.type,
         size: theVideo.size,
+        blurhash,
         thumbnail_url: thumbMxc,
         thumbnail_info: thumbContent.info.thumbnail_info
       },
@@ -524,6 +526,7 @@ class RecordVideoInput extends RecordMediaInput {
         type: "image/jpeg",
         progressHandler: this.progressHandler
       })
+      const blurhash = await blurhashFromFile(thumbContent.thumbnail)
       this.setState({uploading: "video"})
       const videoMxc = await Client.client.uploadContent(this.recordingBlob, { progressHandler: this.progressHandler })
       this.setState({uploading: ""})
@@ -535,6 +538,7 @@ class RecordVideoInput extends RecordMediaInput {
           w: thumbContent.info.w,
           mimetype: "video/webm",
           size: this.recordingBlob.size,
+          blurhash,
           thumbnail_url: thumbMxc,
           thumbnail_info: thumbContent.info.thumbnail_info
         },
