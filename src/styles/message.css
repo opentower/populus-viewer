@@ -302,6 +302,7 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
   align-items:center;
 }
 
+.media-message video, 
 .media-message img {
   position:absolute;
   opacity:0;
@@ -311,8 +312,13 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
   max-width:calc(100% - 35px)
 }
 
+.media-message[data-media-message-loaded] video, 
 .media-message[data-media-message-loaded] img {
   opacity:1;
+}
+
+.media-message canvas {
+  background: var(--content-backdrop)
 }
 
 .media-message[data-media-message-loaded] canvas {

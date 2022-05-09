@@ -10,7 +10,7 @@ export default class BlurhashCanvas extends Component {
   blurhashCanvas = createRef()
 
   drawBlurhash = _ => {
-    if (!this.props.height || !this.props.width || !this.props.blurhash) return
+    if (!this.props.height || !this.props.width ) return
     const ctx = this.blurhashCanvas.current.getContext("2d")
     ctx.clearRect(0, 0, this.blurhashCanvas.current.wdith, this.blurhashCanvas.current.height)
     // we draw them small and scale up in CSS, following blurhash developer's advice
@@ -18,6 +18,7 @@ export default class BlurhashCanvas extends Component {
     const height = Math.round(32 * (this.props.height / this.props.width))
     this.blurhashCanvas.current.width = width
     this.blurhashCanvas.current.height = height
+    if (!this.props.blurhash) return
     const imageData = ctx.createImageData(width, height);
     const pixels = decode(this.props.blurhash, width, height)
     imageData.data.set(pixels);
@@ -25,7 +26,8 @@ export default class BlurhashCanvas extends Component {
   }
 
   render(props) {
-    const canvasWidthFromInfo = props.width && props.height && props.blurhash ? { 
+    //we allow this to be set without blurhash to fill space
+    const canvasWidthFromInfo = props.width && props.height ? { 
       "width": `${props.width}px`,
       "max-width": `calc(min(100% - 20px, ${props.width}px))`
     } : null

@@ -400,20 +400,26 @@ export class VideoMessage extends Component {
     ? Client.client.getHttpUriForMxcFromHS(this.content.info.thumbnail_url)
     : null
 
+  handleLoad = _ => this.setState({ loaded: true })
+
   url = Client.client.getHttpUriForMxcFromHS(this.content.url)
 
-  render(props) {
+  render(props, state) {
+    const info = props.event.getContent()?.info.thumbnail_info || props.event?.getContent()?.info
+    const blurhash = props.event?.getContent()?.info?.blurhash
     return <MessageFrame
       displayOnly={props.displayOnly}
       reactions={props.reactions}
       canRedact={props.canRedact}
       event={props.event}>
-        <div class="message-body media-message">
+        <div class="message-body media-message" data-media-message-loaded={state.loaded}>
           <video class="media-message-thumbnail"
             controls
             poster={this.poster}
-            preload={this.poster ? "none" : "metadata"}
+            onloadedmetadata={this.handleLoad}
+            preload={"metadata"}
             src={this.url} />
+          <BlurhashCanvas height={info.h} width={info.w} blurhash={blurhash} class="media-message-blurhash"/>
         </div>
     </MessageFrame>
   }
