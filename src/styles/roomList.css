@@ -96,7 +96,7 @@
 }
 
 .room-listing-avatar-img[data-avatar-loaded] {
-  opacity: 1
+  opacity: 1;
 }
 
 .room-listing-body {
@@ -208,6 +208,7 @@
   position:absolute;
   left:0px;
   top:0px;
+  z-index:1;
 }
 
 .room-annotation-data > span {

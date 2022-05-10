@@ -354,7 +354,7 @@ class AvatarPanel extends Component {
       ? { "min-height": Math.min(300, avatarInfo.h), "max-height": Math.min(300, avatarInfo.h) }
       : null
     const avatarCanvasStyle = avatarInfo
-      ? { "width": avatarInfo.w }
+      ? { "min-height": Math.min(300, avatarInfo.h), "max-height": Math.min(300, avatarInfo.h), "width": avatarInfo.w }
       : null
     return <div style={avatarListingStyle} data-has-avatar={!!state.avatarUrl} class="room-listing-avatar">
       {state.avatarUrl
