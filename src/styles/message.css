@@ -242,10 +242,12 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
     font-size:10pt;
     font-weight:bold;
     color: var(--user_dark);
+    margin-bottom:10px;
 }
 
 .user-info-message {
-    padding:10px;
+    padding-left:10px;
+    padding-right:10px;
 }
 
 .reply-sender-info > img,
@@ -271,6 +273,17 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
 .reply-preview {
     border-left:5px solid var(--user_light);
     padding-left:15px;
+    position:relative;
+}
+
+.reply-preview video,
+.reply-preview img {
+  position:absolute;
+  opacity:0;
+  transition: opacity .25s ease;
+  /* need a greater max-width here because absolutely positioned elements use
+   * the padding of the parent they're relative to when computing width*/ 
+  max-width:calc(100% - 35px)
 }
 
 .redacted-preview {
@@ -312,16 +325,18 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
   max-width:calc(100% - 35px)
 }
 
-.media-message[data-media-message-loaded] video, 
-.media-message[data-media-message-loaded] img {
+
+[data-media-message-loaded] video, 
+[data-media-message-loaded] img {
   opacity:1;
 }
 
+.reply-preview canvas,
 .media-message canvas {
   background: var(--content-backdrop)
 }
 
-.media-message[data-media-message-loaded] canvas {
+[data-media-message-loaded] canvas {
   opacity:0;
 }
 

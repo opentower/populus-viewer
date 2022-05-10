@@ -178,6 +178,8 @@ class ReplyPreview extends Component {
 
   replyPreview = createRef()
 
+  handleLoad = _ => this.setState({ loaded: true })
+
   fromLiveEvent = _ => {
     const content = this.state.liveEvent?.getContent()
     if (!content) return
@@ -190,19 +192,35 @@ class ReplyPreview extends Component {
     } else {
       switch (this.state.liveEvent.getContent().msgtype) {
         case "m.video": {
+          const info = this.state.liveEvent.getContent()?.info.thumbnail_info || props.event?.getContent()?.info
+          const blurhash = this.state.liveEvent.getContent()?.info?.blurhash
           const thumbUrl = this.state.liveEvent.getContent().info.thumbnail_url
           const poster = thumbUrl ? Client.client.getHttpUriForMxcFromHS(thumbUrl) : null
-          displayBody = <video class="media-message-thumbnail"
-            controls
-            poster={poster}
-            preload={poster ? "none" : "metadata"}
-            src={Client.client.getHttpUriForMxcFromHS(this.state.liveEvent.getContent().url)} />
+          displayBody = <Fragment>
+            <video class="media-message-thumbnail"
+              controls
+              poster={poster}
+              onloadedmetadata={this.handleLoad}
+              preload="metadata"
+              src={Client.client.getHttpUriForMxcFromHS(this.state.liveEvent.getContent().url)} />
+            <BlurhashCanvas height={info.h} width={info.w} blurhash={blurhash} class="media-message-blurhash"/>
+          </Fragment>
           break;
         }
         case "m.image": {
+          const info = this.state.liveEvent.getContent()?.info.thumbnail_info || props.event?.getContent()?.info
+          const blurhash = this.state.liveEvent.getContent()?.info?.blurhash
           const thumbUrl = this.state.liveEvent.getContent().info.thumbnail_url
           const url = thumbUrl ? Client.client.getHttpUriForMxcFromHS(thumbUrl) : null
-          displayBody = <img class="media-message-thumbnail" src={url} />
+          displayBody = <Fragment>
+            <img 
+              onLoad={this.handleLoad}
+              loading="lazy"
+              class="media-message-thumbnail"
+              src={url}
+            />
+            <BlurhashCanvas height={info.h} width={info.w} blurhash={blurhash} class="media-message-blurhash"/>
+          </Fragment>
           break;
         }
         case "m.audio": {
@@ -250,7 +268,7 @@ class ReplyPreview extends Component {
     return <Fragment>
       <div class="reply-preface">In reply to:</div>
       <UserInfoHeader isReply userId={this.state.liveEvent.getSender()} />
-      <div ref={this.replyPreview} style={senderColors.styleVariables} class="reply-preview">
+      <div ref={this.replyPreview} data-media-message-loaded={this.state.loaded} style={senderColors.styleVariables} class="reply-preview">
         {displayBody}
       </div>
     </Fragment>
@@ -417,7 +435,7 @@ export class VideoMessage extends Component {
             controls
             poster={this.poster}
             onloadedmetadata={this.handleLoad}
-            preload={"metadata"}
+            preload="metadata"
             src={this.url} />
           <BlurhashCanvas height={info.h} width={info.w} blurhash={blurhash} class="media-message-blurhash"/>
         </div>
