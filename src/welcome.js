@@ -41,8 +41,8 @@ export default class WelcomeView extends Component {
   }
 
   resizeListener = _ => {
-    clearTimeout(this.resizeDebounce)
-    this.resizeDebounce = setTimeout(_ => {
+    clearTimeout(this.resizeDebounceTimeout)
+    this.resizeDebounceTimeout = setTimeout(_ => {
       if (document.body.offsetWidth > 600) {
         if (this.state.layout !== "wide") {
           this.setState({
@@ -159,13 +159,13 @@ export default class WelcomeView extends Component {
               ? <NotificationListing />
               : state.view === "COLLECTION"
                 ? <div class="welcome-column">
-                    <SpacesManager layout={state.layout} showMainView={this.showMainView} setFilterItems={this.setFilterItems} filterItems={state.filterItems} />
+                    <SpacesManager oneColumn showMainView={this.showMainView} setFilterItems={this.setFilterItems} filterItems={state.filterItems} />
                 </div>
                 : state.layout !== "wide"
-                  ? <RoomList layout={state.layout} setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />
+                  ? <RoomList setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />
                   : <div id="welcome-split">
-                    <SpacesManager setFilterItems={this.setFilterItems} filterItems={state.filterItems} layout={state.layout} />
-                    <RoomList layout={state.layout} setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />
+                    <SpacesManager setFilterItems={this.setFilterItems} filterItems={state.filterItems} />
+                    <RoomList setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />
                   </div>
         }
       </div>

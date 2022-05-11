@@ -32,7 +32,6 @@ export default class ContentView extends Component {
       secondaryFocus: null, // for temporarily focusing an extra location
       resourceLength: null,
       navHeight: 75,
-      panelVisible: false,
       chatVisible: false,
       listingType: null,
       listingVisible: maybeState ? !!maybeState.searchString : false,
@@ -598,7 +597,6 @@ export default class ContentView extends Component {
       "--navHeight": `${state.navHeight}px`,
       "--contentWidthPx": `${state.contentWidthPx}px`,
       "--contentHeightPx": `${state.contentHeightPx}px`,
-      "--sidePanelVisible": state.panelVisible ? 1 : 0,
       "--chatVisible": state.chatVisible ? 1 : 0,
       "--listingVisible": state.listingVisible ? 1 : 0,
       "--chatFocused": state.focus ? 1 : 0,

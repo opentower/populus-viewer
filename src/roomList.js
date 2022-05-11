@@ -24,9 +24,30 @@ export default class RoomList extends Component {
     this.state = {
       rooms: Client.client.getVisibleRooms().filter(Resource.hasResource),
       sort: "ACTIVITY",
-      sortOrder: 1
+      sortOrder: 1,
+      memberLimit:15
     }
   }
+
+  componentDidMount () {
+    Client.client.on("Room", this.roomListener)
+    Client.client.on("Room.name", this.roomListener)
+    Client.client.on("RoomState.events", this.roomListener)
+    Client.client.on("Room.accountData", this.roomListener)
+    // State events might cause excessive rerendering, but we can optimize for that later
+    this.resetMemberLimit()
+    window.addEventListener("resize", this.resizeListener)
+  }
+
+  componentWillUnmount () {
+    Client.client.off("Room", this.roomListener)
+    Client.client.off("Room.name", this.roomListener)
+    Client.client.off("RoomState.events", this.roomListener)
+    Client.client.off("Room.accountData", this.roomListener)
+    window.removeEventListener("resize", this.resizeListener)
+  }
+
+  roomList = createRef()
 
   roomListener = _ => {
     clearTimeout(this.roomDebounceTimeout)
@@ -39,19 +60,17 @@ export default class RoomList extends Component {
     })
   }
 
-  componentDidMount () {
-    Client.client.on("Room", this.roomListener)
-    Client.client.on("Room.name", this.roomListener)
-    Client.client.on("RoomState.events", this.roomListener)
-    Client.client.on("Room.accountData", this.roomListener)
-    // State events might cause excessive rerendering, but we can optimize for that later
+  resizeListener = _ => {
+    clearTimeout(this.resizeDebounceTimeout)
+    this.resizeDebounceTimeout = setTimeout(this.resetMemberLimit, 500)
   }
 
-  componentWillUnmount () {
-    Client.client.off("Room", this.roomListener)
-    Client.client.off("Room.name", this.roomListener)
-    Client.client.off("RoomState.events", this.roomListener)
-    Client.client.off("Room.accountData", this.roomListener)
+  resetMemberLimit = _ => {
+    if (this.roomList.current) {
+      this.roomList.current.clientWidth > 500 ? this.setState({memberLimit: 15})
+        : this.roomList.current.clientWidth > 300 ? this.setState({memberLimit: 5})
+        : this.setState({memberLimit: 2})
+    }
   }
 
   byActivity = (a, b) => {
@@ -160,18 +179,13 @@ export default class RoomList extends Component {
   }
 
   sortRooms = rooms => {
-    const memberLimit = this.props.layout === "phone"
-      ? 2
-      : this.props.layout === "narrow"
-        ? 5
-        : 15
     return rooms.sort(this.getSortFunc())
       .map(room => {
         const resource = new Resource(room)
         let result = null
         if (room.getMyMembership() === "join" && resource.url) {
           result = <RoomEntry
-            memberLimit={memberLimit}
+            memberLimit={this.state.memberLimit}
             room={room}
             key={room.roomId} />
         }
@@ -180,7 +194,7 @@ export default class RoomList extends Component {
   }
 
   render(props, state) {
-    return <div id="room-list">
+    return <div id="room-list" ref={this.roomList}>
       <div id="select-sort">
         <button class="small-icon"
           style="cursor: pointer"
