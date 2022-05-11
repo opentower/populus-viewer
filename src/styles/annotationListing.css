@@ -60,15 +60,21 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
     border-bottom: 1px solid var(--content-border);
     margin: 20px 60px 20px 60px;
     text-align:center;
+    position:relative;
 }
 
 #annotation-panel .annotation-listing-divider > span {
+    white-space:pre;
+    max-width:100%;
+    overflow:hidden;
+    display:inline-block;
+    text-overflow:ellipsis;
     color: var(--content-text-dimmed);
     font-size:10pt;
     background:var(--content-background);
     position:relative;
-    padding:10px;
-    top:.5em;
+    padding:0px 10px 0px 10px;
+    top:.75em;
 }
 
 #annotation-panel .annotation-listing-entry[data-annotation-entry-typing] {
