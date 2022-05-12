@@ -74,10 +74,13 @@ export default class FileUpload extends Component {
       case "audio/aac"    : fileValid = true
       case "audio/aacp"   : fileValid = true
       case "audio/flac"   : fileValid = true
+      case "video/mp4"    : fileValid = true
+      case "video/mpeg"   : fileValid = true
+      case "video/webm"   : fileValid = true
     }
     this.setState({fileValid})
     if (!fileValid) {
-      alert("Please make sure that the file you're uploading is of a supported filetype and has the right extension at the end of its name. Supported filetypes are: pdf, wav, mp3, mp4, m4a, aac, and flac.")
+      alert("Please make sure that the file you're uploading is of a supported filetype and has the right extension at the end of its name. Supported filetypes are: pdf, wav, mp3, mp4, m4a, aac, mpeg, webm, and flac.")
       this.mainForm.current.reset()
     }
   }
@@ -144,7 +147,7 @@ export default class FileUpload extends Component {
         <input name="file"
           oninput={this.validateFile}
           ref={this.fileLoader}
-          accept="application/pdf, audio/wav, audio/mpeg, audio/x-m4a, audio/mp4, audio/aac, audio/aacp, audio/flac"
+          accept="application/pdf, audio/wav, audio/mpeg, audio/x-m4a, audio/mp4, audio/aac, audio/aacp, audio/flac, video/mp4, video/mpeg, video/webm"
           type="file"
         />
         <label for="discussion" >Name for Discussion</label>

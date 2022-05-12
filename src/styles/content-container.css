@@ -27,11 +27,13 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
     transform: scale(var(--zoomFactor));
 }
 
-#audio-view {
+#media-view {
     position:relative;
     display: flex;
+    flex-direction:column;
     height:calc(100% - var(--navHeight));
     align-items:center;
+    justify-content:center;
 }
 
 .page-wrapper { position:relative; }

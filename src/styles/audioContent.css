@@ -3,6 +3,10 @@
   background: var(--content-background)
 }
 
+#media-view-video {
+  max-width: 100%
+}
+
 html[data-scrollbars="hidden"] wave {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width:none;

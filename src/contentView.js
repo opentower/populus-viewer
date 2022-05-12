@@ -526,7 +526,7 @@ export default class ContentView extends Component {
             showChat={this.showChat}
             zoomFactor={this.state.zoomFactor}
           />
-    } else if (this.state.mimetype?.match(/^audio/)) {
+    } else if (this.state.mimetype?.match(/^audio|^video/)) {
       return <AudioContent 
             annotationsVisible={this.state.annotationsVisible}
             filteredAnnotationContents={this.state.filteredAnnotationContents}
@@ -536,6 +536,7 @@ export default class ContentView extends Component {
             room={this.state.room}
             roomFocused={this.props.roomFocused}
             secondaryFocus={this.state.secondaryFocus}
+            mimetype={this.state.mimetype}
             setFocus={this.setFocus}
             unsetFocus={this.unsetFocus}
             focus={this.state.focus}
@@ -569,7 +570,7 @@ export default class ContentView extends Component {
         startPindrop={this.startPindrop}
         pindropMode={this.state.pindropMode}
         setZoom={this.setZoom} />
-    } else if (this.state.mimetype?.match(/^audio/)) {
+    } else if (this.state.mimetype?.match(/^audio|^video/)) {
       return <MediaNavbar hasSelection={this.state.hasSelection}
         openAnnotation={this.openAnnotation}
         closeAnnotation={this.closeAnnotation}

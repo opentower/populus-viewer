@@ -51,6 +51,8 @@ export default class AudioContent extends Component {
 
   audioView = createRef()
 
+  videoElement = createRef()
+
   createSelection = (start, end) => {
     const userId = Client.client.getUserId()
     const color = new UserColor(userId).solid
@@ -248,12 +250,12 @@ export default class AudioContent extends Component {
         .catch(this.catchFetchAudioError)
     } else { console.log(`found audio for ${this.props.room.name} in store` ) }
     if (this.errorCondition) return
-    AudioContent.Store[theAudio.url].then(this.drawAudio)
-    // TODO: this throws an error when the user exits the page before the audio
+    AudioContent.Store[theAudio.url].then(this.drawMedia)
+    // TODO: this throws an error when the user exits the page before the media
     // has been drawn. it should be caught, similarly for PDF fetching
   }
 
-  drawAudio = audio => {
+  drawMedia = media => {
     this.props.setAudioLoadingStatus("Rendering waveform...")
     this.wavesurfer = new WaveSurfer.create({
       container: '#waveform',
@@ -264,8 +266,10 @@ export default class AudioContent extends Component {
     })
     this.pcm = []
     const prng = mulberry32(hashString(this.props.resourceAlias))
+    const objectUrl = URL.createObjectURL(media)
+    if (this.videoElement.current) this.videoElement.current.src = objectUrl
     for (let i = 0; i < 2048; i++) this.pcm.push((prng() * 2) - 1)
-    this.wavesurfer.load(URL.createObjectURL(audio), this.pcm) // URL indirection here so that we can eventually prerender
+    this.wavesurfer.load(this.videoElement.current || URL.createObjectURL(media), this.pcm) // URL indirection here so that we can eventually prerender
     this.wavesurfer.on('ready', _ => {
       this.props.setAudioLoadingStatus(null)
       const width = document.body.clientWidth
@@ -321,12 +325,16 @@ export default class AudioContent extends Component {
   }
 
   render(props, state) {
-    return <div id="audio-view" 
+    return <div id="media-view" 
       ref={this.audioView}
       onPointerdown={this.handlePointerdown}
       onPointerup={this.cancelPointer}
       onPointerout={this.cancelPointer}
     >
+      {props.mimetype.match(/^video/) 
+        ? <video id="media-view-video" ref={this.videoElement} />
+        : null
+      }
       <div ref={this.waveform} data-annotations-focused={this.props.focus} id="waveform">
         {state.ready ? this.getAnnotations() : null}
       </div>
