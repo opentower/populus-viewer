@@ -193,7 +193,7 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
   font-weight: bold;
 }
 
-.audio-annotation-banner > svg {
+.media-annotation-banner > svg {
   height:1em;
   vertical-align:bottom;
 }

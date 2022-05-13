@@ -8,7 +8,7 @@ import RoomIcon from "./roomIcon.js"
 import AnnotationListing from "./annotationListing.js"
 import SearchResults from "./searchResults.js"
 import PdfContent from "./pdfContent.js"
-import AudioContent from "./audioContent.js"
+import MediaContent from "./mediaContent.js"
 import History from './history.js'
 import Client from './client.js'
 import DocumentNavbar from "./documentNavbar.js"
@@ -331,7 +331,7 @@ export default class ContentView extends Component {
     if (this.state.mimetype === "application/pdf") {
       if (this.state.pindropMode?.x) this.content.current.commitPin(this.state.pindropMode.x, this.state.pindropMode.y, this.state.pindropMode.page)
       else this.content.current.commitHighlight()
-    } else if (this.state.mimetype?.match(/^audio/)) {
+    } else if (this.state.mimetype?.match(/^audio|^video/)) {
       this.content.current.commitRegion()
     }
   }
@@ -529,7 +529,7 @@ export default class ContentView extends Component {
             zoomFactor={this.state.zoomFactor}
           />
     } else if (this.state.mimetype?.match(/^audio|^video/)) {
-      return <AudioContent 
+      return <MediaContent 
             annotationsVisible={this.state.annotationsVisible}
             filteredAnnotationContents={this.state.filteredAnnotationContents}
             ref={this.content}
@@ -544,9 +544,9 @@ export default class ContentView extends Component {
             unsetFocus={this.unsetFocus}
             focus={this.state.focus}
             showChat={this.showChat}
-            setAudioDuration={this.setResourceLength}
+            setMediaDuration={this.setResourceLength}
             setContentDimensions={this.setContentDimensions}
-            setAudioLoadingStatus={this.setLoadingStatus}
+            setMediaLoadingStatus={this.setLoadingStatus}
           />
     } else return null
   }

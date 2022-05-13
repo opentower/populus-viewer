@@ -359,7 +359,7 @@ class AnnotationListingEntry extends Component {
         ? <div class="annotation-listing-pin-icon">
             {Icons.pin} <span>on page {props.annotationLocation.getPageIndex()}</span>
           </div>
-        : annotationType === "audio-interval"
+        : annotationType === "media-fragment"
         ? <div class="annotation-listing-headphones-icon">
             {Icons.headphones} <span>From {toClockTime(props.annotationLocation.getIntervalStart() / 1000)} to {toClockTime(props.annotationLocation.getIntervalEnd() / 1000)}</span>
           </div>

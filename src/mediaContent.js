@@ -10,10 +10,10 @@ import * as Matrix from "matrix-js-sdk"
 import { UserColor } from './utils/colors.js'
 import { onlineOrAlert } from "./utils/alerts.js"
 import Regions from 'wavesurfer.js/src/plugin/regions/'
-import './styles/audioContent.css'
-import { mscLocation, mscAudioInterval, populusHighlight, spaceChild, spaceParent } from "./constants.js"
+import './styles/mediaContent.css'
+import { mscLocation, mscMediaFragment, populusHighlight, spaceChild, spaceParent } from "./constants.js"
 
-export default class AudioContent extends Component {
+export default class MediaContent extends Component {
   constructor(props) {
     super(props)
     this.state = {
@@ -30,7 +30,7 @@ export default class AudioContent extends Component {
   }
 
   componentDidMount() { 
-    this.fetchAudio() 
+    this.fetchMedia() 
   }
 
   componentWillUnmount() { if (this.wavesurfer) this.wavesurfer.destroy() }
@@ -52,7 +52,7 @@ export default class AudioContent extends Component {
 
   hasSelection() { return !!this.selection }
 
-  audioView = createRef()
+  mediaView = createRef()
 
   videoElement = createRef()
 
@@ -80,7 +80,7 @@ export default class AudioContent extends Component {
 
   generateLocation = _ => {
     return {
-      [mscAudioInterval]: {
+      [mscMediaFragment]: {
         start: Math.floor(this.selection.start * 1000),
         end: Math.floor(this.selection.end * 1000)
       },
@@ -221,9 +221,9 @@ export default class AudioContent extends Component {
     else this.scrubLeft()
   }
 
-  catchFetchAudioError = e => {
+  catchFetchMediaError = e => {
     Toast.set(<Fragment>
-      <h3 id="toast-header">Couldn't fetch the audio file...</h3>
+      <h3 id="toast-header">Couldn't fetch the {this.isVideo ? "audio file" : "video"}...</h3>
       <div>Tried to fetch: </div>
       <pre>{this.props.resourceAlias}</pre>
       <div>Here's the error message:</div>
@@ -233,10 +233,10 @@ export default class AudioContent extends Component {
     this.errorCondition = true
   }
 
-  async fetchAudio () {
-    const theAudio = new Resource(this.props.room)
-    if (!AudioContent.Store[theAudio.url]) {
-      AudioContent.Store[theAudio.url] = window.fetch(theAudio.httpUrl)
+  async fetchMedia () {
+    const theMedia = new Resource(this.props.room)
+    if (!MediaContent.Store[theMedia.url]) {
+      MediaContent.Store[theMedia.url] = window.fetch(theMedia.httpUrl)
         .then(async response => {
           const theClone = response.clone()
           const contentLength = +response.headers.get('Content-Length')
@@ -246,21 +246,21 @@ export default class AudioContent extends Component {
             const { done, value } = await reader.read()
             if (done) { break }
             accumulator = accumulator + value.length
-            this.props.setAudioLoadingStatus(accumulator / contentLength)
+            this.props.setMediaLoadingStatus(accumulator / contentLength)
           }
           if (this.isVideo) this.props.setMobileButtonColor("var(--contrast-text)")
           return theClone.blob()
         })
-        .catch(this.catchFetchAudioError)
-    } else { console.log(`found audio for ${this.props.room.name} in store` ) }
+        .catch(this.catchFetchMediaError)
+    } else { console.log(`found file for ${this.props.room.name} in store` ) }
     if (this.errorCondition) return
-    AudioContent.Store[theAudio.url].then(this.drawMedia)
+    MediaContent.Store[theMedia.url].then(this.drawMedia)
     // TODO: this throws an error when the user exits the page before the media
     // has been drawn. it should be caught, similarly for PDF fetching
   }
 
   drawMedia = media => {
-    this.props.setAudioLoadingStatus("Rendering waveform...")
+    this.props.setMediaLoadingStatus("Rendering waveform...")
     this.wavesurfer = new WaveSurfer.create({
       container: '#waveform',
       backend: 'MediaElement',
@@ -275,11 +275,11 @@ export default class AudioContent extends Component {
     for (let i = 0; i < 2048; i++) this.pcm.push((prng() * 2) - 1)
     this.wavesurfer.load(this.videoElement.current || URL.createObjectURL(media), this.pcm) // URL indirection here so that we can eventually prerender
     this.wavesurfer.on('ready', _ => {
-      this.props.setAudioLoadingStatus(null)
+      this.props.setMediaLoadingStatus(null)
       const width = document.body.clientWidth
       const height = document.body.clientHeight
       const duration = Math.ceil(this.wavesurfer.getDuration())
-      this.props.setAudioDuration(Math.ceil(this.wavesurfer.getDuration()))
+      this.props.setMediaDuration(Math.ceil(this.wavesurfer.getDuration()))
       if (this.props.timeStamp) this.wavesurfer.seekAndCenter(this.props.timeStamp / duration)
       this.props.setContentDimensions(height,width)
       this.setState({ready: true})
@@ -305,7 +305,7 @@ export default class AudioContent extends Component {
     })
   }
 
-  filterAnnotations = loc => loc.getType() === "audio-interval"
+  filterAnnotations = loc => loc.getType() === "media-fragment"
 
   getAnnotations() {
     let didFocus = false
@@ -330,7 +330,7 @@ export default class AudioContent extends Component {
 
   render(props, state) {
     return <div id="media-view" 
-      ref={this.audioView}
+      ref={this.mediaView}
       onPointerdown={this.handlePointerdown}
       onPointerup={this.cancelPointer}
       onPointerout={this.cancelPointer}

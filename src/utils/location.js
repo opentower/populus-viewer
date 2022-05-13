@@ -1,5 +1,5 @@
 import Client from '../client.js'
-import { spaceParent, spaceChild, mscLocation, populusHighlight, mscPdfText, mscPdfHighlight, mscAudioInterval, mscMarkupMsgKey, mscParent } from "../constants.js"
+import { spaceParent, spaceChild, mscLocation, populusHighlight, mscPdfText, mscPdfHighlight, mscMediaFragment, mscMarkupMsgKey, mscParent } from "../constants.js"
 
 export default class Location {
   constructor(theEvent) {
@@ -45,14 +45,14 @@ export default class Location {
   }
 
   getIntervalStart() {
-    if (this.location[mscAudioInterval]) {
-      return this.location[mscAudioInterval].start || 0
+    if (this.location[mscMediaFragment]) {
+      return this.location[mscMediaFragment].start || 0
     }
   }
 
   getIntervalEnd() {
-    if (this.location[mscAudioInterval]) {
-      return this.location[mscAudioInterval].end || "end"
+    if (this.location[mscMediaFragment]) {
+      return this.location[mscMediaFragment].end || "end"
     }
   }
 
@@ -76,7 +76,7 @@ export default class Location {
   getType() {
     if (this.location?.[mscPdfHighlight]) return "highlight"
     if (this.location?.[mscPdfText]) return "text"
-    if (this.location?.[mscAudioInterval]) return "audio-interval"
+    if (this.location?.[mscMediaFragment]) return "media-fragment"
     return null
   }
 

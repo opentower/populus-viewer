@@ -2,7 +2,7 @@ import * as Icons from "./icons.js"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
 import { loadImageElement, loadVideoElement, createThumbnail, blurhashFromFile } from "./utils/media.js"
-import { spaceChild, spaceParent, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscAudioInterval, mscPdfHighlight, populusHighlight } from "./constants.js"
+import { spaceChild, spaceParent, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscMediaFragment, mscPdfHighlight, populusHighlight } from "./constants.js"
 import { processRegex } from './processRegex.js'
 import { UserColor } from './utils/colors.js'
 import Client from './client.js'
@@ -79,13 +79,13 @@ export default class MessagePanel extends Component {
       }
       const highlightData = this.props.focus.location[mscPdfHighlight]
       const textData = this.props.focus.location[mscPdfText]
-      const audioIntervalData = this.props.focus.location[mscAudioInterval]
+      const mediaFragmentData = this.props.focus.location[mscMediaFragment]
       const locationData = {
         // TODO should also set the content property of the msc highlight with fallback text
         [populusHighlight]: Object.assign(this.props.focus.location[populusHighlight], diff),
         ...(highlightData && {[mscPdfHighlight]: highlightData}),
         ...(textData && {[mscPdfText]: textData}),
-        ...(audioIntervalData && {[mscAudioInterval]: audioIntervalData})
+        ...(mediaFragmentData && {[mscMediaFragment]: mediaFragmentData})
       }
       const newContent = { via: [theDomain], [mscLocation]: locationData }
       Client.client

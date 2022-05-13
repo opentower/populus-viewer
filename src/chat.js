@@ -316,8 +316,8 @@ function Anchor(props) {
         ? <div id="anchor-pin">
             {Icons.pin} <span>on page {props.focus.getPageIndex()}</span>
           </div>
-        : props.focus.getType() === "audio-interval"
-        ? <div id="anchor-audio">
+        : props.focus.getType() === "media-fragment"
+        ? <div id="anchor-media">
             {Icons.headphones} <span>From {toClockTime(props.focus.getIntervalStart() / 1000)} to {toClockTime(props.focus.getIntervalEnd() / 1000)}</span>
           </div>
         : null

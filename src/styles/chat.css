@@ -25,7 +25,7 @@
   height: 1em;
 }
 
-#anchor-audio,
+#anchor-media,
 #anchor-pin {
   padding:5px;
   display:flex;
@@ -33,7 +33,7 @@
   align-items:center;
 }
 
-#anchor-audio svg,
+#anchor-media svg,
 #anchor-pin svg {
   height: 1em;
 }

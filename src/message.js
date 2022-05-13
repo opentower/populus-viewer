@@ -123,7 +123,7 @@ export class AnnotationMessage extends Component {
         </div>
         : <div onClick={this.handleClick} class="message-body">
           <p>
-            <span class="audio-annotation-banner">
+            <span class="media-annotation-banner">
               {Icons.headphones} <span>From </span>
               <a onClick={this.handleLinkClick}
                 href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${Math.floor(this.location.getIntervalStart() / 1000)}`} >
