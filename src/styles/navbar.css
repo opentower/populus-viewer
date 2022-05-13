@@ -76,7 +76,7 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
     transition: var(--transitionSizing)
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 600px), only screen and (max-height: 600px) {
     .nav-button-wrapper {
         display: grid;
         grid-template-columns: repeat(9,1fr);
@@ -99,7 +99,7 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
     }
 }
 
-@media only screen and (min-width: 600px) {
+@media only screen and (min-width: 600px) and (min-height:600px) {
     .nav-button-wrapper > button:first-child {
         position: absolute;
         left:10px;

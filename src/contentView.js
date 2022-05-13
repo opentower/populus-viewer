@@ -210,6 +210,8 @@ export default class ContentView extends Component {
     return { annotationsVisible: !oldState.annotationsVisible }
   })
 
+  setMobileButtonColor = mobileButtonColor => this.setState({mobileButtonColor})
+
   setZoom = zoomFunction => {
     let zoomFactor = zoomFunction(this.state.zoomFactor)
     if (zoomFactor < 1) this.setState({zoomFactor: 1})
@@ -538,6 +540,7 @@ export default class ContentView extends Component {
             secondaryFocus={this.state.secondaryFocus}
             mimetype={this.state.mimetype}
             setFocus={this.setFocus}
+            setMobileButtonColor={this.setMobileButtonColor}
             unsetFocus={this.unsetFocus}
             focus={this.state.focus}
             showChat={this.showChat}
@@ -602,7 +605,8 @@ export default class ContentView extends Component {
       "--listingVisible": state.listingVisible ? 1 : 0,
       "--chatFocused": state.focus ? 1 : 0,
       "--selectColor": this.userColor.solid,
-      "touch-action": this.state.pinching ? "none" : null
+      "--mobileButtonColor": state.mobileButtonColor,
+      "touch-action": state.pinching ? "none" : null
     }
     return <div
       style={dynamicDocumentStyle}

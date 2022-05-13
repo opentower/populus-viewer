@@ -1,10 +1,60 @@
+#media-view {
+    position:relative;
+    display: grid;
+    justify-content:center;
+    width:100%;
+}
+
+#media-view:not([data-media-is-video]) {
+    height:100%;
+    align-items:center;
+    grid-template-columns:1fr;
+    --wave-margin:100px;
+    --wave-bars:128px;
+}
+
+#media-view[data-media-is-video] {
+    grid-template-rows: minmax(50vh, 1fr) var(--wave-total);
+    grid-template-columns:1fr;
+    --wave-margin:50px;
+    --wave-bars:64px;
+    --wave-total:calc(var(--wave-margin) * 2 + var(--wave-bars))
+}
+
+@media only screen and (max-height: 400px) {
+    #media-view[data-media-is-video] {
+        --wave-margin:25px;
+        --wave-bars:32px;
+    }
+} 
+
+#media-view-video {
+    background:black;
+    height:100%;
+    display: grid;
+    align-items:center
+}
+
+#media-view video {
+    max-width:100%;
+    max-height:calc(100vh - var(--navHeight) - var(--wave-total)) ;
+}
+
+
+@media only screen and (max-width: 600px), only screen and (max-height: 600px) {
+    #media-view video {
+        max-height:calc(100vh - (var(--navHeight) * .8) - var(--wave-total)) ;
+    }
+}
+
 #waveform {
   width: 100%;
   background: var(--content-background)
 }
 
 #media-view-video {
-  max-width: 100%
+  display: grid;
+  justify-content:center;
 }
 
 html[data-scrollbars="hidden"] wave {
@@ -23,6 +73,10 @@ html[data-scrollbars="hidden"] wave::-webkit-scrollbar { display: none; }
   width:10px !important;
 }
 
+#waveform {
+    overflow:hidden;
+}
+
 #waveform[data-annotations-focused] .wavesurfer-region {
   opacity: 0.1;
 }
@@ -33,8 +87,8 @@ html[data-scrollbars="hidden"] wave::-webkit-scrollbar { display: none; }
 }
 
 wave {
-  margin-top:100px;
-  padding-bottom:100px;
+  margin-top:var(--wave-margin);
+  padding-bottom:var(--wave-margin);
 }
 
 wave wave,
@@ -42,5 +96,6 @@ wave canvas,
 wave region {
   margin:0px;
   padding:0px;
-  max-height:128px;
+  max-height:var(--wave-bars);
+  height:var(--wave-bars)
 }

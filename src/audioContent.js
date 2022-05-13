@@ -24,11 +24,14 @@ export default class AudioContent extends Component {
       this.rejectFetch = reject
     })
     // inertia for keyboard selection
+    this.isVideo = props.mimetype.match(/^video/)
     this.rightInertia = 1
     this.leftInertia = 1
   }
 
-  componentDidMount() { this.fetchAudio() }
+  componentDidMount() { 
+    this.fetchAudio() 
+  }
 
   componentWillUnmount() { if (this.wavesurfer) this.wavesurfer.destroy() }
 
@@ -245,6 +248,7 @@ export default class AudioContent extends Component {
             accumulator = accumulator + value.length
             this.props.setAudioLoadingStatus(accumulator / contentLength)
           }
+          if (this.isVideo) this.props.setMobileButtonColor("var(--contrast-text)")
           return theClone.blob()
         })
         .catch(this.catchFetchAudioError)
@@ -267,7 +271,7 @@ export default class AudioContent extends Component {
     this.pcm = []
     const prng = mulberry32(hashString(this.props.resourceAlias))
     const objectUrl = URL.createObjectURL(media)
-    if (this.videoElement.current) this.videoElement.current.src = objectUrl
+    if (this.isVideo) this.videoElement.current.src = objectUrl
     for (let i = 0; i < 2048; i++) this.pcm.push((prng() * 2) - 1)
     this.wavesurfer.load(this.videoElement.current || URL.createObjectURL(media), this.pcm) // URL indirection here so that we can eventually prerender
     this.wavesurfer.on('ready', _ => {
@@ -330,9 +334,10 @@ export default class AudioContent extends Component {
       onPointerdown={this.handlePointerdown}
       onPointerup={this.cancelPointer}
       onPointerout={this.cancelPointer}
+      data-media-is-video={this.isVideo}
     >
-      {props.mimetype.match(/^video/) 
-        ? <video id="media-view-video" ref={this.videoElement} />
+      { this.isVideo
+        ? <div id="media-view-video"><video  ref={this.videoElement} /></div>
         : null
       }
       <div ref={this.waveform} data-annotations-focused={this.props.focus} id="waveform">

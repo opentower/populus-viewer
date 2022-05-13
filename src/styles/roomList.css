@@ -142,7 +142,10 @@
   margin-right:10px;
 }
 
-.room-listing-data .invite-pill { opacity:.5; }
+.room-listing-data .invite-pill { 
+  opacity:.5; 
+  display:flex; /* necessary for alignment with other pills */
+}
 
 .room-listing-heading > a {
   font-size:16pt;

@@ -2,6 +2,7 @@
     position: relative;
     overflow:auto;
     height: calc(100% - var(--navHeight));
+    --contentWidth: calc(100%);
     width: var(--contentWidth);
     transition: var(--transitionSizing);
     background: var(--content-backdrop);
@@ -25,15 +26,6 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
     width: var(--contentWidthPx); 
     transform-origin : top left;
     transform: scale(var(--zoomFactor));
-}
-
-#media-view {
-    position:relative;
-    display: flex;
-    flex-direction:column;
-    height:calc(100% - var(--navHeight));
-    align-items:center;
-    justify-content:center;
 }
 
 .page-wrapper { position:relative; }
@@ -87,13 +79,6 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
 
 #panel-toggle {
     pointer-events:all;
-}
-
-#show-annotations {
-    pointer-events:all;
-}
-
-#content-mobile-buttons > button {
     border:none;
     outline:none;
     font-size:24px;
@@ -101,19 +86,19 @@ html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: 
     vertical-align:middle;
     background:transparent;
     cursor:pointer;
+    float:right;
+    color:var(--mobileButtonColor);
 }
 
-#content-mobile-buttons > button:last-child {
-    float:right
+#show-annotations {
+    pointer-events:all;
 }
 
 /* Extra small devices (phones, 600px and down) */
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 600px), only screen and (max-height: 600px) {
     #content-container {
         height: calc(100% - (0.8 * var(--navHeight)));
-        --contentWidth: calc(100%);
     }
-
 } 
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
