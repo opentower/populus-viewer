@@ -561,6 +561,8 @@ export default class ContentView extends Component {
         resourceAlias={this.props.resourceAlias}
         total={this.state.resourceLength}
         focus={this.state.focus}
+        focusNext={this.focusNext}
+        focusPrev={this.focusPrev}
         roomId={this.state.room?.roomId}
         room={this.state.room}
         content={this.content}
@@ -582,6 +584,8 @@ export default class ContentView extends Component {
         resourceAlias={this.props.resourceAlias}
         total={this.state.resourceLength}
         focus={this.state.focus}
+        focusNext={this.focusNext}
+        focusPrev={this.focusPrev}
         roomId={this.state.room?.roomId}
         room={this.state.room}
         roomFocused={this.props.roomFocused}
