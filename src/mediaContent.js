@@ -248,11 +248,11 @@ export default class MediaContent extends Component {
             accumulator = accumulator + value.length
             this.props.setMediaLoadingStatus(accumulator / contentLength)
           }
-          if (this.isVideo) this.props.setMobileButtonColor("var(--contrast-text)")
           return theClone.blob()
         })
         .catch(this.catchFetchMediaError)
     } else { console.log(`found file for ${this.props.room.name} in store` ) }
+    if (this.isVideo) this.props.setMobileButtonColor("var(--contrast-text)")
     if (this.errorCondition) return
     MediaContent.Store[theMedia.url].then(this.drawMedia)
     // TODO: this throws an error when the user exits the page before the media
