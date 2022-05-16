@@ -1,5 +1,4 @@
 #spaces-manager {
-  margin-top:var(--margin-unit);
   padding-top:calc(.5 * var(--margin-unit));
   padding-bottom:var(--margin-unit);
   padding-left:var(--margin-unit);

@@ -114,8 +114,10 @@ body {
 
 #welcome-split {
   display:grid;
+  margin-top:var(--margin-unit);
+  gap:var(--margin-unit);
   width:calc(max(90vw, min(1100px,100%)));
-  grid-template-columns: minmax(400px,800px) minmax(300px, 1fr);
+  grid-template-columns: minmax(400px,800px) minmax(calc(max(300px,min(450px,35vw))), 1fr);
   max-width:calc(min(1600px, 100% - (2 * var(--margin-unit))))  ;
 }
 
@@ -125,7 +127,7 @@ body {
   margin-top: var(--margin-unit);
   padding: var(--margin-unit);
   font-size:10pt;
-  width: calc(300px - (2 * var(--margin-unit)));
+  width: calc(298px - (2 * var(--margin-unit)));
   color:var(--content-text-dimmed);
   position:sticky;
   top: calc(var(--welcome-header-height) + var(--margin-unit))
@@ -149,8 +151,9 @@ body {
 }
 
 .welcome-column {
-  width: 90vw;
-  max-width:800px;
+  margin-top: var(--margin-unit);
+  width: 100%;
+  max-width:calc(min(800px, 100% - (2 * var(--margin-unit))))  ;
 }
 
 #welcome-container hr {

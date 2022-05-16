@@ -1,5 +1,5 @@
 #file-upload {
-  max-width: 800px;
+  max-width:calc(min(800px, 100% - (2 * var(--margin-unit))))  ;
   width:100%;
   margin:var(--margin-unit);
   padding-top:calc(.5 * var(--margin-unit));

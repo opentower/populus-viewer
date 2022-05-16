@@ -1,13 +1,7 @@
-#room-list {
-  padding-top: var(--margin-unit)
-}
-
 #select-sort {
     user-select:none;
     display:flex;
     align-items:center;
-    margin-left: var(--margin-unit);
-    margin-right: var(--margin-unit);
     padding: calc(.5 * var(--margin-unit));
     background: var(--content-background);
     border: 1px solid var(--content-border);
@@ -16,7 +10,7 @@
 #room-filters {
     border: 1px solid var(--content-border);
     background: var(--content-background);
-    margin: var(--margin-unit);
+    margin-top: var(--margin-unit);
     padding: calc(.5 * var(--margin-unit));
 }
 
@@ -63,7 +57,7 @@
 }
 
 .room-listing-entry {
-    margin: var(--margin-unit);
+    margin-top: var(--margin-unit);
     border: 1px var(--content-border) solid;
     background: var(--content-background);
 }
