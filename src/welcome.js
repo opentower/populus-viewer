@@ -24,7 +24,7 @@ export default class WelcomeView extends Component {
       inputFocus: false,
       searchFilter: "",
       filterItems: [],
-      layout: document.body.offsetWidth > 600
+      layout: document.body.offsetWidth > 700
         ? "wide"
         : document.body.offsetWidth > 400
           ? "narrow"
@@ -43,7 +43,7 @@ export default class WelcomeView extends Component {
   resizeListener = _ => {
     clearTimeout(this.resizeDebounceTimeout)
     this.resizeDebounceTimeout = setTimeout(_ => {
-      if (document.body.offsetWidth > 600) {
+      if (document.body.offsetWidth > 700) {
         if (this.state.layout !== "wide") {
           this.setState({
             view: this.state.view === "COLLECTION" ? null : this.state.view,
@@ -164,8 +164,11 @@ export default class WelcomeView extends Component {
                 : state.layout !== "wide"
                   ? <RoomList setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />
                   : <div id="welcome-split">
-                    <SpacesManager setFilterItems={this.setFilterItems} filterItems={state.filterItems} />
                     <RoomList setFilterItems={this.setFilterItems} filterItems={state.filterItems} searchFilter={state.searchFilter} />
+                    <div>
+                      <SpacesManager setFilterItems={this.setFilterItems} filterItems={state.filterItems} />
+                      <AboutCard />
+                    </div>
                   </div>
         }
       </div>
@@ -275,4 +278,17 @@ function UploadIcon (props) {
   return <ToolTip position="below" content="Upload file">
     <button data-active={props.active} id="welcome-upload" onClick={props.toggleUploadVisible}>{Icons.newFile}</button>
   </ToolTip>
+}
+
+function AboutCard (props) {
+  return <div id="welcome-about-card">
+    <div>Populus-Viewer</div>
+    <hr class="styled-rule" />
+    <div id="welcome-about-card-icons">
+      <div><span class="small-icon">{Icons.matrix}</span> <a target="_blank" href="https://matrix.to/#/#opentower:matrix.org">Chat with developers</a></div>
+      <div><span class="small-icon">{Icons.github}</span> <a target="_blank" href="https://github.com/opentower/populus-viewer/issues">Report a bug or request a feature</a></div>
+    </div>
+    <hr class="styled-rule" />
+    <div> Open-Tower © 2022. All Rights Reserved</div>
+  </div>
 }

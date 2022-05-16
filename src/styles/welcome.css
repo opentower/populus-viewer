@@ -114,9 +114,38 @@ body {
 
 #welcome-split {
   display:grid;
-  width: 90vw;
-  grid-template-columns: 1fr 1fr;
-  max-width:1600px;
+  width:calc(max(90vw, min(1100px,100%)));
+  grid-template-columns: minmax(400px,800px) minmax(300px, 1fr);
+  max-width:calc(min(1600px, 100% - (2 * var(--margin-unit))))  ;
+}
+
+#welcome-about-card {
+  background: var(--content-background);
+  border: 1px solid var(--content-border);
+  margin-top: var(--margin-unit);
+  padding: var(--margin-unit);
+  font-size:10pt;
+  width: calc(300px - (2 * var(--margin-unit)));
+  color:var(--content-text-dimmed);
+  position:sticky;
+  top: calc(var(--welcome-header-height) + var(--margin-unit))
+}
+
+#welcome-about-card-icons div {
+  display:flex;
+  align-items:center;
+  margin-bottom:5px;
+}
+
+#welcome-about-card-icons a {
+  text-decoration: none;
+  color:var(--content-text-dimmed);
+  cursor: pointer;
+}
+
+
+#welcome-about-card-icons .small-icon{
+  padding-right:5px;
 }
 
 .welcome-column {
