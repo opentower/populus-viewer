@@ -56,6 +56,21 @@ export default class Location {
     }
   }
 
+  getMediaRect() {
+    if (this.location[mscMediaFragment] &&
+      this.location[mscMediaFragment].x &&
+      this.location[mscMediaFragment].y &&
+      this.location[mscMediaFragment].h &&
+      this.location[mscMediaFragment].w
+    ) { return new DOMRect(
+        this.location[mscMediaFragment].x,
+        this.location[mscMediaFragment].y,
+        this.location[mscMediaFragment].h,
+        this.location[mscMediaFragment].w 
+      )
+    }
+  }
+
   isPrivate() {
     if (this.location?.[populusHighlight]?.private) return true
     return false

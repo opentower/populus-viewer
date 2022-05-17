@@ -16,9 +16,6 @@ import { mscLocation, mscMediaFragment, populusHighlight, spaceChild, spaceParen
 export default class MediaContent extends Component {
   constructor(props) {
     super(props)
-    this.state = {
-      regions: []
-    }
     this.hasFetched = new Promise((resolve, reject) => {
       this.resolveFetch = resolve
       this.rejectFetch = reject
@@ -56,6 +53,8 @@ export default class MediaContent extends Component {
 
   videoElement = createRef()
 
+  videoOverlay = createRef()
+
   video = createRef()
 
   createSelection = (start, end) => {
@@ -83,7 +82,16 @@ export default class MediaContent extends Component {
     return {
       [mscMediaFragment]: {
         start: Math.floor(this.state.selection.start * 1000),
-        end: Math.floor(this.state.selection.end * 1000)
+        end: Math.floor(this.state.selection.end * 1000),
+        ...(this.videoOverlay.current 
+          ? {
+            x: this.videoOverlay.current.spotlightX,
+            y: this.videoOverlay.current.spotlightY,
+            w: this.videoOverlay.current.spotlightWidth,
+            h: this.videoOverlay.current.spotlightHeight,
+          }
+          : null
+        )
       },
       [populusHighlight]: {
         activityStatus: "pending",
@@ -98,7 +106,6 @@ export default class MediaContent extends Component {
     const theRoomState = this.props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theLevels = theRoomState.getStateEvents("m.room.power_levels")
     const locationData = this.generateLocation()
-    // TODO: we should set room_alias_name and name, in a useful way based on the selection
     return Client.client.createRoom({
       visibility: "private",
       name: `highlighted interval from ${this.state.selection.start} to ${this.state.selection.end}`,
@@ -146,8 +153,7 @@ export default class MediaContent extends Component {
         this.createSelection(percentAcross * this.wavesurfer.getDuration(), percentAcross * this.wavesurfer.getDuration() + 5)
       }, 2000) 
     } else {
-      if (this.video.current?.base.contains(e.target)) return
-      console.log(e.target)
+      if (e.noClear || this.video.current?.base.contains(e.target)) return
       clearTimeout(this.longPressTimeout)
       this.clearSelection()
     } 
@@ -339,7 +345,16 @@ export default class MediaContent extends Component {
       onPointerout={this.cancelPointer}
       data-media-is-video={this.isVideo}
     >
-      { this.isVideo ? <MediaViewVideo ref={this.video} hasSelection={!!state.selection} videoElement={this.videoElement} /> : null }
+      { this.isVideo 
+        ? <MediaViewVideo 
+          ref={this.video}
+          location={props.focus}
+          videoOverlay={this.videoOverlay}
+          hasSelection={!!state.selection}
+          videoElement={this.videoElement}
+        /> 
+        : null 
+      }
       <div ref={this.waveform} data-annotations-focused={this.props.focus} id="waveform">
         {state.ready ? this.getAnnotations() : null}
       </div>
@@ -385,18 +400,36 @@ class WaveRegion extends Component {
 class MediaViewVideo extends Component {
 
   setOverlayPosition = e => this.props.hasSelection 
-    ? this.setState({ initialPosition: {x: e.offsetX, y: e.offsetY} }) 
+    ? this.setState({ initialPosition: new DOMRect(e.offsetX, e.offsetY, 50, 50) }) 
     : null
 
-  clearOverlayPosition = _ => this.setState({ initialPosition: null })
+  clearOverlayPosition = e => {
+    e.noClear = true // we prevent the event from clearing the audio range selection
+    this.setState({ initialPosition: null })
+  }
 
   render(props, state) {
     return <div id="media-view-video">
       <div id="media-view-video-wrapper">
         <video onclick={this.setOverlayPosition} ref={props.videoElement} />
-        {state.initialPosition && props.hasSelection
-          ? <MediaViewVideoOverlay clear={this.clearOverlayPosition} initialPosition={state.initialPosition} videoElement={props.videoElement} /> 
-          : null 
+        {props.hasSelection
+          ? state.initialPosition 
+            ? <MediaViewVideoOverlay 
+                mutable={true}
+                ref={props.videoOverlay} 
+                videoElement={props.videoElement} 
+                clear={this.clearOverlayPosition} 
+                initialPosition={state.initialPosition} 
+            /> 
+            : null
+          : props.location?.getMediaRect() 
+          ? <MediaViewVideoOverlay 
+              mutable={false}
+              ref={props.videoOverlay} 
+              videoElement={props.videoElement} 
+              initialPosition={props.location.getMediaRect()} 
+          /> 
+          : null
         }
       </div>
     </div>
@@ -406,13 +439,26 @@ class MediaViewVideo extends Component {
 class MediaViewVideoOverlay extends Component {
   constructor(props) {
     super(props)
-    this.spotlightWidth = 50
-    this.spotlightHeight = 50
+    this.spotlightWidth = props.initialPosition.width
+    this.spotlightHeight = props.initialPosition.height
     this.spotlightX = props.initialPosition.x
     this.spotlightY = props.initialPosition.y
   }
 
   overlay = createRef()
+
+  componentDidUpdate() {
+    if (!this.props.mutable) {
+      this.spotlightWidth = this.props.initialPosition.width
+      this.spotlightHeight = this.props.initialPosition.height
+      this.spotlightX = this.props.initialPosition.x
+      this.spotlightY = this.props.initialPosition.y
+      this.overlay.current.style.setProperty("--spotlightX", `${this.spotlightX}px`)
+      this.overlay.current.style.setProperty("--spotlightY", `${this.spotlightY}px`)
+      this.overlay.current.style.setProperty("--spotlightWidth", `${this.spotlightWidth}px`)
+      this.overlay.current.style.setProperty("--spotlightHeight", `${this.spotlightHeight}px`)
+    }
+  }
 
   handleDrag = e => {
     e.preventDefault()
@@ -446,7 +492,6 @@ class MediaViewVideoOverlay extends Component {
     this.overlay.current.setPointerCapture(e.pointerId)
     this.overlay.current.addEventListener('pointermove', this.handleDrag)
     this.overlay.current.addEventListener('pointerup', e2 => {
-      e2.preventDefault() // prevents it from triggering a clear
       delete this.initialX
       delete this.initialY
       delete this.initialClientX
@@ -463,7 +508,6 @@ class MediaViewVideoOverlay extends Component {
     this.initialClientX = e.clientX
     this.overlay.current.addEventListener('pointermove', this.handleResizeX)
     this.overlay.current.addEventListener('pointerup', e2 => {
-      e2.preventDefault() // prevents it from triggering a clear
       delete this.initialWidth
       delete this.initialClientX
       this.overlay.current?.releasePointerCapture(e.pointerId)
@@ -478,7 +522,6 @@ class MediaViewVideoOverlay extends Component {
     this.initialClientY = e.clientY
     this.overlay.current.addEventListener('pointermove', this.handleResizeY)
     this.overlay.current.addEventListener('pointerup', e2 => {
-      e2.preventDefault() // prevents it from triggering a clear
       delete this.initialHeight
       delete this.initialClientY
       this.overlay.current?.releasePointerCapture(e.pointerId)
@@ -494,15 +537,15 @@ class MediaViewVideoOverlay extends Component {
       "--spotlightHeight": `${this.spotlightHeight}px`
     }
     return <div id="media-view-video-overlay" style={styleVars} ref={this.overlay}>
-      <div onpointerup={props.clear} id="media-view-video-overlay-header"/>
-      <div onpointerup={props.clear} id="media-view-video-overlay-left"/>
-      <div onpointerdown={this.startDrag} id="media-view-video-overlay-overlight"/>
-      <div onpointerdown={this.startDrag} id="media-view-video-overlay-leftlight"/>
-      <div onpointerdown={this.startResizeX} id="media-view-video-overlay-rightlight"/>
-      <div onpointerdown={this.startResizeY} id="media-view-video-overlay-underlight"/>
-      <div onpointerdown={this.startDrag} id="media-view-video-overlay-spotlight" />
-      <div onpointerup={props.clear} id="media-view-video-overlay-right"/>
-      <div onpointerup={props.clear} id="media-view-video-overlay-footer"/>
+      <div onpointerdown={props.mutable && props.clear} id="media-view-video-overlay-header"/>
+      <div onpointerdown={props.mutable && props.clear} id="media-view-video-overlay-left"/>
+      <div onpointerdown={props.mutable && this.startDrag} id="media-view-video-overlay-overlight"/>
+      <div onpointerdown={props.mutable && this.startDrag} id="media-view-video-overlay-leftlight"/>
+      <div onpointerdown={props.mutable && this.startResizeX} id="media-view-video-overlay-rightlight"/>
+      <div onpointerdown={props.mutable && this.startResizeY} id="media-view-video-overlay-underlight"/>
+      <div onpointerdown={props.mutable && this.startDrag} id="media-view-video-overlay-spotlight" />
+      <div onpointerdown={props.mutable && props.clear} id="media-view-video-overlay-right"/>
+      <div onpointerdown={props.mutable && props.clear} id="media-view-video-overlay-footer"/>
     </div>
   }
 }
