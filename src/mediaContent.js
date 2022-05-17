@@ -50,39 +50,40 @@ export default class MediaContent extends Component {
     }
   }
 
-  hasSelection() { return !!this.selection }
+  hasSelection() { return !!this.state.selection }
 
   mediaView = createRef()
 
   videoElement = createRef()
+
+  video = createRef()
 
   createSelection = (start, end) => {
     const userId = Client.client.getUserId()
     const color = new UserColor(userId).solid
     this.clearSelection()
     this.pause()
-    this.selection = this.wavesurfer.addRegion({ 
+    const selection = this.wavesurfer.addRegion({ 
       start, 
       end, 
       color,
       drag: false,
     })
-    document.dispatchEvent(new Event("selectionchange"))
+    this.setState({ selection }, _ => document.dispatchEvent(new Event("selectionchange")))
   }
 
   clearSelection = _ => {
-    if (this.selection) {
-      this.selection.remove()
-      this.selection = null
+    if (this.state.selection) {
+      this.state.selection.remove()
+      this.setState({selection: null}, _ => document.dispatchEvent(new Event("selectionchange")))
     }
-    document.dispatchEvent(new Event("selectionchange"))
   }
 
   generateLocation = _ => {
     return {
       [mscMediaFragment]: {
-        start: Math.floor(this.selection.start * 1000),
-        end: Math.floor(this.selection.end * 1000)
+        start: Math.floor(this.state.selection.start * 1000),
+        end: Math.floor(this.state.selection.end * 1000)
       },
       [populusHighlight]: {
         activityStatus: "pending",
@@ -100,7 +101,7 @@ export default class MediaContent extends Component {
     // TODO: we should set room_alias_name and name, in a useful way based on the selection
     return Client.client.createRoom({
       visibility: "private",
-      name: `highlighted interval from ${this.selection.start} to ${this.selection.end}`,
+      name: `highlighted interval from ${this.state.selection.start} to ${this.state.selection.end}`,
       power_level_content_override: {
         users: Object.assign({}, theLevels[0].getContent().users, {
           [Client.client.getUserId()]: 100
@@ -145,6 +146,8 @@ export default class MediaContent extends Component {
         this.createSelection(percentAcross * this.wavesurfer.getDuration(), percentAcross * this.wavesurfer.getDuration() + 5)
       }, 2000) 
     } else {
+      if (this.video.current?.base.contains(e.target)) return
+      console.log(e.target)
       clearTimeout(this.longPressTimeout)
       this.clearSelection()
     } 
@@ -157,8 +160,8 @@ export default class MediaContent extends Component {
   waveform = createRef()
 
   play = _ => {
-    if (this.selection) {
-      this.selection.play()
+    if (this.state.selection) {
+      this.state.selection.play()
     } else {
       this.wavesurfer.seekAndCenter(this.wavesurfer.getCurrentTime() / this.wavesurfer.getDuration() )
       //this gets a little dicy, just because you want all the repositioning to
@@ -198,10 +201,10 @@ export default class MediaContent extends Component {
   }
 
   selRight = _ => {
-    if (this.selection) {
+    if (this.state.selection) {
       clearTimeout(this.inertiaTimeout)
-      this.selection.onResize(.2 * this.rightInertia) 
-      this.wavesurfer.seekAndCenter(this.selection.end / this.wavesurfer.getDuration())
+      this.state.selection.onResize(.2 * this.rightInertia) 
+      this.wavesurfer.seekAndCenter(this.state.selection.end / this.wavesurfer.getDuration())
       this.leftInertia = 1
       this.rightInertia += .1
       this.inertiaTimeout = setTimeout(this.resetInertia, 500)
@@ -210,10 +213,10 @@ export default class MediaContent extends Component {
   }
 
   selLeft = _ => {
-    if (this.selection) {
+    if (this.state.selection) {
       clearTimeout(this.inertiaTimeout)
-      this.selection.onResize(-.2 * this.leftInertia) 
-      this.wavesurfer.seekAndCenter(this.selection.end / this.wavesurfer.getDuration())
+      this.state.selection.onResize(-.2 * this.leftInertia) 
+      this.wavesurfer.seekAndCenter(this.state.selection.end / this.wavesurfer.getDuration())
       this.rightInertia = 1
       this.leftInertia += .1
       this.inertiaTimeout = setTimeout(this.resetInertia, 500)
@@ -336,10 +339,7 @@ export default class MediaContent extends Component {
       onPointerout={this.cancelPointer}
       data-media-is-video={this.isVideo}
     >
-      { this.isVideo
-        ? <div id="media-view-video"><video  ref={this.videoElement} /></div>
-        : null
-      }
+      { this.isVideo ? <MediaViewVideo ref={this.video} hasSelection={!!state.selection} videoElement={this.videoElement} /> : null }
       <div ref={this.waveform} data-annotations-focused={this.props.focus} id="waveform">
         {state.ready ? this.getAnnotations() : null}
       </div>
@@ -380,4 +380,129 @@ class WaveRegion extends Component {
   }
 
   render() { }
+}
+
+class MediaViewVideo extends Component {
+
+  setOverlayPosition = e => this.props.hasSelection 
+    ? this.setState({ initialPosition: {x: e.offsetX, y: e.offsetY} }) 
+    : null
+
+  clearOverlayPosition = _ => this.setState({ initialPosition: null })
+
+  render(props, state) {
+    return <div id="media-view-video">
+      <div id="media-view-video-wrapper">
+        <video onclick={this.setOverlayPosition} ref={props.videoElement} />
+        {state.initialPosition && props.hasSelection
+          ? <MediaViewVideoOverlay clear={this.clearOverlayPosition} initialPosition={state.initialPosition} videoElement={props.videoElement} /> 
+          : null 
+        }
+      </div>
+    </div>
+  }
+}
+
+class MediaViewVideoOverlay extends Component {
+  constructor(props) {
+    super(props)
+    this.spotlightWidth = 50
+    this.spotlightHeight = 50
+    this.spotlightX = props.initialPosition.x
+    this.spotlightY = props.initialPosition.y
+  }
+
+  overlay = createRef()
+
+  handleDrag = e => {
+    e.preventDefault()
+    const videoRect = this.props.videoElement.current.getBoundingClientRect()
+    this.spotlightX = Math.min(Math.max(0, this.initialX + (e.clientX  - this.initialClientX)), videoRect.width - this.spotlightWidth - 40)
+    this.spotlightY = Math.min(Math.max(0, this.initialY + (e.clientY  - this.initialClientY)), videoRect.height - this.spotlightHeight - 40)
+    this.overlay.current.style.setProperty("--spotlightX", `${this.spotlightX}px`)
+    this.overlay.current.style.setProperty("--spotlightY", `${this.spotlightY}px`)
+  }
+
+  handleResizeX = e => {
+    e.preventDefault()
+    const videoRect = this.props.videoElement.current.getBoundingClientRect()
+    this.spotlightWidth = Math.min(videoRect.width- this.spotlightX - 40, Math.max(10, this.initialWidth + (e.clientX - this.initialClientX)))
+    this.overlay.current.style.setProperty("--spotlightWidth", `${this.spotlightWidth}px`)
+  }
+
+  handleResizeY = e => {
+    e.preventDefault()
+    const videoRect = this.props.videoElement.current.getBoundingClientRect()
+    this.spotlightHeight = Math.min(videoRect.height - this.spotlightY - 40, Math.max(10, this.initialHeight + (e.clientY - this.initialClientY)))
+    this.overlay.current.style.setProperty("--spotlightHeight", `${this.spotlightHeight}px`)
+  }
+
+  startDrag = e => {
+    e.preventDefault()
+    this.initialX = this.spotlightX
+    this.initialY = this.spotlightY
+    this.initialClientX = e.clientX
+    this.initialClientY = e.clientY
+    this.overlay.current.setPointerCapture(e.pointerId)
+    this.overlay.current.addEventListener('pointermove', this.handleDrag)
+    this.overlay.current.addEventListener('pointerup', e2 => {
+      e2.preventDefault() // prevents it from triggering a clear
+      delete this.initialX
+      delete this.initialY
+      delete this.initialClientX
+      delete this.initialClientY
+      this.overlay.current?.releasePointerCapture(e.pointerId)
+      this.overlay.current?.removeEventListener('pointermove', this.handleDrag)
+    })
+  }
+
+  startResizeX = e => {
+    e.preventDefault()
+    this.overlay.current.setPointerCapture(e.pointerId)
+    this.initialWidth = this.spotlightWidth
+    this.initialClientX = e.clientX
+    this.overlay.current.addEventListener('pointermove', this.handleResizeX)
+    this.overlay.current.addEventListener('pointerup', e2 => {
+      e2.preventDefault() // prevents it from triggering a clear
+      delete this.initialWidth
+      delete this.initialClientX
+      this.overlay.current?.releasePointerCapture(e.pointerId)
+      this.overlay.current?.removeEventListener('pointermove', this.handleResizeX)
+    })
+  }
+
+  startResizeY = e => {
+    e.preventDefault()
+    this.overlay.current.setPointerCapture(e.pointerId)
+    this.initialHeight = this.spotlightHeight
+    this.initialClientY = e.clientY
+    this.overlay.current.addEventListener('pointermove', this.handleResizeY)
+    this.overlay.current.addEventListener('pointerup', e2 => {
+      e2.preventDefault() // prevents it from triggering a clear
+      delete this.initialHeight
+      delete this.initialClientY
+      this.overlay.current?.releasePointerCapture(e.pointerId)
+      this.overlay.current?.removeEventListener('pointermove', this.handleResizeY)
+    })
+  }
+
+  render(props, state) {
+    const styleVars = {
+      "--spotlightX": `${this.spotlightX}px`,
+      "--spotlightY": `${this.spotlightY}px`,
+      "--spotlightWidth": `${this.spotlightWidth}px`,
+      "--spotlightHeight": `${this.spotlightHeight}px`
+    }
+    return <div id="media-view-video-overlay" style={styleVars} ref={this.overlay}>
+      <div onpointerup={props.clear} id="media-view-video-overlay-header"/>
+      <div onpointerup={props.clear} id="media-view-video-overlay-left"/>
+      <div onpointerdown={this.startDrag} id="media-view-video-overlay-overlight"/>
+      <div onpointerdown={this.startDrag} id="media-view-video-overlay-leftlight"/>
+      <div onpointerdown={this.startResizeX} id="media-view-video-overlay-rightlight"/>
+      <div onpointerdown={this.startResizeY} id="media-view-video-overlay-underlight"/>
+      <div onpointerdown={this.startDrag} id="media-view-video-overlay-spotlight" />
+      <div onpointerup={props.clear} id="media-view-video-overlay-right"/>
+      <div onpointerup={props.clear} id="media-view-video-overlay-footer"/>
+    </div>
+  }
 }

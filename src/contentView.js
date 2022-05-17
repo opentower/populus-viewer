@@ -700,7 +700,7 @@ export default class ContentView extends Component {
 class PanelHandle extends Component {
   dragOffset = 0
 
-  handleMouseMove = e => {
+  handlePointerMove = e => {
     if (e.clientX < 20 || this.startingClientX - e.clientX < 0) return
     this.dragOffset = this.startingClientX - e.clientX
     this.props.contentContainer.current.style.setProperty(this.props.offsetVar, `${this.dragOffset}px`)
@@ -710,11 +710,11 @@ class PanelHandle extends Component {
     this.props.contentContainer.current.style.setProperty('--transitionSizing', "unset")
     this.props.contentContainer.current.setPointerCapture(e.pointerId)
     this.startingClientX = e.clientX + this.dragOffset
-    this.props.contentContainer.current.addEventListener('pointermove', this.handleMouseMove)
+    this.props.contentContainer.current.addEventListener('pointermove', this.handlePointerMove)
     this.props.contentContainer.current.addEventListener('pointerup', _ => {
       this.props.contentContainer.current.style.removeProperty('--transitionSizing')
       this.props.contentContainer.current.releasePointerCapture(e.pointerId)
-      this.props.contentContainer.current.removeEventListener('pointermove', this.handleMouseMove)
+      this.props.contentContainer.current.removeEventListener('pointermove', this.handlePointerMove)
     })
   }
 
