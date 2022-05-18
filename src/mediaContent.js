@@ -37,11 +37,13 @@ export default class MediaContent extends Component {
       if (this.props.focus && this.props.focus?.getChild() !== prev.focus?.getChild() ) {
         // focusing new annotation: jump to that 
         const duration = this.wavesurfer.getDuration()
+        this.setVideo(this.props.focus)
         this.wavesurfer.seekAndCenter(this.props.focus.getIntervalStart() / (duration * 1000))
       }
       if (this.props.secondaryFocus && this.props.secondaryFocus?.getIntervalStart() !== prev.secondaryFocus?.getIntervalStart() ) {
         // focusing new annotation message: jump to that 
         const duration = this.wavesurfer.getDuration()
+        this.setVideo(this.props.secondaryFocus)
         this.wavesurfer.seekAndCenter(this.props.secondaryFocus.getIntervalStart() / (duration * 1000))
       }
     }
@@ -145,6 +147,7 @@ export default class MediaContent extends Component {
   }
 
   handlePointerdown = e => {
+    if (e.target.tagName === "WAVE") this.setVideo(null) // clear video if you click out of a region  
     if (["WAVE","REGION","HANDLE"].includes(e.target.tagName)) {
       clearTimeout(this.longPressTimeout)
       const percentAcross = (e.clientX + e.target.scrollLeft) / e.target.scrollWidth
@@ -316,6 +319,8 @@ export default class MediaContent extends Component {
 
   filterAnnotations = loc => loc.getType() === "media-fragment"
 
+  setVideo = videoLocation => this.setState({ videoLocation })
+
   getAnnotations() {
     let didFocus = false
     const annotationData = this.props.filteredAnnotationContents
@@ -332,6 +337,7 @@ export default class MediaContent extends Component {
         wavesurfer={this.wavesurfer} 
         key={loc.event.getId()}
         focused={this.props.focus?.getChild() === loc.getChild()}
+        setVideo={this.setVideo}
         location={loc} 
       />)
     return annotations
@@ -348,7 +354,7 @@ export default class MediaContent extends Component {
       { this.isVideo 
         ? <MediaViewVideo 
           ref={this.video}
-          location={props.focus}
+          videoLocation={state.videoLocation}
           videoOverlay={this.videoOverlay}
           hasSelection={!!state.selection}
           videoElement={this.videoElement}
@@ -376,6 +382,8 @@ class WaveRegion extends Component {
     })
     if (this.props.focused) this.region.element.dataset.focused = true
     this.region.on("click", this.setFocus)
+    this.region.on("in", _ => this.props.setVideo(this.props.location))
+    this.region.on("out", _ => this.props.setVideo(null))
   }
 
   componentDidUpdate() {
@@ -384,10 +392,9 @@ class WaveRegion extends Component {
   }
 
   setFocus = e => {
-    if (!this.props.focused) {
-      e.stopPropagation() //prevent a secondary seek
-      this.props.setFocus(this.props.location)
-    }
+    if (!this.props.focused) e.stopPropagation() //prevent a secondary seek
+    this.props.setVideo(this.props.location)
+    this.props.setFocus(this.props.location)
   }
 
   componentWillUnmount() {
@@ -422,12 +429,12 @@ class MediaViewVideo extends Component {
                 initialPosition={state.initialPosition} 
             /> 
             : null
-          : props.location?.getMediaRect() 
+          : props.videoLocation?.getMediaRect() 
           ? <MediaViewVideoOverlay 
               mutable={false}
               ref={props.videoOverlay} 
               videoElement={props.videoElement} 
-              initialPosition={props.location.getMediaRect()} 
+              initialPosition={props.videoLocation.getMediaRect()} 
           /> 
           : null
         }
@@ -536,7 +543,10 @@ class MediaViewVideoOverlay extends Component {
       "--spotlightWidth": `${this.spotlightWidth}px`,
       "--spotlightHeight": `${this.spotlightHeight}px`
     }
-    return <div id="media-view-video-overlay" style={styleVars} ref={this.overlay}>
+    return <div id="media-view-video-overlay" 
+      data-media-selection-mutable={props.mutable}
+      style={styleVars}
+      ref={this.overlay}>
       <div onpointerdown={props.mutable && props.clear} id="media-view-video-overlay-header"/>
       <div onpointerdown={props.mutable && props.clear} id="media-view-video-overlay-left"/>
       <div onpointerdown={props.mutable && this.startDrag} id="media-view-video-overlay-overlight"/>
