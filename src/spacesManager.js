@@ -101,7 +101,7 @@ export default class SpacesManager extends Component {
         {state.spaces.map(room => <SpaceListing filterToggle={this.filterToggle} filterSet={this.filterSet} oneColumn={props.oneColumn} key={room.roomId} room={room} />)}
       </div>
       <div>
-        <button onclick={this.createCollection} id="create-space">+ Create New Collection</button>
+        <button onclick={this.createCollection} id="create-space">New Collection</button>
       </div>
     </div>
   }

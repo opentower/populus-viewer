@@ -17,6 +17,8 @@
 }
 
 #create-space {
+  display:flex;
+  align-items:center;
   background:none;
   border:none;
   padding:0px;
@@ -24,7 +26,8 @@
   font-size:14pt;
   font-weight:bold;
   color: var(--content-dimmed-element);
-  margin-top:16px;
+  margin-top:5px;
+  margin-left:16px;
   cursor:pointer;
   transition: color .5s ease;
 }
