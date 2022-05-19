@@ -76,18 +76,12 @@ export default class MediaContent extends Component {
   clearSelection = _ => {
     if (this.state.selection) {
       this.state.selection.remove()
+      this.video.current.clearOverlayPosition()
       this.setState({selection: null}, _ => document.dispatchEvent(new Event("selectionchange")))
     }
   }
 
   generateLocation = _ => {
-    console.log({
-            x: this.videoOverlay.current.spotlightX,
-            y: this.videoOverlay.current.spotlightY,
-            w: this.videoOverlay.current.spotlightWidth + 40,
-            h: this.videoOverlay.current.spotlightHeight + 40,
-            // the 40 offset here accounts for handles
-          })
     return {
       [mscMediaFragment]: {
         start: Math.floor(this.state.selection.start * 1000),
@@ -422,7 +416,8 @@ class MediaViewVideo extends Component {
   }
 
   clearOverlayPosition = e => {
-    e.noClear = true // we prevent the event from clearing the audio range selection
+    if (e) e.noClear = true
+    // we prevent any associated event from clearing the audio range selection
     this.setState({ initialPosition: null })
   }
 
@@ -457,7 +452,6 @@ class MediaViewVideo extends Component {
 class MediaViewVideoOverlay extends Component {
   constructor(props) {
     super(props)
-    console.log(props.videoElement.current)
     this.spotlightScale = props.videoElement.current.getBoundingClientRect().width / props.videoElement.current.videoWidth
     this.spotlightWidth = props.initialPosition.width - 40 // subtract to account for the handles
     this.spotlightHeight = props.initialPosition.height - 40
