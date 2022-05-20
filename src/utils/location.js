@@ -60,13 +60,13 @@ export default class Location {
     if (this.location[mscMediaFragment] &&
       this.location[mscMediaFragment].x &&
       this.location[mscMediaFragment].y &&
-      this.location[mscMediaFragment].h &&
-      this.location[mscMediaFragment].w
+      this.location[mscMediaFragment].w &&
+      this.location[mscMediaFragment].h 
     ) { return new DOMRect(
         this.location[mscMediaFragment].x,
         this.location[mscMediaFragment].y,
-        this.location[mscMediaFragment].h,
-        this.location[mscMediaFragment].w 
+        this.location[mscMediaFragment].w,
+        this.location[mscMediaFragment].h
       )
     }
   }

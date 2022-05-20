@@ -46,6 +46,7 @@ export default class MediaContent extends Component {
         this.setVideo(this.props.secondaryFocus)
         this.wavesurfer.seekAndCenter(this.props.secondaryFocus.getIntervalStart() / (duration * 1000))
       }
+      if (prev.focus && !this.props.focus) this.setVideo(null)
     }
   }
 
@@ -411,7 +412,14 @@ class MediaViewVideo extends Component {
   setOverlayPosition = e => {
     if (this.props.hasSelection) {
       const videoScale = this.props.videoElement.current.getBoundingClientRect().width / this.props.videoElement.current.videoWidth
-      this.setState({ initialPosition: new DOMRect(e.offsetX / videoScale, e.offsetY / videoScale, 100 / videoScale, 100 / videoScale ) }) 
+      this.setState({ 
+        initialPosition: new DOMRect(
+          Math.round(e.offsetX / videoScale),
+          Math.round(e.offsetY / videoScale),
+          Math.round(100 / videoScale),
+          Math.round(100 / videoScale) 
+        )
+      }) 
     }
   }
 
@@ -442,7 +450,7 @@ class MediaViewVideo extends Component {
               videoElement={props.videoElement} 
               initialPosition={props.videoLocation.getMediaRect()} 
           /> 
-          : null
+          : props.videoOverlay.current = null
         }
       </div>
     </div>
