@@ -37,16 +37,13 @@ export default class MediaContent extends Component {
       if (this.props.focus && this.props.focus?.getChild() !== prev.focus?.getChild() ) {
         // focusing new annotation: jump to that 
         const duration = this.wavesurfer.getDuration()
-        this.setVideo(this.props.focus)
         this.wavesurfer.seekAndCenter(this.props.focus.getIntervalStart() / (duration * 1000))
       }
       if (this.props.secondaryFocus && this.props.secondaryFocus?.getIntervalStart() !== prev.secondaryFocus?.getIntervalStart() ) {
         // focusing new annotation message: jump to that 
         const duration = this.wavesurfer.getDuration()
-        this.setVideo(this.props.secondaryFocus)
         this.wavesurfer.seekAndCenter(this.props.secondaryFocus.getIntervalStart() / (duration * 1000))
       }
-      if (prev.focus && !this.props.focus) this.setVideo(null)
     }
   }
 
@@ -163,6 +160,16 @@ export default class MediaContent extends Component {
       clearTimeout(this.longPressTimeout)
       this.clearSelection()
     } 
+  }
+
+  getCurrentLocations = _ => {
+    const currentSec = this.wavesurfer.getCurrentTime()
+    return this.props.filteredAnnotationContents
+      .filter(loc => {
+        if (currentSec < loc.getIntervalStart() / 1000) return false
+        if (currentSec > loc.getIntervalEnd() / 1000) return false
+        return this.filterAnnotations(loc)
+      })
   }
 
   cancelPointer = _ => clearTimeout(this.longPressTimeout)
@@ -309,6 +316,7 @@ export default class MediaContent extends Component {
           else History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/`)
         }, 250)
       }
+      this.updateVideoLocation()
     });
     this.wavesurfer.on('scroll', e => { 
       if (Math.abs(this.lastLeft - e.target.scrollLeft) > 25) {
@@ -318,11 +326,29 @@ export default class MediaContent extends Component {
         this.lastLeft = e.target.scrollLeft
       }
     })
+    this.wavesurfer.on("audioprocess", this.updateVideoLocation)
   }
 
   filterAnnotations = loc => loc.getType() === "media-fragment"
 
   setVideo = videoLocation => this.setState({ videoLocation })
+
+  updateVideoLocation = _ => {
+    if (this.updateVideoLocationLocked) return
+    const locations = this.getCurrentLocations()
+    if (locations.length == 0) this.setVideo(null)
+    else {
+      locations.sort((a,b) => {
+        if (a.getIntervalStart() < b.getIntervalStart) return -1
+        if (a.getIntervalStart() > b.getIntervalStart) return 1
+        return 0
+      })
+      this.setVideo(locations[0])
+    }
+    this.updateVideoLocationLocked = true
+    //tiny debouncer in case this gets expensive with lots of highlights
+    setTimeout(_ => this.updateVideoLocationLocked = false, 250)
+  }
 
   getAnnotations() {
     let didFocus = false
@@ -340,7 +366,6 @@ export default class MediaContent extends Component {
         wavesurfer={this.wavesurfer} 
         key={loc.event.getId()}
         focused={this.props.focus?.getChild() === loc.getChild()}
-        setVideo={this.setVideo}
         location={loc} 
       />)
     return annotations
@@ -385,8 +410,6 @@ class WaveRegion extends Component {
     })
     if (this.props.focused) this.region.element.dataset.focused = true
     this.region.on("click", this.setFocus)
-    this.region.on("in", _ => this.props.setVideo(this.props.location))
-    this.region.on("out", _ => this.props.setVideo(null))
   }
 
   componentDidUpdate() {
@@ -396,7 +419,6 @@ class WaveRegion extends Component {
 
   setFocus = e => {
     if (!this.props.focused) e.stopPropagation() //prevent a secondary seek
-    this.props.setVideo(this.props.location)
     this.props.setFocus(this.props.location)
   }
 
