@@ -60,11 +60,14 @@ export default class WelcomeView extends Component {
 
   searchInput = createRef()
 
+  popupMenu = createRef()
+
   setSearch = s => this.setState({ searchFilter: s})
 
   setFilterItems = s => this.setState({ filterItems: s})
 
   submitSearch = _ => {
+    if (this.popupMenu.current.state.active) return
     this.setState(oldState => {
       return {
         searchFilter: "",
@@ -79,7 +82,9 @@ export default class WelcomeView extends Component {
     { keyword: "fav", description: "favorite discussions" },
   ]
 
-  popupActions = { }
+  popupActions = { 
+    "@": props => <PopupMenu.Users {...props} />,
+  }
 
   setFocus = b => this.setState({
     inputFocus: b,
@@ -126,6 +131,7 @@ export default class WelcomeView extends Component {
               setFocus={this.setFocus} />
             <PopupMenu.Menu
               below={true}
+              ref={this.popupMenu}
               textValue={state.searchFilter}
               textarea={this.searchInput}
               actions={this.popupActions}

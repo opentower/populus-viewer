@@ -165,11 +165,15 @@ body {
   margin:0px;
 }
 
-#welcome-header-content #welcome-search-wrapper {
+#welcome-search-wrapper {
     flex-shrink:2;
     flex-grow:1;
     margin-right:15px; 
     margin-left:13px; 
+}
+
+#welcome-search-wrapper #popup-menu { 
+  border:1px solid #adadad;
 }
 
 @media only screen and (min-width: 600px) {

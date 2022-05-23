@@ -172,6 +172,118 @@ class Emoji extends Component {
   }
 }
 
+export class Users extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      popupItems: [],
+      selection: 0
+    }
+  }
+
+  componentDidMount () {
+    if (this.props.textarea) {
+      this.props.textarea.current.addEventListener("keydown", this.handleKeydown)
+      this.props.textarea.current.addEventListener("keyup", this.handleKeyup)
+    }
+  }
+
+  componentWillUnmount () {
+    if (this.props.textarea) {
+      this.props.textarea.current.removeEventListener("keydown", this.handleKeydown)
+      this.props.textarea.current.removeEventListener("keyup", this.handleKeyup)
+    }
+  }
+
+  handleKeydown = e => {
+    if (e.key === "ArrowDown") {
+      e.preventDefault()
+      if (this.state.selection + 1 < this.state.popupItems.length) {
+        this.setState(oldState => { return {selection: oldState.selection + 1} })
+      }
+    }
+    if (e.key === "ArrowUp") {
+      e.preventDefault()
+      if (this.state.selection > 0) {
+        this.setState(oldState => { return {selection: oldState.selection - 1} })
+      }
+    }
+    if (e.key === "Enter" && this.state.popupItems.length > 0) {
+      e.preventDefault()
+      this.insertSelection()
+    }
+  }
+
+  generatePopupItems(value) {
+    return Client.client.getUsers()
+      .filter(user => 
+        user.userId.includes(value.toLowerCase()) || 
+        user.displayName.toLowerCase().includes(value.toLowerCase())
+      )
+      .slice(0, 3) // top 3
+      .map((user, idx) => <User
+        insert={this.props.insert}
+        key={user.userId}
+        selected={this.state.selection === idx}
+        user={user} />
+      )
+  }
+
+  insertSelection = _ => {
+    const userId = this.state.popupItems[this.state.selection].props.user.userId
+    this.props.insert(`${userId} `, /@\S*$/)
+  }
+
+  handleKeyup = _ => {
+    const selstart = this.props.textarea.current.selectionStart
+    const selend = this.props.textarea.current.selectionEnd
+    if (selstart === selend) {
+      const matches = this.props.textValue.slice(0, selend).match(/@\S*$/)
+      if (matches) {
+        const popupItems = this.generatePopupItems(matches[0].substring(1))
+        const newState = {popupItems}
+        if (popupItems.length < this.state.selection + 1) {
+          newState.selection = Math.max(popupItems.length - 1, 0)
+        }
+        this.setState(newState)
+        return
+      }
+    }
+    this.props.cancel()
+  }
+
+  render(props, state) {
+    if (this.state.popupItems.length > 0) {
+      // We use a relatively positioned wrapper to keep the PUM in the document flow
+      return <div style={{top: `${state.popupItems.length * 40}px`}} id="popup-wrapper">
+        <div id="popup-menu" style={props.below ? {top: "0px"} : {bottom: "0px"}}>
+          {this.state.popupItems}
+        </div>
+      </div>
+    }
+  }
+}
+
+class User extends Component {
+  colorFromId = new UserColor(this.props.user.userId)
+
+  insertUserId = e => {
+    e.preventDefault() // try to prevent textarea losing focus
+    this.props.insert(`${this.props.user.userId} `, /@\S*$/)
+  }
+
+  render(props) {
+    return <div
+      onmousedown={this.insertUserId}
+      style={this.colorFromId.styleVariables}
+      class={props.selected ? "popup-menu-item-selected-user popup-menu-item" : "popup-menu-item"}>
+      <span class="popup-menu-item-userid"> @{props.user.userId.split(":")[0].substring(1)} </span>
+      <span>•</span>
+      <span class="popup-menu-item-username"> {props.user.displayName} </span>
+    </div>
+  }
+}
+
 export class Members extends Component {
   constructor(props) {
     super(props)
@@ -218,7 +330,9 @@ export class Members extends Component {
     const room = Client.client.getRoom(this.props.roomId)
     if (room) {
       return room.getMembersWithMembership("join")
-        .filter(member => member.userId.includes(value) || member.name.includes(value))
+        .filter(member => 
+          member.userId.includes(value.toLowerCase()) || 
+          member.name.toLowerCase().includes(value.toLowerCase()))
         .slice(0, 3) // top 3
         .map((member, idx) => <Member
           insert={this.props.insert}
