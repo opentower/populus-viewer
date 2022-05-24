@@ -84,6 +84,7 @@ export default class WelcomeView extends Component {
 
   popupActions = { 
     "@": props => <PopupMenu.Users {...props} />,
+    "~": props => <PopupMenu.Flags flags={this.flags} {...props} />
   }
 
   setFocus = b => this.setState({
