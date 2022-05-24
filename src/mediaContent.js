@@ -154,7 +154,7 @@ export default class MediaContent extends Component {
       this.longPressTimeout = setTimeout(_ => {
         this.wavesurfer.seekTo(percentAcross)
         this.createSelection(percentAcross * this.wavesurfer.getDuration(), percentAcross * this.wavesurfer.getDuration() + 5)
-      }, 2000) 
+      }, 500) 
     } else {
       if (e.noClear || this.video.current?.base.contains(e.target)) return
       clearTimeout(this.longPressTimeout)
