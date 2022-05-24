@@ -147,15 +147,16 @@ export default class MediaContent extends Component {
   }
 
   handlePointerdown = e => {
-    if (e.target.tagName === "WAVE") this.setVideo(null) // clear video if you click out of a region  
-    if (["WAVE","REGION","HANDLE"].includes(e.target.tagName)) {
+    if (e.target.tagName === "WAVE") {
       clearTimeout(this.longPressTimeout)
       const percentAcross = (e.clientX + e.target.scrollLeft) / e.target.scrollWidth
       this.longPressTimeout = setTimeout(_ => {
         this.wavesurfer.seekTo(percentAcross)
         this.createSelection(percentAcross * this.wavesurfer.getDuration(), percentAcross * this.wavesurfer.getDuration() + 5)
       }, 500) 
-    } else {
+    }
+    else if (["REGION","HANDLE"].includes(e.target.tagName)) return
+    else {
       if (e.noClear || this.video.current?.base.contains(e.target)) return
       clearTimeout(this.longPressTimeout)
       this.clearSelection()
