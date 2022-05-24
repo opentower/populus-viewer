@@ -383,8 +383,10 @@ export default class MediaContent extends Component {
         ? <MediaViewVideo 
           ref={this.video}
           videoLocation={state.videoLocation}
+          wavesurfer={this.wavesurfer}
           videoOverlay={this.videoOverlay}
           hasSelection={!!state.selection}
+          createSelection={this.createSelection}
           videoElement={this.videoElement}
         /> 
         : null 
@@ -432,17 +434,17 @@ class WaveRegion extends Component {
 class MediaViewVideo extends Component {
 
   setOverlayPosition = e => {
-    if (this.props.hasSelection) {
-      const videoScale = this.props.videoElement.current.getBoundingClientRect().width / this.props.videoElement.current.videoWidth
-      this.setState({ 
-        initialPosition: new DOMRect(
-          Math.round(e.offsetX / videoScale),
-          Math.round(e.offsetY / videoScale),
-          Math.round(100 / videoScale),
-          Math.round(100 / videoScale) 
-        )
-      }) 
-    }
+    const time = this.props.wavesurfer.getCurrentTime()
+    if (!this.props.hasSelection) this.props.createSelection(time, time + 1)
+    const videoScale = this.props.videoElement.current.getBoundingClientRect().width / this.props.videoElement.current.videoWidth
+    this.setState({ 
+      initialPosition: new DOMRect(
+        Math.round(e.offsetX / videoScale),
+        Math.round(e.offsetY / videoScale),
+        Math.round(100 / videoScale),
+        Math.round(100 / videoScale) 
+      )
+    }) 
   }
 
   clearOverlayPosition = e => {
