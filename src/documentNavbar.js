@@ -23,7 +23,6 @@ export default class DocumentNavbar extends Component {
       pageViewVisible: false,
       moreOptionsVisible: false,
       pageFocused: false,
-      searchFocused: false
     };
   }
 
@@ -87,13 +86,6 @@ export default class DocumentNavbar extends Component {
   handlePageFocus = _ => this.setState({ pageFocused: true, value: "" })
 
   handlePageBlur = _ => this.setState({ pageFocused: false, value: this.props.pageFocused })
-
-  setSearchFocus = searchFocused => {
-    if (searchFocused) {
-      this.props.setNavHeight(150)
-      this.setState({ searchFocused, moreOptionsVisible: true})
-    } else this.setState({ searchFocused })
-  }
 
   handleSubmit = ev => {
     ev.preventDefault();
@@ -197,31 +189,31 @@ export default class DocumentNavbar extends Component {
             <button onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
           </ToolTip>
         </div>
-        <div ref={this.bottomWrapper} data-searchFocused={state.searchFocused} class="nav-button-wrapper bottom-wrapper">
+        <div inert={!state.moreOptionsVisible} ref={this.bottomWrapper} class="nav-button-wrapper bottom-wrapper">
           <ToolTip content="Manage membership" theme="bordered">
-            <button onClick={this.openInvite}>{Icons.userPlus}
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.openInvite}>{Icons.userPlus}
             </button>
           </ToolTip>
           <ToolTip content="Download PDF" theme="bordered">
-            <button onClick={this.download}>{Icons.download} </button>
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.download}>{Icons.download} </button>
           </ToolTip>
           <ToolTip content="Zoom out (-)" theme="bordered">
-            <button onClick={this.zoomOut}>{Icons.zoomout}</button>
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.zoomOut}>{Icons.zoomout}</button>
           </ToolTip>
           <ToolTip content="Zoom in (+)" theme="bordered">
-            <button onClick={this.zoomIn}>{Icons.zoomin}</button>
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.zoomIn}>{Icons.zoomin}</button>
           </ToolTip>
           <ToolTip content="Toggle annotation visibility (Alt + v)" theme="bordered">
-            <button onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
           </ToolTip>
           <ToolTip content="Add Pin" theme="bordered">
-            <button  onClick={props.startPindrop}>{Icons.pin}</button>
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.startPindrop}>{Icons.pin}</button>
           </ToolTip>
           <ToolTip content="Toggle Two-Up View" theme="bordered">
-        <button onClick={props.content.current?.toggleSecondary}>{Icons.columns}</button>
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.content.current?.toggleSecondary}>{Icons.columns}</button>
           </ToolTip>
           <ToolTip content="Search Within PDF" theme="bordered">
-            <button onClick={props.showSearch}>{Icons.search}</button>
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.showSearch}>{Icons.search}</button>
           </ToolTip>
         </div>
       </nav>
