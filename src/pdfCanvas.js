@@ -1,26 +1,14 @@
 import { h, createRef, Fragment, Component } from 'preact';
 import './styles/pdfView.css'
 import * as PDFJS from "pdfjs-dist/webpack"
-import Toast from "./toast.js"
-import History from './history.js'
-import Resource from "./utils/resource.js"
 import './styles/text-layer.css'
 
 export default class PdfCanvas extends Component {
-  static PDFStore = {}
-  // we store downloaded PDFs here in order to avoid excessive downloads.
-  // Could alternatively use localstorage or some such eventually. We don't
-  // use preact state since changes here aren't relevent to UI.
-
   constructor(props) {
     super(props)
     this.pendingRender = null
     this.pendingTextRender = null
     this.hasRendered = false // we allow one initial render, but then require a page change for a redraw
-    this.hasFetched = new Promise((resolve, reject) => {
-      this.resolveFetch = resolve
-      this.rejectFetch = reject
-    })
   }
 
   componentDidUpdate(prevProps) {
@@ -37,8 +25,6 @@ export default class PdfCanvas extends Component {
   }
 
   componentDidMount() {
-    this.fetchPdf()
-    // fetch will fail if the initial sync isn't complete, but that should be handled by the splash page
     this.props.textLayer.current.addEventListener('click', e => {
       e.preventDefault() // this should prevent touch-to-search on mobile chrome
       const mouseEvent = new MouseEvent(e.type, e)
@@ -49,59 +35,6 @@ export default class PdfCanvas extends Component {
   }
 
   canvas = createRef()
-
-  catchFetchPdfError = e => {
-    Toast.set(<Fragment>
-      <h3 id="toast-header">Couldn't fetch the PDF...</h3>
-      <div>Tried to fetch: </div>
-      <pre>{this.props.resourceAlias}</pre>
-      <div>Here's the error message:</div>
-      <pre>{e.message}</pre>
-    </Fragment>)
-    History.push('/')
-    this.errorCondition = true
-  }
-
-  async fetchPdf () {
-    const thePdf = new Resource(this.props.room)
-    if (!PdfCanvas.PDFStore[thePdf.url]) {
-      PdfCanvas.PDFStore[thePdf.url] = window.fetch(thePdf.httpUrl)
-        .then(async response => {
-          const theClone = response.clone()
-          const contentLength = +response.headers.get('Content-Length')
-          const reader = response.body.getReader()
-          let accumulator = 0
-          while (true) {
-            const { done, value } = await reader.read()
-            if (done) { break }
-            accumulator = accumulator + value.length
-            this.props.setPdfLoadingStatus(accumulator / contentLength)
-          }
-          return theClone.arrayBuffer()
-        })
-        .then(array => PDFJS.getDocument(array).promise)
-        .catch(this.catchFetchPdfError)
-    } else { console.log(`found pdf for ${this.props.room.name} in store` ) }
-    if (this.errorCondition) return
-    this.setState({pdfIdentifier: thePdf.url})
-    PdfCanvas.PDFStore[thePdf.url]
-      .then(pdf => this.props.setTotalPages(pdf.numPages))
-      .then(this.resolveFetch)
-      .then(this.gatherText(thePdf.url))
-  }
-
-  async gatherText(pdfIdentifier) {
-    if (this.props.setPdfText) {
-      const pdf = await PdfCanvas.PDFStore[pdfIdentifier]
-      this.pdfText = {}
-      for (let i = 1; i < pdf.numPages + 1; i++) {
-        const page = await pdf.getPage(i)
-        const content = await page.getTextContent()
-        this.pdfText[i] = content.items.map(item => item.str).join(" ")
-      }
-      this.props.setPdfText(this.pdfText)
-    }
-  }
 
   // because rendering is async, we need a way to cancel pending render tasks and
   // to make sure that pending drawPdf calls don't proceed. That's what this function does.
@@ -126,9 +59,9 @@ export default class PdfCanvas extends Component {
     // since we've started rendering, we want to block subsequent render attempts
     this.hasRendered = true
     const theCanvas = this.canvas.current
-    await this.hasFetched
+    await this.props.hasFetched
     this.props.setPdfLoadingStatus("Rendering PDF")
-    const pdf = await PdfCanvas.PDFStore[this.state.pdfIdentifier]
+    const pdf = await this.props.pdfPromise
 
     // exit early if someone else has grabbed control
     if (control !== this.controlToken) return

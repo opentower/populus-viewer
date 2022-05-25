@@ -40,7 +40,6 @@
     background:var(--max-contrast-background);
     padding:2px;
     position:relative;
-    left:-5px;
 }
 
 .text-layer span::selection {
