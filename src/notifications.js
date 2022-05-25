@@ -9,6 +9,7 @@ import Location from './utils/location.js'
 import './styles/notifications.css'
 import Client from './client.js'
 import History from './history.js'
+import * as Icons from './icons.js'
 
 export default class NotificationListing extends Component {
   constructor(props) {
@@ -160,46 +161,50 @@ class Notification extends Component {
 
   originRoom = Client.client.getRoom(this.props.event.getRoomId())
 
-  originPDF = this.originRoom
+  originResource = this.originRoom
     .getLiveTimeline().getState(Matrix.EventTimeline.BACKWARDS)
     .getStateEvents(spaceParent)?.[0].getStateKey()
 
-  originAlias = this.originPDF
-    ? Client.client.getRoom(this.originPDF)?.getCanonicalAlias()
+  originAlias = this.originResource
+    ? Client.client.getRoom(this.originResource)?.getCanonicalAlias()
     : null
 
-  originAnnotation = this.originPDF
-    ? Client.client.getRoom(this.originPDF)
+  originAnnotation = this.originResource
+    ? Client.client.getRoom(this.originResource)
       ?.getLiveTimeline().getState(Matrix.EventTimeline.BACKWARDS)
       .getStateEvents(spaceChild, this.originRoom.roomId)
     : null
 
-  originAnnotationRoom = this.originAnnotation
-    ? Client.client.getRoom(this.originAnnotation.getStateKey())
+  originLocation = this.originAnnotation ? new Location(this.originAnnotation) : null
+
+  originAnnotationRoom = this.originLocation
+    ? Client.client.getRoom(this.originLocation.getChild())
     : null
 
-  topic = this.originAnnotationRoom
-    ? this.originAnnotationRoom.getLiveTimeline()
-      .getState(Matrix.EventTimeline.FORWARDS)
-      .getStateEvents("m.room.topic", "")?.getContent().topic || ""
-    : ""
+  getTopic = _ => {
+    switch (this.originLocation.getType()) {
+      case "highlight" : return this.originLocation.getText()
+      case "text" : return <span class="non-text-topic">{Icons.pin}<span> a section of page {this.originLocation.getPageIndex()}</span></span>
+      case "media-fragment" : return <span class="non-text-topic">{Icons.headphones}<span>an interval from {this.originLocation.getIntervalStart()} to {this.originLocation.getIntervalEnd()}</span></span>
+    }
+  }
 
   handleClick = _ => {
-    const origin = new Location(this.originAnnotation)
+    const origin = this.originLocation
     History.push(`/${encodeURIComponent(this.originAlias.slice(1))}/${origin.getPageIndex()}/${origin.getChild()}`)
   }
 
   render(props, state) {
-    if (Client.client.getRoom(this.originPDF)) {
+    if (Client.client.getRoom(this.originResource)) {
       return <div
         onclick={this.originAlias ? this.handleClick : null }
         class={state.unread ? "notification unread-notification" : "notification"}
         style={this.userColor.styleVariables}>
-        { Client.client.getRoom(this.originPDF)?.name
-          ? <div class="discussion-intro">In <b>{Client.client.getRoom(this.originPDF).name}</b>, discussing</div>
+        { Client.client.getRoom(this.originResource)?.name
+          ? <div class="discussion-intro">In <b>{Client.client.getRoom(this.originResource).name}</b>, discussing</div>
           : <div class="discussion-intro">Discussing</div>
         }
-        <div class="discussion-topic">{this.topic}</div>
+        <div class="discussion-topic">{this.getTopic()}</div>
         <div class="notification-header">
           {this.avatarHttpURI ? <img src={this.avatarHttpURI} /> : null}
           <span class="sender">{this.userDisplayName}</span>

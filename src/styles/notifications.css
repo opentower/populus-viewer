@@ -32,6 +32,16 @@
   padding-left:20px;
 }
 
+.discussion-topic .non-text-topic{
+  color:var(--content-secondary-text);
+  display:flex;
+  align-items:center;
+}
+
+.discussion-topic .non-text-topic svg{
+  height: 1em;
+}
+
 .notification-header > img {
     width:20px;
     height:20px;
