@@ -74,7 +74,7 @@ export default class MediaContent extends Component {
   clearSelection = _ => {
     if (this.state.selection) {
       this.state.selection.remove()
-      this.video.current.clearOverlayPosition()
+      this.video.current?.clearOverlayPosition()
       this.setState({selection: null}, _ => document.dispatchEvent(new Event("selectionchange")))
     }
   }
