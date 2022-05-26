@@ -7,8 +7,12 @@
     overflow: hidden;
     line-height:1;
     opacity: 0.2;
+    width: calc(var(--pdfWidthPx) / var(--pdfFitRatio)) ;
+    height: calc(var(--pdfHeightPx) / var(--pdfFitRatio));
     pointer-events:none;
-    transform: scale(var(--pdfFitRatio)) translate(-4px,-4px);
+    user-select:none;
+    transform-origin : top left;
+    transform: scale(var(--pdfFitRatio)) translate(-4px,-4px) !important;
     /* a slight skootch here to make up for span padding */
 }
 

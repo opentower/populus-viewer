@@ -1,7 +1,11 @@
-import { h, createRef, Component } from 'preact';
+import { h, createRef, Component, Fragment } from 'preact';
 import './styles/fileUpload.css'
 import { mscResourceData, spaceChild } from "./constants.js"
 import { onlineOrAlert } from "./utils/alerts.js"
+import PdfCanvas from "./pdfCanvas.js"
+import * as PDFJS from "pdfjs-dist/webpack"
+import { UserColor } from "./utils/colors.js"
+import * as Icons from './icons.js'
 import Client from './client.js'
 
 export default class FileUpload extends Component {
@@ -142,6 +146,13 @@ export default class FileUpload extends Component {
     return <div id="file-upload">
       <h2> Upload a new file</h2>
       <hr class="styled-rule" />
+      { state.fileValid 
+        ? <Fragment>
+          <FileUploadPreview file={this.fileLoader.current.files[0]} /> 
+          <hr class="styled-rule" />
+        </Fragment>
+        : null
+      }
       <form id="file-upload-form" ref={this.mainForm} onsubmit={this.uploadFile}>
         <label for="file"> File to Discuss</label>
         <input name="file"
@@ -201,6 +212,64 @@ export default class FileUpload extends Component {
           : null
         }
       </form>
+    </div>
+  }
+}
+
+class FileUploadPreview extends Component {
+  render(props) {
+    if (props.file.type === "application/pdf") return <PdfUploadPreview key={props.file.name} file={props.file} />
+    // if (props.file.type.match(/^audio|^video/)) return <MediaUploadPreview file={props.file} />
+    return <GenericUploadPreview file={props.file}/>
+  }
+}
+
+class PdfUploadPreview extends Component {
+  constructor(props) {
+    super(props)
+    this.userColor = new UserColor(Client.client.getUserId())
+    const pdfUrl = URL.createObjectURL(this.props.file)
+    this.state = { pdfPromise: PDFJS.getDocument(pdfUrl).promise }
+  }
+
+  componentDidMount() { this.setState({}) }
+
+  textLayer = createRef()
+
+  setPdfDimensions = (pdfHeightPx, pdfWidthPx) => this.setState({pdfWidthPx, pdfHeightPx})
+
+  setPdfFitRatio = pdfFitRatio => this.setState({pdfFitRatio})
+
+  setTotalPages = totalPages => this.setState({totalPages})
+
+  render(props, state) {
+    const dynamicDocumentStyle = {
+      "--pdfFitRatio": state.pdfFitRatio,
+      "--pdfWidthPx": `${state.pdfWidthPx}px`,
+      "--pdfHeightPx": `${state.pdfHeightPx}px`,
+      "--selectColor": this.userColor.solid,
+    }
+    return <div id="pdf-upload-preview">
+        <div id="pdf-upload-preview-wrapper" style={dynamicDocumentStyle}>
+        <PdfCanvas
+          pdfScale={1}
+          setPdfDimensions={this.setPdfDimensions}
+          setPdfFitRatio={this.setPdfFitRatio}
+          hasFetched={true}
+          pdfPromise={state.pdfPromise}
+          textLayer={this.textLayer}
+          pageFocused={1}
+          setPdfLoadingStatus={_ => {}}
+        />
+      </div>
+    </div>
+  }
+}
+
+class GenericUploadPreview extends Component {
+  render(props) {
+    return <div id="generic-upload-preview">
+      <span>{Icons.file}</span>{props.file.name} : {props.file.size} bytes
     </div>
   }
 }

@@ -186,13 +186,8 @@ export default class PdfPage extends Component {
         hasFetched={props.hasFetched}
         pdfPromise={props.pdfPromise}
         textLayer={this.textLayer}
-        room={props.room}
         searchString={props.searchString}
-        resourceAlias={props.resourceAlias}
         pageFocused={props.pageFocused}
-        setResource={props.setResource}
-        setTotalPages={props.setTotalPages}
-        setPdfText={props.setPdfText}
         setPdfLoadingStatus={props.setPdfLoadingStatus}
       />
       <AnnotationLayer

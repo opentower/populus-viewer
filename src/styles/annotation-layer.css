@@ -1,6 +1,11 @@
 .annotation-layer { 
+    transform-origin : top left;
+    transform : scale(var(--pdfFitRatio));
     position: absolute;
+    width: calc(var(--pdfWidthPx) / var(--pdfFitRatio)) ;
+    height: calc(var(--pdfHeightPx) / var(--pdfFitRatio));
     line-height:1;
+    user-select:none;
     overflow:visible;
     left: 0;
     top: 0;

@@ -65,6 +65,33 @@
   height: 80%;
 }
 
+#pdf-upload-preview canvas {
+  width: var(--pdfWidthPx);
+  height: var(--pdfHeightPx);
+}
+
+#pdf-upload-preview {
+  display:flex;
+  justify-content:center;
+  padding:10px;
+  background: var(--contrast-background);
+  max-height:50vh;
+  overflow:auto;
+}
+
+#pdf-upload-preview-wrapper {
+  position:relative;
+}
+
+#generic-upload-preview {
+  display:flex;
+  align-items:center;
+}
+
+#generic-upload-preview svg {
+  padding-right: 5px;
+}
+
 @media only screen and (max-width: 600px) {
     #file-upload-form,
     .file-upload-details-wrapper {

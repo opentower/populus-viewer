@@ -183,7 +183,6 @@ export default class PdfContent extends Component {
         filteredAnnotationContents={props.filteredAnnotationContents}
         focus={props.focus}
         pageFocused={props.pageFocused}
-        resourceAlias={props.resourceAlias}
         pdfHeightPx={state.mainPageHeightPx}
         pdfWidthPx={state.mainPageWidthPx}
         fixedSide={secondaryPageVisible ? "left" : null}
@@ -195,11 +194,8 @@ export default class PdfContent extends Component {
         searchString={props.searchString}
         secondaryFocus={props.secondaryFocus}
         setFocus={props.setFocus}
-        setResource={props.setResource}
         setPdfDimensions={this.setMainPageDimensions}
         setPdfLoadingStatus={props.setPdfLoadingStatus}
-        setPdfText={props.setPdfText}
-        setTotalPages={props.setTotalPages}
         zoomFactor={props.zoomFactor}
       />
       {secondaryPageVisible
@@ -211,7 +207,6 @@ export default class PdfContent extends Component {
           hasFetched={this.hasFetched}
           pdfPromise={state.pdfPromise}
           pageFocused={props.pageFocused + 1}
-          resourceAlias={props.resourceAlias}
           pdfHeightPx={state.secondaryPageHeightPx}
           pdfWidthPx={state.secondaryPageWidthPx}
           pindropMode={secondaryPindrop}
@@ -222,7 +217,6 @@ export default class PdfContent extends Component {
           setFocus={props.setFocus}
           setPdfDimensions={this.setSecondaryPageDimensions}
           setPdfLoadingStatus={props.setPdfLoadingStatus}
-          setTotalPages={props.setTotalPages}
           zoomFactor={props.zoomFactor}
         />
         : null

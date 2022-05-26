@@ -16,7 +16,7 @@ export default class PdfCanvas extends Component {
       const control = this.grabControl()
       this.drawPdf(control).then(_ =>
       // need to do this to take into account positioning changes caused by rescaling
-        this.props.annotationLayer.current.forceUpdate()
+        this.props.annotationLayer?.current.forceUpdate()
       ).then(_ => this.highlightText(this.props.searchString))
     }
     if (prevProps.searchString !== this.props.searchString) {
@@ -81,8 +81,8 @@ export default class PdfCanvas extends Component {
     // pass scaled height in px upwards for css variables
     const pdfWidthPx = Math.min(viewport.width / scale, window.innerWidth)
     const pdfHeightPx = (pdfWidthPx / viewport.width) * viewport.height
-    this.props.setPdfDimensions(pdfHeightPx, pdfWidthPx)
-    this.props.setPdfFitRatio(Math.min(1, window.innerWidth / (viewport.width / scale)))
+    this.props.setPdfDimensions?.(pdfHeightPx, pdfWidthPx)
+    this.props.setPdfFitRatio?.(Math.min(1, window.innerWidth / (viewport.width / scale)))
 
     // Render PDF page into canvas context
     const canvasContext = theCanvas.getContext('2d')
