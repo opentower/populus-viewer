@@ -111,7 +111,7 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
     }
 }
 
-.nav-button-wrapper > button {
+.nav-button-wrapper button {
     cursor:pointer;
     outline:none;
     color:var(--contrast-text);
@@ -120,11 +120,16 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
     margin:2px;
 }
 
-.nav-button-wrapper > button:focus {
+.nav-button-wrapper button:focus {
   outline: 1px solid white;
 }
 
-.nav-button-wrapper > button[disabled] {
+.nav-button-tip-wrapper {
+  display:flex;
+  justify-content:center;
+}
+
+.nav-button-wrapper button[disabled] {
     color: var(--contrast-text-dimmed);
     cursor:not-allowed;
 }

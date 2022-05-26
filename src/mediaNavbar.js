@@ -63,6 +63,13 @@ export default class MediaNavbar extends Component {
   openInvite = _ => Modal.set(<Invite room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
 
   render(props, state) {
+
+    const annotationStatus = !props.hasSelection 
+      ? "Long press on waveform to select"
+      : !this.canAnnotate
+      ? "Annotation restricted"
+      : false
+
     if (props.contentWidthPx) { // don't render until width is set
       return <nav id="page-nav">
         <div id="nav-background" />
@@ -70,10 +77,12 @@ export default class MediaNavbar extends Component {
           <ToolTip content="Go to main menu (ESC)" offset={this.toolTipOffset}>
             <button onclick={this.mainMenu}>{Icons.home}</button>
           </ToolTip>
-          <ToolTip content="Add annotation (Alt + a)" offset={this.toolTipOffset} >
-            <button disabled={this.canAnnotate && props.hasSelection ? null : "disabled"}
-              onclick={props.openAnnotation}>{Icons.addAnnotation}
-            </button>
+          <ToolTip content={annotationStatus || "Add annotation (Alt + a)"} offset={this.toolTipOffset} >
+            <div class="nav-button-tip-wrapper">
+              <button disabled={annotationStatus ?  "disabled": null}
+                onclick={props.openAnnotation}>{Icons.addAnnotation}
+              </button>
+            </div>
           </ToolTip>
           <ToolTip content="Go to previous annotation (Alt + Shift + Tab)" offset={this.toolTipOffset}>
             <button disabled={!props.hasAnnotations}
