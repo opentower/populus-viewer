@@ -4,7 +4,9 @@ import { mscResourceData, spaceChild } from "./constants.js"
 import { onlineOrAlert } from "./utils/alerts.js"
 import PdfCanvas from "./pdfCanvas.js"
 import * as PDFJS from "pdfjs-dist/webpack"
+import WaveSurfer from 'wavesurfer.js'
 import { UserColor } from "./utils/colors.js"
+import { mulberry32, hashString } from './utils/math.js'
 import * as Icons from './icons.js'
 import Client from './client.js'
 
@@ -219,7 +221,7 @@ export default class FileUpload extends Component {
 class FileUploadPreview extends Component {
   render(props) {
     if (props.file.type === "application/pdf") return <PdfUploadPreview key={props.file.name} file={props.file} />
-    // if (props.file.type.match(/^audio|^video/)) return <MediaUploadPreview file={props.file} />
+    if (props.file.type.match(/^audio|^video/)) return <MediaUploadPreview key={props.file.name} file={props.file} />
     return <GenericUploadPreview file={props.file}/>
   }
 }
@@ -228,11 +230,13 @@ class PdfUploadPreview extends Component {
   constructor(props) {
     super(props)
     this.userColor = new UserColor(Client.client.getUserId())
-    const pdfUrl = URL.createObjectURL(this.props.file)
-    this.state = { pdfPromise: PDFJS.getDocument(pdfUrl).promise }
+    this.pdfUrl = URL.createObjectURL(this.props.file)
+    this.state = { pdfPromise: PDFJS.getDocument(this.pdfUrl).promise }
   }
 
   componentDidMount() { this.setState({}) }
+
+  componentWillUnmount() { URL.revokeObjectURL(this.pdfUrl) }
 
   textLayer = createRef()
 
@@ -261,6 +265,52 @@ class PdfUploadPreview extends Component {
           pageFocused={1}
           setPdfLoadingStatus={_ => {}}
         />
+      </div>
+    </div>
+  }
+}
+
+class MediaUploadPreview extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {playing: false}
+    this.mediaUrl = URL.createObjectURL(props.file)
+  }
+
+  componentDidMount() {
+    this.pcm = []
+    const prng = mulberry32(hashString(this.props.file.name))
+    for (let i = 0; i < 2048; i++) this.pcm.push((prng() * 2) - 1)
+    this.wavesurfer = new WaveSurfer.create({
+      container: '#media-upload-preview-waveform',
+      backend: 'MediaElement',
+      barWidth: 5,
+      scrollParent: true,
+    })
+    this.wavesurfer.load(this.mediaUrl, this.pcm)
+  }
+
+  playPause = _ => {
+    if (this.state.playing) {
+      this.setState({playing:false})
+      this.wavesurfer.pause()
+    } else {
+      this.wavesurfer.play()
+      this.setState({playing:true})
+    }
+  }
+
+  componentWillUnmount() { 
+    if (this.wavesurfer) this.wavesurfer.destroy()
+    URL.revokeObjectURL(this.mediaUrl) 
+  }
+
+  render(_props, state) {
+    return <div id="media-upload-preview">
+      <div id="media-upload-preview-waveform">
+      </div>
+      <div id="media-upload-preview-controls">
+      <button onClick={this.playPause}>{state.playing ? Icons.pauseButton : Icons.playButton }</button>
       </div>
     </div>
   }

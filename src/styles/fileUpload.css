@@ -88,6 +88,33 @@
   align-items:center;
 }
 
+#media-upload-preview {
+  padding:10px;
+  position:relative;
+}
+
+
+#media-upload-preview-controls button {
+  cursor: pointer;
+  display:flex;
+  align-content:center;
+  justify-content:center;
+  background: rgba(255,255,255,0.6);
+  border: 2px solid var(--content-text);
+  border-radius:30px;
+  margin:0px; 
+  padding:6px;
+  backdrop-filter: blur(6px);
+}
+
+
+#media-upload-preview-controls {
+  position:absolute;
+  bottom:15px;
+  left:15px;
+  z-index:3;
+}
+
 #generic-upload-preview svg {
   padding-right: 5px;
 }
