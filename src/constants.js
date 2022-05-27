@@ -13,6 +13,7 @@ export const mscLocation = "com.open-tower.msc3574.markup.location"
 export const mscMarkupMsgKey = "com.open-tower.msc3574.markup"
 export const populusHighlight = "com.open-tower.populus.markup.pdf.highlight"
 export const populusCollectionChild = "com.open-tower.populus.collection_child"
+export const populusWaveformPCM = "com.open-tower.populus.waveformPCM"
 
 // based on https://github.com/matrix-org/matrix-react-sdk/blob/78b1f6c0b13efd57031a329a1ac62baba948dad3/src/HtmlUtils.tsx
 const COLOR_REGEX = /^#[0-9a-fA-F]{6}$/;

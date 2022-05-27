@@ -175,7 +175,9 @@ export default class MediaContent extends Component {
 
   cancelPointer = _ => clearTimeout(this.longPressTimeout)
 
-  static Store = {}
+  static MediaStore = {}
+
+  static PCMStore = {}
 
   waveform = createRef()
 
@@ -258,8 +260,8 @@ export default class MediaContent extends Component {
 
   async fetchMedia () {
     const theMedia = new Resource(this.props.room)
-    if (!MediaContent.Store[theMedia.url]) {
-      MediaContent.Store[theMedia.url] = window.fetch(theMedia.httpUrl)
+    if (!MediaContent.MediaStore[theMedia.url]) {
+      MediaContent.MediaStore[theMedia.url] = window.fetch(theMedia.httpUrl)
         .then(async response => {
           const theClone = response.clone()
           const contentLength = +response.headers.get('Content-Length')
@@ -275,14 +277,19 @@ export default class MediaContent extends Component {
         })
         .catch(this.catchFetchMediaError)
     } else { console.log(`found file for ${this.props.room.name} in store` ) }
+    if (theMedia.pcm && !MediaContent.MediaStore[theMedia.pcm]) {
+      MediaContent.PCMStore[theMedia.pcm] = window.fetch(Client.client.getHttpUriForMxcFromHS(theMedia.pcm))
+        .then(response => response.json())
+        .catch(err => console.log("Couldn't fetch PCM data", err))
+    } else { console.log(`found PCM for ${this.props.room.name} in store` ) }
     if (this.isVideo) this.props.setMobileButtonColor("var(--contrast-text)")
     if (this.errorCondition) return
-    MediaContent.Store[theMedia.url].then(this.drawMedia)
+    MediaContent.MediaStore[theMedia.url].then(this.drawMedia(MediaContent.PCMStore[theMedia.pcm]))
     // TODO: this throws an error when the user exits the page before the media
     // has been drawn. it should be caught, similarly for PDF fetching
   }
 
-  drawMedia = media => {
+  drawMedia = pcm => async media => {
     this.props.setMediaLoadingStatus("Rendering waveform...")
     this.wavesurfer = new WaveSurfer.create({
       container: '#waveform',
@@ -291,12 +298,16 @@ export default class MediaContent extends Component {
       scrollParent: true,
       plugins: [ Regions.create() ],
     })
-    this.pcm = []
-    const prng = mulberry32(hashString(this.props.resourceAlias))
-    const objectUrl = URL.createObjectURL(media)
-    if (this.isVideo) this.videoElement.current.src = objectUrl
-    for (let i = 0; i < 2048; i++) this.pcm.push((prng() * 2) - 1)
-    this.wavesurfer.load(this.videoElement.current || URL.createObjectURL(media), this.pcm) // URL indirection here so that we can eventually prerender
+    if (!pcm) {
+      pcm = []
+      const prng = mulberry32(hashString(this.props.resourceAlias))
+      const objectUrl = URL.createObjectURL(media)
+      if (this.isVideo) this.videoElement.current.src = objectUrl
+      for (let i = 0; i < 2048; i++) pcm.push((prng() * 2) - 1)
+    } else {
+      pcm = await pcm
+    }
+    this.wavesurfer.load(this.videoElement.current || URL.createObjectURL(media), pcm) // URL indirection here so that we can eventually prerender
     this.wavesurfer.on('ready', _ => {
       this.props.setMediaLoadingStatus(null)
       const width = document.body.clientWidth

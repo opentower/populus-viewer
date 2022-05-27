@@ -1,6 +1,6 @@
 import * as Matrix from "matrix-js-sdk"
 import Client from '../client.js'
-import { pdfStateType, mscResourceData } from "../constants.js"
+import { pdfStateType, mscResourceData, populusWaveformPCM } from "../constants.js"
 
 export default class Resource {
   static hasResource(theRoom) {
@@ -17,6 +17,8 @@ export default class Resource {
     const resourceContent = roomState.getStateEvents("m.room.create", "")?.getContent()?.[mscResourceData]
 
     this.file = resourceContent?.["m.file"]
+
+    this.pcm = roomState.getStateEvents(populusWaveformPCM, "")?.getContent()?.mxc
 
     this.mimetype = resourceContent?.mimetype || this.file?.mimetype || "application/pdf"
     this.url = resourceContent?.url || this.file?.url || legacyMxc

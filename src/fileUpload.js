@@ -1,10 +1,12 @@
 import { h, createRef, Component, Fragment } from 'preact';
 import './styles/fileUpload.css'
-import { mscResourceData, spaceChild } from "./constants.js"
+import { mscResourceData, spaceChild, populusWaveformPCM } from "./constants.js"
 import { onlineOrAlert } from "./utils/alerts.js"
 import PdfCanvas from "./pdfCanvas.js"
 import * as PDFJS from "pdfjs-dist/webpack"
+import * as Matrix from "matrix-js-sdk"
 import WaveSurfer from 'wavesurfer.js'
+import ToolTip from "./utils/tooltip.js"
 import { UserColor } from "./utils/colors.js"
 import { mulberry32, hashString } from './utils/math.js'
 import * as Icons from './icons.js'
@@ -36,6 +38,8 @@ export default class FileUpload extends Component {
   roomTopicInput = createRef()
 
   submitButton = createRef()
+
+  uploadPreview = createRef()
 
   progressHandler = (progress) => this.setState({progress})
 
@@ -103,6 +107,11 @@ export default class FileUpload extends Component {
     const theName = this.state.name
     const theAlias = this.state.alias.length > 0 ? this.state.alias : this.toAlias(this.state.name)
     const theTopic = this.roomTopicInput.current.value
+    let waveformMxc
+    if (this.uploadPreview?.current?.pcm) {
+      waveformMxc = await Client.client.uploadContent(JSON.stringify(this.uploadPreview?.current?.pcm), { progressHandler: this.progressHandler })
+        .catch(alert)
+    }
     const mxc = await Client.client.uploadContent(theFile, { progressHandler: this.progressHandler })
       .catch(alert)
     this.submitButton.current.setAttribute("disabled", true)
@@ -126,10 +135,18 @@ export default class FileUpload extends Component {
       initial_state: [
         // we allow anyone to join, by default, for now
         {
-          type: "m.room.join_rules",
+          type: Matrix.EventType.RoomJoinRules,
           state_key: "",
           content: {join_rule: "public"}
-        }
+        },
+        ...(waveformMxc 
+          ? [{
+            type: populusWaveformPCM,
+            state_key: "",
+            content: {mxc: waveformMxc},
+          }] 
+          : []
+        )
       ],
       power_level_content_override: {
         events: {
@@ -150,7 +167,7 @@ export default class FileUpload extends Component {
       <hr class="styled-rule" />
       { state.fileValid 
         ? <Fragment>
-          <FileUploadPreview file={this.fileLoader.current.files[0]} /> 
+          <FileUploadPreview uploadPreview={this.uploadPreview} file={this.fileLoader.current.files[0]} /> 
           <hr class="styled-rule" />
         </Fragment>
         : null
@@ -220,9 +237,9 @@ export default class FileUpload extends Component {
 
 class FileUploadPreview extends Component {
   render(props) {
-    if (props.file.type === "application/pdf") return <PdfUploadPreview key={props.file.name} file={props.file} />
-    if (props.file.type.match(/^audio|^video/)) return <MediaUploadPreview key={props.file.name} file={props.file} />
-    return <GenericUploadPreview file={props.file}/>
+    if (props.file.type === "application/pdf") return <PdfUploadPreview ref={props.uploadPreview} key={props.file.name} file={props.file} />
+    if (props.file.type.match(/^audio|^video/)) return <MediaUploadPreview ref={props.uploadPreview} key={props.file.name} file={props.file} />
+    return <GenericUploadPreview ref={props.uploadPreview} file={props.file}/>
   }
 }
 
@@ -295,10 +312,10 @@ class MediaUploadPreview extends Component {
   }
 
   componentDidMount() {
-    this.pcm = []
+    const pcm = []
     const prng = mulberry32(hashString(this.props.file.name))
     if (this.isVideo) this.videoElement.current.src = this.mediaUrl
-    for (let i = 0; i < 2048; i++) this.pcm.push((prng() * 2) - 1)
+    for (let i = 0; i < 2048; i++) pcm.push((prng() * 2) - 1)
     this.wavesurfer = new WaveSurfer.create({
       container: '#media-upload-preview-waveform',
       backend: 'MediaElement',
@@ -312,7 +329,7 @@ class MediaUploadPreview extends Component {
         this.lastLeft = e.target.scrollLeft
       }
     })
-    this.wavesurfer.load(this.videoElement.current || this.mediaUrl, this.pcm)
+    this.wavesurfer.load(this.videoElement.current || this.mediaUrl, pcm)
   }
 
   componentWillUnmount() { 
@@ -321,6 +338,19 @@ class MediaUploadPreview extends Component {
   }
 
   videoElement = createRef()
+
+  generatePeaks = _ => {
+    if (!confirm("Warning: this operation is memory intensive, and may not work well on mobile devices. Continue?")) return
+    this.wavesurfer.once('waveform-ready', _ => {
+      this.wavesurfer.exportPCM(this.wavesurfer.getDuration() * 6,10000,true).then(pcm => {
+        this.pcm = pcm
+        setTimeout(_ => {
+          this.wavesurfer.load(this.videoElement.current || this.mediaUrl, this.pcm), 1000
+        })
+      })
+    })
+    this.wavesurfer.load(this.videoElement.current || this.mediaUrl)
+  }
 
   playPause = _ => {
     if (this.state.playing) {
@@ -342,7 +372,12 @@ class MediaUploadPreview extends Component {
       <div id="media-upload-preview-waveform">
       </div>
       <div id="media-upload-preview-controls">
-      <button onClick={this.playPause}>{state.playing ? Icons.pauseButton : Icons.playButton }</button>
+        <ToolTip content={state.playing ? "Pause preview" : "Play preview" }>
+          <button onClick={this.playPause}>{state.playing ? Icons.pauseButton : Icons.playButton }</button>
+        </ToolTip>
+        <ToolTip content={"Improve waveform"}>
+          <button onClick={this.generatePeaks}>{Icons.waveform}</button>
+        </ToolTip>
       </div>
     </div>
   }
