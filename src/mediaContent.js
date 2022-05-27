@@ -106,18 +106,18 @@ export default class MediaContent extends Component {
     if (!onlineOrAlert()) return
     const theDomain = Client.client.getDomain()
     const theRoomState = this.props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const theLevels = theRoomState.getStateEvents("m.room.power_levels")
+    const theLevels = theRoomState.getStateEvents(Matrix.EventType.RoomPowerLevels, "")
     const locationData = this.generateLocation()
     return Client.client.createRoom({
       visibility: "private",
       name: `highlighted interval from ${this.state.selection.start} to ${this.state.selection.end}`,
       power_level_content_override: {
-        users: Object.assign({}, theLevels[0].getContent().users, {
+        users: Object.assign({}, theLevels.getContent().users, {
           [Client.client.getUserId()]: 100
         })
       },
       initial_state: [{
-        type: "m.room.join_rules",
+        type: Matrix.EventType.RoomJoinRules,
         state_key: "",
         content: {join_rule: "public"}
       },
@@ -133,7 +133,7 @@ export default class MediaContent extends Component {
       const childContent = { via: [theDomain], [mscLocation]: locationData }
       // We focus on a new fake placeholder event to potentially insert the highlight immediately
       const fakeEvent = new Matrix.MatrixEvent({
-        type: "m.space.child",
+        type: spaceChild,
         origin_server_ts: new Date().getTime(),
         room_id: this.props.room.roomId,
         sender: Client.client.getUserId(),

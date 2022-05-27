@@ -7,7 +7,7 @@ import Resource from './utils/resource.js'
 import * as Icons from './icons.js'
 import * as PopupMenu from './popUpMenu.js'
 import Modal from './modal.js'
-import { mscLocation, joinRule, spaceParent, spaceChild } from './constants.js';
+import { mscLocation, spaceParent, spaceChild } from './constants.js';
 import "./styles/roomSettings.css"
 
 export default class RoomSettings extends Component {
@@ -175,7 +175,7 @@ export default class RoomSettings extends Component {
 
   async updateJoinRule() {
     const theContent = { join_rule: this.state.joinRule }
-    await Client.client.sendStateEvent(this.props.room.roomId, joinRule, theContent, "").catch(this.raiseErr)
+    await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomJoinRules, theContent, "").catch(this.raiseErr)
     if (this.state.joinRule === "public") this.publishReferences()
     if (this.state.joinRule === "invite") this.hideReferences()
   }
