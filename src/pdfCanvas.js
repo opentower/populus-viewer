@@ -114,7 +114,7 @@ export default class PdfCanvas extends Component {
 
   async highlightText (word) {
     this.props.textLayer.current.innerHTML = this.cleanText
-    if (word.length < 3) return
+    if (!word || word.length < 3) return
     const spans = this.props.textLayer.current.children
     // We strip out all non-alphanumerics, for fuzzy search
     const text = Array.from(spans).map(span => span.innerText).join("").replace(/[^a-zA-Z0-9]/gm, "").toLowerCase()

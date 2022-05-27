@@ -231,20 +231,32 @@ class PdfUploadPreview extends Component {
     super(props)
     this.userColor = new UserColor(Client.client.getUserId())
     this.pdfUrl = URL.createObjectURL(this.props.file)
-    this.state = { pdfPromise: PDFJS.getDocument(this.pdfUrl).promise }
+    this.state = { 
+      pdfPromise: PDFJS.getDocument(this.pdfUrl).promise,
+      pdfPage: 1
+    }
   }
 
-  componentDidMount() { this.setState({}) }
+  async componentDidMount() { 
+    const pdf = await this.state.pdfPromise
+    this.setState({totalPages: pdf.numPages}) 
+  }
 
   componentWillUnmount() { URL.revokeObjectURL(this.pdfUrl) }
 
   textLayer = createRef()
 
+  nextPage = _ => { 
+    if (this.state.pdfPage < this.state.totalPages) this.setState(oldState => { return {pdfPage: oldState.pdfPage + 1} })
+  }
+  
+  prevPage = _ => {
+    if (this.state.pdfPage > 1) this.setState(oldState => { return {pdfPage: oldState.pdfPage - 1} })
+  }
+
   setPdfDimensions = (pdfHeightPx, pdfWidthPx) => this.setState({pdfWidthPx, pdfHeightPx})
 
   setPdfFitRatio = pdfFitRatio => this.setState({pdfFitRatio})
-
-  setTotalPages = totalPages => this.setState({totalPages})
 
   render(props, state) {
     const dynamicDocumentStyle = {
@@ -262,9 +274,13 @@ class PdfUploadPreview extends Component {
           hasFetched={true}
           pdfPromise={state.pdfPromise}
           textLayer={this.textLayer}
-          pageFocused={1}
+          pageFocused={state.pdfPage}
           setPdfLoadingStatus={_ => {}}
         />
+      </div>
+      <div id="pdf-upload-preview-controls">
+        <button onClick={this.prevPage} id="document-preview-prev">{Icons.chevronLeft}</button>
+        <button onClick={this.nextPage} id="document-preview-next">{Icons.chevronRight}</button>
       </div>
     </div>
   }

@@ -72,12 +72,14 @@
 
 #pdf-upload-preview {
   display:flex;
+  position:relative;
   justify-content:center;
   padding:10px;
   background: var(--contrast-background);
   max-height:50vh;
   overflow:auto;
 }
+
 
 #pdf-upload-preview-wrapper {
   position:relative;
@@ -98,7 +100,7 @@
 }
 
 
-#media-upload-preview-controls button {
+#media-upload-preview-controls button, #pdf-upload-preview-controls button {
   cursor: pointer;
   display:flex;
   align-content:center;
@@ -111,11 +113,13 @@
   backdrop-filter: blur(6px);
 }
 
-
-#media-upload-preview-controls {
+#pdf-upload-preview-controls, #media-upload-preview-controls {
+  display:flex;
   position:absolute;
   bottom:15px;
   left:15px;
+  right:15px;
+  justify-content: space-between;
   z-index:3;
 }
 
