@@ -45,6 +45,7 @@ class PopulusViewer extends Component {
     localStorage.setItem('accessToken', Client.client.getAccessToken())
     localStorage.setItem('userId', Client.client.getUserId())
     Client.client.startClient().then(_ => {
+      Client.client.getMediaConfig().then(conf => Client.mediaConfig = conf)
       this.setState({
         initializationStage: "performing initial sync",
         loggedIn: true

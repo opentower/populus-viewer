@@ -8,7 +8,7 @@ import * as Matrix from "matrix-js-sdk"
 import WaveSurfer from 'wavesurfer.js'
 import ToolTip from "./utils/tooltip.js"
 import { UserColor } from "./utils/colors.js"
-import { mulberry32, hashString } from './utils/math.js'
+import { formatBytes , mulberry32, hashString } from './utils/math.js'
 import * as Icons from './icons.js'
 import Client from './client.js'
 
@@ -74,6 +74,7 @@ export default class FileUpload extends Component {
 
   validateFile = _ => {
     const theFile = this.fileLoader.current.files[0]
+    const limit = Client.mediaConfig["m.upload.size"]
     let fileValid = false
     switch (theFile.type) {
       case "application/pdf" : fileValid = true
@@ -88,9 +89,11 @@ export default class FileUpload extends Component {
       case "video/mpeg"   : fileValid = true
       case "video/webm"   : fileValid = true
     }
+    if (theFile.size >= limit ) fileValid = false
     this.setState({fileValid})
     if (!fileValid) {
-      alert("Please make sure that the file you're uploading is of a supported filetype and has the right extension at the end of its name. Supported filetypes are: pdf, wav, mp3, mp4, m4a, aac, mpeg, webm, and flac.")
+      if (theFile.size >= limit) alert(`Sorry, this file is too large to be uploaded. Your current server limits uploads to ${formatBytes(limit)}.`)
+      else alert("Please make sure that the file you're uploading is of a supported filetype and has the right extension at the end of its name. Supported filetypes are: pdf, wav, mp3, mp4, m4a, aac, mpeg, webm, and flac.")
       this.mainForm.current.reset()
     }
   }
