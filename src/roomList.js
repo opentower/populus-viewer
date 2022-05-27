@@ -57,7 +57,7 @@ export default class RoomList extends Component {
           .filter(Resource.hasResource)
           .filter(room => room.getMyMembership() === "join")
       })
-    })
+    }, 1000)
   }
 
   resizeListener = _ => {
