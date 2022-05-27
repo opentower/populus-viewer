@@ -93,6 +93,10 @@
   position:relative;
 }
 
+#media-upload-preview video {
+  width:100%;
+}
+
 
 #media-upload-preview-controls button {
   cursor: pointer;

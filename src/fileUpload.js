@@ -275,11 +275,13 @@ class MediaUploadPreview extends Component {
     super(props)
     this.state = {playing: false}
     this.mediaUrl = URL.createObjectURL(props.file)
+    this.isVideo = props.file.type.match(/^video/)
   }
 
   componentDidMount() {
     this.pcm = []
     const prng = mulberry32(hashString(this.props.file.name))
+    if (this.isVideo) this.videoElement.current.src = this.mediaUrl
     for (let i = 0; i < 2048; i++) this.pcm.push((prng() * 2) - 1)
     this.wavesurfer = new WaveSurfer.create({
       container: '#media-upload-preview-waveform',
@@ -287,17 +289,14 @@ class MediaUploadPreview extends Component {
       barWidth: 5,
       scrollParent: true,
     })
-    this.wavesurfer.load(this.mediaUrl, this.pcm)
-  }
-
-  playPause = _ => {
-    if (this.state.playing) {
-      this.setState({playing:false})
-      this.wavesurfer.pause()
-    } else {
-      this.wavesurfer.play()
-      this.setState({playing:true})
-    }
+    this.wavesurfer.on('scroll', e => { 
+      if (Math.abs(this.lastLeft - e.target.scrollLeft) > 25) {
+        this.wavesurfer.drawer.params.autoCenter = false;
+      } else {
+        this.lastLeft = e.target.scrollLeft
+      }
+    })
+    this.wavesurfer.load(this.videoElement.current || this.mediaUrl, this.pcm)
   }
 
   componentWillUnmount() { 
@@ -305,8 +304,25 @@ class MediaUploadPreview extends Component {
     URL.revokeObjectURL(this.mediaUrl) 
   }
 
+  videoElement = createRef()
+
+  playPause = _ => {
+    if (this.state.playing) {
+      this.setState({playing:false})
+      this.wavesurfer.pause()
+    } else {
+      this.wavesurfer.seekAndCenter(this.wavesurfer.getCurrentTime() / this.wavesurfer.getDuration() )
+      //setting lastLeft is necessary to prevent the jump from canceling autocenter
+      this.lastLeft = this.wavesurfer.drawer.wrapper.scrollLeft
+      this.wavesurfer.drawer.params.autoCenter = true
+      this.wavesurfer.play()
+      this.setState({playing:true})
+    }
+  }
+
   render(_props, state) {
     return <div id="media-upload-preview">
+      {this.isVideo ? <video ref={this.videoElement} /> : null}
       <div id="media-upload-preview-waveform">
       </div>
       <div id="media-upload-preview-controls">
