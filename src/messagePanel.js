@@ -5,6 +5,8 @@ import { loadImageElement, loadVideoElement, createThumbnail, blurhashFromFile }
 import { spaceChild, spaceParent, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscMediaFragment, mscPdfHighlight, populusHighlight } from "./constants.js"
 import { processRegex } from './processRegex.js'
 import { UserColor } from './utils/colors.js'
+import { formatBytes } from './utils/math.js'
+import { downloadBlob } from './utils/download.js'
 import Client from './client.js'
 import Modal from './modal.js'
 import ToolTip from './utils/tooltip.js'
@@ -170,6 +172,16 @@ class FileUploadInput extends Component {
 
   theForm = createRef()
 
+  validateFile = _ => {
+    const theFile = this.fileLoader.current.files[0]
+    const limit = Client.mediaConfig["m.upload.size"]
+    if (theFile.size >= limit) {
+      alert(`Sorry, this file is too large to be uploaded. Your current server limits uploads to ${formatBytes(limit)}.`)
+      this.theForm.current.reset()
+      return
+    }
+  }
+
   submitInput = async _ => {
     const theFile = this.fileLoader.current.files[0]
     const mxc = await Client.client.uploadContent(theFile, { progressHandler: this.progressHandler }).catch(e => console.log(e))
@@ -192,7 +204,7 @@ class FileUploadInput extends Component {
 
   render(props, state) {
     return <form ref={this.theForm}>
-      <input ref={this.fileLoader} type="file" />
+      <input ref={this.fileLoader} oninput={this.validateFile} type="file" />
       {this.state.progress
         ? <div id="file-uploader-progress">
           <span>Uploading file</span>
@@ -215,6 +227,12 @@ class MediaUploadInput extends Component {
 
   updatePreview = _ => {
     const theImage = this.mediaLoader.current.files[0]
+    const limit = Client.mediaConfig["m.upload.size"]
+    if (theImage.size >= limit) {
+      alert(`Sorry, this file is too large to be uploaded. Your current server limits uploads to ${formatBytes(limit)}.`)
+      this.theForm.current.reset()
+      return
+    }
     if (theImage && (/^video/.test(theImage.type) || /^image/.test(theImage.type))) {
       this.setState({previewUrl: URL.createObjectURL(this.mediaLoader.current.files[0]) })
       if (/^video/.test(theImage.type)) this.setState({mediaType: "video" })
@@ -310,7 +328,7 @@ class MediaUploadInput extends Component {
 
   render(props, state) {
     return <form ref={this.theForm}>
-      <input id="mediaUploaderHidden" onchange={this.updatePreview} accept="image/*,video/*" ref={this.mediaLoader} type="file" />
+      <input id="mediaUploaderHidden" oninput={this.updatePreview} accept="image/*,video/*" ref={this.mediaLoader} type="file" />
       {state.previewUrl
         ? this.getPreview()
         : <div onclick={this.uploadImage} class="media-message-thumbnail awaiting" />}
@@ -440,8 +458,17 @@ class RecordMediaInput extends Component {
       this.mediaPreview.current.srcObject = this.stream
       this.mediaRecorder = new MediaRecorder(this.stream, this.recorderOptions )
       this.mediaRecorder.ondataavailable = ev => {
-        this.setState({ audioAvailable: true })
         this.recordingBlob = ev.data
+        const limit = Client.mediaConfig["m.upload.size"]
+        if (this.recordingBlob.size > limit) {
+          if(confirm(`Sorry, this recording is too large to be uploaded. Your current server limits uploads to ${formatBytes(limit)}. Would you like to save the recording locally?`)) {
+            downloadBlob(this.recordingBlob, "populus-recording-toobig.webm", this.recorderOptions.mimetype)
+          }
+          this.setState({recording: null})
+          this.initStream()
+          return
+        }
+        this.setState({ recordingAvailable: true })
         this.mediaPreview.current.srcObject = null
         this.mediaPreview.current.setAttribute("controls", "")
         this.mediaPreview.current.src = URL.createObjectURL(ev.data)
@@ -486,7 +513,7 @@ class RecordMediaInput extends Component {
       case "started" : return <div aria-label="Stop recording" data-recording-state={this.state.recording} id={this.captionId}>{Icons.pause}</div>
       case "countdown" : return <div data-recording-state={this.state.recording} id={this.captionId}>{this.state.countdown}</div>
       case "done" : return null
-      case undefined : return <div aria-label="Start recording" data-recording-state={this.state.recording} id={this.captionId}>{this.icon}</div>
+      default : return <div aria-label="Start recording" data-recording-state={this.state.recording} id={this.captionId}>{this.icon}</div>
     }
   }
 
@@ -495,7 +522,7 @@ class RecordMediaInput extends Component {
       case "started" : return this.finishRecord()
       case "countdown" : return null
       case "done" : return null
-      case undefined : return this.countdownToRecord()
+      default : return this.countdownToRecord()
     }
   }
 }
@@ -607,7 +634,7 @@ class RecordAudioInput extends RecordMediaInput {
   render(props, state) {
     return <Fragment>
       <div onclick={this.clickHandler} id="audioRecordingWrapper">
-        <audio style={{display: state.audioAvailable ? "block" : "none"}} ref={this.mediaPreview} />
+        <audio style={{display: state.recordingAvailable ? "block" : "none"}} ref={this.mediaPreview} />
         {state.recording === "started" ? <AudioVisualizer stream={this.stream} /> : null}
         {this.recordingIcon()}
       </div>
