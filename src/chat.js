@@ -26,7 +26,7 @@ export default class Chat extends Component {
   componentDidMount() {
     Client.client.on("Room.timeline", this.handleTimeline) // this also handles redactions, although they have their own event.
     Client.client.on("Room.localEchoUpdated", this.updateEvents)
-    this.timelinePromise.then(this.updateEvents).then(this.tryBackfill)
+    this.timelinePromise.then(this.updateEvents)
   }
 
   componentWillUnmount() {
@@ -51,14 +51,8 @@ export default class Chat extends Component {
     }
   }
 
-  handleScroll = _ => {
-    clearTimeout(this.debounceTimeout)
-    this.debounceTimeout = setTimeout(this.tryBackfill, 200)
-  }
-
   tryBackfill = _ => {
-    const anchor = this.scrollAnchor.current.base
-    if (!this.state.fullyScrolled && this.chatWrapper.current.getBoundingClientRect().top - 5 < anchor.getBoundingClientRect().top) {
+    if (!this.state.fullyScrolled && this.scrollAnchor.current.isVisible) {
       if (!this.timelineWindow.canPaginate(Matrix.EventTimeline.BACKWARDS)) {
         this.scrolledIdents.add(this.room.roomId)
         this.setState({ fullyScrolled: true })
@@ -269,7 +263,7 @@ export default class Chat extends Component {
     })
 
     // has height set, so that we don't need to set height on the flexbox element
-    return <div ref={this.chatWrapper} class={props.class} onscroll={this.handleScroll} id="chat-wrapper">
+    return <div ref={this.chatWrapper} class={props.class} id="chat-wrapper">
       <div id="chat-panel">
         <MessagePanel
           hasSelection={props.hasSelection}
@@ -282,7 +276,12 @@ export default class Chat extends Component {
           <TypingIndicator key={props.focus.getChild()} roomId={props.focus.getChild()} />
           {/* The key prop here ensures that typing state is reset when the room changes */}
         </div>
-        <Anchor ref={this.scrollAnchor} focus={props.focus} topic={state.topic} fullyScrolled={state.fullyScrolled} />
+        <Anchor ref={this.scrollAnchor} 
+          chatWrapper={this.chatWrapper}
+          tryBackfill={this.tryBackfill}
+          focus={props.focus}
+          topic={state.topic}
+          fullyScrolled={state.fullyScrolled} />
       </div>
     </div>
   }
@@ -304,32 +303,50 @@ class RedactedMessage extends Component {
   }
 }
 
-function Anchor(props) {
-  return props.fullyScrolled
-    ? <div>
-      { props.focus.getType() === "highlight" && props.topic 
-        ? <div id="anchor-quote">
-          <span>{Icons.quote}</span>
-          {props.topic}
-        </div>
-        : props.focus.getType() === "text"
-        ? <div id="anchor-pin">
-            {Icons.pin} <span>on page {props.focus.getPageIndex()}</span>
+class Anchor extends Component {
+
+  componentDidMount() { 
+    this.isVisible = true
+    this.intersectionObserver.observe(this.scrollAnchorDiv.current) 
+  }
+
+  componentWillUnmount() { this.intersectionObserver.disconnect() }
+
+  scrollAnchorDiv = createRef()
+
+  intersectionObserver = new IntersectionObserver(entries => {
+    if (entries.some(entry => entry.isIntersecting)) { this.isVisible = true }
+    else { this.isVisible = false }
+    this.props.tryBackfill()
+  }, { root: this.props.chatWrapper.current })
+
+  render(props) {
+    return props.fullyScrolled
+      ? <div ref={this.scrollAnchorDiv}>
+        { props.focus.getType() === "highlight" && props.topic 
+          ? <div id="anchor-quote">
+            <span>{Icons.quote}</span>
+            {props.topic}
           </div>
-        : props.focus.getType() === "media-fragment"
-        ? <div id="anchor-media">
-            {Icons.headphones} <span>From {toClockTime(props.focus.getIntervalStart() / 1000)} to {toClockTime(props.focus.getIntervalEnd() / 1000)}</span>
-          </div>
-        : null
-      }
-      <div id="scroll-done">
-        { props.focus.getStatus() === "pending"
-          ? "Awaiting your comment..."
-          : "All messages loaded"
+          : props.focus.getType() === "text"
+          ? <div id="anchor-pin">
+              {Icons.pin} <span>on page {props.focus.getPageIndex()}</span>
+            </div>
+          : props.focus.getType() === "media-fragment"
+          ? <div id="anchor-media">
+              {Icons.headphones} <span>From {toClockTime(props.focus.getIntervalStart() / 1000)} to {toClockTime(props.focus.getIntervalEnd() / 1000)}</span>
+            </div>
+          : null
         }
+        <div id="scroll-done">
+          { props.focus.getStatus() === "pending"
+            ? "Awaiting your comment..."
+            : "All messages loaded"
+          }
+        </div>
       </div>
-    </div>
-    : <div id="scroll-anchor">loading...</div>
+      : <div ref={this.scrollAnchorDiv} id="scroll-anchor">loading...</div>
+  }
 }
 
 class TypingIndicator extends Component {
