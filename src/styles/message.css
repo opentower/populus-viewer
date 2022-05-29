@@ -296,6 +296,14 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
     margin:0px
 }
 
+[data-truncate-reply] {
+  max-height:150px;
+  overflow:hidden;
+  -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 100px, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 100px, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+  cursor:pointer;
+}
+
 .message-from-user > img {
    left: 5px;
 }

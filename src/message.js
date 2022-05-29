@@ -139,6 +139,11 @@ export class AnnotationMessage extends Component {
 
 class ReplyPreview extends Component {
   // eventually will want a mechanism for refreshing on receipt of edits
+  constructor(props) {
+    super(props)
+    this.state = {truncate: true}
+  }
+  
   componentDidMount() {
     this.getLiveEvent()
     renderLatexInElement(this.replyPreview.current)
@@ -239,28 +244,28 @@ class ReplyPreview extends Component {
           break;
         }
         case "m.text": {
+          const displayPlain = isReply ? Replies.stripFallbackPlainString(content.body) : content.body
+          const truncate = displayPlain.length > 375 && this.state.truncate
           if (isReply && hasHtml) {
-            const displayText = sanitizeHtml(content.formatted_body, Replies.stripReply)
-            displayBody = <div dangerouslySetInnerHTML={{__html: displayText}} />
+            const displayHtml = sanitizeHtml(content.formatted_body, Replies.stripReply)
+            displayBody = <div onclick={this.clearTruncate} data-truncate-reply={truncate} dangerouslySetInnerHTML={{__html: displayHtml}} />
           } else if (hasHtml) {
-            displayBody = <div dangerouslySetInnerHTML={{__html: content.formatted_body}} />
-          } else if (isReply) {
-            displayBody = <div>Replies.stripFallbackPlainString(content.body)</div>
+            displayBody = <div onclick={this.clearTruncate} data-truncate-reply={truncate}dangerouslySetInnerHTML={{__html: content.formatted_body}} />
           } else {
-            displayBody = <div>content.body</div>
+            displayBody = <div onclick={this.clearTruncate} data-truncate-reply={truncate}>{displayPlain}</div>
           }
           break;
         }
         case "m.notice": {
+          const displayPlain = isReply ? Replies.stripFallbackPlainString(content.body) : content.body
+          const truncate = displayPlain.length > 375 && this.state.truncate
           if (isReply && hasHtml) {
-            const displayText = sanitizeHtml(content.formatted_body, Replies.stripReply)
-            displayBody = <div dangerouslySetInnerHTML={{__html: displayText}} />
+            const displayHtml = sanitizeHtml(content.formatted_body, Replies.stripReply)
+            displayBody = <div onclick={this.clearTruncate} data-truncate-reply={truncate} dangerouslySetInnerHTML={{__html: displayHtml}} />
           } else if (hasHtml) {
-            displayBody = <div dangerouslySetInnerHTML={{__html: content.formatted_body}} />
-          } else if (isReply) {
-            displayBody = <div>Replies.stripFallbackPlainString(content.body)</div>
+            displayBody = <div onclick={this.clearTruncate} data-truncate-reply={truncate} dangerouslySetInnerHTML={{__html: content.formatted_body}} />
           } else {
-            displayBody = <div>content.body</div>
+            displayBody = <div onclick={this.clearTruncate} data-truncate-reply={truncate}>{displayPlain}</div>
           }
         }
       }
@@ -272,6 +277,10 @@ class ReplyPreview extends Component {
         {displayBody}
       </div>
     </Fragment>
+  }
+
+  clearTruncate = _ => {
+    this.setState({truncate: false})
   }
 
   fallbackPreview = _ => {
