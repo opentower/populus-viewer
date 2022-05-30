@@ -14,6 +14,7 @@ export default class RoomSettings extends Component {
   constructor(props) {
     super(props)
     this.roomState = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    this.resourceState = props.resource?.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
 
     this.initialJoinRule = this.roomState.getJoinRule()
     this.mayChangeJoinRule = this.roomState.maySendStateEvent(Matrix.EventType.RoomJoinRules, Client.client.getUserId())
@@ -24,6 +25,16 @@ export default class RoomSettings extends Component {
     this.mayChangeRoomName = this.roomState.maySendStateEvent(Matrix.EventType.RoomName, Client.client.getUserId())
 
     this.initialReadability = props.room.getHistoryVisibility()
+
+    if (this.resourceState) {
+      this.initialSpaceVisibility = this.resourceState.getStateEvents(spaceChild, props.room.roomId)?.getContent()?.via
+        ? "visible"
+        : "hidden"
+      this.mayChangeSpaceVisibility = this.resourceState.maySendStateEvent(spaceChild, Client.client.getUserId())
+    }
+
+    this.mayChangeRoomName = this.roomState.maySendStateEvent(Matrix.EventType.RoomName, Client.client.getUserId())
+
     this.mayChangeReadability = this.roomState.maySendStateEvent(Matrix.EventType.RoomHistoryVisibility, Client.client.getUserId())
 
     this.joinLink = `${window.location.protocol}//${window.location.hostname}${window.location.pathname}` +
@@ -38,8 +49,9 @@ export default class RoomSettings extends Component {
       joinRule: this.initialJoinRule,
       roomName: this.initialRoomName,
       readability: this.initialReadability,
+      spaceVisibility: this.initialSpaceVisibility,
       users: this.powerLevels?.users || {},
-      visibility: null,
+      searchability: null,
       references: null,
       view: "APPEARANCE"
     }
@@ -61,12 +73,12 @@ export default class RoomSettings extends Component {
       const pl = this.powerLevels?.state_default
       if (Number.isSafeInteger(pl)) sendStatePowerLevel = pl
     }
-    if (this.member.powerLevel >= sendStatePowerLevel) this.mayChangeVisibility = true 
+    if (this.member.powerLevel >= sendStatePowerLevel) this.mayChangeSearchability = true 
     // assume you can if you have 50 power---per advice from #matrix-spec, since this is implementation-dependent
-    const visibility = await Client.client.getRoomDirectoryVisibility(this.props.room.roomId)
-    this.initialVisibility = visibility.visibility
+    const searchability = await Client.client.getRoomDirectoryVisibility(this.props.room.roomId)
+    this.initialSearchability = searchability.visibility
     const references = this.roomState.getStateEvents(spaceParent)
-    this.setState({ references, visibility: visibility.visibility })
+    this.setState({ references, searchability: searchability.visibility })
     this.resize()
   }
 
@@ -82,13 +94,15 @@ export default class RoomSettings extends Component {
 
   handleReadabilityChange = e => this.setState({ readability: e.target.value })
 
+  handleSpaceVisibilityChange = e => this.setState({ spaceVisibility: e.target.value })
+
   handleNameInput = e => this.setState({ roomName: e.target.value })
 
   handleKeydown = e => e.stopPropagation() // don't go to global keypress handler
 
   handleUploadAvatar = _ => this.avatarImageInput.current.click()
 
-  handleVisibilityChange = e => this.setState({ visibility: e.target.value })
+  handleSearchabilityChange = e => this.setState({ searchability: e.target.value })
 
   progressHandler = (progress) => this.setState({progress})
 
@@ -122,8 +136,9 @@ export default class RoomSettings extends Component {
     e.preventDefault()
     this.setState({progress: "updating settings..."})
     this.forceUpdate()
-    if (this.state.visibility !== this.initialVisibility) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.visibility).catch(this.raiseErr)
-    if (this.state.joinRule !== this.initialJoinRule) await this.updateJoinRule()
+    if (this.state.searchability !== this.initialSearchability) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.searchability).catch(this.raiseErr)
+    if (this.state.joinRule !== this.initialJoinRule) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomJoinRules, {join_rule: this.state.joinRule}, "").catch(this.raiseErr)
+    if (this.state.spaceVisibility !== this.initialSpaceVisibility) this.state.spaceVisibility === "visible" ? this.publishReferences() : this.hideReferences()
     if (this.state.roomName !== this.initialRoomName) await Client.client.setRoomName(this.props.room.roomId, this.state.roomName).catch(this.raiseErr)
     if (this.state.readability !== this.initialReadability) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomHistoryVisibility, {
       history_visibility: this.state.readability
@@ -171,13 +186,6 @@ export default class RoomSettings extends Component {
     if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
       this.setState({previewUrl: URL.createObjectURL(this.avatarImage) })
     }
-  }
-
-  async updateJoinRule() {
-    const theContent = { join_rule: this.state.joinRule }
-    await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomJoinRules, theContent, "").catch(this.raiseErr)
-    if (this.state.joinRule === "public") this.publishReferences()
-    if (this.state.joinRule === "invite") this.hideReferences()
   }
 
   publishReferences() {
@@ -230,11 +238,12 @@ export default class RoomSettings extends Component {
   }
 
   render(props, state) {
-    const updated = this.powerLevelsUpdated()            ||
-      this.state.visibility !== this.initialVisibility   ||
-      this.state.joinRule !== this.initialJoinRule       ||
-      this.state.roomName !== this.initialRoomName       ||
-      this.state.readability !== this.initialReadability ||
+    const updated = this.powerLevelsUpdated()                       ||
+      this.state.searchability !== this.initialSearchability        ||
+      this.state.joinRule !== this.initialJoinRule                  ||
+      this.state.roomName !== this.initialRoomName                  ||
+      this.state.readability !== this.initialReadability            ||
+      this.state.spaceVisibility !== this.initialSpaceVisibility    ||
       this.avatarImage && /^image/.test(this.avatarImage.type)
 
     return <Fragment>
@@ -272,17 +281,17 @@ export default class RoomSettings extends Component {
             </Fragment>
             : state.view === "ACCESS"
             ? <Fragment>
-              <label htmlFor="visibility">Discovery</label>
-              <select disabled={!state.visibility || !this.mayChangeVisibility}
+              <label htmlFor="searchability">Searchability</label>
+              <select disabled={!state.searchability|| !this.mayChangeSearchability}
                 class="styled-input"
-                value={state.visibility}
-                name="visibility"
-                onchange={this.handleVisibilityChange}>
+                value={state.searchability}
+                name="searchability"
+                onchange={this.handleSearchabilityChange}>
                 <option value="private">Private</option>
                 <option value="public">Publicly Listed</option>
               </select>
               <div class="room-settings-info">
-                {state.visibility === "public"
+                {state.searchability === "public"
                   ? "the room will appear in room search results"
                   : "the room will not appear in room search results"
                 }
@@ -305,10 +314,26 @@ export default class RoomSettings extends Component {
               </select>
               <div class="room-settings-info">
                 {state.readability === "world_readable"
-                  ? "guests can see what's happening in the room"
+                  ? "anyone can see what's happening in the room"
                   : "only room members can see what's happening in the room"
                 }
               </div>
+              { this.initialSpaceVisibility 
+                ? <Fragment>
+                  <label htmlFor="spaceVisibility">Visibility</label>
+                  <select class="styled-input" value={state.spaceVisibility} disabled={!this.mayChangeSpaceVisibility} name="spaceVisibility" onchange={this.handleSpaceVisibilityChange}>
+                    <option value="visible">Visible </option>
+                    <option value="hidden">Hidden</option>
+                  </select>
+                  <div class="room-settings-info">
+                    {state.spaceVisibility === "visible"
+                      ? "the annotation is visible to everyone"
+                      : "the annotation is hidden unless you've already seen it"
+                    }
+                  </div>
+                </Fragment>
+                : null
+              }
             </Fragment>
             : state.view === "LINKS" ? <Fragment>
                 <label>Join Link</label>

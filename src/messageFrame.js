@@ -3,7 +3,6 @@ import { UserColor } from './utils/colors.js'
 import * as Icons from './icons.js'
 import * as PopupMenu from './popUpMenu.js'
 import * as Replies from './utils/replies.js'
-import * as Matrix from "matrix-js-sdk"
 import { processRegex } from './processRegex.js'
 import Client from './client.js'
 import ToolTip from './utils/tooltip.js'
