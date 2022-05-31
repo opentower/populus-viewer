@@ -159,6 +159,7 @@ export default class Chat extends Component {
   }
 
   async resetFocus () {
+    this.chatWrapper.current.scrollTop = 0
     this.timelinePromise = this.loadTimelineWindow(this.props.focus.getChild())
     await this.timelinePromise
     this.setState({

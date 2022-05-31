@@ -634,7 +634,6 @@ export default class ContentView extends Component {
         <PanelHandle visible={state.chatVisible} id="panel-handle-1" offsetVar="--dragOffset-1" contentContainer={this.contentContainer} />
         {state.focus
           ? <Chat class="panel-widget-1"
-              setFocus={this.setFocus}
               setSecondaryFocus={this.setSecondaryFocus}
               unsetFocus={this.unsetFocus}
               resource={state.room}
