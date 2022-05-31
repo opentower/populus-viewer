@@ -164,8 +164,9 @@ export default class ContentView extends Component {
     if (this.errorCondition) return
     const resource = new Resource(room)
     const mimetype = resource.mimetype
-    this.setState({room, mimetype}, _ => this.props.roomFocused
-      ? this.focusByRoomId(this.props.roomFocused)
+    this.setState({room, mimetype}, _ => 
+      this.props.roomFocused
+      ? this.focusByRoomId(this.props.roomFocused, this.props.eventFocused)
       : null)
   }
 
@@ -230,12 +231,12 @@ export default class ContentView extends Component {
     }
   }
 
-  focusByRoomId = roomId => {
+  focusByRoomId = (roomId, eventId) => {
     const theRoomState = this.state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
     if (theAnnotation) {
       const focus = new Location(theAnnotation)
-      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${focus.getPageIndex() || this.getPosition()}/${roomId}`)
+      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${focus.getPageIndex() || this.getPosition()}/${roomId}${eventId ? "/" + eventId : ""}`)
       const listingVisible = document.body.offsetWidth <= 600 ? false : this.state.listingVisible
       this.setState({ focus, secondaryFocus: null, chatVisible: true, listingVisible })
     }
@@ -561,9 +562,9 @@ export default class ContentView extends Component {
         resourceAlias={this.props.resourceAlias}
         total={this.state.resourceLength}
         focus={this.state.focus}
+        eventFocused={this.props.eventFocused}
         focusNext={this.focusNext}
         focusPrev={this.focusPrev}
-        roomId={this.state.room?.roomId}
         room={this.state.room}
         content={this.content}
         contentContainer={this.contentContainer}
@@ -584,9 +585,9 @@ export default class ContentView extends Component {
         resourceAlias={this.props.resourceAlias}
         total={this.state.resourceLength}
         focus={this.state.focus}
+        eventFocused={this.props.eventFocused}
         focusNext={this.focusNext}
         focusPrev={this.focusPrev}
-        roomId={this.state.room?.roomId}
         room={this.state.room}
         roomFocused={this.props.roomFocused}
         content={this.content}
@@ -638,6 +639,7 @@ export default class ContentView extends Component {
               unsetFocus={this.unsetFocus}
               resource={state.room}
               resourceAlias={props.resourceAlias}
+              eventFocused={props.eventFocused}
               hasSelection={state.hasSelection}
               generateLocation={this.content.current.generateLocation}
               secondaryFocus={state.secondaryFocus}

@@ -69,7 +69,7 @@ class PopulusViewer extends Component {
         <Toast />
         <Router history={History.history}>
           <WelcomeView path="/" logoutHandler={this.logoutHandler} />
-          <ContentView path="/:resourceAlias/:resourcePosition?/:roomFocused?" />
+          <ContentView path="/:resourceAlias/:resourcePosition?/:roomFocused?/:eventFocused?" />
         </Router>
     </Fragment>
   }

@@ -16,9 +16,9 @@ export default class Chat extends Component {
     this.state = {
       events: [],
       topic: "",
-      fullyScrolled: false
+      fullyScrolledUp: false,
+      fullyScrolledDown: !props.eventFocused
     }
-    this.scrolledIdents = new Set()
     this.handleTimeline = this.handleTimeline.bind(this)
     this.timelinePromise = this.loadTimelineWindow(props.focus.getChild())
   }
@@ -26,43 +26,83 @@ export default class Chat extends Component {
   componentDidMount() {
     Client.client.on("Room.timeline", this.handleTimeline) // this also handles redactions, although they have their own event.
     Client.client.on("Room.localEchoUpdated", this.updateEvents)
+    this.prevScrollHeight = this.chatWrapper.current.scrollHeight
+    this.resizeObserver.observe(this.chatPanel.current)
     this.timelinePromise.then(this.updateEvents)
   }
 
   componentWillUnmount() {
     Client.client.off("Room.timeline", this.handleTimeline)
     Client.client.off("Room.localEchoUpdated", this.updateEvents)
+    this.resizeObserver.disconnect()
   }
 
   async componentDidUpdate(prevProps) {
-    if (prevProps.focus.getChild() !== this.props.focus.getChild()) this.resetFocus()
+    if (
+      prevProps.focus.getChild() !== this.props.focus.getChild() || 
+      prevProps.eventFocused !== this.props.eventFocused) {
+        this.resetFocus()
+        //TODO: just scroll to event when focus doesn't change
+    }
   }
 
   chatWrapper = createRef()
 
-  scrollAnchor = createRef()
+  chatPanel = createRef()
+
+  scrollAnchorTop = createRef()
+
+  scrollAnchorBottom = createRef()
+
+  resizeObserver = new ResizeObserver(_ => {
+    const chatWrapper = this.chatWrapper.current
+    const heightDiff = chatWrapper.scrollHeight - this.prevScrollHeight
+    if (this.scrollFixed) chatWrapper.scrollTop = chatWrapper.scrollTop - heightDiff
+    this.prevScrollHeight = chatWrapper.scrollHeight
+  })
 
   // Room.timeline passes in more params
   handleTimeline = (event) => {
-    if (this.props.focus?.getChild() === event.getRoomId()) {
+    if (this.props.focus?.getChild() === event.getRoomId() && this.state.fullyScrolledDown) {
       this.timelinePromise
         .then(_ => this.timelineWindow.paginate(Matrix.EventTimeline.FORWARDS, 1, false))
         .then(this.updateEvents)
     }
   }
 
-  tryBackfill = _ => {
-    if (!this.state.fullyScrolled && this.scrollAnchor.current.isVisible) {
+  tryTopfill = _ => {
+    if (!this.state.fullyScrolledUp && this.scrollAnchorTop.current.isVisible) {
       if (!this.timelineWindow.canPaginate(Matrix.EventTimeline.BACKWARDS)) {
-        this.scrolledIdents.add(this.room.roomId)
-        this.setState({ fullyScrolled: true })
+        const indexExists = this.timelineWindow.getTimelineIndex(Matrix.EventTimeline.BACKWARDS)
+        //if we can't paginate, we make sure that the timelineindex
+        //has actually loaded, and if so we say we're done scrolling
+        if (indexExists) this.setState({ fullyScrolledUp: true })
+        else setTimeout(this.tryTopfill, 100)
       } else {
         this.timelineWindow.paginate(Matrix.EventTimeline.BACKWARDS, 10)
           .then(_ => setTimeout(_ => {
-            this.setState({events: this.timelineWindow.getEvents()}, this.tryBackfill)
-          }, 200))
+            this.setState({events: this.timelineWindow.getEvents()}, this.tryTopfill)
+          }, 100))
       }
     }
+  }
+
+  tryBottomfill = _ => {
+    this.scrollFixed = true
+    if (!this.state.fullyScrolledDown && this.scrollAnchorBottom.current.isVisible) {
+      if (!this.timelineWindow.canPaginate(Matrix.EventTimeline.FORWARDS)) {
+        //if we can't paginate, we make sure that the timelineindex
+        //has actually loaded, and if so we say we're done scrolling
+        const indexExists = this.timelineWindow.getTimelineIndex(Matrix.EventTimeline.FORWARDS)
+        if (indexExists) this.setState({ fullyScrolledDown: true }, _ => this.scrollFixed = false)
+        else setTimeout(this.tryBottomfill, 100)
+      } else {
+        this.timelineWindow.paginate(Matrix.EventTimeline.FORWARDS, 10)
+          .then(_ => setTimeout(_ => {
+            this.setState({events: this.timelineWindow.getEvents()}, this.tryBottomfill)
+          }, 100))
+      }
+    } else this.scrollFixed = false
   }
 
   async loadTimelineWindow (roomId) {
@@ -78,8 +118,7 @@ export default class Chat extends Component {
     }
     this.room = await Client.client.getRoomWithState(roomId)
     this.timelineWindow = new Matrix.TimelineWindow(Client.client, this.room.getUnfilteredTimelineSet())
-    this.timelineWindow.load()
-    return true
+    return this.timelineWindow.load(this.props.eventFocused)
   }
 
   getTopic = _ => this.room.getLiveTimeline()
@@ -98,7 +137,8 @@ export default class Chat extends Component {
     clearTimeout(this.updateReadReceiptDebounce)
     this.updateReadReceiptDebounce = setTimeout(_ => {
       const lastEvent = this.state.events[this.state.events.length - 1]
-      if (lastEvent.getAssociatedStatus()) return // we bail out if the event hasn't been echoed yet.
+      if (!lastEvent) return // we bail out if the events haven't loaded
+      if (lastEvent.getAssociatedStatus()) return // or if the event hasn't been echoed yet
       const lastEventId = lastEvent.getId()
       const currentReceiptId = this.room.getEventReadUpTo(Client.client.getUserId(), true)
       // fire if last read event is different from last event
@@ -111,7 +151,7 @@ export default class Chat extends Component {
         Client.client.sendReadReceipt(lastEvent, {}).then(_ => {
           // faster to zero these manually than waiting for the server
           this.room.setUnreadNotificationCount('total', 0);
-          this.room.setUnreadNotificationCount('hightlight', 0);
+          this.room.setUnreadNotificationCount('highlight', 0);
           this.lastReceiptSentId = lastEventId
         }).catch(console.log)
       }
@@ -122,12 +162,14 @@ export default class Chat extends Component {
     this.timelinePromise = this.loadTimelineWindow(this.props.focus.getChild())
     await this.timelinePromise
     this.setState({
+      fullyScrolledUp: false,
+      fullyScrolledDown: false,
       topic: this.getTopic(),
-      fullyScrolled: this.scrolledIdents.has(this.props.focus.getChild()),
       events: this.timelineWindow.getEvents()
     }, _ => {
       this.updateReadReceipt()
-      this.tryBackfill()
+      this.tryTopfill()
+      this.tryBottomfill()
     })
   }
 
@@ -163,7 +205,6 @@ export default class Chat extends Component {
         case "m.text": {
           accumulator.push(
             <TextMessage reactions={reactions}
-              setFocus={props.setFocus}
               key={event.getId()}
               canRedact={canRedact}
               event={event} />
@@ -264,24 +305,29 @@ export default class Chat extends Component {
 
     // has height set, so that we don't need to set height on the flexbox element
     return <div ref={this.chatWrapper} class={props.class} id="chat-wrapper">
-      <div id="chat-panel">
-        <MessagePanel
-          hasSelection={props.hasSelection}
-          generateLocation={props.generateLocation}
-          resource={props.resource}
-          focus={props.focus}
-        />
+      <div ref={this.chatPanel} id="chat-panel">
+        <Anchor ref={this.scrollAnchorBottom} 
+          chatWrapper={this.chatWrapper}
+          tryFill={this.tryBottomfill}
+          fullyScrolled={state.fullyScrolledDown} >
+            <MessagePanel
+              hasSelection={props.hasSelection}
+              generateLocation={props.generateLocation}
+              resource={props.resource}
+              focus={props.focus}
+            />
+        </Anchor>
         <div id="messages">
           {messagedivs}
           <TypingIndicator key={props.focus.getChild()} roomId={props.focus.getChild()} />
           {/* The key prop here ensures that typing state is reset when the room changes */}
         </div>
-        <Anchor ref={this.scrollAnchor} 
+        <Anchor ref={this.scrollAnchorTop} 
           chatWrapper={this.chatWrapper}
-          tryBackfill={this.tryBackfill}
-          focus={props.focus}
-          topic={state.topic}
-          fullyScrolled={state.fullyScrolled} />
+          tryFill={this.tryTopfill}
+          fullyScrolled={state.fullyScrolledUp} >
+            <TopAnchor focus={props.focus} topic={state.topic}/>
+        </Anchor>
       </div>
     </div>
   }
@@ -317,36 +363,45 @@ class Anchor extends Component {
   intersectionObserver = new IntersectionObserver(entries => {
     if (entries.some(entry => entry.isIntersecting)) { this.isVisible = true }
     else { this.isVisible = false }
-    this.props.tryBackfill()
-  }, { root: this.props.chatWrapper.current })
+    this.props.tryFill()
+  }, { 
+    root: this.props.chatWrapper.current,
+  })
 
   render(props) {
-    return props.fullyScrolled
-      ? <div ref={this.scrollAnchorDiv}>
-        { props.focus.getType() === "highlight" && props.topic 
-          ? <div id="anchor-quote">
-            <span>{Icons.quote}</span>
-            {props.topic}
-          </div>
-          : props.focus.getType() === "text"
-          ? <div id="anchor-pin">
-              {Icons.pin} <span>on page {props.focus.getPageIndex()}</span>
-            </div>
-          : props.focus.getType() === "media-fragment"
-          ? <div id="anchor-media">
-              {Icons.headphones} <span>From {toClockTime(props.focus.getIntervalStart() / 1000)} to {toClockTime(props.focus.getIntervalEnd() / 1000)}</span>
-            </div>
-          : null
-        }
-        <div id="scroll-done">
-          { props.focus.getStatus() === "pending"
-            ? "Awaiting your comment..."
-            : "All messages loaded"
-          }
-        </div>
-      </div>
-      : <div ref={this.scrollAnchorDiv} id="scroll-anchor">loading...</div>
+    return <div ref={this.scrollAnchorDiv} id={props.fullyScrolled ? null : "scroll-anchor"}>
+      {props.fullyScrolled
+        ? props.children
+        : "loading..."
+      } 
+    </div>
   }
+}
+
+function TopAnchor(props) {
+  return <Fragment>
+    { props.focus.getType() === "highlight" && props.topic 
+      ? <div id="anchor-quote">
+        <span>{Icons.quote}</span>
+        {props.topic}
+      </div>
+      : props.focus.getType() === "text"
+      ? <div id="anchor-pin">
+          {Icons.pin} <span>on page {props.focus.getPageIndex()}</span>
+        </div>
+      : props.focus.getType() === "media-fragment"
+      ? <div id="anchor-media">
+          {Icons.headphones} <span>From {toClockTime(props.focus.getIntervalStart() / 1000)} to {toClockTime(props.focus.getIntervalEnd() / 1000)}</span>
+        </div>
+      : null
+    }
+    <div id="scroll-done">
+      { props.focus.getStatus() === "pending"
+        ? "Awaiting your comment..."
+        : "All messages loaded"
+      }
+    </div>
+  </Fragment>
 }
 
 class TypingIndicator extends Component {

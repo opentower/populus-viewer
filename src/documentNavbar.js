@@ -36,8 +36,14 @@ export default class DocumentNavbar extends Component {
 
   handleKeydown = e => {
     if (e.shiftKey) return // don't capture shift-modified arrow keys, these change the text selection
-    if (e.key === 'j' || e.key === "ArrowRight") this.nextPage()
-    if (e.key === 'k' || e.key === "ArrowLeft") this.prevPage()
+    if (e.key === 'j' || e.key === "ArrowRight") {
+      e.preventDefault() // block default scrolling behavior
+      this.nextPage()
+    }
+    if (e.key === 'k' || e.key === "ArrowLeft") {
+      e.preventDefault() // block default scrolling behavior
+      this.prevPage()
+    }
     if (e.key === "ArrowUp") {
       e.preventDefault() // block default scrolling behavior
       this.props.contentContainer.current.scroll({
@@ -70,7 +76,12 @@ export default class DocumentNavbar extends Component {
   prevPage = _ => {
     const sparePages = this.props.content.current.state.showSecondary ? 1 : 0
     if (this.props.pageFocused > 1) {
-      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${Math.max(1, this.props.pageFocused - (1 + sparePages))}/`)
+      History.push(`/${encodeURIComponent(this.props.resourceAlias)}` + 
+        `/${Math.max(1, this.props.pageFocused - (1 + sparePages))}` + 
+        `${this.props.room.roomId ? "/" + this.props.room.roomId : ""}` +
+        `${this.props.eventFocused ? "/" + this.props.eventFocused : ""}`
+      )
+
       this.props.contentContainer.current.scrollTop = this.props.contentContainer.current.scrollHeight
     }
   }
@@ -78,7 +89,11 @@ export default class DocumentNavbar extends Component {
   nextPage = _ => {
     const sparePages = this.props.content.current.state.showSecondary ? 1 : 0
     if (this.props.pageFocused + sparePages < this.props.total) {
-      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.props.pageFocused + sparePages + 1}/`)
+      History.push(`/${encodeURIComponent(this.props.resourceAlias)}` + 
+        `/${Math.max(1, this.props.pageFocused + (1 + sparePages))}` + 
+        `${this.props.room.roomId ? "/" + this.props.room.roomId : ""}` +
+        `${this.props.eventFocused ? "/" + this.props.eventFocused : ""}`
+      )
       this.props.contentContainer.current.scrollTop = 0
     }
   }
@@ -128,7 +143,7 @@ export default class DocumentNavbar extends Component {
       return <nav id="page-nav">
           <Pages total={props.total}
             handleClick={this.handleClick}
-            roomId={props.roomId}
+            roomId={props.room?.roomId}
             currentPageElement={this.currentPageElement}
             visibility={state.pageViewVisible}
             typing={state.typing}
@@ -241,7 +256,7 @@ class Pages extends Component {
   }
 
   handleTypingNotification = (ev, member) => {
-    const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const theRoomState = Client.client.getRoom(this.props.room?.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
     // We use nested state here because we want to pass this part of the state to a child
     if (theChildRelation) {
