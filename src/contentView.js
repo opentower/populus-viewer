@@ -538,6 +538,7 @@ export default class ContentView extends Component {
             timeStamp={this.getPosition()}
             room={this.state.room}
             roomFocused={this.props.roomFocused}
+            eventFocused={this.props.eventFocused}
             secondaryFocus={this.state.secondaryFocus}
             mimetype={this.state.mimetype}
             setFocus={this.setFocus}

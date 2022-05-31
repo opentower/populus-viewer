@@ -323,9 +323,11 @@ export default class MediaContent extends Component {
         clearTimeout(this.seekTimeout)
         this.seekTimeout = setTimeout(_ => {
           const timeSec = Math.floor(this.wavesurfer.getCurrentTime())
-          const focus = this.props.roomFocused
-          if (focus) History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/${focus}`)
-          else History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/`)
+          History.push(`/${encodeURIComponent(this.props.resourceAlias)}` + 
+            `/${timeSec}` + 
+            `${this.props.roomFocused ? "/" + this.props.roomFocused : ""}` +
+            `${this.props.eventFocused ? "/" + this.props.eventFocused : ""}`
+          )
         }, 250)
       }
       this.updateVideoLocation()

@@ -95,6 +95,7 @@ export default class MediaNavbar extends Component {
           </ToolTip>
           <Progress 
             resourceAlias={props.resourceAlias}
+            eventFocused={props.eventFocused}
             timeStamp={props.timeStamp}
             content={props.content}
             total={props.total} 
@@ -145,9 +146,11 @@ class Progress extends Component {
     if (this.updateLock) return
     this.updateLock = true
     const timeSec = Math.floor(this.props.content.current.wavesurfer.getCurrentTime())
-    const focus = this.props.roomFocused
-    if (focus) History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/${focus}`)
-    else History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${timeSec}/`)
+    History.push(`/${encodeURIComponent(this.props.resourceAlias)}` + 
+      `/${timeSec}` + 
+      `${this.props.roomFocused ? "/" + this.props.roomFocused : ""}` +
+      `${this.props.eventFocused ? "/" + this.props.eventFocused : ""}`
+    )
     setTimeout(_ => this.updateLock = false, 1000)
   }
 
