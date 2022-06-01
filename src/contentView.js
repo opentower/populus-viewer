@@ -59,7 +59,13 @@ export default class ContentView extends Component {
     // listener with the proper `this` reference
   }
 
-  getPosition() { return parseInt(this.props.resourcePosition, 10) || 1 }
+
+  getPosition() { 
+    const lastPosition = this.state.room?.getAccountData(lastViewed)
+      ? this.state.room.getAccountData(lastViewed).getContent().page
+      : 1
+    return parseInt(this.props.resourcePosition, 10) || lastPosition
+  }
 
   componentDidMount() {
     document.addEventListener("selectionchange", this.checkForSelection)
