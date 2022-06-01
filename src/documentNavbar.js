@@ -143,7 +143,7 @@ export default class DocumentNavbar extends Component {
       return <nav id="page-nav">
           <Pages total={props.total}
             handleClick={this.handleClick}
-            roomId={props.room?.roomId}
+            room={props.room}
             currentPageElement={this.currentPageElement}
             visibility={state.pageViewVisible}
             typing={state.typing}
