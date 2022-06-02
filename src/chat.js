@@ -28,7 +28,7 @@ export default class Chat extends Component {
     Client.client.on("Room.localEchoUpdated", this.updateEvents)
     this.prevScrollHeight = this.chatWrapper.current.scrollHeight
     this.resizeObserver.observe(this.chatPanel.current)
-    this.timelinePromise.then(this.updateEvents)
+    this.resetFocus()
   }
 
   componentWillUnmount() {
@@ -57,7 +57,8 @@ export default class Chat extends Component {
   resizeObserver = new ResizeObserver(_ => {
     const chatWrapper = this.chatWrapper.current
     const heightDiff = chatWrapper.scrollHeight - this.prevScrollHeight
-    if (this.scrollFixed) chatWrapper.scrollTop = chatWrapper.scrollTop - heightDiff
+    if (this.elementFixed) this.elementFixed.scrollIntoView({block:"center"})
+    else if (this.bottomFilling) chatWrapper.scrollTop = chatWrapper.scrollTop - heightDiff
     this.prevScrollHeight = chatWrapper.scrollHeight
   })
 
@@ -71,12 +72,13 @@ export default class Chat extends Component {
   }
 
   tryTopfill = _ => {
+    this.topFilling = true
     if (!this.state.fullyScrolledUp && this.scrollAnchorTop.current.isVisible) {
       if (!this.timelineWindow.canPaginate(Matrix.EventTimeline.BACKWARDS)) {
         const indexExists = this.timelineWindow.getTimelineIndex(Matrix.EventTimeline.BACKWARDS)
         //if we can't paginate, we make sure that the timelineindex
         //has actually loaded, and if so we say we're done scrolling
-        if (indexExists) this.setState({ fullyScrolledUp: true })
+        if (indexExists) this.setState({ fullyScrolledUp: true }, this.finishTopFill())
         else setTimeout(this.tryTopfill, 100)
       } else {
         this.timelineWindow.paginate(Matrix.EventTimeline.BACKWARDS, 10)
@@ -84,17 +86,22 @@ export default class Chat extends Component {
             this.setState({events: this.timelineWindow.getEvents()}, this.tryTopfill)
           }, 100))
       }
-    }
+    } else this.finishTopFill()
+  }
+
+  finishTopFill = _ => {
+    this.topFilling = false
+    if (!this.bottomFilling) setTimeout(_ => delete this.elementFixed,250)
   }
 
   tryBottomfill = _ => {
-    this.scrollFixed = true
+    this.bottomFilling = true
     if (!this.state.fullyScrolledDown && this.scrollAnchorBottom.current.isVisible) {
       if (!this.timelineWindow.canPaginate(Matrix.EventTimeline.FORWARDS)) {
         //if we can't paginate, we make sure that the timelineindex
         //has actually loaded, and if so we say we're done scrolling
         const indexExists = this.timelineWindow.getTimelineIndex(Matrix.EventTimeline.FORWARDS)
-        if (indexExists) this.setState({ fullyScrolledDown: true }, _ => this.scrollFixed = false)
+        if (indexExists) this.setState({ fullyScrolledDown: true }, this.finishBottomFill)
         else setTimeout(this.tryBottomfill, 100)
       } else {
         this.timelineWindow.paginate(Matrix.EventTimeline.FORWARDS, 10)
@@ -102,7 +109,12 @@ export default class Chat extends Component {
             this.setState({events: this.timelineWindow.getEvents()}, this.tryBottomfill)
           }, 100))
       }
-    } else this.scrollFixed = false
+    } else this.finishBottomFill()
+  }
+
+  finishBottomFill = _ => {
+    this.bottomFilling = false
+    if (!this.topFilling) setTimeout(_ => delete this.elementFixed,250)
   }
 
   async loadTimelineWindow (roomId) {
@@ -169,6 +181,8 @@ export default class Chat extends Component {
       events: this.timelineWindow.getEvents()
     }, _ => {
       this.updateReadReceipt()
+      this.prevScrollHeight = this.chatWrapper.current.scrollHeight
+      this.elementFixed = document.getElementById(this.props.eventFocused)
       this.tryTopfill()
       this.tryBottomfill()
     })

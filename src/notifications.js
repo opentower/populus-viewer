@@ -191,7 +191,15 @@ class Notification extends Component {
 
   handleClick = _ => {
     const origin = this.originLocation
-    History.push(`/${encodeURIComponent(this.originAlias.slice(1))}/${origin.getPageIndex()}/${origin.getChild()}`)
+    const alias = encodeURIComponent(this.originAlias.slice(1))
+    const eventId = this.props.event.getId()
+    console.log(origin.event.getId())
+    switch (this.originLocation.getType()) {
+      case "highlight" : History.push(`/${alias}/${origin.getPageIndex()}/${origin.getChild()}/${eventId}`); break
+      case "text" : History.push(`/${alias}/${origin.getPageIndex()}/${origin.getChild()}/${eventId}`); break
+      case "media-fragment" : History.push(`/${alias}/${this.originLocation.getIntervalStart()}/${origin.getChild()}/${eventId}`); break
+      default : console.log("unrecognized location type")
+    }
   }
 
   render(props, state) {
