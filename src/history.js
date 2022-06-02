@@ -15,4 +15,10 @@ export default class History {
     route(theRoute, true)
     this.history.replace(theRoute, message)
   }
+
+  static setPath(componentNumber, value) {
+    const pathparts = this.history.location.pathname.split("/")
+    pathparts[componentNumber] = value
+    History.push(pathparts.join("/"))
+  }
 }

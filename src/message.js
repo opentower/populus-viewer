@@ -12,6 +12,7 @@ import 'emoji-picker-element'
 import BlurhashCanvas from './blurhashCanvas.js'
 import Location from './utils/location.js'
 import Client from './client.js'
+import History from './history.js'
 import * as Replies from './utils/replies.js'
 import * as Icons from './icons.js'
 import './styles/message.css'
@@ -185,6 +186,12 @@ class ReplyPreview extends Component {
 
   handleLoad = _ => this.setState({ loaded: true })
 
+  jumpToEvent = _ => {
+    if (!this.state.liveEvent?.getContent().msgtype) return // message redacted
+    const inReplyToId = this.props.event.getContent()["m.relates_to"]["m.in_reply_to"].event_id
+    History.setPath(4, inReplyToId)
+  }
+
   fromLiveEvent = _ => {
     const content = this.state.liveEvent?.getContent()
     if (!content) return
@@ -271,7 +278,9 @@ class ReplyPreview extends Component {
       }
     }
     return <Fragment>
-      <div class="reply-preface">In reply to:</div>
+      <div class="reply-preface">
+        <a role="link" onclick={this.jumpToEvent}>In reply to</a>:
+      </div>
       <UserInfoHeader isReply userId={this.state.liveEvent.getSender()} />
       <div ref={this.replyPreview} data-media-message-loaded={this.state.loaded} style={senderColors.styleVariables} class="reply-preview">
         {displayBody}

@@ -279,6 +279,11 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
     padding-bottom:5px;
 }
 
+.reply-preface a {
+    color:var(--content-text-dimmed);
+    cursor:pointer;
+}
+
 .reply-preview {
     border-left:5px solid var(--user_light);
     padding-left:15px;
