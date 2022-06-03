@@ -8,6 +8,8 @@ import { toClockTime } from './utils/temporal.js'
 import { mscMarkupMsgKey } from './constants.js'
 import UserInfoHeader from './userInfoHeader.js'
 import Client from './client.js'
+import Toast from "./toast.js"
+import History from "./history.js"
 import * as Icons from './icons.js'
 
 export default class Chat extends Component {
@@ -20,7 +22,6 @@ export default class Chat extends Component {
       fullyScrolledDown: !props.eventFocused
     }
     this.handleTimeline = this.handleTimeline.bind(this)
-    this.timelinePromise = this.loadTimelineWindow(props.focus.getChild())
   }
 
   componentDidMount() {
@@ -173,19 +174,35 @@ export default class Chat extends Component {
   async resetFocus () {
     this.chatWrapper.current.scrollTop = 0
     this.timelinePromise = this.loadTimelineWindow(this.props.focus.getChild())
-    await this.timelinePromise
-    this.setState({
-      fullyScrolledUp: false,
-      fullyScrolledDown: false,
-      topic: this.getTopic(),
-      events: this.timelineWindow.getEvents()
-    }, _ => {
-      this.updateReadReceipt()
-      this.prevScrollHeight = this.chatWrapper.current.scrollHeight
-      this.elementFixed = document.getElementById(this.props.eventFocused)
-      this.tryTopfill()
-      this.tryBottomfill()
-    })
+    try {
+      await this.timelinePromise
+      this.setState({
+        fullyScrolledUp: false,
+        fullyScrolledDown: false,
+        topic: this.getTopic(),
+        events: this.timelineWindow.getEvents()
+      }, _ => {
+        this.updateReadReceipt()
+        this.prevScrollHeight = this.chatWrapper.current.scrollHeight
+        this.elementFixed = document.getElementById(this.props.eventFocused)
+        this.tryTopfill()
+        this.tryBottomfill()
+      })
+    } catch (e) {
+      switch(e.name) {
+        case "M_NOT_FOUND" : return this.handleFocusNotFound(e)
+        default : console.log(e)
+      }
+    }
+  }
+
+  handleFocusNotFound = e => {
+    Toast.set(<Fragment>
+      <h3 id="toast-header">Something wasn't available</h3>
+      <div>Here's the error message:</div>
+      <pre>{e.message}</pre>
+    </Fragment>)
+    History.replace(`/${this.props.resourceAlias}/`)
   }
 
   render(props, state) {
