@@ -62,7 +62,7 @@ export default class ContentView extends Component {
 
   getPosition() { 
     const lastPosition = this.state.room?.getAccountData(lastViewed)
-      ? this.state.room.getAccountData(lastViewed).getContent().page
+      ? parseInt(this.state.room.getAccountData(lastViewed).getContent().page) || 1
       : 1
     return parseInt(this.props.resourcePosition, 10) || lastPosition
   }

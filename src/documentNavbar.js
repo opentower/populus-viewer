@@ -88,6 +88,7 @@ export default class DocumentNavbar extends Component {
 
   nextPage = _ => {
     const sparePages = this.props.content.current.state.showSecondary ? 1 : 0
+    console.log(this.props.pageFocused, sparePages, this.props.total)
     if (this.props.pageFocused + sparePages < this.props.total) {
       History.push(`/${encodeURIComponent(this.props.resourceAlias)}` + 
         `/${Math.max(1, this.props.pageFocused + (1 + sparePages))}` + 
