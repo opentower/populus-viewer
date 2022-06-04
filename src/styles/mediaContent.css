@@ -64,6 +64,10 @@
   background: black
 }
 
+#media-view-video-overlay:not([data-media-selection-mutable]) {
+  pointer-events:none;
+}
+
 #media-view-video-overlay-spotlight { grid-area:spot; }
 #media-view-video-overlay-header {grid-area:header}
 #media-view-video-overlay-left {grid-area:leftcol}

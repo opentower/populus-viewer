@@ -167,8 +167,10 @@ export default class MediaContent extends Component {
     const currentSec = this.wavesurfer.getCurrentTime()
     return this.props.filteredAnnotationContents
       .filter(loc => {
-        if (currentSec < loc.getIntervalStart() / 1000) return false
-        if (currentSec > loc.getIntervalEnd() / 1000) return false
+        // tiny 5ms offset here to ensure that we count as "inside" the focused
+        // annotation, modulo overlap
+        if (currentSec < ((loc.getIntervalStart() - 5) / 1000)) return false
+        if (currentSec > ((loc.getIntervalEnd()) / 1000)) return false
         return this.filterAnnotations(loc)
       })
   }
@@ -401,6 +403,7 @@ export default class MediaContent extends Component {
           videoOverlay={this.videoOverlay}
           hasSelection={!!state.selection}
           createSelection={this.createSelection}
+          clearSelection={this.clearSelection}
           videoElement={this.videoElement}
         /> 
         : null 
@@ -476,8 +479,9 @@ class MediaViewVideo extends Component {
             ? <MediaViewVideoOverlay 
                 mutable={true}
                 ref={props.videoOverlay} 
+                key="immutable-overlay"
                 videoElement={props.videoElement} 
-                clear={this.clearOverlayPosition} 
+                clear={this.props.clearSelection} 
                 initialPosition={state.initialPosition} 
             /> 
             : null
@@ -485,6 +489,7 @@ class MediaViewVideo extends Component {
           ? <MediaViewVideoOverlay 
               mutable={false}
               ref={props.videoOverlay} 
+              key="mutable-overlay"
               videoElement={props.videoElement} 
               initialPosition={props.videoLocation.getMediaRect()} 
           /> 
