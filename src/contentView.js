@@ -418,7 +418,7 @@ export default class ContentView extends Component {
       const isInsertable = this.insertable(loc)
       if (isInsertable) eventStore[loc.getChild()] = loc
       else delete eventStore[loc.getChild()]
-      let filteredAnnotationContents = oldState.filteredAnnotationContents
+      let filteredAnnotationContents = [... oldState.filteredAnnotationContents]
       if (filteredLoc.length > 0 && isInsertable) { // if it passes the filter
         // check if it's already there, and either replace (where appropriate) or insert it
         const idx = filteredAnnotationContents.findIndex(annot => annot.getChild() === loc.getChild())
