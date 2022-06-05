@@ -170,10 +170,8 @@ export default class MediaContent extends Component {
     const currentSec = this.wavesurfer.getCurrentTime()
     return this.props.filteredAnnotationContents
       .filter(loc => {
-        // 100ms offset here to ensure that we count as "inside" the focused
-        // annotation after creation, modulo overlap
-        if (currentSec < ((loc.getIntervalStart() - 100) / 1000)) return false
-        if (currentSec > ((loc.getIntervalEnd()) / 1000)) return false
+        if (currentSec < (loc.getIntervalStart() / 1000)) return false
+        if (currentSec > (loc.getIntervalEnd() / 1000)) return false
         return this.filterAnnotations(loc)
       })
   }
@@ -345,7 +343,7 @@ export default class MediaContent extends Component {
         this.lastLeft = e.target.scrollLeft
       }
     })
-    this.wavesurfer.on("audioprocess", this.updateVideoLocation)
+    this.wavesurfer.on("audioprocess", _ => !this.updateVideoLocationLocked && this.updateVideoLocation())
   }
 
   filterAnnotations = loc => loc.getType() === "media-fragment"
@@ -353,7 +351,6 @@ export default class MediaContent extends Component {
   setVideo = videoLocation => this.setState({ videoLocation })
 
   updateVideoLocation = _ => {
-    if (this.updateVideoLocationLocked) return
     const locations = this.getCurrentLocations()
     if (locations.length == 0) this.setVideo(null)
     else {
@@ -509,7 +506,6 @@ class MediaViewVideo extends Component {
 class MediaViewVideoOverlay extends Component {
   constructor(props) {
     super(props)
-    console.log(props.initialPosition)
     this.spotlightScale = props.videoElement.current.getBoundingClientRect().width / props.videoElement.current.videoWidth
     this.spotlightWidth = props.initialPosition.width
     this.spotlightHeight = props.initialPosition.height
