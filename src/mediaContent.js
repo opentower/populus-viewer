@@ -355,10 +355,11 @@ export default class MediaContent extends Component {
     if (locations.length == 0) this.setVideo(null)
     else {
       locations.sort((a,b) => {
-        if (a.getIntervalStart() < b.getIntervalStart) return -1
-        if (a.getIntervalStart() > b.getIntervalStart) return 1
+        if (a.getIntervalStart() > b.getIntervalStart()) return -1
+        if (a.getIntervalStart() < b.getIntervalStart()) return 1
         return 0
       })
+      console.log(locations.map(a => a.getIntervalStart()))
       this.setVideo(locations[0])
     }
     this.updateVideoLocationLocked = true
@@ -512,17 +513,15 @@ class MediaViewVideoOverlay extends Component {
   }
 
   componentDidUpdate(prev) {
-    if (prev.mutable !== this.props.mutable) {
-      // subtract to account for the handles
-      this.spotlightWidth = this.props.initialPosition.width - 40
-      this.spotlightHeight = this.props.initialPosition.height - 40
-      this.spotlightX = this.props.initialPosition.x
-      this.spotlightY = this.props.initialPosition.y
-      this.overlay.current.style.setProperty("--spotlightX", `${this.spotlightX}px`)
-      this.overlay.current.style.setProperty("--spotlightY", `${this.spotlightY}px`)
-      this.overlay.current.style.setProperty("--spotlightWidth", `${this.spotlightWidth}px`)
-      this.overlay.current.style.setProperty("--spotlightHeight", `${this.spotlightHeight}px`)
-    }
+    // subtract to account for the handles
+    this.spotlightWidth = this.props.initialPosition.width - 40
+    this.spotlightHeight = this.props.initialPosition.height - 40
+    this.spotlightX = this.props.initialPosition.x
+    this.spotlightY = this.props.initialPosition.y
+    this.overlay.current.style.setProperty("--spotlightX", `${this.spotlightX}px`)
+    this.overlay.current.style.setProperty("--spotlightY", `${this.spotlightY}px`)
+    this.overlay.current.style.setProperty("--spotlightWidth", `${this.spotlightWidth}px`)
+    this.overlay.current.style.setProperty("--spotlightHeight", `${this.spotlightHeight}px`)
   }
 
   componentDidMount () {
