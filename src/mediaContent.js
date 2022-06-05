@@ -92,8 +92,8 @@ export default class MediaContent extends Component {
           ? {
             x: this.videoOverlay.current.spotlightX,
             y: this.videoOverlay.current.spotlightY,
-            w: this.videoOverlay.current.spotlightWidth,
-            h: this.videoOverlay.current.spotlightHeight,
+            w: this.videoOverlay.current.spotlightWidth + 40,
+            h: this.videoOverlay.current.spotlightHeight + 40,
           }
           : null
         )
@@ -459,10 +459,10 @@ class MediaViewVideo extends Component {
     const videoScale = boundingRect.width / videoWidth
     this.setState({ 
       initialPosition: new DOMRect(
-        Math.min(videoWidth - (50 / videoScale), Math.round(e.offsetX / videoScale)),
-        Math.min(videoHeight - (50 / videoScale), Math.round(e.offsetY / videoScale)),
-        Math.round(50 / videoScale),
-        Math.round(50 / videoScale) 
+        Math.min(videoWidth - (60 / videoScale), Math.round(e.offsetX / videoScale)),
+        Math.min(videoHeight - (60 / videoScale), Math.round(e.offsetY / videoScale)),
+        Math.round(100 / videoScale),
+        Math.round(100 / videoScale) 
       )
     }) 
   }
@@ -507,8 +507,8 @@ class MediaViewVideoOverlay extends Component {
   constructor(props) {
     super(props)
     this.spotlightScale = props.videoElement.current.getBoundingClientRect().width / props.videoElement.current.videoWidth
-    this.spotlightWidth = props.initialPosition.width
-    this.spotlightHeight = props.initialPosition.height
+    this.spotlightWidth = props.initialPosition.width - 40
+    this.spotlightHeight = props.initialPosition.height - 40
     this.spotlightX = props.initialPosition.x
     this.spotlightY = props.initialPosition.y
   }
@@ -516,8 +516,8 @@ class MediaViewVideoOverlay extends Component {
   componentDidUpdate() {
     if (!this.props.mutable) {
       // subtract to account for the handles
-      this.spotlightWidth = this.props.initialPosition.width
-      this.spotlightHeight = this.props.initialPosition.height
+      this.spotlightWidth = this.props.initialPosition.width - 40
+      this.spotlightHeight = this.props.initialPosition.height - 40
       this.spotlightX = this.props.initialPosition.x
       this.spotlightY = this.props.initialPosition.y
       this.overlay.current.style.setProperty("--spotlightX", `${this.spotlightX}px`)
