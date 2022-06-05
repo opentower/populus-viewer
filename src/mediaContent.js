@@ -44,6 +44,10 @@ export default class MediaContent extends Component {
         const duration = this.wavesurfer.getDuration()
         this.wavesurfer.seekAndCenter(this.props.secondaryFocus.getIntervalStart() / (duration * 1000))
       }
+      if (prev.filteredAnnotationContents.length !== this.props.filteredAnnotationContents.length) {
+        // annotation added or deleted
+        this.updateVideoLocation()
+      }
     }
   }
 
@@ -166,9 +170,9 @@ export default class MediaContent extends Component {
     const currentSec = this.wavesurfer.getCurrentTime()
     return this.props.filteredAnnotationContents
       .filter(loc => {
-        // tiny 5ms offset here to ensure that we count as "inside" the focused
-        // annotation, modulo overlap
-        if (currentSec < ((loc.getIntervalStart() - 50) / 1000)) return false
+        // 100ms offset here to ensure that we count as "inside" the focused
+        // annotation after creation, modulo overlap
+        if (currentSec < ((loc.getIntervalStart() - 100) / 1000)) return false
         if (currentSec > ((loc.getIntervalEnd()) / 1000)) return false
         return this.filterAnnotations(loc)
       })
