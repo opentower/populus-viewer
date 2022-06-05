@@ -482,7 +482,6 @@ class MediaViewVideo extends Component {
             ? <MediaViewVideoOverlay 
                 mutable={true}
                 ref={props.videoOverlay} 
-                key="immutable-overlay"
                 videoElement={props.videoElement} 
                 clear={this.props.clearSelection} 
                 initialPosition={state.initialPosition} 
@@ -492,7 +491,6 @@ class MediaViewVideo extends Component {
           ? <MediaViewVideoOverlay 
               mutable={false}
               ref={props.videoOverlay} 
-              key="mutable-overlay"
               videoElement={props.videoElement} 
               initialPosition={props.videoLocation.getMediaRect()} 
           /> 
@@ -513,8 +511,8 @@ class MediaViewVideoOverlay extends Component {
     this.spotlightY = props.initialPosition.y
   }
 
-  componentDidUpdate() {
-    if (!this.props.mutable) {
+  componentDidUpdate(prev) {
+    if (prev.mutable !== this.props.mutable) {
       // subtract to account for the handles
       this.spotlightWidth = this.props.initialPosition.width - 40
       this.spotlightHeight = this.props.initialPosition.height - 40
