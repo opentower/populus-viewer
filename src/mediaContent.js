@@ -92,8 +92,8 @@ export default class MediaContent extends Component {
           ? {
             x: this.videoOverlay.current.spotlightX,
             y: this.videoOverlay.current.spotlightY,
-            w: this.videoOverlay.current.spotlightWidth + 40,
-            h: this.videoOverlay.current.spotlightHeight + 40,
+            w: this.videoOverlay.current.spotlightWidth,
+            h: this.videoOverlay.current.spotlightHeight,
           }
           : null
         )
@@ -359,7 +359,6 @@ export default class MediaContent extends Component {
         if (a.getIntervalStart() < b.getIntervalStart()) return 1
         return 0
       })
-      console.log(locations.map(a => a.getIntervalStart()))
       this.setVideo(locations[0])
     }
     this.updateVideoLocationLocked = true
@@ -460,8 +459,8 @@ class MediaViewVideo extends Component {
     const videoScale = boundingRect.width / videoWidth
     this.setState({ 
       initialPosition: new DOMRect(
-        Math.min(videoWidth - (60 / videoScale), Math.round(e.offsetX / videoScale)),
-        Math.min(videoHeight - (60 / videoScale), Math.round(e.offsetY / videoScale)),
+        Math.min(videoWidth - ((100 / videoScale)), Math.round(e.offsetX / videoScale)),
+        Math.min(videoHeight - ((100 / videoScale)), Math.round(e.offsetY / videoScale)),
         Math.round(100 / videoScale),
         Math.round(100 / videoScale) 
       )
@@ -506,22 +505,25 @@ class MediaViewVideoOverlay extends Component {
   constructor(props) {
     super(props)
     this.spotlightScale = props.videoElement.current.getBoundingClientRect().width / props.videoElement.current.videoWidth
-    this.spotlightWidth = props.initialPosition.width - 40
-    this.spotlightHeight = props.initialPosition.height - 40
+    this.spotlightWidth = props.initialPosition.width
+    this.spotlightHeight = props.initialPosition.height
     this.spotlightX = props.initialPosition.x
     this.spotlightY = props.initialPosition.y
   }
 
   componentDidUpdate(prev) {
-    // subtract to account for the handles
-    this.spotlightWidth = this.props.initialPosition.width - 40
-    this.spotlightHeight = this.props.initialPosition.height - 40
-    this.spotlightX = this.props.initialPosition.x
-    this.spotlightY = this.props.initialPosition.y
-    this.overlay.current.style.setProperty("--spotlightX", `${this.spotlightX}px`)
-    this.overlay.current.style.setProperty("--spotlightY", `${this.spotlightY}px`)
-    this.overlay.current.style.setProperty("--spotlightWidth", `${this.spotlightWidth}px`)
-    this.overlay.current.style.setProperty("--spotlightHeight", `${this.spotlightHeight}px`)
+    // we want to upday only when we start selection or when we're not mutable
+    // and the playback location changes
+    if (prev.mutable !== this.props.mutable || !this.props.mutable) {
+      this.spotlightWidth = this.props.initialPosition.width
+      this.spotlightHeight = this.props.initialPosition.height
+      this.spotlightX = this.props.initialPosition.x
+      this.spotlightY = this.props.initialPosition.y
+      this.overlay.current.style.setProperty("--spotlightX", `${this.spotlightX}px`)
+      this.overlay.current.style.setProperty("--spotlightY", `${this.spotlightY}px`)
+      this.overlay.current.style.setProperty("--spotlightWidth", `${this.spotlightWidth}px`)
+      this.overlay.current.style.setProperty("--spotlightHeight", `${this.spotlightHeight}px`)
+    }
   }
 
   componentDidMount () {
@@ -553,14 +555,16 @@ class MediaViewVideoOverlay extends Component {
   handleResizeX = e => {
     e.preventDefault()
     const videoWidth = this.props.videoElement.current.videoWidth
-    this.spotlightWidth = Math.round(Math.min(videoWidth - this.spotlightX, Math.max(10, this.initialWidth + ((e.clientX - this.initialClientX) / this.spotlightScale))))
+    //the 40px minimum here accomodates the handles
+    this.spotlightWidth = Math.round(Math.min(videoWidth - this.spotlightX, Math.max(40, this.initialWidth + ((e.clientX - this.initialClientX) / this.spotlightScale))))
     this.overlay.current.style.setProperty("--spotlightWidth", `${this.spotlightWidth}px`)
   }
 
   handleResizeY = e => {
     e.preventDefault()
     const videoHeight = this.props.videoElement.current.videoHeight
-    this.spotlightHeight = Math.round(Math.min(videoHeight - this.spotlightY, Math.max(10, this.initialHeight + ((e.clientY - this.initialClientY) / this.spotlightScale))))
+    //the 40px minimum here accomodates the handles
+    this.spotlightHeight = Math.round(Math.min(videoHeight - this.spotlightY, Math.max(40, this.initialHeight + ((e.clientY - this.initialClientY) / this.spotlightScale))))
     this.overlay.current.style.setProperty("--spotlightHeight", `${this.spotlightHeight}px`)
   }
 
@@ -616,7 +620,7 @@ class MediaViewVideoOverlay extends Component {
       "--spotlightY": `${this.spotlightY}px`,
       "--spotlightWidth": `${this.spotlightWidth}px`,
       "--spotlightHeight": `${this.spotlightHeight}px`,
-      "--spotlightScale": this.spotlightScale
+      "--spotlightScale": this.spotlightScale,
     }
     return <div id="media-view-video-overlay" 
       data-media-selection-mutable={props.mutable}

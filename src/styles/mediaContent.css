@@ -46,13 +46,14 @@
   /* prevents mobile from taking over touch actions used for resize */
   touch-action: none; 
   position:absolute;
+  --spotlightHandle:20px;
   grid-template-areas: "header header header header header"
     "leftcol over over right rightcol"
     "leftcol left spot right rightcol"
     "leftcol under under under rightcol"
     "footer footer footer footer footer";
-  grid-template-columns: calc(var(--spotlightScale) * var(--spotlightX)) 20px calc(var(--spotlightScale) * var(--spotlightWidth) - 40px) 20px 1fr;
-  grid-template-rows: calc(var(--spotlightScale) * var(--spotlightY)) 20px calc(var(--spotlightScale) * var(--spotlightHeight) - 40px) 20px 1fr;
+  grid-template-columns: calc(var(--spotlightScale) * var(--spotlightX)) var(--spotlightHandle) calc(var(--spotlightScale) * var(--spotlightWidth) - (2 * var(--spotlightHandle))) var(--spotlightHandle) 1fr;
+  grid-template-rows: calc(var(--spotlightScale) * var(--spotlightY)) var(--spotlightHandle) calc(var(--spotlightScale) * var(--spotlightHeight) - (2 * var(--spotlightHandle))) var(--spotlightHandle) 1fr;
   display: grid;
   top:0;
   bottom:0;
