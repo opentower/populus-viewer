@@ -230,8 +230,13 @@ export default class MediaContent extends Component {
     e.preventDefault()
     if (this.state.selection) {
       clearTimeout(this.inertiaTimeout)
-      this.state.selection.onResize(.2 * this.rightInertia) 
-      this.wavesurfer.seekAndCenter(this.state.selection.end / this.wavesurfer.getDuration())
+      if (e.shiftKey) {
+        this.state.selection.onResize(.2 * this.rightInertia, "start") 
+        this.wavesurfer.seekAndCenter(this.state.selection.start / this.wavesurfer.getDuration())
+      } else {
+        this.state.selection.onResize(.2 * this.rightInertia) 
+        this.wavesurfer.seekAndCenter(this.state.selection.end / this.wavesurfer.getDuration())
+      }
       this.leftInertia = 1
       this.rightInertia += .1
       this.inertiaTimeout = setTimeout(this.resetInertia, 500)
@@ -243,8 +248,14 @@ export default class MediaContent extends Component {
     e.preventDefault()
     if (this.state.selection) {
       clearTimeout(this.inertiaTimeout)
-      this.state.selection.onResize(-.2 * this.leftInertia) 
-      this.wavesurfer.seekAndCenter(this.state.selection.end / this.wavesurfer.getDuration())
+      if (e.shiftKey) {
+        this.state.selection.onResize(-.2 * this.leftInertia, "start") 
+        this.wavesurfer.seekAndCenter(this.state.selection.start / this.wavesurfer.getDuration())
+      }
+      else {
+        this.state.selection.onResize(-.2 * this.leftInertia) 
+        this.wavesurfer.seekAndCenter(this.state.selection.end / this.wavesurfer.getDuration())
+      }
       this.rightInertia = 1
       this.leftInertia += .1
       this.inertiaTimeout = setTimeout(this.resetInertia, 500)
