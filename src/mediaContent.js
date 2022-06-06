@@ -71,6 +71,7 @@ export default class MediaContent extends Component {
       end, 
       color,
       drag: false,
+      id: "active-selection"
     })
     this.setState({ selection }, _ => document.dispatchEvent(new Event("selectionchange")))
   }
@@ -372,18 +373,37 @@ export default class MediaContent extends Component {
       .filter(loc => {
         if (loc.getChild() === this.props.focus?.getChild()) didFocus = true
         return this.filterAnnotations(loc)
+      }).sort((a,b) => {
+        if (a.getIntervalStart() > b.getIntervalStart()) return 1
+        if (a.getIntervalStart() < b.getIntervalStart()) return -1
+        return 0
       })
     // We add the secondary focus
     if (this.props.secondaryFocus && this.filterAnnotations(this.props.secondaryFocus)) annotationData.push(this.props.secondaryFocus)
     // We add the focus back in if it's on the page but got screened out of filteredAnnotationContents
     if (this.props.focus && this.filterAnnotations(this.props.focus) && !didFocus) annotationData.push(this.props.focus)
-    const annotations = annotationData.map(loc => <WaveRegion 
+    const gutter = {}
+    const annotations = annotationData.map(loc => {
+      for (const key in gutter) {
+        if (gutter[key].getIntervalEnd() <= loc.getIntervalStart()) delete gutter[key]
+      }
+      let key = 0
+      while (true) {
+        if (gutter[key]) key++
+        else {
+          gutter[key] = loc
+          break
+        }
+      }
+      console.log(gutter)
+      return <WaveRegion 
         setFocus={this.props.setFocus}
         wavesurfer={this.wavesurfer} 
+        gutterDepth={key}
         key={loc.event.getId()}
         focused={this.props.focus?.getChild() === loc.getChild()}
         location={loc} 
-      />)
+      />})
     return annotations
   }
 
@@ -425,8 +445,10 @@ class WaveRegion extends Component {
       drag:false,
       resize:false,
       id: this.props.location.event.getId(),
-      color
+      color: "rgba(0,0,0,0)"
     })
+    this.region.element.style.setProperty('--user_solid', color)
+    this.region.element.style.setProperty('--gutter_level', this.props.gutterDepth)
     if (this.props.focused) this.region.element.dataset.focused = true
     this.region.on("click", this.setFocus)
   }
@@ -434,6 +456,7 @@ class WaveRegion extends Component {
   componentDidUpdate() {
     if (this.props.focused) this.region.element.dataset.focused = true
     else delete this.region.element.dataset.focused
+    this.region.element.style.setProperty('--gutter_level', this.props.gutterDepth)
   }
 
   setFocus = e => {
