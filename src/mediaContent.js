@@ -226,7 +226,8 @@ export default class MediaContent extends Component {
     this.rightInertia = 1
   }
 
-  selRight = _ => {
+  selRight = e => {
+    e.preventDefault()
     if (this.state.selection) {
       clearTimeout(this.inertiaTimeout)
       this.state.selection.onResize(.2 * this.rightInertia) 
@@ -238,7 +239,8 @@ export default class MediaContent extends Component {
     else this.scrubRight()
   }
 
-  selLeft = _ => {
+  selLeft = e => {
+    e.preventDefault()
     if (this.state.selection) {
       clearTimeout(this.inertiaTimeout)
       this.state.selection.onResize(-.2 * this.leftInertia) 
