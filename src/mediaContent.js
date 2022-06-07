@@ -330,8 +330,18 @@ export default class MediaContent extends Component {
       const width = document.body.clientWidth
       const height = document.body.clientHeight
       const duration = Math.ceil(this.wavesurfer.getDuration())
-      this.props.setMediaDuration(Math.ceil(this.wavesurfer.getDuration()))
-      if (this.props.timeStamp) this.wavesurfer.seekAndCenter(this.props.timeStamp / duration)
+      this.props.setMediaDuration(duration)
+      if (this.props.timeStamp) {
+        if (this.props.timeStamp < 0 || this.props.timeStamp > duration) {
+          const newTS = this.props.timeStamp < 0 ? 0 : duration
+          History.replace(`/${encodeURIComponent(this.props.resourceAlias)}` + 
+            `/${newTS}` + 
+            `${this.props.roomFocused ? `/${this.props.roomFocused}` : ""}` +
+            `${this.props.eventFocused ? `/${this.props.eventFocused}` : ""}`
+          )
+          this.wavesurfer.seekAndCenter(newTS / duration)
+        } else this.wavesurfer.seekAndCenter(this.props.timeStamp / duration)
+      }
       this.props.setContentDimensions(height,width)
       this.setState({ready: true})
     });
@@ -342,8 +352,8 @@ export default class MediaContent extends Component {
           const timeSec = Math.floor(this.wavesurfer.getCurrentTime())
           History.push(`/${encodeURIComponent(this.props.resourceAlias)}` + 
             `/${timeSec}` + 
-            `${this.props.roomFocused ? "/" + this.props.roomFocused : ""}` +
-            `${this.props.eventFocused ? "/" + this.props.eventFocused : ""}`
+            `${this.props.roomFocused ? `/${this.props.roomFocused}` : ""}` +
+            `${this.props.eventFocused ? `/${this.props.eventFocused}` : ""}`
           )
         }, 250)
       }
@@ -408,7 +418,6 @@ export default class MediaContent extends Component {
           break
         }
       }
-      console.log(gutter)
       return <WaveRegion 
         setFocus={this.props.setFocus}
         wavesurfer={this.wavesurfer} 

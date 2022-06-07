@@ -102,6 +102,7 @@ export default class PdfCanvas extends Component {
     const text = await page.getTextContent();
 
     if (control !== this.controlToken) return
+    if (!this.props.textLayer.current) return
     // insert the pdf text into the text layer
     this.pendingTextRender = PDFJS.renderTextLayer({
       textContent: text,
@@ -113,6 +114,7 @@ export default class PdfCanvas extends Component {
   }
 
   async highlightText (word) {
+    if (!this.props.textLayer.current) return
     this.props.textLayer.current.innerHTML = this.cleanText
     if (!word || word.length < 3) return
     const spans = this.props.textLayer.current.children

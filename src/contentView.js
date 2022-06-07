@@ -70,7 +70,6 @@ export default class ContentView extends Component {
   componentDidMount() {
     document.addEventListener("selectionchange", this.checkForSelection)
     document.addEventListener('keydown', this.handleKeydown)
-    this.initializeAnnotations()
     Client.client.on("RoomState.events", this.handleStateUpdate)
     Client.client.on("Room.accountData", this.handleAccountData)
     this.fetchResource()
@@ -161,19 +160,27 @@ export default class ContentView extends Component {
   }
 
   fetchResource = async _ => {
-    const {room_id, servers} = await Client.client.getRoomIdForAlias(`#${this.props.resourceAlias}`)
-      .catch(this.catchFetchResourceError)
+    await new Promise(res => this.setState({ room:null,
+      mimetype:null,
+      contentWidthPx: null,
+      contentHeightPx: null,
+      zoomFactor: null,
+      loadingStatus: "loading...",
+    }, res))
+    const aliasResponse = await Client.client.getRoomIdForAlias(`#${this.props.resourceAlias}`).catch(this.catchFetchResourceError)
     if (this.errorCondition) return
+    const {room_id, servers} = aliasResponse
     await Client.client.joinRoom(room_id, { viaServers: servers }).catch(this.catchFetchResourceError)
     if (this.errorCondition) return
     const room = await Client.client.getRoomWithState(room_id).catch(this.catchFetchResourceError)
     if (this.errorCondition) return
     const resource = new Resource(room)
     const mimetype = resource.mimetype
-    this.setState({room, mimetype}, _ => 
-      this.props.roomFocused
-      ? this.focusByRoomId(this.props.roomFocused, this.props.eventFocused)
-      : null)
+    this.currentResource = this.props.resourceAlias
+    this.setState({room, mimetype}, _ => {
+      if (this.props.roomFocused) this.focusByRoomId(this.props.roomFocused, this.props.eventFocused)
+      this.initializeAnnotations()
+    })
   }
 
   startPindrop = _ => {
@@ -313,13 +320,18 @@ export default class ContentView extends Component {
   }
 
   handleRouteChange = _ => {
+    // XXX Should think about integrating this into the component lifecycle instead
+    
+    // on change of resource, fetch new resource
+    if (this.currentResource !== this.props.resourceAlias) this.fetchResource()
     // sets the last viewed page for later retrieval
-    if (!this.props.resourcePosition || !this.props.resourceAlias || !this.state.room?.roomId) return
-    Client.client.setRoomAccountData(this.state.room.roomId, lastViewed, {
-      deviceId: Client.deviceId,
-      ...(parseInt(this.props.resourcePosition, 10) && { page: this.props.resourcePosition})
-    })
-    this.refreshFocus()
+    else if (this.props.resourcePosition && this.props.resourceAlias && this.state.room?.roomId) {
+      Client.client.setRoomAccountData(this.state.room.roomId, lastViewed, {
+        deviceId: Client.deviceId,
+        ...(parseInt(this.props.resourcePosition, 10) && { page: this.props.resourcePosition})
+      })
+      this.refreshFocus()
+    }
   }
 
   handleKeydown = e => {
@@ -464,6 +476,8 @@ export default class ContentView extends Component {
 
   initializeAnnotations = _ => {
     if (this.state.room) {
+      this.annotationParentEvents = {}
+      this.annotationChildEvents = {}
       const allParents = Client.client.getVisibleRooms()
         .map(room => room.getLiveTimeline())
         .map(timeline => timeline.getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceParent))
