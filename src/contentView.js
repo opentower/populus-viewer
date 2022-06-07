@@ -1,5 +1,4 @@
 import { h, createRef, Fragment, Component } from 'preact';
-import Router from 'preact-router';
 import './styles/pdfView.css'
 import './styles/content-container.css'
 import * as Matrix from "matrix-js-sdk"
@@ -80,6 +79,19 @@ export default class ContentView extends Component {
     document.removeEventListener('keydown', this.handleKeydown)
     Client.client.off("RoomState.events", this.handleStateUpdate)
     Client.client.off("Room.accountData", this.handleAccountData)
+  }
+
+  componentDidUpdate(prevProps) {
+    // on change of resource, fetch new resource
+    if (prevProps.resourceAlias !== this.props.resourceAlias) this.fetchResource()
+    // sets the last viewed page for later retrieval
+    else if (this.state.room?.roomId && this.props.resourcePosition && prevProps.resourcePostion !== this.props.resourcePosition) {
+        Client.client.setRoomAccountData(this.state.room.roomId, lastViewed, {
+          deviceId: Client.deviceId,
+          ...(parseInt(this.props.resourcePosition, 10) && { page: this.props.resourcePosition})
+        })
+    }
+    if (prevProps.roomFocused !== this.props.roomFocused) this.refreshFocus()
   }
 
   handleStateUpdate = e => {
@@ -319,21 +331,6 @@ export default class ContentView extends Component {
     // timeout to avoid excessive rerendering
   }
 
-  handleRouteChange = _ => {
-    // XXX Should think about integrating this into the component lifecycle instead
-    
-    // on change of resource, fetch new resource
-    if (this.currentResource !== this.props.resourceAlias) this.fetchResource()
-    // sets the last viewed page for later retrieval
-    else if (this.props.resourcePosition && this.props.resourceAlias && this.state.room?.roomId) {
-      Client.client.setRoomAccountData(this.state.room.roomId, lastViewed, {
-        deviceId: Client.deviceId,
-        ...(parseInt(this.props.resourcePosition, 10) && { page: this.props.resourcePosition})
-      })
-      this.refreshFocus()
-    }
-  }
-
   handleKeydown = e => {
     if (e.altKey && e.key === 'a') this.openAnnotation()
     if (e.altKey && e.key === 'r') this.closeAnnotation()
@@ -401,6 +398,7 @@ export default class ContentView extends Component {
   }
 
   refreshFocus = _ => {
+    if (!this.state.room) return
     const theRoomState = this.state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theAnnotation = theRoomState.getStateEvents(spaceChild, this.props.roomFocused)
     if (theAnnotation) this.setState({ focus: new Location(theAnnotation) })
@@ -648,7 +646,6 @@ export default class ContentView extends Component {
       }
       onPointerMove={this.handlePointerMove}>
       <MediaModal />
-      <Router onChange={this.handleRouteChange} />
       {this.getLoadingStatus()}
       {this.getContentComponent()}
       <div id="sidepanel">
