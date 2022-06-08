@@ -63,7 +63,9 @@ export default class ContentView extends Component {
     const lastPosition = this.state.room?.getAccountData(lastViewed)
       ? parseInt(this.state.room.getAccountData(lastViewed).getContent().page) || 1
       : 1
-    return parseInt(this.props.resourcePosition, 10) || lastPosition
+    const tryParse = parseInt(this.props.resourcePosition, 10)
+    // we need isInteger here because zero is falsey
+    return Number.isInteger(tryParse) ? tryParse : lastPosition
   }
 
   componentDidMount() {
@@ -261,7 +263,7 @@ export default class ContentView extends Component {
     const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
     if (theAnnotation) {
       const focus = new Location(theAnnotation)
-      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${focus.getPageIndex() || this.getPosition()}/${roomId}${eventId ? "/" + eventId : ""}`)
+      History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${focus.getResourcePosition()}/${roomId}${eventId ? "/" + eventId : ""}`)
       const listingVisible = document.body.offsetWidth <= 600 ? false : this.state.listingVisible
       this.setState({ focus, secondaryFocus: null, chatVisible: true, listingVisible })
     }
@@ -384,16 +386,18 @@ export default class ContentView extends Component {
     this.unsetFocus()
   }
 
-  unsetFocus = _ => {
+  unsetFocus = opts => {
     // XXX breaking this up into two updates makes the animation work properly.
     // If you replace the element AND unset chat visibility in one update, then
     // the annotation panel jumps to the left
     this.setState({secondaryFocus: null, focus: null}, _ => this.setState({chatVisible: false}))
-    History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.props.resourcePosition}/`)
+    if (opts?.replace) History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${this.getPosition()}/`)
+    else History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.getPosition()}`)
   }
 
-  setFocus = focus => {
-    History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.props.resourcePosition}/${focus.getChild()}/`)
+  setFocus = (focus, opts) => {
+    if (opts?.replace) History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${opts?.holdPosition ? this.getPosition() : focus.getResourcePosition()}/${focus.getChild()}/`)
+    else History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${opts?.holdPosition ? this.getPosition() : focus.getResourcePosition()}/${focus.getChild()}`)
     this.setState({secondaryFocus: null, focus, chatVisible: true })
   }
 
@@ -401,7 +405,8 @@ export default class ContentView extends Component {
     if (!this.state.room) return
     const theRoomState = this.state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const theAnnotation = theRoomState.getStateEvents(spaceChild, this.props.roomFocused)
-    if (theAnnotation) this.setState({ focus: new Location(theAnnotation) })
+    if (theAnnotation) this.setFocus(new Location(theAnnotation), {replace: true, holdPosition: true})
+    else this.unsetFocus({replace: true})
   }
 
   setSecondaryFocus = secondaryFocus => this.setState({ secondaryFocus })
@@ -581,6 +586,7 @@ export default class ContentView extends Component {
         resourceAlias={this.props.resourceAlias}
         total={this.state.resourceLength}
         focus={this.state.focus}
+        roomFocused={this.props.roomFocused}
         eventFocused={this.props.eventFocused}
         focusNext={this.focusNext}
         focusPrev={this.focusPrev}

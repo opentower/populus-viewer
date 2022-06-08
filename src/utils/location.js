@@ -22,12 +22,46 @@ export default class Location {
     return "All"
   }
 
-  getText() {
-    return this.location?.[mscPdfHighlight]?.text_content
-  }
-
   getVia() {
     return this.event.getContent().via
+  }
+
+  getType() {
+    if (this.location?.[mscPdfHighlight]) return "highlight"
+    if (this.location?.[mscPdfText]) return "text"
+    if (this.location?.[mscMediaFragment]) return "media-fragment"
+    return null
+  }
+
+  getOrientation() {
+    if (this.event.getType() === spaceParent) return "parent"
+    if (this.event.getType() === spaceChild) return "child"
+  }
+
+  getParent() {
+    if (this.event.getType() === spaceParent) return this.event.getStateKey()
+    if (this.event.getType() === spaceChild) return this.event.getRoomId()
+    if (this.event.getType() === "m.room.message") {
+      return this.event.getContent()[mscMarkupMsgKey]?.[mscParent]
+    }
+  }
+
+  getChild() {
+    if (this.event.getType() === spaceParent) return this.event.getRoomId()
+    if (this.event.getType() === spaceChild) return this.event.getStateKey()
+    if (this.event.getType() === "m.room.message") return this.event.getRoomId()
+  }
+
+  getResourcePosition() {
+    if (this.location?.[mscPdfHighlight]) return this.getPageIndex()
+    if (this.location?.[mscPdfText]) return this.getPageIndex()
+    if (this.location?.[mscMediaFragment]) return Math.floor(this.getIntervalStart() / 1000)
+  }
+
+  //PDF specific
+
+  getText() {
+    return this.location?.[mscPdfHighlight]?.text_content
   }
 
   getPageIndex() {
@@ -43,6 +77,8 @@ export default class Location {
     return this.location?.[mscPdfHighlight]?.rect ||
       this.location?.[mscPdfText]?.rect
   }
+
+  //Media specific
 
   getIntervalStart() {
     if (this.location[mscMediaFragment]) {
@@ -88,29 +124,4 @@ export default class Location {
     return this.location?.[populusHighlight]?.creator
   }
 
-  getType() {
-    if (this.location?.[mscPdfHighlight]) return "highlight"
-    if (this.location?.[mscPdfText]) return "text"
-    if (this.location?.[mscMediaFragment]) return "media-fragment"
-    return null
-  }
-
-  getOrientation() {
-    if (this.event.getType() === spaceParent) return "parent"
-    if (this.event.getType() === spaceChild) return "child"
-  }
-
-  getParent() {
-    if (this.event.getType() === spaceParent) return this.event.getStateKey()
-    if (this.event.getType() === spaceChild) return this.event.getRoomId()
-    if (this.event.getType() === "m.room.message") {
-      return this.event.getContent()[mscMarkupMsgKey]?.[mscParent]
-    }
-  }
-
-  getChild() {
-    if (this.event.getType() === spaceParent) return this.event.getRoomId()
-    if (this.event.getType() === spaceChild) return this.event.getStateKey()
-    if (this.event.getType() === "m.room.message") return this.event.getRoomId()
-  }
 }

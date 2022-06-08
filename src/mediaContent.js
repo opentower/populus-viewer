@@ -34,15 +34,24 @@ export default class MediaContent extends Component {
 
   componentDidUpdate(prev) {
     if (this.state.ready) {
+      const duration = this.wavesurfer.getDuration()
       if (this.props.focus && this.props.focus?.getChild() !== prev.focus?.getChild() ) {
         // focusing new annotation: jump to that 
-        const duration = this.wavesurfer.getDuration()
-        this.wavesurfer.seekAndCenter(this.props.focus.getIntervalStart() / (duration * 1000))
-      }
-      if (this.props.secondaryFocus && this.props.secondaryFocus?.getIntervalStart() !== prev.secondaryFocus?.getIntervalStart() ) {
-        // focusing new annotation message: jump to that 
-        const duration = this.wavesurfer.getDuration()
-        this.wavesurfer.seekAndCenter(this.props.secondaryFocus.getIntervalStart() / (duration * 1000))
+        if (this.stampMatchesFocus()) this.centerLocation(this.props.focus)
+        // if the timestamp is the same as the one we get from the focus, we center the beginning of the focus on the nose
+        else if (this.props.timeStamp < 0 || this.props.timeStamp > duration ) this.handleBadTimeStamp()
+        // if the timestamp is invalid, we handle it
+        else this.wavesurfer.seekAndCenter(this.props.timeStamp / duration)
+        // otherwise we center based on the timestamp
+      } else if ("timeStamp" in this.props && this.props.timeStamp !== prev.timeStamp) {
+        // If there's no focus, we center based on the timestamp (use "in" since 0 is falsey)
+        if (this.props.timeStamp < 0 || this.props.timeStamp > duration) this.handleBadTimeStamp()
+        // if the timestamp is invalid, we handle it
+        else this.wavesurfer.seekAndCenter(this.props.timeStamp / duration)
+        // otherwise we center based on the timestamp
+      } else if (this.props.secondaryFocus && this.props.secondaryFocus?.getIntervalStart() !== prev.secondaryFocus?.getIntervalStart() ) {
+        // and if the only thing that has changed is the secondary focus, we jump to that.
+        this.centerLocation(this.props.secondaryFocus)
       }
       if (prev.filteredAnnotationContents.length !== this.props.filteredAnnotationContents.length) {
         // annotation added or deleted
@@ -263,6 +272,23 @@ export default class MediaContent extends Component {
     else this.scrubLeft()
   }
 
+  centerLocation = loc => {
+    this.wavesurfer.seekAndCenter(loc.getIntervalStart() / (this.wavesurfer.getDuration() * 1000))
+  }
+
+  handleBadTimeStamp = _ => {
+    const newTS = Math.floor(this.props.timeStamp < 0 ? 0 : this.wavesurfer.getDuration())
+    History.replace(`/${encodeURIComponent(this.props.resourceAlias)}` + 
+      `/${newTS}` + 
+      `${this.props.roomFocused ? `/${this.props.roomFocused}` : ""}` +
+      `${this.props.eventFocused ? `/${this.props.eventFocused}` : ""}`
+    )
+  }
+
+  stampMatchesFocus = _ => {
+    return this.props.timeStamp == Math.floor(this.props.focus.getIntervalStart() / 1000)
+  }
+
   catchFetchMediaError = e => {
     Toast.set(<Fragment>
       <h3 id="toast-header">Couldn't fetch the {this.isVideo ? "audio file" : "video"}...</h3>
@@ -331,16 +357,10 @@ export default class MediaContent extends Component {
       const height = document.body.clientHeight
       const duration = Math.ceil(this.wavesurfer.getDuration())
       this.props.setMediaDuration(duration)
-      if (this.props.timeStamp) {
-        if (this.props.timeStamp < 0 || this.props.timeStamp > duration) {
-          const newTS = this.props.timeStamp < 0 ? 0 : duration
-          History.replace(`/${encodeURIComponent(this.props.resourceAlias)}` + 
-            `/${newTS}` + 
-            `${this.props.roomFocused ? `/${this.props.roomFocused}` : ""}` +
-            `${this.props.eventFocused ? `/${this.props.eventFocused}` : ""}`
-          )
-          this.wavesurfer.seekAndCenter(newTS / duration)
-        } else this.wavesurfer.seekAndCenter(this.props.timeStamp / duration)
+      if ("timeStamp" in this.props) {
+        if (this.props.timeStamp < 0 || this.props.timeStamp > duration) this.handleBadTimeStamp()
+        else if (this.props.focus && this.stampMatchesFocus()) this.centerLocation(this.props.focus)
+        else this.wavesurfer.seekAndCenter(this.props.timeStamp / duration)
       }
       this.props.setContentDimensions(height,width)
       this.setState({ready: true})
@@ -350,7 +370,8 @@ export default class MediaContent extends Component {
         clearTimeout(this.seekTimeout)
         this.seekTimeout = setTimeout(_ => {
           const timeSec = Math.floor(this.wavesurfer.getCurrentTime())
-          History.push(`/${encodeURIComponent(this.props.resourceAlias)}` + 
+          if (timeSec !== this.props.timeStamp) History.push(
+            `/${encodeURIComponent(this.props.resourceAlias)}` + 
             `/${timeSec}` + 
             `${this.props.roomFocused ? `/${this.props.roomFocused}` : ""}` +
             `${this.props.eventFocused ? `/${this.props.eventFocused}` : ""}`

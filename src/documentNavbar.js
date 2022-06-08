@@ -78,7 +78,7 @@ export default class DocumentNavbar extends Component {
     if (this.props.pageFocused > 1) {
       History.push(`/${encodeURIComponent(this.props.resourceAlias)}` + 
         `/${Math.max(1, this.props.pageFocused - (1 + sparePages))}` + 
-        `${this.props.room.roomId ? "/" + this.props.room.roomId : ""}` +
+        `${this.props.roomFocused ? "/" + this.props.roomFocused : ""}` +
         `${this.props.eventFocused ? "/" + this.props.eventFocused : ""}`
       )
 
@@ -91,7 +91,7 @@ export default class DocumentNavbar extends Component {
     if (this.props.pageFocused + sparePages < this.props.total) {
       History.push(`/${encodeURIComponent(this.props.resourceAlias)}` + 
         `/${Math.max(1, this.props.pageFocused + (1 + sparePages))}` + 
-        `${this.props.room.roomId ? "/" + this.props.room.roomId : ""}` +
+        `${this.props.roomFocused ? "/" + this.props.roomFocused : ""}` +
         `${this.props.eventFocused ? "/" + this.props.eventFocused : ""}`
       )
       this.props.contentContainer.current.scrollTop = 0
