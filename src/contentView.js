@@ -517,6 +517,13 @@ export default class ContentView extends Component {
   getContentComponent() {
     if (this.state.mimetype === "application/pdf") {
       const page = PdfContent.positionToPage(this.props.resourcePosition, this.state.room)
+      if (this.props.resourcePosition != page) { //important to allow type coercion via `=!` here.
+        History.replace(`/${encodeURIComponent(this.props.resourceAlias)}` + 
+          `/${page}` + 
+          `${this.props.roomFocused ? "/" + this.props.roomFocused : ""}` +
+          `${this.props.eventFocused ? "/" + this.props.eventFocused : ""}`
+        )
+      }
       return <PdfContent
             annotationsVisible={this.state.annotationsVisible}
             filteredAnnotationContents={this.state.filteredAnnotationContents}
@@ -544,6 +551,13 @@ export default class ContentView extends Component {
           />
     } else if (this.state.mimetype?.match(/^audio|^video/)) {
       const timestamp = MediaContent.positionToTimestamp(this.props.resourcePosition, this.state.room)
+      if (this.props.resourcePosition != timestamp) { //important to allow type coercion via `=!` here.
+        History.replace(`/${encodeURIComponent(this.props.resourceAlias)}` + 
+          `/${timestamp}` + 
+          `${this.props.roomFocused ? "/" + this.props.roomFocused : ""}` +
+          `${this.props.eventFocused ? "/" + this.props.eventFocused : ""}`
+        )
+      }
       return <MediaContent 
             annotationsVisible={this.state.annotationsVisible}
             filteredAnnotationContents={this.state.filteredAnnotationContents}
