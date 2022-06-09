@@ -244,7 +244,7 @@ class Pages extends Component {
   }
 
   componentDidUpdate() {
-    this.currentPageElement.current.scrollIntoView({inline: "center"})
+    this.currentPageElement.current?.scrollIntoView({inline: "center"})
   }
 
   componentDidMount() {

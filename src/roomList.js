@@ -253,7 +253,7 @@ class RoomEntry extends Component {
   }
 
   getLastViewedPage = _ => this.props.room.getAccountData(lastViewed)
-    ? this.props.room.getAccountData(lastViewed).getContent().page
+    ? this.props.room.getAccountData(lastViewed).getContent().position
     : 1
 
   roomColor = new RoomColor(this.props.room.roomId)

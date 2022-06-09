@@ -1,5 +1,5 @@
 export const pdfStateType = "com.open-tower.populus.pdf" // increment to start over with a fresh event type
-export const lastViewed = "com.open-tower.populus.lastPageViewed"
+export const lastViewed = "com.open-tower.populus.lastPositionViewed"
 export const serverRoot = `https://populus.open-tower.com`
 export const spaceChild = "m.space.child"
 export const spaceParent = "m.space.parent"

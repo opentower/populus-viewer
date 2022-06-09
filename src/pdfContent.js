@@ -18,11 +18,12 @@ export default class PdfContent extends Component {
   // we expose this method so that we can unformly sanatize position-strings
   // before passing them to components that expect timestamps
   static positionToPage(pos, room) {
-    const tryLastPosition = parseInt(room?.getAccountData(lastViewed), 10)
+    const tryLastPosition = parseInt(room?.getAccountData(lastViewed)?.getContent().position, 10)
     const tryParse = parseInt(pos, 10)
-    return tryParse > 0
+    // need isInteger because 0 is falsey
+    return Number.isInteger(tryParse)
       ? tryParse 
-      : tryLastPosition > 0
+      : Number.isInteger(tryLastPosition)
       ? tryLastPosition
       : 1
   }
@@ -63,7 +64,7 @@ export default class PdfContent extends Component {
         console.log(`saved ${this.props.pageFocused}`)
         Client.client.setRoomAccountData(this.props.room.roomId, lastViewed, {
           deviceId: Client.deviceId,
-          page: this.props.pageFocused
+          position: this.props.pageFocused
         })
     }, 1500)
   }
