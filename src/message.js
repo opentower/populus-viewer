@@ -42,7 +42,7 @@ export class TextMessage extends Component {
       canRedact={props.canRedact}
       event={props.event}>
       <div ref={this.messageBody} class="message-body">
-        {isReply ? <ReplyPreview reactions={props.reactions} event={props.event} /> : null}
+        {isReply ? <ReplyPreview resourceAlias={props.resourceAlias} reactions={props.reactions} event={props.event} /> : null}
         <DisplayContent content={content} />
       </div>
     </MessageFrame>
@@ -186,17 +186,17 @@ class ReplyPreview extends Component {
 
   handleLoad = _ => this.setState({ loaded: true })
 
-  jumpToEvent = _ => {
-    if (!this.state.liveEvent?.getContent().msgtype) return // message redacted
-    const inReplyToId = this.props.event.getContent()["m.relates_to"]["m.in_reply_to"].event_id
-    History.setPath(4, inReplyToId)
-  }
-
   fromLiveEvent = _ => {
     const content = this.state.liveEvent?.getContent()
     if (!content) return
     const hasHtml = (content.format === "org.matrix.custom.html") && content.formatted_body
     const isReply = Replies.isReply(content)
+    const replyUrl = content.msgtype 
+      ? `${window.location.origin}${window.location.pathname}#/` +
+        `${encodeURIComponent(this.props.resourceAlias)}/_/` +
+        `${this.state.liveEvent.getRoomId()}/` +
+        `${this.state.liveEvent.getId()}`
+      : null //redacted
     const senderColors = new UserColor(this.state.liveEvent.getSender())
     let displayBody
     if (!this.state.liveEvent.getContent().msgtype) {
@@ -279,7 +279,8 @@ class ReplyPreview extends Component {
     }
     return <Fragment>
       <div class="reply-preface">
-        <a role="link" onclick={this.jumpToEvent}>In reply to</a>:
+        <a href={replyUrl}
+        >In reply to</a>:
       </div>
       <UserInfoHeader isReply userId={this.state.liveEvent.getSender()} />
       <div ref={this.replyPreview} data-media-message-loaded={this.state.loaded} style={senderColors.styleVariables} class="reply-preview">
@@ -337,7 +338,7 @@ export class NoticeMessage extends Component {
       styleOverride={this.noticeStyle}
       event={props.event}>
       <div ref={this.messageBody} class="message-body">
-        {isReply ? <ReplyPreview reactions={props.reactions} event={props.event} /> : null}
+        {isReply ? <ReplyPreview resourceAlias={props.resourceAlias} reactions={props.reactions} event={props.event} /> : null}
         <DisplayContent content={content} />
       </div>
     </MessageFrame>

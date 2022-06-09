@@ -61,7 +61,6 @@ export default class PdfContent extends Component {
     // we only save if you've stopped zipping around for more than a second
     clearTimeout(this.saveLocationTimeout)
     this.saveLocationTimeout = setTimeout(_ => {
-        console.log(`saved ${this.props.pageFocused}`)
         Client.client.setRoomAccountData(this.props.room.roomId, lastViewed, {
           deviceId: Client.deviceId,
           position: this.props.pageFocused

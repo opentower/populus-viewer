@@ -238,6 +238,7 @@ export default class Chat extends Component {
           accumulator.push(
             <TextMessage reactions={reactions}
               key={event.getId()}
+              resourceAlias={props.resourceAlias}
               canRedact={canRedact}
               event={event} />
           )
@@ -247,6 +248,7 @@ export default class Chat extends Component {
           accumulator.push(
             <NoticeMessage reactions={reactions}
               key={event.getId()}
+              resourceAlias={props.resourceAlias}
               canRedact={canRedact}
               event={event} />
           )

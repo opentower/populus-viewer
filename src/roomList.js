@@ -252,10 +252,6 @@ class RoomEntry extends Component {
     this.state = { buttonsVisible: false }
   }
 
-  getLastViewedPage = _ => this.props.room.getAccountData(lastViewed)
-    ? this.props.room.getAccountData(lastViewed).getContent().position
-    : 1
-
   roomColor = new RoomColor(this.props.room.roomId)
 
   toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
@@ -281,11 +277,11 @@ class RoomEntry extends Component {
       .hasSufficientPowerLevelFor("invite", userMember.powerLevel)
     const canonicalAlias = props.room.getCanonicalAlias()?.slice(1)
     if (canonicalAlias) return <div style={this.roomColor.styleVariables} class="room-listing-entry" id={props.room.roomId}>
-      <AvatarPanel getLastViewedPage={this.getLastViewedPage} room={props.room} />
+      <AvatarPanel room={props.room} />
       <div data-room-entry-buttons-visible={state.buttonsVisible} class="room-listing-body">
         <div class="room-listing-heading">
           {props.room.tags["m.favourite"] ? <span class="fav-star"> {Icons.star} </span> : null}
-          <a href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(canonicalAlias)}/${this.getLastViewedPage()}`}>{props.room.name}</a>
+          <a href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(canonicalAlias)}/`}>{props.room.name}</a>
         </div>
         <div class="room-listing-data">
           <RoomTagListing room={props.room} />
@@ -386,7 +382,7 @@ class AvatarPanel extends Component {
         </Fragment>
         : null
       }
-      <AnnotationData getLastViewedPage={props.getLastViewedPage} room={props.room} />
+      <AnnotationData room={props.room} />
     </div>
   }
 }
@@ -483,7 +479,7 @@ class AnnotationData extends Component {
   handleLoadNew = _ => {
     const canonicalAlias = this.props.room.getCanonicalAlias()?.slice(1)
     if (canonicalAlias) History.push(
-      `/${encodeURIComponent(canonicalAlias)}/${this.props.getLastViewedPage() || 1}/`,
+      `/${encodeURIComponent(canonicalAlias)}/`,
       {searchString: "~unread"}
     )
   }
