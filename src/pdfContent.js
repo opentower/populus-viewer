@@ -1,6 +1,7 @@
 import { h, createRef, Fragment, Component } from 'preact';
 import PdfPage from './pdfPage.js'
 import Resource from "./utils/resource.js"
+import Client from './client.js'
 import Toast from "./toast.js"
 import Location from './utils/location.js'
 import * as PDFJS from "pdfjs-dist/webpack"
@@ -19,10 +20,9 @@ export default class PdfContent extends Component {
   static positionToPage(pos, room) {
     const tryLastPosition = parseInt(room?.getAccountData(lastViewed), 10)
     const tryParse = parseInt(pos, 10)
-    // we need isInteger here because zero is falsey
-    return Number.isInteger(tryParse) 
+    return tryParse > 0
       ? tryParse 
-      : Number.isInteger(tryLastPosition)
+      : tryLastPosition > 0
       ? tryLastPosition
       : 1
   }
@@ -45,6 +45,39 @@ export default class PdfContent extends Component {
   componentDidMount() { 
     this.fetchPdf()
     // fetch will fail if the initial sync isn't complete, but that should be handled by the splash page
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.resourceLength !== prevProps.resourceLength || // on length becoming known
+      prevProps.pageFocused !== this.props.pageFocused // on page focus changing
+    ) {
+      if (this.props.pageFocused < 1 || this.props.pageFocused > this.props.resourceLength) this.handleBadPage()
+      else this.updateSavedLocation()
+    }
+  }
+
+  updateSavedLocation = _ => {
+    // we only save if you've stopped zipping around for more than a second
+    clearTimeout(this.saveLocationTimeout)
+    this.saveLocationTimeout = setTimeout(_ => {
+        console.log(`saved ${this.props.pageFocused}`)
+        Client.client.setRoomAccountData(this.props.room.roomId, lastViewed, {
+          deviceId: Client.deviceId,
+          page: this.props.pageFocused
+        })
+    }, 1500)
+  }
+
+  handleBadPage = _ => {
+    if (this.props.resourceLength) {
+      console.log("fired")
+      const newPage = this.props.pageFocused < this.props.resourceLength ? 1 : this.props.resourceLength
+      History.replace(`/${encodeURIComponent(this.props.resourceAlias)}` + 
+        `/${newPage}` + 
+        `${this.props.roomFocused ? `/${this.props.roomFocused}` : ""}` +
+        `${this.props.eventFocused ? `/${this.props.eventFocused}` : ""}`
+      )
+    }
   }
 
   mainPage = createRef()

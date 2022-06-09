@@ -66,7 +66,8 @@ export default class PdfCanvas extends Component {
     // exit early if someone else has grabbed control
     if (control !== this.controlToken) return
     // Fetch the first page
-    const page = await pdf.getPage(parseInt(this.props.pageFocused, 10) || 1).catch(console.log)
+    const page = await pdf.getPage(this.props.pageFocused).catch(console.log)
+    if (!page) return
     console.log('Page loaded');
 
     const scale = this.props.pdfScale

@@ -20,10 +20,9 @@ export default class MediaContent extends Component {
   static positionToTimestamp(pos, room) {
     const tryLastPosition = parseInt(room?.getAccountData(lastViewed), 10)
     const tryParse = parseInt(pos, 10)
-    // we need isInteger here because zero is falsey
-    return Number.isInteger(tryParse) 
+    return tryParse >= 0
       ? tryParse 
-      : Number.isInteger(tryLastPosition)
+      : tryLastPosition >= 0
       ? tryLastPosition
       : 0
   }
@@ -44,11 +43,17 @@ export default class MediaContent extends Component {
     this.fetchMedia() 
   }
 
-  componentWillUnmount() { if (this.wavesurfer) this.wavesurfer.destroy() }
+  componentWillUnmount() { 
+    clearTimeout(this.inertiaTimeout)
+    clearTimeout(this.longPressTimeout)
+    clearTimeout(this.saveLocationTimeout)
+    if (this.wavesurfer) this.wavesurfer.destroy() 
+  }
 
   componentDidUpdate(prev) {
     if (this.state.ready) {
       const duration = this.wavesurfer.getDuration()
+      const timeSec = this.wavesurfer.getCurrentTime()
       if (this.props.focus && this.props.focus?.getChild() !== prev.focus?.getChild() ) {
         // focusing new annotation: jump to that 
         if (this.stampMatchesFocus()) this.centerLocation(this.props.focus)
@@ -57,8 +62,12 @@ export default class MediaContent extends Component {
         // if the timestamp is invalid, we handle it
         else this.wavesurfer.seekAndCenter(this.props.timeStamp / duration)
         // otherwise we center based on the timestamp
-      } else if ("timeStamp" in this.props && this.props.timeStamp !== prev.timeStamp) {
-        // If there's no focus, we center based on the timestamp (use "in" since 0 is falsey)
+      } else if ("timeStamp" in this.props && 
+        Math.abs(this.props.timeStamp - prev.timeStamp) > 2 && //timestamp changed signifiantly, and
+        Math.abs(this.props.timeStamp - timeSec) > 2 //we're not already at the location
+      ) {
+        // If there's no focus, we center based on the timestamp (use "in"
+        // since 0 is falsey), assuming it's changed by enough
         if (this.props.timeStamp < 0 || this.props.timeStamp > duration) this.handleBadTimeStamp()
         // if the timestamp is invalid, we handle it
         else this.wavesurfer.seekAndCenter(this.props.timeStamp / duration)
@@ -392,6 +401,7 @@ export default class MediaContent extends Component {
           )
         }, 250)
       }
+      this.updateSavedLocation()
       this.updateVideoLocation()
     });
     this.wavesurfer.on('scroll', e => { 
@@ -402,12 +412,26 @@ export default class MediaContent extends Component {
         this.lastLeft = e.target.scrollLeft
       }
     })
-    this.wavesurfer.on("audioprocess", _ => !this.updateVideoLocationLocked && this.updateVideoLocation())
+    this.wavesurfer.on("audioprocess", _ => {
+      this.updateSavedLocation()
+      !this.updateVideoLocationLocked && this.updateVideoLocation()
+    })
   }
 
   filterAnnotations = loc => loc.getType() === "media-fragment"
 
   setVideo = videoLocation => this.setState({ videoLocation })
+
+  updateSavedLocation = _ => {
+    // we only save if you've stopped zipping around for more than a second
+    clearTimeout(this.saveLocationTimeout)
+    this.saveLocationTimeout = setTimeout(_ => {
+        Client.client.setRoomAccountData(this.props.room.roomId, lastViewed, {
+          deviceId: Client.deviceId,
+          page: this.props.timeStamp
+        })
+    }, 1500)
+  }
 
   updateVideoLocation = _ => {
     const locations = this.getCurrentLocations()

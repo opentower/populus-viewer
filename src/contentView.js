@@ -76,13 +76,7 @@ export default class ContentView extends Component {
   componentDidUpdate(prevProps) {
     // on change of resource, fetch new resource
     if (prevProps.resourceAlias !== this.props.resourceAlias) this.fetchResource()
-    // sets the last viewed page for later retrieval
-    else if (this.state.room?.roomId && this.props.resourcePosition && prevProps.resourcePostion !== this.props.resourcePosition) {
-        Client.client.setRoomAccountData(this.state.room.roomId, lastViewed, {
-          deviceId: Client.deviceId,
-          ...(parseInt(this.props.resourcePosition, 10) && { page: this.props.resourcePosition})
-        })
-    }
+    // on change of focused room, refresh relevant UI
     if (prevProps.roomFocused !== this.props.roomFocused) this.refreshFocus()
   }
 
@@ -100,7 +94,7 @@ export default class ContentView extends Component {
         Toast.set(
           <Fragment>
             <h3 id="toast-header">Hey!</h3>
-            <div>Another device is viewing a different page.</div>
+            <div>Another device is viewing a different position.</div>
             <div style="margin-top:10px">
               <button
                 onclick={_ => {
@@ -169,6 +163,7 @@ export default class ContentView extends Component {
       contentWidthPx: null,
       contentHeightPx: null,
       zoomFactor: null,
+      resourceLength: null,
       loadingStatus: "loading...",
     }, res))
     const aliasResponse = await Client.client.getRoomIdForAlias(`#${this.props.resourceAlias}`).catch(this.catchFetchResourceError)
@@ -529,10 +524,14 @@ export default class ContentView extends Component {
             focus={this.state.focus}
             pageFocused={page}
             totalPages={this.state.resourceLength}
+            key={this.props.resourceAlias} // tear this down when resource changes
             resourceAlias={this.props.resourceAlias}
+            resourceLength={this.state.resourceLength}
             pindropMode={this.state.pindropMode}
             setPindropMode={this.setPindropMode}
             room={this.state.room}
+            roomFocused={this.props.roomFocused}
+            eventFocused={this.props.eventFocused}
             searchString={this.state.searchString}
             secondaryFocus={this.state.secondaryFocus}
             setFocus={this.setFocus}
@@ -549,6 +548,7 @@ export default class ContentView extends Component {
             annotationsVisible={this.state.annotationsVisible}
             filteredAnnotationContents={this.state.filteredAnnotationContents}
             ref={this.content}
+            key={this.props.resourceAlias} // tear this down when resource changes
             resourceAlias={this.props.resourceAlias}
             timeStamp={timestamp}
             room={this.state.room}
