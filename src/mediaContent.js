@@ -11,9 +11,23 @@ import { UserColor } from './utils/colors.js'
 import { onlineOrAlert } from "./utils/alerts.js"
 import Regions from 'wavesurfer.js/src/plugin/regions/'
 import './styles/mediaContent.css'
-import { mscLocation, mscMediaFragment, populusHighlight, spaceChild, spaceParent } from "./constants.js"
+import { mscLocation, mscMediaFragment, populusHighlight, spaceChild, spaceParent, lastViewed } from "./constants.js"
 
 export default class MediaContent extends Component {
+
+  // we expose this method so that we can unformly sanatize position-strings
+  // before passing them to components that expect timestamps
+  static positionToTimestamp(pos, room) {
+    const tryLastPosition = parseInt(room?.getAccountData(lastViewed), 10)
+    const tryParse = parseInt(pos, 10)
+    // we need isInteger here because zero is falsey
+    return Number.isInteger(tryParse) 
+      ? tryParse 
+      : Number.isInteger(tryLastPosition)
+      ? tryLastPosition
+      : 0
+  }
+
   constructor(props) {
     super(props)
     this.hasFetched = new Promise((resolve, reject) => {

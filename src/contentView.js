@@ -58,16 +58,6 @@ export default class ContentView extends Component {
     // listener with the proper `this` reference
   }
 
-
-  getPosition() { 
-    const lastPosition = this.state.room?.getAccountData(lastViewed)
-      ? parseInt(this.state.room.getAccountData(lastViewed).getContent().page) || 1
-      : 1
-    const tryParse = parseInt(this.props.resourcePosition, 10)
-    // we need isInteger here because zero is falsey
-    return Number.isInteger(tryParse) ? tryParse : lastPosition
-  }
-
   componentDidMount() {
     document.addEventListener("selectionchange", this.checkForSelection)
     document.addEventListener('keydown', this.handleKeydown)
@@ -391,13 +381,13 @@ export default class ContentView extends Component {
     // If you replace the element AND unset chat visibility in one update, then
     // the annotation panel jumps to the left
     this.setState({secondaryFocus: null, focus: null}, _ => this.setState({chatVisible: false}))
-    if (opts?.replace) History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${this.getPosition()}/`)
-    else History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.getPosition()}`)
+    if (opts?.replace) History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${this.props.resourcePosition}/`)
+    else History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${this.props.resourcePosition}`)
   }
 
   setFocus = (focus, opts) => {
-    if (opts?.replace) History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${opts?.holdPosition ? this.getPosition() : focus.getResourcePosition()}/${focus.getChild()}/`)
-    else History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${opts?.holdPosition ? this.getPosition() : focus.getResourcePosition()}/${focus.getChild()}`)
+    if (opts?.replace) History.replace(`/${encodeURIComponent(this.props.resourceAlias)}/${opts?.holdPosition ? this.props.resourcePosition : focus.getResourcePosition()}/${focus.getChild()}/`)
+    else History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${opts?.holdPosition ? this.props.resourcePosition : focus.getResourcePosition()}/${focus.getChild()}`)
     this.setState({secondaryFocus: null, focus, chatVisible: true })
   }
 
@@ -531,12 +521,13 @@ export default class ContentView extends Component {
 
   getContentComponent() {
     if (this.state.mimetype === "application/pdf") {
+      const page = PdfContent.positionToPage(this.props.resourcePosition, this.state.room)
       return <PdfContent
             annotationsVisible={this.state.annotationsVisible}
             filteredAnnotationContents={this.state.filteredAnnotationContents}
             ref={this.content}
             focus={this.state.focus}
-            pageFocused={this.getPosition()}
+            pageFocused={page}
             totalPages={this.state.resourceLength}
             resourceAlias={this.props.resourceAlias}
             pindropMode={this.state.pindropMode}
@@ -553,12 +544,13 @@ export default class ContentView extends Component {
             zoomFactor={this.state.zoomFactor}
           />
     } else if (this.state.mimetype?.match(/^audio|^video/)) {
+      const timestamp = MediaContent.positionToTimestamp(this.props.resourcePosition, this.state.room)
       return <MediaContent 
             annotationsVisible={this.state.annotationsVisible}
             filteredAnnotationContents={this.state.filteredAnnotationContents}
             ref={this.content}
             resourceAlias={this.props.resourceAlias}
-            timeStamp={this.getPosition()}
+            timeStamp={timestamp}
             room={this.state.room}
             roomFocused={this.props.roomFocused}
             eventFocused={this.props.eventFocused}
@@ -578,11 +570,12 @@ export default class ContentView extends Component {
 
   getNavComponent() {
     if (this.state.mimetype === "application/pdf") {
+      const page = PdfContent.positionToPage(this.props.resourcePosition, this.state.room)
       return <DocumentNavbar hasSelection={this.state.hasSelection}
         openAnnotation={this.openAnnotation}
         closeAnnotation={this.closeAnnotation}
         hasAnnotations={this.state.filteredAnnotationContents.length > 0}
-        pageFocused={this.getPosition()}
+        pageFocused={page}
         resourceAlias={this.props.resourceAlias}
         total={this.state.resourceLength}
         focus={this.state.focus}
@@ -602,11 +595,12 @@ export default class ContentView extends Component {
         pindropMode={this.state.pindropMode}
         setZoom={this.setZoom} />
     } else if (this.state.mimetype?.match(/^audio|^video/)) {
+      const timestamp = MediaContent.positionToTimestamp(this.props.resourcePosition, this.state.room)
       return <MediaNavbar hasSelection={this.state.hasSelection}
         openAnnotation={this.openAnnotation}
         closeAnnotation={this.closeAnnotation}
         hasAnnotations={this.state.filteredAnnotationContents.length > 0}
-        timeStamp={this.getPosition()}
+        timeStamp={timestamp}
         resourceAlias={this.props.resourceAlias}
         total={this.state.resourceLength}
         focus={this.state.focus}

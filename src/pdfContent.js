@@ -5,12 +5,27 @@ import Toast from "./toast.js"
 import Location from './utils/location.js'
 import * as PDFJS from "pdfjs-dist/webpack"
 import History from './history.js'
+import { lastViewed } from "./constants.js"
 
 export default class PdfContent extends Component {
-  static PDFStore = {}
+  
   // we store downloaded PDFs here in order to avoid excessive downloads.
   // Could alternatively use localstorage or some such eventually. We don't
   // use preact state since changes here aren't relevent to UI.
+  static PDFStore = {}
+
+  // we expose this method so that we can unformly sanatize position-strings
+  // before passing them to components that expect timestamps
+  static positionToPage(pos, room) {
+    const tryLastPosition = parseInt(room?.getAccountData(lastViewed), 10)
+    const tryParse = parseInt(pos, 10)
+    // we need isInteger here because zero is falsey
+    return Number.isInteger(tryParse) 
+      ? tryParse 
+      : Number.isInteger(tryLastPosition)
+      ? tryLastPosition
+      : 1
+  }
 
   constructor(props) {
     super(props)
