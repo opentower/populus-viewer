@@ -177,6 +177,7 @@ html[data-scrollbars="hidden"] #nav-pages::-webkit-scrollbar { display: none; }
     height:35px;
     border-radius:50px;
     border:none;
+    color:var(--content-text);
     background:var(--content-background);
     transition: background 0.5s ease;
 }
