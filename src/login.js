@@ -2,6 +2,7 @@ import { h, Fragment, createRef, Component } from 'preact';
 import './styles/login.css'
 import { serverRoot } from './constants.js'
 import Client from './client.js'
+import { UserColor } from './utils/colors.js'
 import * as Matrix from 'matrix-js-sdk'
 import * as Icons from './icons.js'
 
@@ -17,6 +18,10 @@ export default class LoginView extends Component {
     }
   }
 
+  componentDidMount() { this.resize() }
+
+  componentDidUpdate() { this.resize() }
+
   switchView = switchTo => (e) => {
     if (e) e.preventDefault()
     this.setState({registering: switchTo})
@@ -28,6 +33,17 @@ export default class LoginView extends Component {
 
   setPassword = password => this.setState({ password})
 
+  loginWrapper = createRef()
+
+  loginElement = createRef()
+
+  resize = _ => {
+    clearTimeout(this.resizeDebounce)
+    this.resizeDebounce = setTimeout(_ => 
+      this.loginWrapper.current.style.height = `${this.loginElement.current.scrollHeight}px`
+    , 200)
+  }
+
   render(props, state) {
     const theProps = {
       setServer: this.setServer,
@@ -37,14 +53,36 @@ export default class LoginView extends Component {
       setPassword: this.setPassword,
       password: state.password,
       loginHandler: props.loginHandler,
-      switchView: this.switchView
+      switchView: this.switchView,
+      loginElement: this.loginElement,
+      resize: this.resize
     }
-    switch (state.registering) {
-      case "register": return <div><Registration {...theProps} /></div>
-      case "SSO": return <div><SSO {...theProps} /></div>
-    }
-    return <div><Login {...theProps} /></div>
+    const mainCard = state.registering === "register"
+      ? <Registration {...theProps} />
+      : state.registering === "SSO"
+      ? <SSO {...theProps} />
+      : <Login {...theProps} />
+      return <div id="login-container"><DecorativeCircles /><div id="login-wrapper" ref={this.loginWrapper}>{mainCard}</div></div>
   }
+}
+
+function DecorativeCircles(props) {
+  clearTimeout(this.debounceLockTimeout)
+  this.debounceLockTimeout = setTimeout(_ => this.debounceLock = false, 500)
+  if (this.debounceLock) return this.memo
+  this.debounceLock = true
+  const circles = []
+  if (document.body.offsetWidth > 600) for (let i = 0; i < (document.body.offsetWidth / 10); i++) {
+    const roll = Math.random()
+    const color = new UserColor(roll.toString())
+    const width = Math.max(600 * roll, 100)
+    const offset= Math.max(50 * Math.random())
+    circles.push( <svg height="50" width={width + 50}>
+      <rect x={offset} width={width} height={25} style={`opacity:.1; fill: ${roll < .60 ? color.solid : "transparent"}`} />
+    </svg>)
+  }
+  this.memo = <div id="login-backdrop">{circles}</div>
+  return this.memo
 }
 
 class Login extends Component {
@@ -68,7 +106,7 @@ class Login extends Component {
   handleSSO = e => e.preventDefault()
 
   render(props, state) {
-    return <div id="login">
+    return <div ref={props.loginElement} id="login">
       <h3>Login To Populus</h3>
       <form id="loginForm" onSubmit={this.handleSubmit}>
         <UserData
@@ -81,13 +119,12 @@ class Login extends Component {
         <div>
           <button disabled={state.submitting} class="styled-button" >Login</button>
         </div>
-        <div>
+        <div id="login-options">
+          <hr class="styled-rule" />
           <span>Don't have a username? </span>
-          <div class="login-options">
-            <button class="styled-button" disabled={state.submitting} onClick={props.switchView("register")} >Register</button>
-            <span>or&nbsp; </span>
-            <button class="styled-button" disabled={state.submitting} onClick={props.switchView("SSO")} >Login Via SSO</button>
-          </div>
+          <a disabled={state.submitting} onClick={props.switchView("register")} >Register</a>
+          <span> or </span>
+          <a disabled={state.submitting} onClick={props.switchView("SSO")} >Login Via SSO</a>
         </div>
       </form>
     </div>
@@ -133,6 +170,7 @@ class SSO extends Component {
       this.setState({ loading: false })
       return
     }
+    this.props.resize()
     this.setState({
       loading: false,
       SSOProviders: theSSO.identity_providers
@@ -152,8 +190,8 @@ class SSO extends Component {
   handleServerInput = e => this.props.setServer(e.target.value)
 
   render(props, state) {
-    return <div id="login">
-      <h3>Sign In To Populus</h3>
+    return <div ref={props.loginElement} id="login">
+      <h3>Login Via SSO</h3>
       <form id="loginForm">
         <div>
           <label htmlFor="servername">Server</label>
@@ -184,9 +222,10 @@ class SSO extends Component {
             </div>
           }
         )}
-        <div>
+        <div id="login-options">
+          <hr class="styled-rule" />
           <span>Don't want to use a third-party login? </span>
-          <button class="styled-button" onClick={props.switchView("register")} >Register an Account</button>
+          <a onClick={props.switchView("register")} >Register an Account</a>
         </div>
       </form>
     </div>
@@ -285,17 +324,17 @@ class Registration extends Component {
   render(props, state) {
     switch (state.registrationStage) {
       case "retrieving-auth" : {
-        return <div id="registration">
+        return <div ref={props.loginElement} id="registration">
           <div id="registeringFeedback">Retrieving Authentication Procedures...</div>
         </div>
       }
       case "registering" : {
-        return <div id="registration">
+        return <div ref={props.loginElement} id="registration">
           <div id="registeringFeedback">Registering Account...</div>
         </div>
       }
       case "awaiting-recaptcha" : {
-        return <div id="registration">
+        return <div ref={props.loginElement} id="registration">
           <form id="registerForm">
             <div id="theRecaptcha">
               Complete this Recaptcha to finish registration
@@ -303,13 +342,14 @@ class Registration extends Component {
                 data-sitekey={this.recaptchaKey}
                 data-callback="recaptchaHandler" />
             </div>
+            <hl style="styled-rule" />
             <div>OR, <button class="styled-button" onClick={props.switchView("login")} >Login With Existing Account</button></div>
             <script src="https://www.google.com/recaptcha/api.js" async defer />
           </form>
         </div>
       }
       case "awaiting-server" : {
-        return <div id="registration">
+        return <div ref={props.loginElement} id="registration">
           <h3>Register an account</h3>
           <form
             onSubmit={this.beginRegistrationFlow}
@@ -324,13 +364,12 @@ class Registration extends Component {
               setName={props.setName}
               name={props.name} />
             <div><button class="styled-button">Register a New Account</button></div>
-            <div>
+            <div id="login-options">
+              <hr class="styled-rule" />
               <span>Already have an account? </span>
-              <div class="login-options">
-                <button class="styled-button" onClick={props.switchView("login")} >
-                  Login With Existing Account
-                </button>
-              </div>
+              <a onClick={props.switchView("login")} >
+                Login With Existing Account
+              </a>
             </div>
           </form>
         </div>

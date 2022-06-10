@@ -1,12 +1,55 @@
+#login-container {
+  display:grid;
+  position:absolute;
+  align-items:center;
+  justify-items:center;
+  bottom:0px;
+  top:0px;
+  left:0px;
+  right:0;
+  background: var(--content-backdrop);
+  overflow:hidden;
+  --margin-unit: 17px
+}
+
+#login-backdrop {
+  position:absolute;
+  width:120vw;
+  transform: translateX(-10vw);
+}
+
+#login-backdrop rect {
+  transition:opacity 1s ease, fill 1s ease;
+}
+
+#login-wrapper {
+  position:relative;
+  padding: calc(3 * var(--margin-unit)) calc(4 * var(--margin-unit)) calc(4 * var(--margin-unit)) calc(4 * var(--margin-unit));
+  min-width:450px;
+  background: var(--content-background);
+  display: inline-block;
+  border: 1px solid var(--content-border);
+  transition: height .25s ease;
+  overflow-y:auto;
+  z-index:2;
+}
+
 #login, #registration {
-    display: inline-block;
-    border: 1px solid black;
-    padding: 2em;
-    padding-top: 1em;
-    position: absolute;
-    left: 50%;
-    transform: translateX(-50%) translateY(-50%);
-    top: 50%;
+  overflow-y:auto;
+}
+
+#login h3, #registration h3 {
+  font-size:18pt;
+  margin-top:0px;
+}
+
+#login form, #registration form {
+  margin: calc(2 * var(--margin-unit)) 0 calc(2 * var(--margin-unit)) 0;
+}
+
+#login hr, #registration hr {
+  width:100%;
+  margin-bottom:15px;
 }
 
 #login input:invalid, #registration input:invalid {
@@ -28,7 +71,7 @@
 #login input, #registration input {
     grid-column: 2 / 3 ;
     margin:5px;
-    margin-left:0px;
+    margin-left:10px;
     padding:7px;
     border:none;
     background:var(--input-background);
@@ -39,8 +82,22 @@
     grid-column: 1 / 3 ;
 }
 
-.login-options {
-  display: inline-block;
+#login-options {
+  background:var(--content-background);
+  color: var(--content-text-dimmed);
+  position:absolute;
+  bottom:0px;
+  font-size:10pt;
+  display:block;
+  left: calc(4 * var(--margin-unit));
+  right: calc(4 * var(--margin-unit));
+  padding:0px 0px 20px 0px;
+}
+
+#login-options a {
+  display:inline-block;
+  text-decoration: underline;
+  cursor: pointer;
 }
 
 .login-sso-listing {
@@ -55,6 +112,7 @@
 }
 
 .sso-name {
+  color:var(--content-text);
   padding-left:20px;
   text-decoration:none;
   transition: font-weight ease .2s;
@@ -78,7 +136,37 @@
     animation: pulse-opacity 2s infinite; 
 }
 
+#servername { margin-bottom:1em !important; }
+
 @media only screen and (max-width: 600px) {
+    #login-wrapper {
+      min-width:100vw;
+      overflow:visible;
+      border:unset;
+      padding: unset;
+      display:grid;
+      justify-items:center;
+      align-items:center;
+    }
+
+    #login-options {
+      position:fixed;
+      left:calc(2 * var(--margin-unit));
+      right:calc(2 * var(--margin-unit));
+    }
+
+    #login, #registration {
+      width:100%;
+    }
+
+    #login-container {
+      background: var(--content-background)
+    }
+
+    #login-backdrop rect {
+      display:none;
+    }
+
     #login, #registration { 
       border:none;
       width:80%;
@@ -92,6 +180,7 @@
 
     #login input,
     #registration input { 
+      margin-left:0px;
       grid-column: 1 / 2 
     }
 } 
