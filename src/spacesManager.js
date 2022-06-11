@@ -9,6 +9,7 @@ import Resource from './utils/resource.js'
 import RoomSettings from './roomSettings.js'
 import SearchBar from './search.js'
 import RoomIcon from './roomIcon.js'
+import { RoomIconPlaceholder } from './roomIcon.js'
 import * as Icons from './icons.js'
 import { RoomColor } from './utils/colors.js'
 import { spaceChild, spaceParent, populusCollectionChild } from "./constants.js"
@@ -201,6 +202,12 @@ class SpaceListing extends Component {
         nextBatch: null
       }
     }
+    this.initialChildCount = props.room.getLiveTimeline() 
+      .getState(Matrix.EventTimeline.FORWARDS)
+      .getStateEvents("m.space.child")
+      .filter(childEvent => childEvent.getContent()?.via)
+      .length
+
     this.state = {
       actionsVisible: false,
       // We use an array here to avoid duplicating children
@@ -323,7 +330,7 @@ class SpaceListing extends Component {
         : null
       }
       <div class="space-listing-children">
-        {state.children
+      {Object.values(state.children).length > 0
           // the root is always first in the listing
           ? Object.values(state.children).slice(0, state.limit).map(child => <RoomIcon
               key={child.room_id}
@@ -334,7 +341,10 @@ class SpaceListing extends Component {
               avatarUrl={child.avatar_url}
               name={child.name || child?.canonical_alias?.slice(1) || "?"}
             />)
-          : null // insert loading bling here.
+          : Array(Math.min(state.limit, this.initialChildCount)).fill().map((_, idx) => <RoomIconPlaceholder
+              key={idx}
+              size={50}
+            />)
         }
         {(state.nextBatch || state.limit < Object.values(state.children).length)
           ? <div class="space-listing-more" onclick={this.addChildren}>...</div>

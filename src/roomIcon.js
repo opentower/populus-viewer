@@ -76,3 +76,15 @@ export default class RoomIcon extends Component {
       </div>
   }
 }
+
+export function RoomIconPlaceholder(props) {
+  return <div class="room-icon"
+      data-joined
+      data-placeholder
+      style={{
+        width: props.size,
+        height: props.size,
+        lineHeight: `${props.size}px`,
+        "--room_light" : "var(--low-contrast-background)"
+      }} />
+}

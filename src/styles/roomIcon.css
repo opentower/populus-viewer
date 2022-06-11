@@ -9,6 +9,11 @@
 
 .room-icon img {
   object-fit:cover;
+  transition: opacity 0.5s ease;
+}
+
+.room-icon[data-placeholder], .room-icon[data-has-avatar] {
+  background : var(--low-contrast-background)
 }
 
 .room-icon:not([data-has-avatar]) {
@@ -20,6 +25,10 @@
 
 .room-icon:not([data-joined]) {
   opacity: 0.5;
+}
+
+.room-icon[data-placeholder] img {
+  opacity: 0
 }
 
 .room-icon:hover {
