@@ -38,6 +38,7 @@ export default class MediaContent extends Component {
     this.isVideo = props.mimetype.match(/^video/)
     this.rightInertia = 1
     this.leftInertia = 1
+    this.zoomFactor = 1 
   }
 
   componentDidMount() { 
@@ -300,6 +301,11 @@ export default class MediaContent extends Component {
     this.wavesurfer.seekAndCenter(loc.getIntervalStart() / (this.wavesurfer.getDuration() * 1000))
   }
 
+  setZoom = n => {
+    this.zoomFactor = Math.max(1, Math.min(n, 200))
+    this.wavesurfer.zoom(15 * this.zoomFactor)
+  }
+
   handleBadTimeStamp = _ => {
     const newTS = Math.floor(this.props.timeStamp < 0 ? 0 : this.wavesurfer.getDuration())
     History.replace(`/${encodeURIComponent(this.props.resourceAlias)}` + 
@@ -376,6 +382,7 @@ export default class MediaContent extends Component {
     }
     this.wavesurfer.load(this.videoElement.current || URL.createObjectURL(media), pcm) // URL indirection here so that we can eventually prerender
     this.wavesurfer.on('ready', _ => {
+      this.wavesurfer.zoom(15)
       this.props.setMediaLoadingStatus(null)
       const width = document.body.clientWidth
       const height = document.body.clientHeight

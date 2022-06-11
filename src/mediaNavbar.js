@@ -54,6 +54,10 @@ export default class MediaNavbar extends Component {
 
   pause = _ => this.props.content.current.pause()
 
+  zoomIn = _ => this.props.content.current.setZoom(this.props.content.current.zoomFactor + .1)
+
+  zoomOut = _ => this.props.content.current.setZoom(this.props.content.current.zoomFactor - .1)
+
   toggleMoreOptions = _ => {
     if (this.state.moreOptionsVisible) this.props.setNavHeight(75)
     else this.props.setNavHeight(150)
@@ -121,14 +125,20 @@ export default class MediaNavbar extends Component {
         </div>
         <div ref={this.bottomWrapper} data-searchFocused={state.searchFocused} class="nav-button-wrapper bottom-wrapper">
           <ToolTip content="Manage membership" theme="bordered">
-            <button onClick={this.openInvite}>{Icons.userPlus}
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.openInvite}>{Icons.userPlus}
             </button>
           </ToolTip>
           <ToolTip content="Download PDF" theme="bordered">
-            <button onClick={this.download}>{Icons.download} </button>
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.download}>{Icons.download} </button>
+          </ToolTip>
+          <ToolTip content="Zoom out (-)" theme="bordered">
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.zoomOut}>{Icons.zoomout}</button>
+          </ToolTip>
+          <ToolTip content="Zoom in (+)" theme="bordered">
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.zoomIn}>{Icons.zoomin}</button>
           </ToolTip>
           <ToolTip content="Toggle annotation visibility (Alt + v)" theme="bordered">
-            <button onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
           </ToolTip>
         </div>
       </nav>
