@@ -55,7 +55,10 @@
   margin-top:20px;
 }
 
-#invite-join-members, #invite-kick-members {
+#invite-join-members,
+#invite-kick-members,
+#invite-ban-members,
+#invite-unban-members {
   padding-top:10px;
 }
 
