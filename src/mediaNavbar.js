@@ -9,7 +9,7 @@ import Resource from "./utils/resource.js"
 import Client from './client.js'
 import { toClockTime } from "./utils/temporal.js"
 import Modal from './modal.js'
-import Invite from './invite.js'
+import ManageMembership from './manageMembership.js'
 
 export default class MediaNavbar extends Component {
   constructor(props) {
@@ -64,7 +64,7 @@ export default class MediaNavbar extends Component {
     this.setState(oldState => { return {moreOptionsVisible: !oldState.moreOptionsVisible} })
   }
 
-  openInvite = _ => Modal.set(<Invite room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
+  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
 
   render(props, state) {
 
@@ -125,7 +125,7 @@ export default class MediaNavbar extends Component {
         </div>
         <div ref={this.bottomWrapper} data-searchFocused={state.searchFocused} class="nav-button-wrapper bottom-wrapper">
           <ToolTip content="Manage membership" theme="bordered">
-            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.openInvite}>{Icons.userPlus}
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.openMembership}>{Icons.userPlus}
             </button>
           </ToolTip>
           <ToolTip content="Download PDF" theme="bordered">

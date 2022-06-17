@@ -7,7 +7,7 @@ import SearchBar from './search.js'
 import * as Icons from './icons.js'
 import './styles/invite.css'
 
-export default class Invite extends Component {
+export default class ManageMembership extends Component {
   constructor(props) {
     super(props)
     this.state = {

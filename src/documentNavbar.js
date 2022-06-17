@@ -10,7 +10,7 @@ import History from './history.js'
 import Resource from "./utils/resource.js"
 import Client from './client.js'
 import Modal from './modal.js'
-import Invite from './invite.js'
+import ManageMembership from './manageMembership.js'
 
 export default class DocumentNavbar extends Component {
   constructor(props) {
@@ -128,7 +128,7 @@ export default class DocumentNavbar extends Component {
     }
   }
 
-  openInvite = _ => Modal.set(<Invite room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
+  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
 
   zoomOut = _ => this.props.setZoom(zoomFactor => zoomFactor - 0.1)
 
@@ -206,7 +206,7 @@ export default class DocumentNavbar extends Component {
         </div>
         <div inert={!state.moreOptionsVisible} ref={this.bottomWrapper} class="nav-button-wrapper bottom-wrapper">
           <ToolTip content="Manage membership" theme="bordered">
-            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.openInvite}>{Icons.userPlus}
+            <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.openMembership}>{Icons.userPlus}
             </button>
           </ToolTip>
           <ToolTip content="Download PDF" theme="bordered">

@@ -4,7 +4,7 @@ import Client from './client.js'
 import './styles/spacesManager.css'
 import Modal from './modal.js'
 import { toastError } from "./utils/alerts.js"
-import Invite from './invite.js'
+import ManageMembership from './manageMembership.js'
 import Resource from './utils/resource.js'
 import RoomSettings from './roomSettings.js'
 import SearchBar from './search.js'
@@ -302,9 +302,9 @@ class SpaceListing extends Component {
     Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Room Settings", `for ${this.props.room.name}`)
   }
 
-  openInvite = _ => {
+  openMembership = _ => {
     this.setState({ actionsVisible: false })
-    Modal.set(<Invite room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
+    Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
   }
 
   roomColor = new RoomColor(this.props.room.name)
@@ -324,7 +324,7 @@ class SpaceListing extends Component {
       { state.actionsVisible
         ? <div class="space-listing-actions">
             <button class="small-icon" onclick={this.addChild}>{ Icons.newDiscussion }</button>
-            <button class="small-icon" onclick={this.openInvite}>{ Icons.userPlus }</button>
+            <button class="small-icon" onclick={this.openMembership}>{ Icons.userPlus }</button>
             <button class="small-icon" onclick={this.openSettings}>{ Icons.settings }</button>
           </div>
         : null

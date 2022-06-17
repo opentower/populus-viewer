@@ -7,7 +7,7 @@ import * as Matrix from "matrix-js-sdk"
 import MemberPill from './memberPill.js'
 import Client from './client.js'
 import Modal from './modal.js'
-import Invite from './invite.js'
+import ManageMembership from './manageMembership.js'
 import LeaveRoom from './leaveRoom.js'
 import { TagEditor, TagList } from './tagEditor.js'
 import ToolTip from "./utils/tooltip.js"
@@ -257,7 +257,7 @@ class RoomEntry extends Component {
 
   toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
 
-  openInvite = _ => Modal.set(<Invite room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
+  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
 
   openSettings = _ => Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Room Settings", `for ${this.props.room.name}`)
 
@@ -294,7 +294,7 @@ class RoomEntry extends Component {
           { state.buttonsVisible ? <ToolTip placement="right" content="Toggle favorite"><button onClick={this.toggleFavorite}>{Icons.star}</button></ToolTip> : null }
           { state.buttonsVisible ? <ToolTip placement="right" content="Leave conversation"><button onClick={this.handleClose}>{Icons.exit}</button></ToolTip> : null }
           { state.buttonsVisible ? <ToolTip placement="right" content="Edit room tags"><button onClick={this.handleEditTags}>{Icons.tag}</button></ToolTip> : null }
-          { state.buttonsVisible && canInvite ? <ToolTip placement="right" content="Manage membership"><button onClick={this.openInvite}>{Icons.userPlus}</button></ToolTip> : null }
+          { state.buttonsVisible && canInvite ? <ToolTip placement="right" content="Manage membership"><button onClick={this.openMembership}>{Icons.userPlus}</button></ToolTip> : null }
           { state.buttonsVisible && isAdmin ? <ToolTip placement="right" content="Configure room settings"><button onClick={this.openSettings}>{Icons.settings}</button></ToolTip> : null }
         </div>
       </div>
