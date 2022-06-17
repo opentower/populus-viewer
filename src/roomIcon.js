@@ -1,6 +1,7 @@
 import Client from './client.js'
 import { h, Component } from 'preact';
 import { RoomColor } from './utils/colors.js'
+import ToolTip from './utils/tooltip.js'
 import './styles/roomIcon.css'
 
 export default class RoomIcon extends Component {
@@ -51,29 +52,33 @@ export default class RoomIcon extends Component {
 
   roomColor = new RoomColor(this.props.name)
 
+  toolTipContent = `<h3>${this.props.name}</h3>${this.props.description ? `<p>${this.props.description}</p>` : ""}`
+
   render(props, state) {
-    return <div onclick={this.handleClick}
-      data-joined={state.joined}
-      data-has-avatar={!!state.avatarUrl}
-      class="room-icon"
-      style={{
-        cursor: state.joined
-          ? (props.activeClick && "pointer")
-          : (props.inactiveClick && "pointer"),
-        width: props.size,
-        height: props.size,
-        lineHeight: `${props.size}px`,
-        ...this.roomColor.styleVariables
-      }}>
-        { state.avatarUrl
-          ? <img src={state.avatarUrl}
-              style={{
-                width: props.size,
-                height: props.size
-              }} />
-          : props.name.slice(0, 1)
-        }
-      </div>
+    return <ToolTip content={this.toolTipContent} placement="bottom-start" allowHTML={true} theme="info">
+        <div onclick={this.handleClick}
+        data-joined={state.joined}
+        data-has-avatar={!!state.avatarUrl}
+        class="room-icon"
+        style={{
+          cursor: state.joined
+            ? (props.activeClick && "pointer")
+            : (props.inactiveClick && "pointer"),
+          width: props.size,
+          height: props.size,
+          lineHeight: `${props.size}px`,
+          ...this.roomColor.styleVariables
+        }}>
+          { state.avatarUrl
+            ? <img src={state.avatarUrl}
+                style={{
+                  width: props.size,
+                  height: props.size
+                }} />
+            : props.name.slice(0, 1)
+          }
+        </div>
+      </ToolTip>
   }
 }
 

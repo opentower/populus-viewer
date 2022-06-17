@@ -339,6 +339,7 @@ class SpaceListing extends Component {
               activeClick={this.toggleChild}
               roomId={child.room_id}
               avatarUrl={child.avatar_url}
+              description={child.description}
               name={child.name || child?.canonical_alias?.slice(1) || "?"}
             />)
           : Array(Math.min(state.limit, this.initialChildCount)).fill().map((_, idx) => <RoomIconPlaceholder

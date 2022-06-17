@@ -13,3 +13,12 @@
 .tippy-box[data-theme="small"] {
   font-size:10pt;
 }
+
+.tippy-box[data-theme="info"] {
+  font-size:10pt;
+  font-weight:unset;
+}
+
+.tippy-box[data-theme="info"] h3 {
+  margin:0px;
+}
