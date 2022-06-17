@@ -115,6 +115,7 @@ body[data-modal-visible] {
 }
 
 .styled-input {
+  font-size:10pt;
   padding:7px;
   border:none;
   background:var(--input-background);
@@ -125,6 +126,12 @@ body[data-modal-visible] {
   border-left:none;
   border-right:none;
   border-bottom:1px solid var(--content-border);
+}
+
+.top-aligned-label {
+  height:100%;
+  padding-top:7px;
+  margin-top:1px;
 }
 
 .select-sort-icon {

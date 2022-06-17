@@ -59,15 +59,24 @@ export default class RoomSettings extends Component {
     }
   }
 
-  componentDidMount () { this.initialize() }
+  componentDidMount () { 
+    this.initialize() 
+    this.resizeObserver.observe(this.settingsForm.current)
+    this.roomTopicTextarea.current.style.height = 'auto';
+    this.roomTopicTextarea.current.style.height = `${this.roomTopicTextarea.current.scrollHeight}px`;
+  }
 
-  componentDidUpdate () { this.resize() }
+  componentWillUnmount() { this.resizeObserver.disconnect() }
+
+  resizeObserver = new ResizeObserver(_ => this.resize())
 
   settingsFormWrapper = createRef()
 
   settingsForm = createRef()
 
   avatarImageInput = createRef()
+
+  roomTopicTextarea = createRef()
 
   async initialize() {
     let sendStatePowerLevel = 50
@@ -81,7 +90,6 @@ export default class RoomSettings extends Component {
     this.initialDiscovery = discovery.visibility
     const references = this.roomState.getStateEvents(spaceParent)
     this.setState({ references, discovery: discovery.visibility })
-    this.resize()
   }
 
   resize = _ => {
@@ -100,7 +108,11 @@ export default class RoomSettings extends Component {
 
   handleNameInput = e => this.setState({ roomName: e.target.value })
 
-  handleTopicInput = e => this.setState({ roomTopic: e.target.value })
+  handleTopicInput = e => {
+    this.setState({ roomTopic: e.target.value })
+    this.roomTopicInput.current.style.height = "auto"
+    this.roomTopicInput.current.style.height = `${this.roomTopicTextarea.current.scrollHeight}px`;
+  }
 
   handleKeydown = e => e.stopPropagation() // don't go to global keypress handler
 
@@ -284,8 +296,9 @@ export default class RoomSettings extends Component {
                 onkeydown={this.handleKeydown}
                 onInput={this.handleNameInput}
               />
-              <label htmlFor="room-description">Topic</label>
-              <textarea name="room-description"
+              <div class="room-settings-info"></div>
+              <label class="top-aligned-label" htmlFor="room-topic">Topic</label>
+              <textarea ref={this.roomTopicInput} name="room-topic"
                 class="styled-input"
                 value={state.roomTopic}
                 disabled={!this.mayChangeRoomTopic}
@@ -380,7 +393,6 @@ export default class RoomSettings extends Component {
                   requiredRole={state.invite}
                   label="Invite"
                   member={this.member}
-                  resize={this.resize}
                   act="invite new members" />
                 <ConfigurePowerForKey
                   setPowerLevelRole={this.setPowerLevelRole}
@@ -389,7 +401,6 @@ export default class RoomSettings extends Component {
                   label="Kick"
                   requiredRole={state.kick}
                   member={this.member}
-                  resize={this.resize}
                   act="remove users from the room" />
                 <ConfigurePowerForKey
                   setPowerLevelRole={this.setPowerLevelRole}
@@ -398,7 +409,6 @@ export default class RoomSettings extends Component {
                   label="Ban"
                   requiredRole={state.ban}
                   member={this.member}
-                  resize={this.resize}
                   act="remove users and ban them from rejoining" />
                 <ConfigurePowerForKey
                   setPowerLevelRole={this.setPowerLevelRole}
@@ -407,7 +417,6 @@ export default class RoomSettings extends Component {
                   label="Redact"
                   requiredRole={state.redact}
                   member={this.member}
-                  resize={this.resize}
                   act="remove any message from the room" />
                 {props.room.getType() === Matrix.RoomType.Space 
                   ? null
@@ -418,7 +427,6 @@ export default class RoomSettings extends Component {
                       label="Message"
                       requiredRole={state.events_default}
                       member={this.member}
-                      resize={this.resize}
                       act="send messages" />
                 }
                { Resource.hasResource(props.room)
@@ -429,7 +437,6 @@ export default class RoomSettings extends Component {
                       requiredRole={state[spaceChild]}
                       label="Annotate"
                       member={this.member}
-                      resize={this.resize}
                       act="create annotations" />
                   : null 
               }

@@ -38,7 +38,7 @@
 }
 
 #file-upload-form > textarea {
-    resize: vertical;
+    resize: none;
     min-height:50px;
 }
 

@@ -38,7 +38,7 @@
   animation: slide-in .5s ease-out;
 }
 
-#modal-content input {
+#modal-content textarea, #modal-content input {
   outline-offset:-2px
 }
 

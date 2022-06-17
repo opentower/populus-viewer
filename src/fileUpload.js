@@ -50,6 +50,12 @@ export default class FileUpload extends Component {
     this.setState({name: e.target.value}, this.validateAlias)
   }
 
+  topicInputHandler = e => {
+    e.stopPropagation()
+    this.roomTopicInput.current.style.height = "auto"
+    this.roomTopicInput.current.style.height = `${this.roomTopicInput.current.scrollHeight}px`;
+  }
+
   handleToggle = _ => this.setState(oldState => { return { details: !oldState.details } })
 
   aliasInputHandler = e => {
@@ -202,11 +208,12 @@ export default class FileUpload extends Component {
             }
           </div>
         }
-        <label class="styled-label" for="topic">Topic of Discussion</label>
+        <label class="top-aligned-label" for="topic">Topic of Discussion</label>
         <textarea
           class="styled-input"
           name="topic"
           onkeydown={this.keydownHandler}
+          oninput={this.topicInputHandler} 
           ref={this.roomTopicInput}
           type="text"
           data-gramm="false" // disable grammarly
