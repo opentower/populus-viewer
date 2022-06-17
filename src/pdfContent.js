@@ -227,7 +227,6 @@ export default class PdfContent extends Component {
     const hideUntilWidthAvailable = { visibility: state.mainPageHeightPx ? null : "hidden" }
     return <div style={hideUntilWidthAvailable} id="document-view">
       <PdfPage
-        annotationsVisible={props.annotationsVisible}
         filteredAnnotationContents={props.filteredAnnotationContents}
         focus={props.focus}
         pageFocused={props.pageFocused}
@@ -248,7 +247,6 @@ export default class PdfContent extends Component {
       />
       {secondaryPageVisible
         ? <PdfPage
-          annotationsVisible={props.annotationsVisible}
           filteredAnnotationContents={props.filteredAnnotationContents}
           focus={props.focus}
           fixedSide={secondaryPageVisible ? "right" : null}

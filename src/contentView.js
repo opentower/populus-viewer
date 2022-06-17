@@ -322,7 +322,7 @@ export default class ContentView extends Component {
     if (e.altKey && e.key === 'a') this.openAnnotation()
     if (e.altKey && e.key === 'r') this.closeAnnotation()
     if (e.altKey && e.key === 'v') this.toggleAnnotations()
-    if (e.altKey && e.key === "/") this.showSearch()
+    if (this.state.mimetype === "application/pdf" && e.altKey && e.key === "/") this.showSearch()
     if (e.ctrlKey || e.altKey || e.metaKey) return // Don't catch browser shortcuts
     if (e.key === '+' || e.key === '=') this.setZoom(zoomFactor => zoomFactor + 0.1)
     if (e.key === '-') this.setZoom(zoomFactor => zoomFactor - 0.1)
@@ -525,7 +525,6 @@ export default class ContentView extends Component {
         )
       }
       return <PdfContent
-            annotationsVisible={this.state.annotationsVisible}
             filteredAnnotationContents={this.state.filteredAnnotationContents}
             ref={this.content}
             focus={this.state.focus}
@@ -559,7 +558,6 @@ export default class ContentView extends Component {
         )
       }
       return <MediaContent 
-            annotationsVisible={this.state.annotationsVisible}
             filteredAnnotationContents={this.state.filteredAnnotationContents}
             ref={this.content}
             key={this.props.resourceAlias} // tear this down when resource changes
@@ -586,6 +584,7 @@ export default class ContentView extends Component {
     if (this.state.mimetype === "application/pdf") {
       const page = PdfContent.positionToPage(this.props.resourcePosition, this.state.room)
       return <DocumentNavbar hasSelection={this.state.hasSelection}
+        annotationsVisible={this.state.annotationsVisible}
         openAnnotation={this.openAnnotation}
         closeAnnotation={this.closeAnnotation}
         hasAnnotations={this.state.filteredAnnotationContents.length > 0}
@@ -601,7 +600,6 @@ export default class ContentView extends Component {
         content={this.content}
         contentContainer={this.contentContainer}
         contentWidthPx={this.state.contentWidthPx}
-        annotationsVisible={this.state.annotationsVisible}
         toggleAnnotations={this.toggleAnnotations}
         setNavHeight={this.setNavHeight}
         showSearch={this.showSearch}
@@ -611,6 +609,7 @@ export default class ContentView extends Component {
     } else if (this.state.mimetype?.match(/^audio|^video/)) {
       const timestamp = MediaContent.positionToTimestamp(this.props.resourcePosition, this.state.room)
       return <MediaNavbar hasSelection={this.state.hasSelection}
+        annotationsVisible={this.state.annotationsVisible}
         openAnnotation={this.openAnnotation}
         closeAnnotation={this.closeAnnotation}
         hasAnnotations={this.state.filteredAnnotationContents.length > 0}
@@ -626,7 +625,6 @@ export default class ContentView extends Component {
         content={this.content}
         contentContainer={this.contentContainer}
         contentWidthPx={this.state.contentWidthPx}
-        annotationsVisible={this.state.annotationsVisible}
         toggleAnnotations={this.toggleAnnotations}
         setNavHeight={this.setNavHeight}
         />
@@ -654,6 +652,7 @@ export default class ContentView extends Component {
       onPointerUp={this.handlePointerUp}
       onPointerCancel={this.handlePointerUp}
       onPointerLeave={this.handlePointerUp}
+      data-annotations-hidden={!state.annotationsVisible}
       data-pindrop-mode={state.pindropMode
         ? (state.pindropMode?.x && "placed") || "unplaced"
         : false

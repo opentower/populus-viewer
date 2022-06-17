@@ -172,6 +172,10 @@ html[data-scrollbars="hidden"] wave::-webkit-scrollbar { display: none; }
   opacity: 0.3;
 }
 
+[data-annotations-hidden] .wavesurfer-region:not([data-id="active-selection"]) {
+  display:none;
+}
+
 .wavesurfer-region::after {
   background:var(--user_solid);
   opacity:0.5;
