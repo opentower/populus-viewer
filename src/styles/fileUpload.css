@@ -14,6 +14,7 @@
     display:grid;
     grid-template-columns: 180px 1fr;
     margin-top: calc(.75 * var(--margin-unit));
+    align-items:center;
 }
 
 #file-upload-form label {
@@ -23,8 +24,6 @@
  #file-upload-form input, #file-upload-form textarea {
     grid-column: 2 / 3 ;
     margin-bottom:.5em;
-    border:none;
-    background:var(--input-background)
 }
 
 #file-upload-form details {

@@ -27,6 +27,11 @@
   margin-left:0px;
 }
 
+#room-settings-form textarea{
+  resize:none;
+  margin-top:10px;
+}
+
 #room-settings-avatar-selector {
     cursor: pointer;
     display:block;

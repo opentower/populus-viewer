@@ -183,8 +183,14 @@ export default class FileUpload extends Component {
           accept="application/pdf, audio/wav, audio/mpeg, audio/x-m4a, audio/mp4, audio/aac, audio/aacp, audio/flac, video/mp4, video/mpeg, video/webm"
           type="file"
         />
-        <label for="discussion" >Name for Discussion</label>
-        <input name="discussion" value={state.name} onkeydown={this.keydownHandler} oninput={this.nameInputHandler} ref={this.roomNameInput} type="text" />
+        <label class="styled-label" for="discussion" >Name for Discussion</label>
+        <input class="styled-input" 
+          name="discussion" 
+          value={state.name} 
+          onkeydown={this.keydownHandler} 
+          oninput={this.nameInputHandler} 
+          ref={this.roomNameInput} type="text" 
+        />
         {state.details
           ? null
           : <div class="file-upload-form-detail">{
@@ -196,8 +202,9 @@ export default class FileUpload extends Component {
             }
           </div>
         }
-        <label for="topic">Topic of Discussion</label>
+        <label class="styled-label" for="topic">Topic of Discussion</label>
         <textarea
+          class="styled-input"
           name="topic"
           onkeydown={this.keydownHandler}
           ref={this.roomTopicInput}

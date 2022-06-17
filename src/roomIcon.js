@@ -52,7 +52,7 @@ export default class RoomIcon extends Component {
 
   roomColor = new RoomColor(this.props.name)
 
-  toolTipContent = `<h3>${this.props.name}</h3>${this.props.description ? `<p>${this.props.description}</p>` : ""}`
+  toolTipContent = `<h3>${this.props.name}</h3>${this.props.topic ? `<p>${this.props.topic}</p>` : ""}`
 
   render(props, state) {
     return <ToolTip content={this.toolTipContent} placement="bottom-start" allowHTML={true} theme="info">

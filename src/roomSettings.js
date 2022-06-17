@@ -24,6 +24,9 @@ export default class RoomSettings extends Component {
     this.initialRoomName = props.room.name
     this.mayChangeRoomName = this.roomState.maySendStateEvent(Matrix.EventType.RoomName, Client.client.getUserId())
 
+    this.initialRoomTopic= this.roomState.getStateEvents(Matrix.EventType.RoomTopic, "")?.getContent()?.topic
+    this.mayChangeRoomTopic = this.roomState.maySendStateEvent(Matrix.EventType.RoomTopic, Client.client.getUserId())
+
     this.initialReadability = props.room.getHistoryVisibility()
 
     if (this.resourceState) {
@@ -32,8 +35,6 @@ export default class RoomSettings extends Component {
         : "hidden"
       this.mayChangeSpaceVisibility = this.resourceState.maySendStateEvent(spaceChild, Client.client.getUserId())
     }
-
-    this.mayChangeRoomName = this.roomState.maySendStateEvent(Matrix.EventType.RoomName, Client.client.getUserId())
 
     this.mayChangeReadability = this.roomState.maySendStateEvent(Matrix.EventType.RoomHistoryVisibility, Client.client.getUserId())
 
@@ -50,8 +51,9 @@ export default class RoomSettings extends Component {
       roomName: this.initialRoomName,
       readability: this.initialReadability,
       spaceVisibility: this.initialSpaceVisibility,
+      roomTopic: this.initialRoomTopic,
       users: this.powerLevels?.users || {},
-      searchability: null,
+      discovery: null,
       references: null,
       view: "APPEARANCE"
     }
@@ -73,12 +75,12 @@ export default class RoomSettings extends Component {
       const pl = this.powerLevels?.state_default
       if (Number.isSafeInteger(pl)) sendStatePowerLevel = pl
     }
-    if (this.member.powerLevel >= sendStatePowerLevel) this.mayChangeSearchability = true 
+    if (this.member.powerLevel >= sendStatePowerLevel) this.mayChangeDiscovery = true 
     // assume you can if you have 50 power---per advice from #matrix-spec, since this is implementation-dependent
-    const searchability = await Client.client.getRoomDirectoryVisibility(this.props.room.roomId)
-    this.initialSearchability = searchability.visibility
+    const discovery = await Client.client.getRoomDirectoryVisibility(this.props.room.roomId)
+    this.initialDiscovery = discovery.visibility
     const references = this.roomState.getStateEvents(spaceParent)
-    this.setState({ references, searchability: searchability.visibility })
+    this.setState({ references, discovery: discovery.visibility })
     this.resize()
   }
 
@@ -98,11 +100,13 @@ export default class RoomSettings extends Component {
 
   handleNameInput = e => this.setState({ roomName: e.target.value })
 
+  handleTopicInput = e => this.setState({ roomTopic: e.target.value })
+
   handleKeydown = e => e.stopPropagation() // don't go to global keypress handler
 
   handleUploadAvatar = _ => this.avatarImageInput.current.click()
 
-  handleSearchabilityChange = e => this.setState({ searchability: e.target.value })
+  handleDiscoveryChange = e => this.setState({ discovery: e.target.value })
 
   progressHandler = (progress) => this.setState({progress})
 
@@ -136,10 +140,11 @@ export default class RoomSettings extends Component {
     e.preventDefault()
     this.setState({progress: "updating settings..."})
     this.forceUpdate()
-    if (this.state.searchability !== this.initialSearchability) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.searchability).catch(this.raiseErr)
+    if (this.state.discovery !== this.initialDiscovery) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.discovery).catch(this.raiseErr)
     if (this.state.joinRule !== this.initialJoinRule) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomJoinRules, {join_rule: this.state.joinRule}, "").catch(this.raiseErr)
     if (this.state.spaceVisibility !== this.initialSpaceVisibility) this.state.spaceVisibility === "visible" ? this.publishReferences() : this.hideReferences()
     if (this.state.roomName !== this.initialRoomName) await Client.client.setRoomName(this.props.room.roomId, this.state.roomName).catch(this.raiseErr)
+    if (this.state.roomTopic !== this.initialRoomTopic) await Client.client.setRoomTopic(this.props.room.roomId, this.state.roomTopic).catch(this.raiseErr)
     if (this.state.readability !== this.initialReadability) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomHistoryVisibility, {
       history_visibility: this.state.readability
     }).catch(this.raiseErr)
@@ -239,9 +244,10 @@ export default class RoomSettings extends Component {
 
   render(props, state) {
     const updated = this.powerLevelsUpdated()                       ||
-      this.state.searchability !== this.initialSearchability        ||
+      this.state.discovery !== this.initialDiscovery                ||
       this.state.joinRule !== this.initialJoinRule                  ||
       this.state.roomName !== this.initialRoomName                  ||
+      this.state.roomTopic !== this.initialRoomTopic                ||
       this.state.readability !== this.initialReadability            ||
       this.state.spaceVisibility !== this.initialSpaceVisibility    ||
       this.avatarImage && /^image/.test(this.avatarImage.type)
@@ -276,22 +282,31 @@ export default class RoomSettings extends Component {
                 value={state.roomName}
                 disabled={!this.mayChangeRoomName}
                 onkeydown={this.handleKeydown}
-                onInput={this.handleNameInput} />
+                onInput={this.handleNameInput}
+              />
+              <label htmlFor="room-description">Topic</label>
+              <textarea name="room-description"
+                class="styled-input"
+                value={state.roomTopic}
+                disabled={!this.mayChangeRoomTopic}
+                onkeydown={this.handleKeydown}
+                onInput={this.handleTopicInput}
+              />
               <div class="room-settings-info" />
             </Fragment>
             : state.view === "ACCESS"
             ? <Fragment>
-              <label htmlFor="searchability">Searchability</label>
-              <select disabled={!state.searchability|| !this.mayChangeSearchability}
+              <label htmlFor="discovery">Discovery</label>
+              <select disabled={!state.discovery|| !this.mayChangeDiscovery}
                 class="styled-input"
-                value={state.searchability}
-                name="searchability"
-                onchange={this.handleSearchabilityChange}>
+                value={state.discovery}
+                name="discovery"
+                onchange={this.handleDiscoveryChange}>
                 <option value="private">Private</option>
                 <option value="public">Publicly Listed</option>
               </select>
               <div class="room-settings-info">
-                {state.searchability === "public"
+                {state.discovery === "public"
                   ? "the room will appear in room search results"
                   : "the room will not appear in room search results"
                 }
@@ -763,4 +778,3 @@ class OtherRoleList extends Component {
     </div>
   }
 }
-
