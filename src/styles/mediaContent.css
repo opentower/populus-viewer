@@ -11,6 +11,7 @@
     grid-template-columns:1fr;
     --wave-margin:100px;
     --wave-bars:128px;
+    --wave-tab-offset:140px;
 }
 
 #media-view[data-media-is-video] {
@@ -18,6 +19,7 @@
     grid-template-columns:1fr;
     --wave-margin:50px;
     --wave-bars:64px;
+    --wave-tab-offset:80px;
     --wave-total:calc(var(--wave-margin) * 2 + var(--wave-bars))
 }
 
@@ -184,7 +186,7 @@ html[data-scrollbars="hidden"] wave::-webkit-scrollbar { display: none; }
   right:0px;
   left:0px;
   position:absolute;
-  top:calc(80px + (10px * var(--gutter_level)));
+  top:calc(var(--wave-tab-offset) + (10px * var(--gutter_level)));
   max-width:100%;
   cursor:pointer; 
 }
