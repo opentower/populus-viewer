@@ -14,7 +14,7 @@ export default class RoomSettings extends Component {
   constructor(props) {
     super(props)
     this.roomState = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    this.resourceState = props.resource?.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    this.resourceState = props.resource.room?.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
 
     this.initialJoinRule = this.roomState.getJoinRule()
     this.mayChangeJoinRule = this.roomState.maySendStateEvent(Matrix.EventType.RoomJoinRules, Client.client.getUserId())

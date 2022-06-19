@@ -91,10 +91,10 @@ export default class MessagePanel extends Component {
       }
       const newContent = { via: [theDomain], [mscLocation]: locationData }
       Client.client
-        .sendStateEvent(this.props.resource.roomId, spaceChild, newContent, this.props.focus.getChild())
+        .sendStateEvent(this.props.resourceId, spaceChild, newContent, this.props.focus.getChild())
         .catch(e => alert(e))
       Client.client
-        .sendStateEvent(this.props.focus.getChild(), spaceParent, newContent, this.props.resource.roomId)
+        .sendStateEvent(this.props.focus.getChild(), spaceParent, newContent, this.props.resourceId)
         .catch(e => alert(e))
     }
   }
@@ -104,7 +104,7 @@ export default class MessagePanel extends Component {
     const theContent = {
       body: "created an annotation",
       msgtype: "m.emote",
-      [mscMarkupMsgKey]: { [mscParent]: this.props.resource.roomId, [mscLocation]: locationData }
+      [mscMarkupMsgKey]: { [mscParent]: this.props.resourceId, [mscLocation]: locationData }
     }
     const eventI = await Client.client.sendMessage(this.props.focus.getChild(), theContent)
     this.openPendingAnnotation(theContent, eventI)

@@ -175,8 +175,7 @@ export default class ContentView extends Component {
     if (this.errorCondition) return
     const resource = new Resource(room)
     const mimetype = resource.mimetype
-    this.currentResource = this.props.resourceAlias
-    this.setState({room, mimetype}, _ => {
+    this.setState({room, resource, mimetype}, _ => {
       if (this.props.roomFocused) this.focusByRoomId(this.props.roomFocused, this.props.eventFocused)
       this.initializeAnnotations()
     })
@@ -388,10 +387,12 @@ export default class ContentView extends Component {
 
   refreshFocus = _ => {
     if (!this.state.room) return
-    const theRoomState = this.state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const theAnnotation = theRoomState.getStateEvents(spaceChild, this.props.roomFocused)
-    if (theAnnotation) this.setFocus(new Location(theAnnotation), {replace: true, holdPosition: true})
-    else this.unsetFocus({replace: true})
+    if (!this.props.roomFocused) this.unsetFocus({replace: true})
+    else {
+      const theRoomState = this.state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+      const theAnnotation = theRoomState.getStateEvents(spaceChild, this.props.roomFocused)
+      if (theAnnotation) this.setFocus(new Location(theAnnotation), {replace: true, holdPosition: true})
+    }
   }
 
   setSecondaryFocus = secondaryFocus => this.setState({ secondaryFocus })
@@ -562,6 +563,7 @@ export default class ContentView extends Component {
             ref={this.content}
             key={this.props.resourceAlias} // tear this down when resource changes
             resourceAlias={this.props.resourceAlias}
+            resource={this.state.resource}
             timeStamp={timestamp}
             room={this.state.room}
             roomFocused={this.props.roomFocused}
@@ -667,7 +669,7 @@ export default class ContentView extends Component {
           ? <Chat class="panel-widget-1"
               setSecondaryFocus={this.setSecondaryFocus}
               unsetFocus={this.unsetFocus}
-              resource={state.room}
+              resource={state.resource}
               resourceAlias={props.resourceAlias}
               eventFocused={props.eventFocused}
               hasSelection={state.hasSelection}

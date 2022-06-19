@@ -196,14 +196,9 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
   font-weight:bold;
 }
 
-.text-annotation-banner {
+.annotation-banner {
   font-size:10pt;
   font-weight: bold;
-}
-
-.media-annotation-banner > svg {
-  height:1em;
-  vertical-align:bottom;
 }
 
 .message-frame div[data-mx-maths] {

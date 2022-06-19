@@ -12,7 +12,7 @@ import 'emoji-picker-element'
 import BlurhashCanvas from './blurhashCanvas.js'
 import Location from './utils/location.js'
 import Client from './client.js'
-import History from './history.js'
+import LocationPreview from './locationPreview.js'
 import * as Replies from './utils/replies.js'
 import * as Icons from './icons.js'
 import './styles/message.css'
@@ -103,37 +103,34 @@ export class AnnotationMessage extends Component {
   hasFocus = _ => this.location === this.props.secondaryFocus
 
   render(props) {
-    if (!this.location.getType()) return
+    const locationType = this.location.getType()
+    if (!locationType) return
     return <MessageFrame
       styleOverride={this.hasFocus() ? {background: this.userColor.ultralight, ... this.userColor.styleVariables} : null }
       reactions={props.reactions}
       event={props.event}
       getCurrentEdit={this.getCurrentEdit}>
-      { this.location.getText() 
-        ? <div onClick={this.handleClick} class="message-body">
-          <span class="text-annotation-banner">
-            On&nbsp;
-            <a onClick={this.handleLinkClick}
-              href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${this.location.getPageIndex()}/`} >
-              page {this.location.getPageIndex()}
-            </a>:
-          </span>
-          <blockquote>
-            {this.location.getText()}
-          </blockquote>
+      <div onClick={this.handleClick} class="message-body">
+          { locationType === "highlight" || locationType == "text" 
+            ? <span class="annotation-banner">
+                  <span>On </span>
+                  <a onClick={this.handleLinkClick}
+                    href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${this.location.getPageIndex()}/`} >
+                    page {this.location.getPageIndex()}
+                  </a>:
+              </span>
+            : locationType == "media-fragment"
+            ? <span class="annotation-banner">
+                <span>From </span>
+                <a onClick={this.handleLinkClick}
+                  href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${Math.floor(this.location.getIntervalStart() / 1000)}`} >
+                  {toClockTime(this.location.getIntervalStart() / 1000)} to {toClockTime(this.location.getIntervalEnd() / 1000)}
+                </a>:
+              </span>
+            : null
+          }
+          <LocationPreview resource={props.resource} location={this.location} />
         </div>
-        : <div onClick={this.handleClick} class="message-body">
-          <p>
-            <span class="media-annotation-banner">
-              {Icons.headphones} <span>From </span>
-              <a onClick={this.handleLinkClick}
-                href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${Math.floor(this.location.getIntervalStart() / 1000)}`} >
-                {toClockTime(this.location.getIntervalStart() / 1000)} to {toClockTime(this.location.getIntervalEnd() / 1000)}
-              </a>
-            </span>
-          </p>
-        </div>
-      }
     </MessageFrame>
   }
 }

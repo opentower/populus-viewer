@@ -58,6 +58,25 @@ export default class Location {
     if (this.location?.[mscMediaFragment]) return Math.floor(this.getIntervalStart() / 1000)
   }
 
+  getResourceFragment() {
+    if (this.location?.[mscMediaFragment]) {
+      const temporal = this.location[mscMediaFragment].start || this.location[mscMediaFragment].start
+        ? `t=${this.getIntervalStart() / 1000},${this.getIntervalEnd() / 1000}`
+        : ""
+      const spatial = this.location[mscMediaFragment].x
+        ? `xywh=${this.location[mscMediaFragment].x},${
+          this.location[mscMediaFragment].y},${
+          this.location[mscMediaFragment].w},${
+          this.location[mscMediaFragment].h}`
+        : ""
+      if (temporal) {
+        if (spatial) {
+          return `${temporal}&${spatial}`
+        } return temporal
+      } else return spatial
+    }
+  }
+
   //PDF specific
 
   getText() {

@@ -18,11 +18,17 @@ export default class Resource {
 
     this.file = resourceContent?.["m.file"]
 
+    this.room = theRoom
+
     this.pcm = roomState.getStateEvents(populusWaveformPCM, "")?.getContent()?.mxc
 
     this.mimetype = resourceContent?.mimetype || this.file?.mimetype || "application/pdf"
     this.url = resourceContent?.url || this.file?.url || legacyMxc
     this.schema = this.url?.match(/^\w*/)[0]
+    this.hasFetched = new Promise((resolve, reject) => {
+      this.resolveFetch = resolve
+      this.rejectFetch = reject
+    })
   }
 
   get httpUrl() {

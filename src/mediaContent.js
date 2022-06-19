@@ -346,7 +346,9 @@ export default class MediaContent extends Component {
             accumulator = accumulator + value.length
             this.props.setMediaLoadingStatus(accumulator / contentLength)
           }
-          return theClone.blob()
+          const blob = await theClone.blob()
+          // XXX someday, most browsers will let <video> use a blob as an srcObj, and then this can be simplified
+          return URL.createObjectURL(blob)
         })
         .catch(this.catchFetchMediaError)
     } else { console.log(`found file for ${this.props.room.name} in store` ) }
@@ -357,12 +359,13 @@ export default class MediaContent extends Component {
     } else { console.log(`found PCM for ${this.props.room.name} in store` ) }
     if (this.isVideo) this.props.setMobileButtonColor("var(--contrast-text)")
     if (this.errorCondition) return
+    MediaContent.MediaStore[theMedia.url].then(mediaUrl => this.props.resource.resolveFetch(mediaUrl))
     MediaContent.MediaStore[theMedia.url].then(this.drawMedia(MediaContent.PCMStore[theMedia.pcm]))
     // TODO: this throws an error when the user exits the page before the media
     // has been drawn. it should be caught, similarly for PDF fetching
   }
 
-  drawMedia = pcm => async media => {
+  drawMedia = pcm => async mediaUrl => {
     this.props.setMediaLoadingStatus("Rendering waveform...")
     this.wavesurfer = new WaveSurfer.create({
       container: '#waveform',
@@ -374,13 +377,12 @@ export default class MediaContent extends Component {
     if (!pcm) {
       pcm = []
       const prng = mulberry32(hashString(this.props.resourceAlias))
-      const objectUrl = URL.createObjectURL(media)
-      if (this.isVideo) this.videoElement.current.src = objectUrl
+      if (this.isVideo) this.videoElement.current.src = mediaUrl
       for (let i = 0; i < 2048; i++) pcm.push((prng() * 2) - 1)
     } else {
       pcm = await pcm
     }
-    this.wavesurfer.load(this.videoElement.current || URL.createObjectURL(media), pcm) // URL indirection here so that we can eventually prerender
+    this.wavesurfer.load(this.videoElement.current || mediaUrl, pcm) // URL indirection here so that we can eventually prerender
     this.wavesurfer.on('ready', _ => {
       this.wavesurfer.zoom(15)
       this.props.setMediaLoadingStatus(null)

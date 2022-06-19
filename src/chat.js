@@ -4,13 +4,12 @@ import * as Matrix from "matrix-js-sdk"
 import { TextMessage, AnnotationMessage, EmoteMessage, NoticeMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } from './message.js'
 import MessagePanel from './messagePanel.js'
 import { UserColor } from './utils/colors.js'
-import { toClockTime } from './utils/temporal.js'
 import { mscMarkupMsgKey } from './constants.js'
 import UserInfoHeader from './userInfoHeader.js'
 import Client from './client.js'
 import Toast from "./toast.js"
 import History from "./history.js"
-import * as Icons from './icons.js'
+import LocationPreview from "./locationPreview.js"
 
 export default class Chat extends Component {
   constructor (props) {
@@ -206,8 +205,8 @@ export default class Chat extends Component {
   }
 
   render(props, state) {
-    const userMember = props.resource?.getMember(Client.client.getUserId())
-    const canRedact = !!props.resource?.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const userMember = props.resource.room?.getMember(Client.client.getUserId())
+    const canRedact = !!props.resource.room?.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
           .hasSufficientPowerLevelFor("redact", userMember.powerLevel)
     const reactions = {}
     // XXX need to be able to handle other message types
@@ -267,6 +266,7 @@ export default class Chat extends Component {
           if (event.getContent()[mscMarkupMsgKey]) {
             accumulator.push(
               <AnnotationMessage reactions={reactions}
+                resource={props.resource}
                 resourceAlias={props.resourceAlias}
                 secondaryFocus={props.secondaryFocus}
                 setSecondaryFocus={props.setSecondaryFocus}
@@ -348,6 +348,7 @@ export default class Chat extends Component {
               hasSelection={props.hasSelection}
               generateLocation={props.generateLocation}
               resource={props.resource}
+              resourceId={props.resource.room.roomId}
               focus={props.focus}
             />
         </Anchor>
@@ -414,21 +415,7 @@ class Anchor extends Component {
 
 function TopAnchor(props) {
   return <Fragment>
-    { props.focus.getType() === "highlight" && props.topic 
-      ? <div id="anchor-quote">
-        <span>{Icons.quote}</span>
-        {props.topic}
-      </div>
-      : props.focus.getType() === "text"
-      ? <div id="anchor-pin">
-          {Icons.pin} <span>on page {props.focus.getPageIndex()}</span>
-        </div>
-      : props.focus.getType() === "media-fragment"
-      ? <div id="anchor-media">
-          {Icons.headphones} <span>From {toClockTime(props.focus.getIntervalStart() / 1000)} to {toClockTime(props.focus.getIntervalEnd() / 1000)}</span>
-        </div>
-      : null
-    }
+    <LocationPreview showPosition={true} location={props.focus} />
     <div id="scroll-done">
       { props.focus.getStatus() === "pending"
         ? "Awaiting your comment..."
