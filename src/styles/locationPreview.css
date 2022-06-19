@@ -1,5 +1,5 @@
 .preview-quote {
-  padding:10px;
+  /* padding:10px; */
   color:var(--content-secondary-text);
 }
 
@@ -10,7 +10,6 @@
 
 .preview-media-fragment,
 .preview-pin {
-  padding:5px;
   color:var(--content-secondary-text);
 }
 
@@ -25,13 +24,14 @@
   height: 1em;
 }
 
-.preview-media-fragment-video {
-}
-
 .preview-media-fragment video {
   max-width:100%;
   display:block;
   border-radius:20px;
+  margin-top:10px;
+}
+
+.preview-quote {
   margin-top:10px;
 }
 

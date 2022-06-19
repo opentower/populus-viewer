@@ -415,7 +415,9 @@ class Anchor extends Component {
 
 function TopAnchor(props) {
   return <Fragment>
-    <LocationPreview showPosition={true} location={props.focus} />
+    <div id="anchor-preview-wrapper">
+      <LocationPreview showPosition={true} location={props.focus} />
+    </div>
     <div id="scroll-done">
       { props.focus.getStatus() === "pending"
         ? "Awaiting your comment..."

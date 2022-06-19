@@ -8,6 +8,11 @@
     flex-direction: column-reverse;
 }
 
+
+#anchor-preview-wrapper {
+  padding:10px;
+}
+
 #scroll-anchor, #scroll-done {
     user-select:none;
     padding:10px;

@@ -10,6 +10,7 @@ import { UserColor } from './utils/colors.js'
 import { toClockTime } from './utils/temporal.js'
 import SearchBar from './search.js'
 import { DisplayContent } from './message.js'
+import LocationPreview from './locationPreview.js'
 import * as Icons from './icons.js'
 import * as PopupMenu from './popUpMenu.js'
 
@@ -355,18 +356,7 @@ class AnnotationListingEntry extends Component {
       ref={this.entry}
       onclick={this.handleClick}
       class="annotation-listing-entry">
-      { annotationType === "text"
-        ? <div class="annotation-listing-pin-icon">
-            {Icons.pin} <span>on page {props.annotationLocation.getPageIndex()}</span>
-          </div>
-        : annotationType === "media-fragment"
-        ? <div class="annotation-listing-headphones-icon">
-            {Icons.headphones} <span>From {toClockTime(props.annotationLocation.getIntervalStart() / 1000)} to {toClockTime(props.annotationLocation.getIntervalEnd() / 1000)}</span>
-          </div>
-        : <div class="annotation-listing-topic">
-            <span class="annotation-listing-topic-icon">{Icons.quote}</span>{state.topic}
-          </div>
-      }
+      <LocationPreview showPosition={true} location={props.annotationLocation} />
       <AnnotationListingComment
         creator={this.creator}
         unread={props.annotationLocation.getUnread()}

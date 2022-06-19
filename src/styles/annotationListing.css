@@ -91,32 +91,10 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
     background: var(--user_ultralight);
 }
 
-.annotation-listing-pin-icon,
-.annotation-listing-headphones-icon
-{
+.annotation-listing-entry .preview-quote,
+.annotation-listing-entry .preview-pin,
+.annotation-listing-entry .preview-media-fragment {
   width:100%;
-}
-
-.annotation-listing-topic {
-  width: 100%;
-  color:var(--content-secondary-text);
-}
-
-.annotation-listing-topic-icon {
-  padding-right: .25em;
-}
-
-.annotation-listing-pin-icon svg,
-.annotation-listing-headphones-icon svg,
-.annotation-listing-topic-icon svg {
-  height:1em;
-}
-
-.annotation-listing-headphones-icon,
-.annotation-listing-pin-icon {
-  display:flex;
-  color:var(--content-secondary-text);
-  align-items:center;
 }
 
 .annotation-listing-pending {
