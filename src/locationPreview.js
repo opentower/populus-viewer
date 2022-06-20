@@ -101,7 +101,13 @@ export default class LocationPreview extends Component{
   initializeUrl = async _ => {
     const mediaSrc = await this.props.resource.hasFetched
     this.setState({mediaSrc}, _ => {
-      this.mediaElement.current.currentTime = this.props.location.getIntervalStart() / 1000 
+      const location = this.props.location.getIntervalStart()
+      if (location !== 0) {
+        this.mediaElement.current.currentTime = location / 1000 
+      } else {
+        this.mediaElement.current.currentTime = 1
+        //we build in a millisecond seek to make sure the seeked event is triggered
+      }
     })
   }
 
