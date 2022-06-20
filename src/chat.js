@@ -270,6 +270,7 @@ export default class Chat extends Component {
                 resourceAlias={props.resourceAlias}
                 secondaryFocus={props.secondaryFocus}
                 setSecondaryFocus={props.setSecondaryFocus}
+                roomId={props.focus.getChild()}
                 key={event.getId()}
                 canRedact={canRedact}
                 event={event} />

@@ -115,7 +115,7 @@ export class AnnotationMessage extends Component {
             ? <span class="annotation-banner">
                   <span>On </span>
                   <a onClick={this.handleLinkClick}
-                    href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${this.location.getPageIndex()}/`} >
+                    href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${this.location.getPageIndex()}/${this.props.roomId}`} >
                     page {this.location.getPageIndex()}
                   </a>:
               </span>
@@ -123,7 +123,7 @@ export class AnnotationMessage extends Component {
             ? <span class="annotation-banner">
                 <span>From </span>
                 <a onClick={this.handleLinkClick}
-                  href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${Math.floor(this.location.getIntervalStart() / 1000)}`} >
+                  href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${Math.floor(this.location.getIntervalStart() / 1000)}/${this.props.roomId}`} >
                   {toClockTime(this.location.getIntervalStart() / 1000)} to {toClockTime(this.location.getIntervalEnd() / 1000)}
                 </a>:
               </span>
