@@ -128,7 +128,7 @@ export default class MediaNavbar extends Component {
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.openMembership}>{Icons.userPlus}
             </button>
           </ToolTip>
-          <ToolTip content="Download PDF" theme="bordered">
+          <ToolTip content="Download Media" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.download}>{Icons.download} </button>
           </ToolTip>
           <ToolTip content="Zoom out (-)" theme="bordered">
