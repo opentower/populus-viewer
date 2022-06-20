@@ -45,6 +45,12 @@ export default class LocationPreview extends Component{
     if (!this.mediaRect) {
       this.canvasElement.current.width = this.mediaElement.current.videoWidth
       this.canvasElement.current.height = this.mediaElement.current.videoHeight
+      this.mediaRect = new DOMRect(
+        0,
+        0,
+        this.mediaElement.current.videoWidth,
+        this.mediaElement.current.videoHeight
+      )
     }
   }
 
@@ -122,7 +128,9 @@ export default class LocationPreview extends Component{
               <audio src={state.mediaSrc} ref={this.mediaElement} onloadeddata={this.handleLoadedData} ontimeupdate={this.handleTimeUpdate}/>
               {state.stream 
                 ? <Fragment>
-                  <audio ref={this.secondaryAudio} srcObject={state.stream} />
+                  {//workaround for firefox bug: https://bugzilla-dev.allizom.org/show_bug.cgi?id=1178751
+                    this.mediaElement.current.mozCaptureStream ? <audio ref={this.secondaryAudio} srcObject={state.stream} /> : null 
+                  }
                   <AudioVisualizer onclick={this.handleMediaClick} height={100} width={500} stream={state.stream} /> 
                 </Fragment>
                 : null}

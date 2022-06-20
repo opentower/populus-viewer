@@ -362,7 +362,7 @@ export default class Chat extends Component {
           chatWrapper={this.chatWrapper}
           tryFill={this.tryTopfill}
           fullyScrolled={state.fullyScrolledUp} >
-            <TopAnchor focus={props.focus} topic={state.topic}/>
+            <TopAnchor focus={props.focus} resource={props.resource} topic={state.topic}/>
         </Anchor>
       </div>
     </div>
@@ -417,7 +417,7 @@ class Anchor extends Component {
 function TopAnchor(props) {
   return <Fragment>
     <div id="anchor-preview-wrapper">
-      <LocationPreview showPosition={true} location={props.focus} />
+      <LocationPreview showPosition={true} resource={props.resource} location={props.focus} />
     </div>
     <div id="scroll-done">
       { props.focus.getStatus() === "pending"
