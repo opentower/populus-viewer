@@ -356,7 +356,7 @@ export default class MediaContent extends Component {
       MediaContent.PCMStore[theMedia.pcm] = window.fetch(Client.client.getHttpUriForMxcFromHS(theMedia.pcm))
         .then(response => response.json())
         .catch(err => console.log("Couldn't fetch PCM data", err))
-    } else { console.log(`found PCM for ${this.props.room.name} in store` ) }
+    } else if (theMedia.pcm) { console.log(`found PCM for ${this.props.room.name} in store` ) }
     if (this.isVideo) this.props.setMobileButtonColor("var(--contrast-text)")
     if (this.errorCondition) return
     MediaContent.MediaStore[theMedia.url].then(mediaUrl => this.props.resource.resolveFetch(mediaUrl))
@@ -377,12 +377,12 @@ export default class MediaContent extends Component {
     if (!pcm) {
       pcm = []
       const prng = mulberry32(hashString(this.props.resourceAlias))
-      if (this.isVideo) this.videoElement.current.src = mediaUrl
       for (let i = 0; i < 2048; i++) pcm.push((prng() * 2) - 1)
     } else {
       pcm = await pcm
     }
-    this.wavesurfer.load(this.videoElement.current || mediaUrl, pcm) // URL indirection here so that we can eventually prerender
+    if (this.isVideo) this.videoElement.current.src = mediaUrl
+    this.wavesurfer.load(this.videoElement.current || mediaUrl, pcm)
     this.wavesurfer.on('ready', _ => {
       this.wavesurfer.zoom(15)
       this.props.setMediaLoadingStatus(null)
