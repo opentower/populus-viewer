@@ -22,7 +22,16 @@ export default class AudioVisualizer extends Component {
   }
 
   componentWillUnmount () {
-    this.breakDraw = true
+    this.paused = true
+  }
+
+  play () {
+    this.paused = false
+    this.draw()
+  }
+
+  pause () {
+    this.paused = true
   }
 
   theCanvas = createRef()
@@ -47,12 +56,13 @@ export default class AudioVisualizer extends Component {
     }
     this.canvasCtx.lineTo(this.width, this.height / 2)
     this.canvasCtx.stroke()
-    if (this.breakDraw) return
+    if (this.paused) return
     requestAnimationFrame(this.draw)
   }
 
   render(props) {
     return <canvas class="audioVisualizer"
+      onclick={props.onclick}
       height={props.height}
       width={props.width}
       ref={this.theCanvas} />

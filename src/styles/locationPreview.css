@@ -25,10 +25,15 @@
 }
 
 .preview-media-fragment video {
+  display:none;
+}
+
+.preview-media-fragment canvas {
   max-width:100%;
   display:block;
   border-radius:20px;
   margin-top:10px;
+  background: var(--content-dimmed-element);
 }
 
 .preview-quote {

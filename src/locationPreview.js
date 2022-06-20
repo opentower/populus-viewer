@@ -1,9 +1,13 @@
-import { h, createRef, Component } from 'preact';
+import { h, createRef, Fragment, Component } from 'preact';
 import { toClockTime } from './utils/temporal.js'
 import * as Icons from './icons.js'
+import AudioVisualizer from "./audioVisualizer.js"
 import "./styles/locationPreview.css"
 
 export default class LocationPreview extends Component{
+  constructor(props) {
+    super(props)
+  }
 
   componentDidMount() {
     if (this.props.location.getType() === "media-fragment" && this.props.resource) {
@@ -11,32 +15,88 @@ export default class LocationPreview extends Component{
     }
   }
 
+  componentWillUnmount() {
+    this.mediaElement.current?.pause()
+    this.secondaryAudio.current?.pause()
+  }
+
   mediaElement = createRef()
 
-  handleVideoClick = _ => {
+  canvasElement = createRef()
+
+  secondaryAudio = createRef()
+
+  handleMediaClick = _ => {
       if (this.mediaElement.current.paused) {
         this.mediaElement.current.currentTime = this.props.location.getIntervalStart() / 1000
         this.mediaElement.current.play()
+        if (this.canvasElement.current) this.projectToCanvas()
+        this.secondaryAudio.current?.play()
       }
-      else this.mediaElement.current.pause()
+      else {
+        this.mediaElement.current.pause()
+        this.secondaryAudio.current?.pause()
+      }
+  }
+
+  mediaRect = this.props.location.getMediaRect()
+
+  handleLoadedMetadata = _ => {
+    if (!this.mediaRect) {
+      this.canvasElement.current.width = this.mediaElement.current.videoWidth
+      this.canvasElement.current.height = this.mediaElement.current.videoHeight
+    }
+  }
+
+  handleLoadedData = _ => {
+    const stream = this.mediaElement.current.mozCaptureStream?.() || this.mediaElement.current.captureStream()
+    this.setState({ stream })
+  }
+
+  handleSeeked = _ => {
+    const ctx = this.canvasElement.current.getContext('2d', {alpha: false})
+    ctx.drawImage(
+      this.mediaElement.current, 
+      this.mediaRect.x,
+      this.mediaRect.y,
+      this.mediaRect.width,
+      this.mediaRect.height,
+      0,
+      0,
+      this.mediaRect.width,
+      this.mediaRect.height,
+    )
+  }
+
+  projectToCanvas = _ => {
+    const ctx = this.canvasElement.current.getContext('2d', {alpha: false})
+    ctx.drawImage(
+      this.mediaElement.current, 
+      this.mediaRect.x,
+      this.mediaRect.y,
+      this.mediaRect.width,
+      this.mediaRect.height,
+      0,
+      0,
+      this.mediaRect.width,
+      this.mediaRect.height,
+    )
+    if (this.mediaElement.current.paused) return
+    requestAnimationFrame(this.projectToCanvas)
   }
 
   handleTimeUpdate = _ => {
     if (this.mediaElement.current?.currentTime > (this.props.location.getIntervalEnd() / 1000)) {
       this.mediaElement.current.pause()
+      this.secondaryAudio.current?.pause()
     }
-  }
-
-  handleSeeked = _ => {
-    if (this.mediaElement.current?.currentTime > (this.props.location.getIntervalEnd() / 1000) ||
-      this.mediaElement.current?.currentTime < (this.props.location.getIntervalStart() / 1000)
-    ) { this.mediaElement.current.currentTime = this.props.location.getIntervalStart() / 1000 }
   }
 
   initializeUrl = async _ => {
     const mediaSrc = await this.props.resource.hasFetched
-    this.setState({mediaSrc}, _ => 
-      this.mediaElement.current.currentTime = this.props.location.getIntervalStart() / 1000 )
+    this.setState({mediaSrc}, _ => {
+      this.mediaElement.current.currentTime = this.props.location.getIntervalStart() / 1000 
+    })
   }
 
   render(props, state) {
@@ -58,10 +118,19 @@ export default class LocationPreview extends Component{
             : null
           }
           {props.resource?.mimetype?.match(/^audio/)
-            ? <audio controls src={state.mediaSrc} ref={this.mediaElement} onseeked={this.handleSeeked} ontimeupdate={this.handleTimeUpdate} />
+            ? <div class="preview-media-fragment-audio">
+              <audio src={state.mediaSrc} ref={this.mediaElement} onloadeddata={this.handleLoadedData} ontimeupdate={this.handleTimeUpdate}/>
+              {state.stream 
+                ? <Fragment>
+                  <audio ref={this.secondaryAudio} srcObject={state.stream} />
+                  <AudioVisualizer onclick={this.handleMediaClick} height={100} width={500} stream={state.stream} /> 
+                </Fragment>
+                : null}
+            </div>
             : props.resource?.mimetype?.match(/^video/)
             ? <div class="preview-media-fragment-video">
-              <video src={state.mediaSrc} ref={this.mediaElement} onseeked={this.handleSeeked} ontimeupdate={this.handleTimeUpdate} onclick={this.handleVideoClick} />
+              <video src={state.mediaSrc} ref={this.mediaElement} onloadedmetadata={this.handleLoadedMetadata} onseeked={this.handleSeeked} ontimeupdate={this.handleTimeUpdate} />
+              <canvas width={this.mediaRect?.width} height={this.mediaRect?.height} onclick={this.handleMediaClick} ref={this.canvasElement}/>
             </div>
             : null 
           }
