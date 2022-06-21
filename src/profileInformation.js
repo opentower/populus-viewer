@@ -74,8 +74,8 @@ export default class ProfileInfomation extends Component {
           {Client.client.getUserId()}
         </div>
         <label>My Display Name</label>
-        <input onkeydown={this.handleKeydown} placeholder={state.displayName} ref={this.displayNameInput} type="text" />
-        <label>My Avatar</label>
+        <input class="styled-input" onkeydown={this.handleKeydown} placeholder={state.displayName} ref={this.displayNameInput} type="text" />
+        <label class="top-aligned-label">My Avatar</label>
         {state.previewUrl
           ? <img onclick={this.chooseAvatar} id="profileSelector" src={state.previewUrl} />
           : <div key="profileSelector" onclick={this.chooseAvatar} id="profileSelector" />}

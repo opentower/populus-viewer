@@ -207,7 +207,7 @@ export default class FileUpload extends Component {
             : <span>&nbsp;</span>
           }
         </div>
-        <label class="styled-label" for="discussion" >Name for Discussion</label>
+        <label for="discussion" >Name for Discussion</label>
         <input class="styled-input" 
           name="discussion" 
           value={state.name} 
