@@ -26,7 +26,7 @@ export default class ProfileInfomation extends Component {
 
   progressHandler = (progress) => this.setState({progress})
 
-  uploadAvatar = _ => this.avatarImageInput.current.click()
+  chooseAvatar = _ => this.avatarImageInput.current.click()
 
   removeAvatar = _ => this.setState({ previewUrl: null })
 
@@ -77,8 +77,8 @@ export default class ProfileInfomation extends Component {
         <input onkeydown={this.handleKeydown} placeholder={state.displayName} ref={this.displayNameInput} type="text" />
         <label>My Avatar</label>
         {state.previewUrl
-          ? <img onclick={this.uploadAvatar} id="profileSelector" src={state.previewUrl} />
-          : <div key="profileSelector" onclick={this.uploadAvatar} id="profileSelector" />}
+          ? <img onclick={this.chooseAvatar} id="profileSelector" src={state.previewUrl} />
+          : <div key="profileSelector" onclick={this.chooseAvatar} id="profileSelector" />}
         <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
         <details>
           <summary>Display Options</summary>

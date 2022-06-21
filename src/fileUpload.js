@@ -45,6 +45,10 @@ export default class FileUpload extends Component {
 
   keydownHandler = e => e.stopPropagation()
 
+  chooseFile = _ => this.fileLoader.current.click()
+
+  clearFile = _ => this.setState({fileValid:false}, this.fileLoader.current.reset)
+
   nameInputHandler = e => {
     e.stopPropagation()
     this.setState({name: e.target.value}, this.validateAlias)
@@ -183,12 +187,26 @@ export default class FileUpload extends Component {
       }
       <form id="file-upload-form" ref={this.mainForm} onsubmit={this.uploadFile}>
         <label for="file"> File to Discuss</label>
-        <input name="file"
-          oninput={this.validateFile}
-          ref={this.fileLoader}
-          accept="application/pdf, audio/wav, audio/mpeg, audio/x-m4a, audio/mp4, audio/aac, audio/aacp, audio/flac, video/mp4, video/mpeg, video/webm"
-          type="file"
-        />
+        <div id="file-upload-chooser"> {state.fileValid 
+            ? <Fragment>
+              <span>{this.fileLoader.current.files[0].name}</span>
+              <button onclick={this.clearFile} class="small-icon">{Icons.close}</button>
+            </Fragment>
+            : <button type="button" class="styled-button" onclick={this.chooseFile}>Click to Choose a File</button>
+          }
+          <input name="file"
+            oninput={this.validateFile}
+            ref={this.fileLoader}
+            accept="application/pdf, audio/wav, audio/mpeg, audio/x-m4a, audio/mp4, audio/aac, audio/aacp, audio/flac, video/mp4, video/mpeg, video/webm"
+            type="file"
+          />
+        </div>
+        <div class="file-upload-form-detail">
+          { state.fileValid
+            ? formatBytes(this.fileLoader.current.files[0].size)
+            : <span>&nbsp;</span>
+          }
+        </div>
         <label class="styled-label" for="discussion" >Name for Discussion</label>
         <input class="styled-input" 
           name="discussion" 

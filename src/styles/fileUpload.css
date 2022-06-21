@@ -31,6 +31,25 @@
     margin-bottom:.5em;
 }
 
+#file-upload-chooser input {
+  display: none;
+}
+
+#file-upload-chooser {
+  display:grid;
+  align-items:center;
+  justify-items:right;
+  grid-template-columns:auto 1fr ;
+  min-height:2em;
+}
+
+#file-upload-chooser span {
+  font-weight:bold;
+}
+
+#file-upload-chooser .small-icon {
+}
+
 .file-upload-details-wrapper {
   padding-top:.5em;
   display:grid;
