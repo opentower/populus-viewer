@@ -422,7 +422,7 @@ function TopAnchor(props) {
     <div id="scroll-done">
       { props.focus.getStatus() === "pending"
         ? "Awaiting your comment..."
-        : "All messages loaded"
+        : null
       }
     </div>
   </Fragment>
