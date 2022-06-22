@@ -110,8 +110,8 @@ export default class RoomSettings extends Component {
 
   handleTopicInput = e => {
     this.setState({ roomTopic: e.target.value })
-    this.roomTopicInput.current.style.height = "auto"
-    this.roomTopicInput.current.style.height = `${this.roomTopicTextarea.current.scrollHeight}px`;
+    this.roomTopicTextarea.current.style.height = "auto"
+    this.roomTopicTextarea.current.style.height = `${this.roomTopicTextarea.current.scrollHeight}px`;
   }
 
   handleKeydown = e => e.stopPropagation() // don't go to global keypress handler
@@ -298,7 +298,7 @@ export default class RoomSettings extends Component {
               />
               <div class="room-settings-info"></div>
               <label class="top-aligned-label" htmlFor="room-topic">Topic</label>
-              <textarea ref={this.roomTopicInput} name="room-topic"
+              <textarea ref={this.roomTopicTextarea} name="room-topic"
                 class="styled-input"
                 value={state.roomTopic}
                 disabled={!this.mayChangeRoomTopic}
