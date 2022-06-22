@@ -409,6 +409,11 @@ export default class MediaContent extends Component {
             `${this.props.roomFocused ? `/${this.props.roomFocused}` : ""}` +
             `${this.props.eventFocused ? `/${this.props.eventFocused}` : ""}`
           )
+          if (this.hasSelection) {
+            const currentSec = this.wavesurfer.getCurrentTime()
+            if (currentSec < this.state.selection?.start - 10) this.clearSelection()
+            if (currentSec > this.state.selection?.end + 10) this.clearSelection()
+          }
         }, 250)
       }
       this.updateSavedLocation()
