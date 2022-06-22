@@ -411,8 +411,8 @@ export default class MediaContent extends Component {
           )
           if (this.hasSelection) {
             const currentSec = this.wavesurfer.getCurrentTime()
-            if (currentSec < this.state.selection?.start - 10) this.clearSelection()
-            if (currentSec > this.state.selection?.end + 10) this.clearSelection()
+            if (currentSec < this.state.selection?.start - .01) this.clearSelection()
+            if (currentSec > this.state.selection?.end + .01) this.clearSelection()
           }
         }, 250)
       }
