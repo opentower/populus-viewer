@@ -168,6 +168,9 @@ export default class MessagePanel extends Component {
 }
 
 class FileUploadInput extends Component {
+
+  componentDidMount() { this.fileLoader.current.click() }
+
   fileLoader = createRef()
 
   theForm = createRef()
@@ -177,9 +180,8 @@ class FileUploadInput extends Component {
     const limit = Client.mediaConfig["m.upload.size"]
     if (theFile.size >= limit) {
       alert(`Sorry, this file is too large to be uploaded. Your current server limits uploads to ${formatBytes(limit)}.`)
-      this.theForm.current.reset()
-      return
-    }
+      this.props.done()
+    } else this.setState({ fileValid: true })
   }
 
   submitInput = async _ => {
@@ -204,7 +206,15 @@ class FileUploadInput extends Component {
 
   render(props, state) {
     return <form ref={this.theForm}>
-      <input ref={this.fileLoader} oninput={this.validateFile} type="file" />
+      <input id="file-uploader-input" ref={this.fileLoader} oninput={this.validateFile} type="file" />
+      {state.fileValid 
+        ? <div id="file-uploader-preview">
+          <span>{Icons.file}</span>
+          <span>{this.fileLoader.current.files[0].name}</span>
+          <span> {formatBytes(this.fileLoader.current.files[0].size)} </span>
+        </div>
+        : null
+      }
       {this.state.progress
         ? <div id="file-uploader-progress">
           <span>Uploading file</span>
