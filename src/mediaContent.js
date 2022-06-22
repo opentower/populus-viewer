@@ -241,7 +241,7 @@ export default class MediaContent extends Component {
 
   scrubRight = _ => {
     clearTimeout(this.inertiaTimeout)
-    this.wavesurfer.skip(1 * this.rightInertia)
+    this.wavesurfer.skip(1 * this.rightInertia * (1 / this.zoomFactor))
     this.leftInertia = 1
     this.rightInertia += .1
     this.inertiaTimeout = setTimeout(this.resetInertia, 500)
@@ -249,7 +249,7 @@ export default class MediaContent extends Component {
 
   scrubLeft = _ => {
     clearTimeout(this.inertiaTimeout)
-    this.wavesurfer.skip(-1 * this.leftInertia)
+    this.wavesurfer.skip(-1 * this.leftInertia * (1 / this.zoomFactor))
     this.rightInertia = 1
     this.leftInertia += .1
     this.inertiaTimeout = setTimeout(this.resetInertia, 500)
@@ -265,10 +265,10 @@ export default class MediaContent extends Component {
     if (this.state.selection) {
       clearTimeout(this.inertiaTimeout)
       if (e.shiftKey) {
-        this.state.selection.onResize(.2 * this.rightInertia, "start") 
+        this.state.selection.onResize(.2 * this.rightInertia * (1 / this.zoomFactor), "start") 
         this.wavesurfer.seekAndCenter(this.state.selection.start / this.wavesurfer.getDuration())
       } else {
-        this.state.selection.onResize(.2 * this.rightInertia) 
+        this.state.selection.onResize(.2 * this.rightInertia * (1 / this.zoomFactor)) 
         this.wavesurfer.seekAndCenter(this.state.selection.end / this.wavesurfer.getDuration())
       }
       this.leftInertia = 1
@@ -283,11 +283,11 @@ export default class MediaContent extends Component {
     if (this.state.selection) {
       clearTimeout(this.inertiaTimeout)
       if (e.shiftKey) {
-        this.state.selection.onResize(-.2 * this.leftInertia, "start") 
+        this.state.selection.onResize(-.2 * this.leftInertia * (1 / this.zoomFactor), "start") 
         this.wavesurfer.seekAndCenter(this.state.selection.start / this.wavesurfer.getDuration())
       }
       else {
-        this.state.selection.onResize(-.2 * this.leftInertia) 
+        this.state.selection.onResize(-.2 * this.leftInertia * (1 / this.zoomFactor)) 
         this.wavesurfer.seekAndCenter(this.state.selection.end / this.wavesurfer.getDuration())
       }
       this.rightInertia = 1
