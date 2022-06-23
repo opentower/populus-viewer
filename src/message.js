@@ -5,6 +5,7 @@ import { UserColor } from './utils/colors.js'
 import { sanitizeHtmlParams } from './constants.js'
 import { processLinks } from './links.js'
 import { toClockTime } from './utils/temporal.js'
+import { formatBytes } from './utils/math.js'
 import UserInfoHeader from './userInfoHeader.js'
 import MessageFrame from './messageFrame.js'
 import MediaModal from './mediaModal.js'
@@ -240,10 +241,11 @@ class ReplyPreview extends Component {
         }
         case "m.file": {
           displayBody = <div class="file-upload">
-            file upload:&nbsp;
+            <span>{Icons.file}</span>
             <a href={Client.client.getHttpUriForMxcFromHS(this.state.liveEvent.getContent().url)}>
               {this.state.liveEvent.getContent().filename}
             </a>
+            <span>{formatBytes(this.state.liveEvent.getContent().info?.size)}</span>
           </div>
           break;
         }
@@ -370,14 +372,18 @@ export class FileMessage extends Component {
 
   render(props) {
     const filename = props.event.getContent().filename
+    const size = props.event.getContent().info?.size
     return <MessageFrame
       displayOnly={props.displayOnly}
       reactions={props.reactions}
       canRedact={props.canRedact}
       event={props.event} >
-        <div class="message-body file-upload">
-          file upload:&nbsp;
-          <a href={this.url} download={filename}>{filename}</a>
+        <div class="message-body">
+          <div class="file-upload">
+            <span>{Icons.file}</span>
+            <a href={this.url} download={filename}>{filename}</a>
+            <span> {formatBytes(size)} </span>
+          </div>
         </div>
     </MessageFrame>
   }

@@ -90,10 +90,34 @@
     visibility:visible;
 }
 
-.file-upload,
 .redacted {
     font-size:10pt;
     color:var(--content-text-dimmed);
+}
+
+/* should DRY with #file-uploader-preview */
+
+.file-upload {
+  display:grid;
+  grid-template-columns:30px 1fr;
+  margin:0px 10px 10px 0px;
+  padding:10px 10px 10px 10px;
+  border: 1px solid var(--content-border);
+  border-radius:10px;
+  align-items:center;
+}
+
+.file-upload span:nth-child(1) {
+  grid-row:1/3;
+}
+
+.file-upload a:nth-child(2) {
+  font-weight:bold;
+}
+
+.file-upload span:nth-child(3) {
+  font-size:10pt;
+  color:var(--content-text-dimmed)
 }
 
 /* status vanishes on sent. We probably want a warning for a "not_sent" status,
