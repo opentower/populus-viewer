@@ -339,6 +339,8 @@ class SpaceListing extends Component {
               activeClick={this.toggleChild}
               roomId={child.room_id}
               avatarUrl={child.avatar_url}
+              numJoinedMembers={child.num_joined_members}
+              joinRule={child.join_rule}
               topic={child.topic}
               name={child.name || child?.canonical_alias?.slice(1) || "?"}
             />)

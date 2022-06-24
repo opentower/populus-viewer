@@ -22,3 +22,9 @@
 .tippy-box[data-theme="info"] h3 {
   margin:0px;
 }
+
+
+.tippy-box[data-theme="info"] svg{
+  height:15px;
+  vertical-align:bottom;
+}

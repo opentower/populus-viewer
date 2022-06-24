@@ -2,6 +2,7 @@ import Client from './client.js'
 import { h, Component } from 'preact';
 import { RoomColor } from './utils/colors.js'
 import ToolTip from './utils/tooltip.js'
+import * as Icons from './icons.js' 
 import './styles/roomIcon.css'
 
 export default class RoomIcon extends Component {
@@ -52,7 +53,17 @@ export default class RoomIcon extends Component {
 
   roomColor = new RoomColor(this.props.name)
 
-  toolTipContent = `<h3>${this.props.name}</h3>${this.props.topic ? `<p>${this.props.topic}</p>` : ""}`
+  toolTipContent = `<h3>${this.props.name}</h3>${
+    this.props.topic ? `<p>${this.props.topic}</p>` : ""}${
+      this.props.numJoinedMembers ? `<span><svg
+      xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24
+      24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round" class="feather
+      feather-users"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"
+        /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87"
+        /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>:
+      ${this.props.numJoinedMembers}` : ""
+    }`
 
   render(props, state) {
     return <ToolTip content={this.toolTipContent} placement="bottom-start" allowHTML={true} theme="info">
