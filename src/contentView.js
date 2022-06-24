@@ -706,7 +706,13 @@ export default class ContentView extends Component {
             />
           }
         <div class="panel-widget-controls">
-          {state.room ? <RoomIcon roomId={state.room.roomId} size={42} name={state.room.name} avatarUrl={state.room.getMxcAvatarUrl()} /> : null }
+          {state.room ? <RoomIcon 
+            roomId={state.room.roomId}
+            size={42}
+            topic={state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+              .getStateEvents(Matrix.EventType.RoomTopic, "")?.getContent()?.topic}
+            name={state.room.name}
+            avatarUrl={state.room.getMxcAvatarUrl()} /> : null }
           <hr />
           <ToolTip placement="left" content="Show chat">
             <button data-active={state.chatVisible} disabled={!state.focus} id="show-chat" onclick={this.toggleChat}>
