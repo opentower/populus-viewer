@@ -18,7 +18,7 @@ export default class PdfContent extends Component {
   // we expose this method so that we can unformly sanatize position-strings
   // before passing them to components that expect timestamps
   static positionToPage(pos, room) {
-    const tryLastPosition = parseInt(room?.getAccountData(lastViewed)?.getContent().position, 10)
+    const tryLastPosition = room?.getAccountData(lastViewed)?.getContent().position
     const tryParse = parseInt(pos, 10)
     // need isInteger because 0 is falsey
     return Number.isInteger(tryParse)

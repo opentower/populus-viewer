@@ -49,13 +49,7 @@ export default class ContentView extends Component {
     this.annotationChildEvents = {}
     this.annotationParentEvents = {}
     this.prevScrollTop = 0
-    this.checkForSelection = this.checkForSelection.bind(this)
-    this.handleKeydown = this.handleKeydown.bind(this)
-    this.handleAccountData = this.handleAccountData.bind(this)
-    this.handleStateUpdate = this.handleStateUpdate.bind(this)
     this.userColor = new UserColor(Client.client.getUserId())
-    // need the `bind` here in order to pass a named function into the event
-    // listener with the proper `this` reference
   }
 
   componentDidMount() {
@@ -90,7 +84,8 @@ export default class ContentView extends Component {
   handleAccountData = (e, room) => {
     if (room.roomId === this.state.room?.roomId && this.props.resourcePosition && e.getType() === lastViewed) {
       const theContent = e.getContent()
-      if (theContent.page !== this.props.resourcePosition && theContent.deviceId !== Client.deviceId) {
+      const tryParse = parseInt(this.props.resourcePosition, 10)
+      if (Number.isInteger(tryParse) && theContent.position !== tryParse && theContent.deviceId !== Client.deviceId) {
         Toast.set(
           <Fragment>
             <h3 id="toast-header">Hey!</h3>
@@ -309,7 +304,7 @@ export default class ContentView extends Component {
     return {listingVisible: true}
   })
 
-  checkForSelection () {
+  checkForSelection  = _ => {
     if (this.selectionTimeout) clearTimeout(this.selectionTimeout)
     const hasSelection = !!(this.content.current?.hasSelection())
     // false if there's no current content
