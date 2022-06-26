@@ -38,7 +38,6 @@ export default class MessagePanel extends Component {
     switch (this.state.mode) {
       case 'Default': return <TextMessageInput {...theProps} />
       case 'SendFile': return <FileUploadInput {...theProps} />
-      case 'SendMedia': return <MediaUploadInput {...theProps} />
       case 'RecordVideo': return <RecordVideoInput {...theProps} />
       case 'RecordAudio': return <RecordAudioInput {...theProps} />
     }
@@ -47,8 +46,6 @@ export default class MessagePanel extends Component {
   setModeDefault = _ => this.setState({ mode: "Default" })
 
   setModeSendFile = _ => this.setState({ mode: "SendFile" })
-
-  setModeSendImage = _ => this.setState({ mode: "SendMedia" })
 
   setModeRecordVideo = _ => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -144,9 +141,6 @@ export default class MessagePanel extends Component {
                 <ToolTip key="quote-highlighted" content="Quote highlighted">
                   <button id="quote-button" disabled={!props.hasSelection} onclick={this.sendSelection}>{Icons.quote}</button>
                 </ToolTip>
-                <ToolTip key="Upload-image" content="Upload image">
-                  <button onclick={this.setModeSendImage}>{Icons.image}</button>
-                </ToolTip>
                 <ToolTip key="Upload-file" content="Upload file">
                   <button onclick={this.setModeSendFile}>{Icons.upload}</button>
                 </ToolTip>
@@ -181,10 +175,33 @@ class FileUploadInput extends Component {
     if (theFile.size >= limit) {
       alert(`Sorry, this file is too large to be uploaded. Your current server limits uploads to ${formatBytes(limit)}.`)
       this.props.done()
-    } else this.setState({ fileValid: true })
+    } else if (/^video/.test(theFile.type)) {
+      this.setState({
+        previewUrl: URL.createObjectURL(this.fileLoader.current.files[0]),
+        mediaType: "video",
+      })
+    } else if (/^image/.test(theFile.type)) {
+      this.setState({
+        previewUrl: URL.createObjectURL(this.fileLoader.current.files[0]),
+        mediaType: "image",
+      })
+    } else {
+      this.setState({ mediaType: "default" })
+    }
   }
 
   submitInput = async _ => {
+    if (this.state.mediaType) {
+      switch (this.state.mediaType) {
+        case "image": await this.submitImage(); break
+        case "video": await this.submitVideo(); break
+        case "default": await this.submitDefault(); break
+      }
+    }
+    this.props.done()
+  }
+
+  submitDefault = async _ => {
     const theFile = this.fileLoader.current.files[0]
     const mxc = await Client.client.uploadContent(theFile, { progressHandler: this.progressHandler }).catch(e => console.log(e))
     const theContent = {
@@ -199,78 +216,10 @@ class FileUploadInput extends Component {
     }
     const eventI = await Client.client.sendMessage(this.props.roomId, theContent)
     this.props.handlePending(theContent, eventI)
-    this.props.done()
   }
 
-  progressHandler = (progress) => this.setState({progress})
-
-  render(props, state) {
-    return <form ref={this.theForm}>
-      <input id="file-uploader-input" ref={this.fileLoader} oninput={this.validateFile} type="file" />
-      {state.fileValid 
-        ? <div id="file-uploader-preview">
-          <span>{Icons.file}</span>
-          <span>{this.fileLoader.current.files[0].name}</span>
-          <span> {formatBytes(this.fileLoader.current.files[0].size)} </span>
-        </div>
-        : null
-      }
-      {this.state.progress
-        ? <div id="file-uploader-progress">
-          <span>Uploading file</span>
-          <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
-        </div>
-        : null
-      }
-    </form>
-  }
-}
-
-class MediaUploadInput extends Component {
-  theForm = createRef()
-
-  mediaLoader = createRef()
-
-  mediaPreview = createRef()
-
-  uploadImage = _ => this.mediaLoader.current.click()
-
-  updatePreview = _ => {
-    const theImage = this.mediaLoader.current.files[0]
-    const limit = Client.mediaConfig["m.upload.size"]
-    if (theImage.size >= limit) {
-      alert(`Sorry, this file is too large to be uploaded. Your current server limits uploads to ${formatBytes(limit)}.`)
-      this.theForm.current.reset()
-      return
-    }
-    if (theImage && (/^video/.test(theImage.type) || /^image/.test(theImage.type))) {
-      this.setState({previewUrl: URL.createObjectURL(this.mediaLoader.current.files[0]) })
-      if (/^video/.test(theImage.type)) this.setState({mediaType: "video" })
-      if (/^image/.test(theImage.type)) this.setState({mediaType: "image" })
-    }
-  }
-
-  getPreview = _ => {
-    switch (this.state.mediaType) {
-      case "image": return <img ref={this.mediaPreview} class="image-message-preview media-message-thumbnail" src={this.state.previewUrl} />
-      case "video": return <video ref={this.mediaPreview} class="video-message-preview media-message-thumbnail" controls src={this.state.previewUrl} />
-    }
-  }
-
-  submitInput = async _ => {
-    let theContent
-    if (this.mediaPreview.current) {
-      switch (this.state.mediaType) {
-        case "image": theContent = await this.submitImage(); break
-        case "video": theContent = await this.submitVideo(); break
-      }
-    }
-    this.props.done()
-  }
-
-  async submitVideo () {
-    const theVideo = this.mediaLoader.current.files[0]
-    // TODO: reject non-media mimetypes
+  submitVideo = async _ => {
+    const theVideo = this.fileLoader.current.files[0]
     window.theVideo = theVideo
     const videoElt = await loadVideoElement(theVideo)
     const thumbContent = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
@@ -298,14 +247,12 @@ class MediaUploadInput extends Component {
       url: videoMxc
     }
     if (duration < Infinity) theContent.duration = duration
-    console.log("send video")
     const eventI = await Client.client.sendMessage(this.props.roomId, theContent)
     this.props.handlePending(theContent, eventI)
   }
 
-  async submitImage () {
-    const theImage = this.mediaLoader.current.files[0]
-    // TODO: reject non-media mimetypes
+  submitImage = async _ => {
+    const theImage = this.fileLoader.current.files[0]
     const {width, height, img} = await loadImageElement(theImage)
     const blurhash = await blurhashFromFile(theImage)
     const thumbType = theImage.type === "image/jpeg" ? "image/jpeg" : "image/png"
@@ -338,13 +285,22 @@ class MediaUploadInput extends Component {
 
   render(props, state) {
     return <form ref={this.theForm}>
-      <input id="mediaUploaderHidden" oninput={this.updatePreview} accept="image/*,video/*" ref={this.mediaLoader} type="file" />
-      {state.previewUrl
-        ? this.getPreview()
-        : <div onclick={this.uploadImage} class="media-message-thumbnail awaiting" />}
+      <input id="file-uploader-input" ref={this.fileLoader} oninput={this.validateFile} type="file" />
+      { state.mediaType === "video" 
+        ? <video ref={this.mediaPreview} class="video-message-preview media-message-thumbnail" controls src={state.previewUrl} />
+        : state.mediaType === "image"
+        ? <img ref={this.mediaPreview} class="image-message-preview media-message-thumbnail" src={this.state.previewUrl} />
+        : state.mediaType === "default"
+        ? <div id="file-uploader-preview">
+          <span>{Icons.file}</span>
+          <span>{this.fileLoader.current.files[0].name}</span>
+          <span>{formatBytes(this.fileLoader.current.files[0].size)} </span>
+        </div>
+        : null
+      }
       {this.state.progress
-        ? <div id="media-uploader-progress">
-          <span>Uploading {this.state.uploading}</span>
+        ? <div id="file-uploader-progress">
+          <span>Uploading file</span>
           <progress class="styled-progress" max={state.progress.total} value={state.progress.loaded} />
         </div>
         : null

@@ -139,12 +139,7 @@
   border-top: 1px var(--contrast-background) solid;
 }
 
-#mediaUploaderHidden {
-  display:none;
-}
-
-#file-uploader-progress,
-#media-uploader-progress {
+#file-uploader-progress {
     display:grid;
     grid-template-columns: auto 1fr;
     animation: pulse-opacity 2s infinite; 
@@ -180,8 +175,7 @@
   color:var(--content-text-dimmed)
 }
 
-#file-uploader-progress > progress,
-#media-uploader-progress > progress {
+#file-uploader-progress > progress {
     margin-left:10px;
 }
 
