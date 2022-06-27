@@ -199,10 +199,13 @@ export default class ContentView extends Component {
   setSearchText = searchText => { this.searchText = searchText }
 
   // XXX : may need to debounce eventually
-  setAnnotationFilter = annotationFilter => this.setState({
-    annotationFilter,
-    filteredAnnotationContents: this.filterAnnotations(annotationFilter, this.annotationChildEvents)
-  })
+  setAnnotationFilter = annotationFilter => {
+    const mergedLocations = Object.assign({}, this.annotationParentEvents, this.annotationChildEvents)
+    this.setState({
+      annotationFilter,
+      filteredAnnotationContents: this.filterAnnotations(annotationFilter, mergedLocations)
+    })
+  }
 
   setResourceLength = resourceLength => this.setState({resourceLength})
 
@@ -243,9 +246,9 @@ export default class ContentView extends Component {
 
   focusByRoomId = (roomId, eventId) => {
     const theRoomState = this.state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const theAnnotation = theRoomState.getStateEvents(spaceChild, roomId)
-    if (theAnnotation) {
-      const focus = new Location(theAnnotation)
+    const mergedLocations = Object.assign({}, this.annotationParentEvents, this.annotationChildEvents)
+    if (mergedLocations[roomId]) {
+      const focus = mergedLocations[roomId]
       History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${focus.getResourcePosition()}/${roomId}${eventId ? "/" + eventId : ""}`)
       const listingVisible = document.body.offsetWidth <= 600 ? false : this.state.listingVisible
       this.setState({ focus, secondaryFocus: null, chatVisible: true, listingVisible })
@@ -388,9 +391,9 @@ export default class ContentView extends Component {
     if (!this.state.room) return
     if (!this.props.roomFocused) this.unsetFocus({replace: true})
     else {
-      const theRoomState = this.state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-      const theAnnotation = theRoomState.getStateEvents(spaceChild, this.props.roomFocused)
-      if (theAnnotation) this.setFocus(new Location(theAnnotation), {replace: true, holdPosition: true})
+      const mergedLocations = Object.assign({}, this.annotationParentEvents, this.annotationChildEvents)
+      const theAnnotation = mergedLocations[this.props.roomFocused]
+      if (theAnnotation) this.setFocus(theAnnotation, {replace: true, holdPosition: true})
     }
   }
 

@@ -447,7 +447,6 @@ class FlagSelector extends Component {
         via: oldContent.via,
         [mscLocation]: newLocation
       }
-      console.log(newContent)
       Client.client
         .sendStateEvent(this.props.focus.getParent(), spaceChild, newContent, this.props.focus.getChild()) // should be conditional on room visible
         .catch(e => alert(e))
