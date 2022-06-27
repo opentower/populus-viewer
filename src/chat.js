@@ -434,24 +434,34 @@ function TopAnchor(props) {
 
 class FlagSelector extends Component {
   toggleQuestion = _ => {
-    const theRoomState = Client.client.getRoom(this.props.focus.getChild())
-      .getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const spaceParentEvents = theRoomState.getStateEvents(spaceParent)
+    const spaceParentEvents = Client.client
+      .getRoom(this.props.focus.getChild())
+      .getLiveTimeline()
+      .getState(Matrix.EventTimeline.FORWARDS)
+      .getStateEvents(spaceParent)
     for (const spaceParentEvent of spaceParentEvents) {
       const theLocation = new Location(spaceParentEvent)
       if (!theLocation.isValid()) continue
-      const oldContent = spaceParentEvent.getContent()
       const newLocation =  Object.assign({}, theLocation.location, { motivation: "questioning" })
       if (this.props.focus.isQuestion()) delete newLocation.motivation // toggle
-      const newContent = {
-        via: oldContent.via,
+      const newParentContent = {
+        via: spaceParentEvent.getContent().via,
         [mscLocation]: newLocation
       }
       Client.client
-        .sendStateEvent(this.props.focus.getParent(), spaceChild, newContent, this.props.focus.getChild()) // should be conditional on room visible
+        .sendStateEvent(this.props.focus.getChild(), spaceParent, newParentContent, this.props.focus.getParent()) 
         .catch(e => alert(e))
-      Client.client
-        .sendStateEvent(this.props.focus.getChild(), spaceParent, newContent, this.props.focus.getParent()) 
+      const spaceChildEvent = Client.client
+        .getRoom(this.props.focus.getParent())
+        .getLiveTimeline()
+        .getState(Matrix.EventTimeline.FORWARDS)
+        .getStateEvents(spaceChild, theLocation.getChild())
+      const newChildContent = {
+        via: spaceChildEvent.getContent().via,
+        [mscLocation]: newLocation
+      }
+      if (newChildContent.via) Client.client
+        .sendStateEvent(this.props.focus.getParent(), spaceChild, newChildContent, this.props.focus.getChild()) // should be conditional on room visible
         .catch(e => alert(e))
     }
   }

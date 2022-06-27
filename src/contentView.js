@@ -78,6 +78,7 @@ export default class ContentView extends Component {
     console.log(e.getStateKey(), this.state.focus?.getChild())
     if (e.getStateKey() === this.state.room?.roomId && e.getType() === spaceParent) {
       this.updateAnnotation(new Location(e))
+      if (e.getRoomId() === this.state.focus?.getChild()) this.refreshFocus()
     }
     if (e.getRoomId() === this.state.room?.roomId && e.getType() === spaceChild) {
       this.updateAnnotation(new Location(e))
