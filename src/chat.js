@@ -4,12 +4,15 @@ import * as Matrix from "matrix-js-sdk"
 import { TextMessage, AnnotationMessage, EmoteMessage, NoticeMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } from './message.js'
 import MessagePanel from './messagePanel.js'
 import { UserColor } from './utils/colors.js'
-import { mscMarkupMsgKey } from './constants.js'
+import { mscMarkupMsgKey, spaceParent, spaceChild, mscLocation } from './constants.js'
 import UserInfoHeader from './userInfoHeader.js'
 import Client from './client.js'
 import Toast from "./toast.js"
+import * as Icons from './icons.js'
 import History from "./history.js"
+import Location from "./utils/location.js"
 import LocationPreview from "./locationPreview.js"
+import ToolTip from "./utils/tooltip.js"
 
 export default class Chat extends Component {
   constructor (props) {
@@ -419,6 +422,7 @@ function TopAnchor(props) {
     <div id="anchor-preview-wrapper">
       <LocationPreview showPosition={true} resource={props.resource} location={props.focus} />
     </div>
+    <FlagSelector focus={props.focus}/>
     <div id="scroll-done">
       { props.focus.getStatus() === "pending"
         ? "Awaiting your comment..."
@@ -426,6 +430,43 @@ function TopAnchor(props) {
       }
     </div>
   </Fragment>
+}
+
+class FlagSelector extends Component {
+  toggleQuestion = _ => {
+    const theRoomState = Client.client.getRoom(this.props.focus.getChild())
+      .getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const spaceParentEvents = theRoomState.getStateEvents(spaceParent)
+    for (const spaceParentEvent of spaceParentEvents) {
+      const theLocation = new Location(spaceParentEvent)
+      if (!theLocation.isValid()) continue
+      const oldContent = spaceParentEvent.getContent()
+      const newLocation =  Object.assign({}, theLocation.location, { motivation: "questioning" })
+      if (this.props.focus.isQuestion()) delete newLocation.motivation // toggle
+      const newContent = {
+        via: oldContent.via,
+        [mscLocation]: newLocation
+      }
+      console.log(newContent)
+      Client.client
+        .sendStateEvent(this.props.focus.getParent(), spaceChild, newContent, this.props.focus.getChild()) // should be conditional on room visible
+        .catch(e => alert(e))
+      Client.client
+        .sendStateEvent(this.props.focus.getChild(), spaceParent, newContent, this.props.focus.getParent()) 
+        .catch(e => alert(e))
+    }
+  }
+
+  render(props) {
+    return <div id="anchor-chat-flags">
+      <ToolTip content={props.focus?.isQuestion() ? "unmark as question" : "mark as question"}>
+        <button class="small-icon" 
+          onclick={this.toggleQuestion}
+          data-active-flag={props.focus?.isQuestion()}
+          > {Icons.question}</button>
+      </ToolTip>
+    </div>
+  }
 }
 
 class TypingIndicator extends Component {

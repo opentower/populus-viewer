@@ -394,6 +394,7 @@ function AnnotationListingComment(props) {
       > {body} </div>
       <div class="annotation-listing-info">
         <div class="annotation-listing-features">
+          {props.annotationLocation.isQuestion() ? Icons.question: null}
           {props.annotationLocation.isPrivate() ? Icons.lock : null}
           {props.annotationLocation.getOrientation() === "parent" ? Icons.eyeOff : null}
         </div>

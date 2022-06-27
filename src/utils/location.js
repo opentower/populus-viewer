@@ -26,6 +26,11 @@ export default class Location {
     return this.event.getContent().via
   }
 
+  isQuestion() {
+    if (this.location?.motivation === "questioning") return true
+    return false
+  }
+
   getType() {
     if (this.location?.[mscPdfHighlight]) return "highlight"
     if (this.location?.[mscPdfText]) return "text"
@@ -88,13 +93,13 @@ export default class Location {
       this.location?.[mscPdfText]?.page_index
   }
 
-  getStatus() {
-    return this.location?.[populusHighlight]?.activityStatus
-  }
-
   getRect() {
     return this.location?.[mscPdfHighlight]?.rect ||
       this.location?.[mscPdfText]?.rect
+  }
+
+  getQuadPoints() {
+    return this.location?.[mscPdfHighlight]?.quad_points
   }
 
   //Media specific
@@ -126,13 +131,11 @@ export default class Location {
     }
   }
 
+  // populus specific methods
+
   isPrivate() {
     if (this.location?.[populusHighlight]?.private) return true
     return false
-  }
-
-  getQuadPoints() {
-    return this.location?.[mscPdfHighlight]?.quad_points
   }
 
   getRootContent() {
@@ -143,4 +146,7 @@ export default class Location {
     return this.location?.[populusHighlight]?.creator
   }
 
+  getStatus() {
+    return this.location?.[populusHighlight]?.activityStatus
+  }
 }
