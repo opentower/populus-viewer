@@ -28,7 +28,6 @@
   opacity:1;
 }
 
-#anchor-chat-flags button:hover svg,
 #anchor-chat-flags button[data-active-flag] svg {
   color:var(--content-secondary-text);
   opacity:1;

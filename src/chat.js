@@ -433,12 +433,21 @@ function TopAnchor(props) {
 }
 
 class FlagSelector extends Component {
+  handleError = e => {
+    Toast.set(<Fragment>
+      <h3 id="toast-header">Couldn't mark as question</h3>
+      <div>Maybe you don't have permission to edit this annotation? Here's the error message:</div>
+      <pre>{e.message}</pre>
+    </Fragment>)
+  }
+
   toggleQuestion = _ => {
-    const spaceParentEvents = Client.client
+    const chatRoomState = Client.client
       .getRoom(this.props.focus.getChild())
       .getLiveTimeline()
       .getState(Matrix.EventTimeline.FORWARDS)
-      .getStateEvents(spaceParent)
+    if (!chatRoomState.maySendStateEvent(spaceParent, Client.client.getUserId())) return
+    const spaceParentEvents = chatRoomState.getStateEvents(spaceParent)
     for (const spaceParentEvent of spaceParentEvents) {
       const theLocation = new Location(spaceParentEvent)
       if (!theLocation.isValid()) continue
@@ -462,7 +471,7 @@ class FlagSelector extends Component {
       }
       if (newChildContent.via) Client.client
         .sendStateEvent(this.props.focus.getParent(), spaceChild, newChildContent, this.props.focus.getChild()) // should be conditional on room visible
-        .catch(e => alert(e))
+        .catch(e => this.handleError(e))
     }
   }
 
