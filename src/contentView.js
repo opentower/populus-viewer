@@ -507,6 +507,7 @@ export default class ContentView extends Component {
       if (searchFlags.includes("hour")) { flagged = flagged && (loc.event.getTs() > (Date.now() - 3600000)) }
       if (searchFlags.includes("day")) { flagged = flagged && (loc.event.getTs() > (Date.now() - 86400000)) }
       if (searchFlags.includes("week")) { flagged = flagged && (loc.event.getTs() > (Date.now() - 604800000)) }
+      if (searchFlags.includes("question")) { flagged = flagged && loc.isQuestion() }
       if (searchFlags.includes("unread")) { flagged = flagged && loc.getUnread() }
       const membered = searchMembers.length
         ? searchMembers.some(member => loc.getCreator().toLowerCase().includes(member.toLowerCase()))

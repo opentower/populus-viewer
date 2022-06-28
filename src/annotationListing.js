@@ -120,7 +120,8 @@ export default class AnnotationListing extends Component {
     { keyword: "hour", description: "annotations from the last hour" },
     { keyword: "day", description: "annotations from the last day" },
     { keyword: "week", description: "annotations from the last week" },
-    { keyword: "unread", description: "unread annotations" }
+    { keyword: "unread", description: "unread annotations" },
+    { keyword: "question", description: "annotations asking questions" }
   ]
 
   popupActions = {
