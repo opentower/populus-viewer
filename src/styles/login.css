@@ -43,6 +43,10 @@
   margin-top:0px;
 }
 
+#login h4, #registration h4 {
+  margin:0px;
+}
+
 #login form, #registration form {
   margin: calc(2 * var(--margin-unit)) 0 calc(2 * var(--margin-unit)) 0;
 }
@@ -58,7 +62,7 @@
 
 #login form, #registration form {
     display:grid;
-    grid-template-columns: 80px 1fr;
+    grid-template-columns: 90px 1fr;
     align-items: center;
 }
 
@@ -70,11 +74,10 @@
 
 #login input, #registration input {
     grid-column: 2 / 3 ;
-    margin:5px;
-    margin-left:10px;
     padding:7px;
     border:none;
     background:var(--input-background);
+    outline-offset: -2px;
 }
 
 #login div, #registration div {
@@ -100,20 +103,43 @@
   cursor: pointer;
 }
 
-.login-sso-listing {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
+#login-sso-providers {
+  margin:0px 0px 5px 0px;
+  padding-right:50px;
+  display:flex;
+  overflow:auto;
+  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+  mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
 }
 
-.login-sso-listing:hover .sso-name {
-  font-weight:bold;
-  transition: font-weight ease .2s;
+.login-sso-listing {
+  display: grid;
+  grid-template-columns:1fr;
+  align-items: center;
+  justify-items: center;
+  cursor: pointer;
+  font-size:10pt;
+  padding:10px;
+}
+
+.login-sso-listing:hover img {
+  transition: transform ease .2s;
+}
+
+.login-sso-listing:hover img {
+  transform: scale(1.1);
+}
+
+#login div.userdata-form-info {
+  grid-column: 2/3;
+  padding-top:0px;
+  padding-bottom:5px;
+  font-size:10pt;
+  min-height: 1.2em;
 }
 
 .sso-name {
   color:var(--content-text);
-  padding-left:20px;
   text-decoration:none;
   transition: font-weight ease .2s;
 }
@@ -135,8 +161,6 @@
 #server-loading-message {
     animation: pulse-opacity 2s infinite; 
 }
-
-#servername { margin-bottom:1em !important; }
 
 @media only screen and (max-width: 600px) {
     #login-wrapper {
@@ -176,6 +200,10 @@
     #registration form { 
       border: 0px;
       grid-template-columns: 1fr; 
+    }
+
+    #login div.userdata-form-info {
+      grid-column: 1/3;
     }
 
     #login input,

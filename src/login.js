@@ -11,7 +11,6 @@ export default class LoginView extends Component {
     super(props)
     const queryParameters = new URLSearchParams(window.location.search)
     this.state = {
-      registering: queryParameters.get("sso") ? "SSO" : false,
       name: "",
       password: "",
       server: queryParameters.get('server') || ""
@@ -27,7 +26,7 @@ export default class LoginView extends Component {
     this.setState({registering: switchTo})
   }
 
-  setServer = server => this.setState({ server })
+  setServer = (server, callback) => this.setState({ server }, callback)
 
   setName = name => this.setState({ name })
 
@@ -59,14 +58,12 @@ export default class LoginView extends Component {
     }
     const mainCard = state.registering === "register"
       ? <Registration {...theProps} />
-      : state.registering === "SSO"
-      ? <SSO {...theProps} />
       : <Login {...theProps} />
-      return <div id="login-container"><DecorativeCircles /><div id="login-wrapper" ref={this.loginWrapper}>{mainCard}</div></div>
+      return <div id="login-container"><BackgroundDecorations /><div id="login-wrapper" ref={this.loginWrapper}>{mainCard}</div></div>
   }
 }
 
-function DecorativeCircles(props) {
+function BackgroundDecorations(props) {
   clearTimeout(this.debounceLockTimeout)
   this.debounceLockTimeout = setTimeout(_ => this.debounceLock = false, 500)
   if (this.debounceLock) return this.memo
@@ -86,6 +83,20 @@ function DecorativeCircles(props) {
 }
 
 class Login extends Component {
+  constructor(props) {
+    super(props)
+    const queryParameters = new URLSearchParams(window.location.search)
+    this.state = {
+      SSOProviders: [],
+      loading: false
+    }
+    if (this.props.server && queryParameters.get("sso")) this.trySSO(queryParameters.get("sso"), queryParameters.get("server"))
+  }
+
+  componentDidMount() {
+    if (this.props.server) this.queryServers()
+  }
+
   handleSubmit = e => {
     e.preventDefault()
     this.setState({submitting: true})
@@ -103,76 +114,28 @@ class Login extends Component {
       })
   }
 
-  handleSSO = e => e.preventDefault()
-
-  render(props, state) {
-    return <div ref={props.loginElement} id="login">
-      <h3>Login To Populus</h3>
-      <form id="loginForm" onSubmit={this.handleSubmit}>
-        <UserData
-          setServer={props.setServer}
-          server={props.server}
-          setPassword={props.setPassword}
-          password={props.password}
-          setName={props.setName}
-          name={props.name} />
-        <div>
-          <button disabled={state.submitting} class="styled-button" >Login</button>
-        </div>
-        <div id="login-options">
-          <hr class="styled-rule" />
-          <span>Don't have a username? </span>
-          <a disabled={state.submitting} onClick={props.switchView("register")} >Register</a>
-          <span> or </span>
-          <a disabled={state.submitting} onClick={props.switchView("SSO")} >Login Via SSO</a>
-        </div>
-      </form>
-    </div>
-  }
-}
-
-class SSO extends Component {
-  constructor(props) {
-    super(props)
-    const queryParameters = new URLSearchParams(window.location.search)
-    this.state = {
-      SSOProviders: [],
-      loading: false
-    }
-    if (this.props.server && queryParameters.get("sso")) this.trySSO(queryParameters.get("sso"), queryParameters.get("server"))
-  }
-
-  handleSubmit = (e) => {
-    e.preventDefault()
-    const loginForm = document.getElementById("loginForm")
-    const formdata = new FormData(loginForm)
-    const entries = Array.from(formdata.entries()).map(i => i[1])
-    if (entries[0]) localStorage.setItem("baseUrl", `https://${entries[0]}`)
+  queryServers = _ => {
+    if (this.props.server) localStorage.setItem("baseUrl", `https://${this.props.server}`)
     else localStorage.setItem("baseUrl", serverRoot)
     this.setState({
       SSOProviders: [],
-      loading: true
+      loading: "loading"
     })
     Client.initClient()
       .then(client => client.loginFlows())
       .then(this.handleFlows)
-      .catch(_ => {
-        window.alert("Couldn't connect. Check your server name - it should look like 'matrix.org'")
-        this.setState({ loading: false })
-      })
-      // TODO: a nicer display for this error
+      .catch(_ => this.setState({ loading: "failed"}))
   }
 
   handleFlows = flows => {
     const theSSO = flows.flows.find(flow => flow.type === "m.login.sso")
     if (!theSSO) {
-      window.alert("This server doesn't appear to support SSO login.")
-      this.setState({ loading: false })
+      this.setState({ loading: null})
       return
     }
     this.props.resize()
     this.setState({
-      loading: false,
+      loading: null,
       SSOProviders: theSSO.identity_providers
     })
   }
@@ -187,47 +150,80 @@ class SSO extends Component {
       })
   }
 
-  handleServerInput = e => this.props.setServer(e.target.value)
+  setServer = v => {
+    clearTimeout(this.serverTimeout)
+    if (v.match(/[^/]*\.[^/]*/) || v === "") {
+      this.props.setServer(v, _ => {
+        this.serverTimeout = setTimeout( this.queryServers), 200
+      })
+    } else {
+      this.props.setServer(v)
+      this.setState({loading: v.length > 0 ? "badurl" : null})
+    }
+  }
+
+  canSubmit = _ => {
+    if (this.state.loading) return false
+    if (this.props.password.length < 8) return false
+    if (/[^a-zA-Z0-9._=/]/.test(this.props.name)) return false
+    return true
+  }
 
   render(props, state) {
+    const connectionMessage = state.loading === "loading"
+      ? "loading server information..."
+      : state.loading === "failed"
+      ? "couldn't connect to server"
+      : state.loading === "badurl"
+      ? "the server name should look like 'matrix.org'"
+      : null
     return <div ref={props.loginElement} id="login">
-      <h3>Login Via SSO</h3>
-      <form id="loginForm">
+      <h3>Login To Populus</h3>
+      <form id="loginForm" onSubmit={this.handleSubmit}>
+        <UserData
+          connectionMessage={connectionMessage}
+          setServer={this.setServer}
+          server={props.server}
+          setPassword={props.setPassword}
+          password={props.password}
+          setName={props.setName}
+          name={props.name} />
         <div>
-          <label htmlFor="servername">Server</label>
-          <input id="servername"
-            value={props.server}
-            oninput={this.handleServerInput}
-            type="text"
-            name="servername"
-            placeholder="populus.open-tower.com" />
-          <button class="styled-button" onClick={this.handleSubmit} >Look up SSO</button>
-        </div>
-        {state.loading ? <div id="server-loading-message">Loading...</div> : null}
-        {state.SSOProviders.map(
-          provider => {
-            let iconHttpURI = null
-            if (provider.icon) iconHttpURI = Matrix.getHttpUriForMxc(localStorage.getItem("baseUrl"), provider.icon, 40, 40, "crop")
-            return <div
-              onclick={e => this.trySSO(provider.id, null, e)}
-              class="login-sso-listing"
-              key={provider.id} >
-                { iconHttpURI
-                  ? <img class="sso-icon" width="40" height="40" src={iconHttpURI} />
-                  : Icons.login
-                }
-              <a class="sso-name" href={`?server=${encodeURIComponent(props.server)}&sso=${encodeURIComponent(provider.id)}`}>
-                {provider.name}
-              </a>
-            </div>
-          }
-        )}
-        <div id="login-options">
-          <hr class="styled-rule" />
-          <span>Don't want to use a third-party login? </span>
-          <a onClick={props.switchView("register")} >Register an Account</a>
+          <button disabled={!this.canSubmit()} class="styled-button" >Login</button>
         </div>
       </form>
+      {state.SSOProviders.length > 0 
+        ? <Fragment>
+            <h4>Or, login via:</h4>
+            <div id="login-sso-providers">
+              {
+                state.SSOProviders.map(
+                  provider => {
+                    let iconHttpURI = null
+                    if (provider.icon) iconHttpURI = Matrix.getHttpUriForMxc(localStorage.getItem("baseUrl"), provider.icon, 40, 40, "crop")
+                    return <div
+                    onclick={e => this.trySSO(provider.id, null, e)}
+                    class="login-sso-listing"
+                    key={provider.id} >
+                      { iconHttpURI
+                        ? <img class="sso-icon" width="40" height="40" src={iconHttpURI} />
+                        : Icons.login
+                      }
+                      <a class="sso-name" href={`?server=${encodeURIComponent(props.server)}&sso=${encodeURIComponent(provider.id)}`}>
+                      {provider.name}
+                      </a>
+                      </div>
+                  })
+              }
+            </div>
+          </Fragment>
+          : null
+        }
+      <div id="login-options">
+        <hr class="styled-rule" />
+        <span>Don't have an account? </span>
+        <a disabled={state.submitting} onClick={props.switchView("register")} >Register</a>
+      </div>
     </div>
   }
 }
@@ -385,27 +381,40 @@ class UserData extends Component {
 
   validateUsername = (e) => {
     this.props.setName(e.target.value)
-    if (/[^a-zA-Z0-9._=/]/.test(e.target.value)) this.usernameInput.current.setCustomValidity("Bad Character")
-    else this.usernameInput.current.setCustomValidity("")
+    if (/[^a-zA-Z0-9._=/]/.test(e.target.value)) {
+      this.usernameInput.current.setCustomValidity("Bad Character")
+      this.setState({usernameMessage: "Usernames can include only a-z, 0-9, =, _ or '.'"})
+    } else {
+      this.usernameInput.current.setCustomValidity("")
+      this.setState({usernameMessage: null})
+    }
   }
 
   validatePassword = (e) => {
     this.props.setPassword(e.target.value)
-    if (e.target.value.length < 8 && e.target.value.length > 0) this.passwordInput.current.setCustomValidity("Bad Password")
-    else this.passwordInput.current.setCustomValidity("")
+    if (e.target.value.length < 8 && e.target.value.length > 0) {
+      this.passwordInput.current.setCustomValidity("Bad Password")
+      this.setState({passwordMessage: "Passwords must be at least 8 characters"})
+    } else {
+      this.passwordInput.current.setCustomValidity("")
+      this.setState({passwordMessage: null})
+    }
   }
 
   handleServerInput = e => this.props.setServer(e.target.value)
 
-  render (props) {
+  render (props, state) {
     return (
       <Fragment>
-        <label htmlFor="username">Username</label>
-        <input autocomplete="username" value={props.name} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
-        <label htmlFor="password">Password</label>
-        <input autocomplete={props.newAccount ? "new-password" : "current-password"} value={props.password} oninput={this.validatePassword} type="password" ref={this.passwordInput} id="password" name="password" />
         <label htmlFor="servername">Server</label>
         <input value={props.server} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
+        <div class="userdata-form-info">{props.connectionMessage}</div>
+        <label htmlFor="username">Username</label>
+        <input autocomplete="username" value={props.name} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
+        <div class="userdata-form-info">{state.usernameMessage}</div>
+        <label htmlFor="password">Password</label>
+        <input autocomplete={props.newAccount ? "new-password" : "current-password"} value={props.password} oninput={this.validatePassword} type="password" ref={this.passwordInput} id="password" name="password" />
+        <div class="userdata-form-info">{state.passwordMessage}</div>
       </Fragment>
     )
   }
