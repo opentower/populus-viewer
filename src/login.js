@@ -17,9 +17,16 @@ export default class LoginView extends Component {
     }
   }
 
-  componentDidMount() { this.resize() }
+  componentDidMount() { 
+    this.loginWrapper.current.style.height = `${this.loginElement.current.scrollHeight}px`
+  }
 
-  componentDidUpdate() { this.resize() }
+  componentDidUpdate() { 
+    this.resizeObserver.disconnect()
+    this.resizeObserver.observe(this.loginElement.current)
+  }
+
+  componentWillUnmount() { this.resizeObserver.disconnect() }
 
   switchView = switchTo => (e) => {
     if (e) e.preventDefault()
@@ -36,12 +43,9 @@ export default class LoginView extends Component {
 
   loginElement = createRef()
 
-  resize = _ => {
-    clearTimeout(this.resizeDebounce)
-    this.resizeDebounce = setTimeout(_ => 
-      this.loginWrapper.current.style.height = `${this.loginElement.current.scrollHeight}px`
-    , 200)
-  }
+  resizeObserver = new ResizeObserver(_ => this.resize())
+
+  resize = _ => { this.loginWrapper.current.style.height = `${this.loginElement.current.scrollHeight}px` }
 
   render(props, state) {
     const theProps = {
@@ -54,7 +58,6 @@ export default class LoginView extends Component {
       loginHandler: props.loginHandler,
       switchView: this.switchView,
       loginElement: this.loginElement,
-      resize: this.resize
     }
     const mainCard = state.registering === "register"
       ? <Registration {...theProps} />
@@ -133,7 +136,6 @@ class Login extends Component {
       this.setState({ loading: null})
       return
     }
-    this.props.resize()
     this.setState({
       loading: null,
       SSOProviders: theSSO.identity_providers
