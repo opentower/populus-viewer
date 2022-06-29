@@ -103,13 +103,10 @@ class Login extends Component {
   handleSubmit = e => {
     e.preventDefault()
     this.setState({submitting: true})
-    const loginForm = document.getElementById("loginForm")
-    const formdata = new FormData(loginForm)
-    const entries = Array.from(formdata.entries()).map(i => i[1])
-    if (entries[2]) localStorage.setItem("baseUrl", `https://${entries[2]}`)
+    if (this.props.server) localStorage.setItem("baseUrl", `https://${this.props.server}`)
     else localStorage.setItem("baseUrl", serverRoot)
     Client.initClient()
-      .then(client => client.loginWithPassword(entries[0].toLowerCase(), entries[1]))
+      .then(client => client.loginWithPassword(this.props.name.toLowerCase(), this.props.password))
       .then(this.props.loginHandler)
       .catch(e => {
         this.setState({submitting: false})
@@ -243,32 +240,15 @@ class Registration extends Component {
 
   componentWillUnmount() { window.removeEventListener('recaptcha', this.recaptchaHandler) }
 
-  registerForm = createRef()
-
   beginRegistrationFlow = async e => {
     e.preventDefault()
     this.setState({ registrationStage: "retrieving-auth" })
-    const loginForm = this.registerForm.current
-    const formdata = new FormData(loginForm)
-    const entries = Array.from(formdata.entries()).map(i => i[1])
-    if (/[^a-zA-Z0-9._=/]/.test(entries[0])) {
-      alert("Usernames must consist of characters which are alphanumeric, or among '.' ,'/' ,'=' , and '_'.")
-      this.props.switchView("login")()
-      return;
-    }
-    this.username = entries[0]
-    if (entries[1].length < 8) {
-      alert("passwords must be at least 8 characters long")
-      this.props.switchView("login")()
-      return;
-    }
-    this.password = entries[1]
-    if (entries[2]) this.server = `https://${entries[2]}`
+    if (this.props.server) this.server = `https://${this.props.server}`
     else this.server = serverRoot
     localStorage.setItem("baseUrl", this.server)
     await Client.initClient()
     try {
-      await Client.client.register(this.username.toLowerCase(), this.password, undefined, {})
+      await Client.client.register(this.props.name.toLowerCase(), this.props.password, undefined, {})
     } catch (err) {
       if (err.data?.session && err.data.params["m.login.recaptcha"]) {
         this.authSession = err.data.session
@@ -291,13 +271,19 @@ class Registration extends Component {
   recaptchaHandler = e => {
     e.preventDefault()
     this.setState({ registrationStage: "registering" })
-    Client.client.register(this.username.toLowerCase(), this.password, this.authSession, {
+    Client.client.register(this.props.name.toLowerCase(), this.props.password, this.authSession, {
       type: "m.login.recaptcha",
       response: e.detail
     }).catch(this.handleDummy)
-      .then(_ => Client.client.loginWithPassword(this.username.toLowerCase(), this.password))
+      .then(_ => Client.client.loginWithPassword(this.props.name.toLowerCase(), this.props.password))
       .then(this.props.loginHandler)
       .catch(window.alert)
+  }
+
+  canSubmit = _ => {
+    if (this.props.password.length < 8) return false
+    if (/[^a-zA-Z0-9._=/]/.test(this.props.name)) return false
+    return true
   }
 
   handleDummy = err => {
@@ -312,7 +298,7 @@ class Registration extends Component {
       return false
     }
     if (dummyAvailable(err.data)) {
-      return Client.client.register(this.username.toLowerCase(), this.password, this.authSession, {
+      return Client.client.register(this.props.name.toLowerCase(), this.password, this.authSession, {
         type: "m.login.dummy"
       })
     }
@@ -351,7 +337,6 @@ class Registration extends Component {
           <h3>Register an account</h3>
           <form
             onSubmit={this.beginRegistrationFlow}
-            ref={this.registerForm}
             id="registerForm">
             <UserData
               newAccount={true}
@@ -361,7 +346,7 @@ class Registration extends Component {
               password={props.password}
               setName={props.setName}
               name={props.name} />
-            <div><button class="styled-button">Register a New Account</button></div>
+            <div><button disabled={!this.canSubmit()} class="styled-button">Register a New Account</button></div>
             <div id="login-options">
               <hr class="styled-rule" />
               <span>Already have an account? </span>

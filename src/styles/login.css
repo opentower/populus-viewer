@@ -130,6 +130,7 @@
   transform: scale(1.1);
 }
 
+#registration div.userdata-form-info,
 #login div.userdata-form-info {
   grid-column: 2/3;
   padding-top:0px;
@@ -202,6 +203,7 @@
       grid-template-columns: 1fr; 
     }
 
+    #registration div.userdata-form-info,
     #login div.userdata-form-info {
       grid-column: 1/3;
     }
