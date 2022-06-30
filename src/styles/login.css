@@ -108,6 +108,8 @@
   padding-right:50px;
   display:flex;
   overflow:auto;
+  animation: delayed-fade .5s 1; 
+  animation-timing-function:ease;
   -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
   mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 50%, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
 }
