@@ -57,6 +57,8 @@ export default class Chat extends Component {
 
   scrollAnchorBottom = createRef()
 
+  messagePanel = createRef()
+
   resizeObserver = new ResizeObserver(_ => {
     const chatWrapper = this.chatWrapper.current
     const heightDiff = chatWrapper.scrollHeight - this.prevScrollHeight
@@ -66,13 +68,29 @@ export default class Chat extends Component {
   })
 
   // Room.timeline passes in more params
-  handleTimeline = (event) => {
-    if (this.props.focus?.getChild() === event.getRoomId() && this.state.fullyScrolledDown) {
+  handleTimeline = e => {
+    if (this.props.focus?.getChild() === e.getRoomId() && this.state.fullyScrolledDown) {
       this.timelinePromise
         .then(_ => this.timelineWindow.paginate(Matrix.EventTimeline.FORWARDS, 1, false))
         .then(this.updateEvents)
     }
   }
+
+  handleDragenter = e => { 
+    this.setState({droppable: true})
+  }
+
+  handleDragleave = e => { 
+    if (e.target.id === "chat-drop-overlay") this.setState({droppable: false}) 
+  }
+
+  handleDrop = e => {
+    e.preventDefault()
+    if (e.dataTransfer.files[0]) this.messagePanel.current.setState({ mode: "SendFile", file: e.dataTransfer.files[0] })
+    this.setState({droppable: false})
+  }
+
+  handleDragover = e => e.preventDefault()
 
   tryTopfill = _ => {
     this.topFilling = true
@@ -342,19 +360,28 @@ export default class Chat extends Component {
     })
 
     // has height set, so that we don't need to set height on the flexbox element
-    return <div ref={this.chatWrapper} class={props.class} id="chat-wrapper">
+    return <div ref={this.chatWrapper}
+      id="chat-wrapper"
+      class={props.class}
+      ondragenter={this.handleDragenter}
+      data-droppable={state.droppable}
+      >
+      { state.droppable 
+        ? <div id="chat-drop-overlay" ondrop={this.handleDrop} ondragover={this.handleDragover} ondragleave={this.handleDragleave} />
+        : null
+      }
       <div ref={this.chatPanel} id="chat-panel">
         <Anchor ref={this.scrollAnchorBottom} 
           chatWrapper={this.chatWrapper}
           tryFill={this.tryBottomfill}
           fullyScrolled={state.fullyScrolledDown} >
-            <MessagePanel
-              hasSelection={props.hasSelection}
-              generateLocation={props.generateLocation}
-              resource={props.resource}
-              resourceId={props.resource.room.roomId}
-              focus={props.focus}
-            />
+          <MessagePanel
+            ref={this.messagePanel}
+            hasSelection={props.hasSelection}
+            generateLocation={props.generateLocation}
+            resource={props.resource}
+            resourceId={props.resource.room.roomId}
+            focus={props.focus} />
         </Anchor>
         <div id="messages">
           {messagedivs}
