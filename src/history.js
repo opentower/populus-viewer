@@ -7,7 +7,9 @@ export default class History {
   static message = {}
 
   static push(theRoute, message) {
-    route(theRoute)
+    // the second argument means we only push if we're not already at the path
+    // in question. Otherwise we replace.
+    route(theRoute, this.history.location.pathname == theRoute)
     this.history.replace(theRoute, message)
   }
 
