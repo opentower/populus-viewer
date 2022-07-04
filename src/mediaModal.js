@@ -13,12 +13,12 @@ export default class MediaModal extends Component {
 
   hideMediaModal = _ => {
     delete document.body.dataset.modalVisible // prevents scrolling
-    this.setState({content: null})
+    this.setState({content: null, url: null})
   }
 
-  setContent = content => {
+  setContent = (content, url) => {
     document.body.dataset.modalVisible = true
-    this.setState({content})
+    this.setState({content, url})
   }
 
   catchClick = e => e.stopPropagation()
@@ -30,6 +30,12 @@ export default class MediaModal extends Component {
           <button id="media-modal-close" onclick={this.hideMediaModal}>
             {Icons.close}
           </button>
+          {state.url?
+            <a id="media-modal-download" download target="_blank" href={state.url}>
+              {Icons.download}
+            </a>
+            : null
+          }
           <div id="media-modal-content">
             {state.content}
           </div>

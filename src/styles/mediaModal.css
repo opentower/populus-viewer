@@ -26,9 +26,13 @@
   vertical-align:middle;
 }
 
+#media-modal-download,
 #media-modal-close {
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:black;
   position: fixed;
-  top: 10px;
   left: 10px;
   height:36px;
   width:36px;
@@ -37,6 +41,14 @@
   background:rgba(255,255,255,.5);
   border:none;
   z-index:22;
+}
+
+#media-modal-close {
+  top: 10px;
+}
+
+#media-modal-download {
+  top: 56px;
 }
 
 #media-modal-content{

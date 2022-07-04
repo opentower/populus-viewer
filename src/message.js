@@ -400,9 +400,8 @@ export class ImageMessage extends Component {
     : Client.client.getHttpUriForMxcFromHS(this.props.event.getContent().url)
 
   showPreview = _ => {
-    MediaModal.set(<img
-      src={Client.client.getHttpUriForMxcFromHS(this.props.event.getContent().url)}
-    />)
+    const url = Client.client.getHttpUriForMxcFromHS(this.props.event.getContent().url)
+    MediaModal.set(<img src={url} />, url)
   }
 
   handleLoad = _ => this.setState({ loaded: true })
