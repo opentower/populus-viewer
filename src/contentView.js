@@ -67,7 +67,7 @@ export default class ContentView extends Component {
     Client.client.off("Room.accountData", this.handleAccountData)
   }
 
-  componentDidUpdate(prevProps) {
+  componentDidUpdate(prevProps, prevState) {
     // on change of resource, fetch new resource
     if (prevProps.resourceAlias !== this.props.resourceAlias) this.fetchResource()
     // on change of focused room, refresh relevant UI
@@ -176,8 +176,8 @@ export default class ContentView extends Component {
     const resource = new Resource(room)
     const mimetype = resource.mimetype
     this.setState({room, resource, mimetype}, _ => {
+      this.initializeAnnotations() //careful, these need to be initialized before we can focus by roomId
       if (this.props.roomFocused) this.focusByRoomId(this.props.roomFocused, this.props.eventFocused)
-      this.initializeAnnotations()
     })
   }
 
@@ -246,7 +246,6 @@ export default class ContentView extends Component {
   }
 
   focusByRoomId = (roomId, eventId) => {
-    const theRoomState = this.state.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const mergedLocations = Object.assign({}, this.annotationParentEvents, this.annotationChildEvents)
     if (mergedLocations[roomId]) {
       const focus = mergedLocations[roomId]
