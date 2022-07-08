@@ -25,7 +25,8 @@ https://user-images.githubusercontent.com/6383381/146051091-1c1e29b8-0d6c-4b87-9
 Populus-Viewer currently supports:
 
 - Highlight and pin-drop annotations on PDFs 
-- Timespan annotations on audio and video files
+- Timespan annotations on audio and video files 
+- Annotating spatial regions of video files
 - Audio and video messages
 - Message edits and redactions
 - Replies and reactions
@@ -40,6 +41,15 @@ Populus-Viewer currently supports:
 
 If there's a feature supported by Matrix that you think would make for a 
 better social annotation experience, please open an issue or a PR!
+
+Populus' annotations are stored on your Matrix server in a format compatible
+with the [w3c Web Annotation Data Model](https://www.w3.org/TR/annotation-model/). 
+The details are documented in a couple of related matrix spec proposals:
+
+* [MSC3775: Markup Locations for Audiovisual Media](https://github.com/matrix-org/matrix-spec-proposals/pull/3775) 
+* [MSC3752: Markup locations for text](https://github.com/matrix-org/matrix-spec-proposals/pull/3752)
+* [MSC3592: Markup locations for PDF documents](https://github.com/matrix-org/matrix-spec-proposals/pull/3592)
+* [MSC3574: Marking up resources](https://github.com/matrix-org/matrix-spec-proposals/pull/3574)
 
 ## Usage
 
