@@ -261,7 +261,7 @@ class Registration extends Component {
           case "ConnectionError" : {
             Toast.set(<Fragment>
               <h3 id="toast-header">Can't connect</h3>
-              <div><p>Tried to connect to a server at\n\n${this.server}</p><p> Double-check that address?`</p></div>
+              <div><p>Tried to connect to a server at {this.server}</p><p> Double-check that address?</p></div>
               </Fragment>
             )
             break
