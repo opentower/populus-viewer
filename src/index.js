@@ -54,23 +54,21 @@ class PopulusViewer extends Component {
   }
 
   render (_props, state) {
-    if (!state.loggedIn) return <LoginView loginHandler={this.loginHandler} />
-    if (!(state.initializationStage === "initialized")) {
-      return <Fragment>
-          <Toast />
-          <SplashView
+    const content = !state.loggedIn 
+      ? <LoginView loginHandler={this.loginHandler} />
+      : !(state.initializationStage === "initialized")
+      ? <SplashView
             initializationStage={state.initializationStage}
             setInitializationStage={this.setInitializationStage}
             logoutHandler={this.logoutHandler} />
-      </Fragment>
-    }
-    return <Fragment>
-        <Modal />
-        <Toast />
-        <Router history={History.history}>
+      : <Router history={History.history}>
           <WelcomeView path="/" logoutHandler={this.logoutHandler} />
           <ContentView path="/:resourceAlias/:resourcePosition?/:roomFocused?/:eventFocused?" />
         </Router>
+    return <Fragment>
+        <Modal />
+        <Toast />
+        { content }
     </Fragment>
   }
 }

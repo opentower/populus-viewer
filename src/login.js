@@ -3,6 +3,7 @@ import './styles/login.css'
 import { serverRoot } from './constants.js'
 import Client from './client.js'
 import { UserColor } from './utils/colors.js'
+import Toast from './toast.js'
 import * as Matrix from 'matrix-js-sdk'
 import * as Icons from './icons.js'
 
@@ -258,10 +259,29 @@ class Registration extends Component {
         switch (err.name) {
           // should analyze for other errors here.
           case "ConnectionError" : {
-            alert(`Can't connect to a server at\n\n${this.server}\n\n Double-check that address?`)
+            Toast.set(<Fragment>
+              <h3 id="toast-header">Can't connect</h3>
+              <div><p>Tried to connect to a server at\n\n${this.server}</p><p> Double-check that address?`</p></div>
+              </Fragment>
+            )
             break
           }
-          default : alert("Error: can't start recaptcha registration flow with this server")
+          case "M_USER_IN_USE" : {
+            Toast.set(<Fragment>
+              <h3 id="toast-header">Can't register</h3>
+              <div><p>Sorry, the name <code>{this.props.name}</code> is already in use at <code>{this.server}</code></p><p> Try a different name or server?</p></div>
+              </Fragment>
+            )
+            this.props.setName("")
+            break
+          }
+          default : 
+            Toast.set(<Fragment>
+              <h3 id="toast-header">Something went wrong</h3>
+              <div>Sorry, here's the error</div>
+              <pre>{err.name}: {err.message}</pre>
+              </Fragment>
+            )
         }
         this.setState({ registrationStage: "awaiting-server" })
       }
