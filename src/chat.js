@@ -180,8 +180,8 @@ export default class Chat extends Component {
       const isUnsent = lastEventId !== this.lastReceiptSentId
       if (differsFromLast && isUnsent) {
         console.log("sending receipt")
-        Client.client.setRoomReadMarkers(this.room.roomId, lastEventId, lastEvent, {}).catch(console.log)
-        Client.client.sendReadReceipt(lastEvent, {}).then(_ => {
+        Client.client.setRoomReadMarkers(this.room.roomId, lastEventId, lastEvent).catch(console.log)
+        Client.client.sendReadReceipt(lastEvent).then(_ => {
           // faster to zero these manually than waiting for the server
           this.room.setUnreadNotificationCount('total', 0);
           this.room.setUnreadNotificationCount('highlight', 0);
