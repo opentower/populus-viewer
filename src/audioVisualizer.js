@@ -61,7 +61,7 @@ export default class AudioVisualizer extends Component {
   }
 
   render(props) {
-    return <canvas class="audioVisualizer"
+    return <canvas class={`audioVisualizer ${props.class}`}
       onclick={props.onclick}
       height={props.height}
       width={props.width}

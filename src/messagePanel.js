@@ -1,7 +1,7 @@
 import * as Icons from "./icons.js"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
-import { loadImageElement, loadVideoElement, createThumbnail, blurhashFromFile } from "./utils/media.js"
+import { loadImageElement, loadMediaElement, createThumbnail, blurhashFromFile } from "./utils/media.js"
 import { spaceChild, spaceParent, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscMediaFragment, mscPdfHighlight, populusHighlight } from "./constants.js"
 import { processRegex } from './processRegex.js'
 import { UserColor } from './utils/colors.js'
@@ -182,6 +182,8 @@ class FileUploadInput extends Component {
 
   theForm = createRef()
 
+  secondaryAudio = createRef()
+
   getFile = _ => this.props.file || this.fileLoader.current.files[0]
 
   validateFile = file => {
@@ -199,6 +201,16 @@ class FileUploadInput extends Component {
         previewUrl: URL.createObjectURL(file),
         mediaType: "image",
       })
+    } else if (/^audio/.test(file.type)) {
+      loadMediaElement(file, "audio").then(elt => {
+        this.mediaElement = elt
+        const stream = elt.mozCaptureStream?.() || elt.captureStream()
+        this.setState({
+          stream,
+          previewUrl: URL.createObjectURL(file),
+          mediaType: "audio",
+        })
+      })
     } else {
       this.setState({ mediaType: "default" })
     }
@@ -209,10 +221,24 @@ class FileUploadInput extends Component {
       switch (this.state.mediaType) {
         case "image": await this.submitImage(); break
         case "video": await this.submitVideo(); break
+        case "audio": await this.submitAudio(); break
         case "default": await this.submitDefault(); break
       }
     }
     this.props.done()
+  }
+
+  handleMediaClick = _ => {
+    console.log(this.mediaElement.current)
+      if (this.mediaElement.paused) {
+        this.mediaElement.currentTime = 0
+        this.mediaElement.play()
+        this.secondaryAudio.current?.play()
+      }
+      else {
+        this.mediaElement.pause()
+        this.secondaryAudio.current?.pause()
+      }
   }
 
   submitDefault = async _ => {
@@ -234,8 +260,8 @@ class FileUploadInput extends Component {
 
   submitVideo = async _ => {
     const theVideo = this.getFile()
-    window.theVideo = theVideo
-    const videoElt = await loadVideoElement(theVideo)
+    // window.theVideo = theVideo
+    const videoElt = await loadMediaElement(theVideo, "video")
     const thumbContent = await createThumbnail(videoElt, videoElt.videoWidth, videoElt.videoHeight, "image/jpeg")
     const thumbMxc = await Client.client.uploadContent(thumbContent.thumbnail, {
       name: `${theVideo.name}_800x600`,
@@ -259,6 +285,25 @@ class FileUploadInput extends Component {
       },
       msgtype: "m.video",
       url: videoMxc
+    }
+    if (duration < Infinity) theContent.duration = duration
+    const eventI = await Client.client.sendMessage(this.props.roomId, theContent)
+    this.props.handlePending(theContent, eventI)
+  }
+
+  submitAudio = async _ => {
+    const theAudio = this.getFile()
+    console.log("upload audio")
+    const audioMxc = await Client.client.uploadContent(theAudio, { progressHandler: this.progressHandler })
+    const duration = Math.round(this.mediaElement.duration * 1000)
+    const theContent = {
+      body: theAudio.name,
+      info: {
+        mimetype: theAudio.type,
+        size: theAudio.size
+      },
+      msgtype: "m.audio",
+      url: audioMxc, 
     }
     if (duration < Infinity) theContent.duration = duration
     const eventI = await Client.client.sendMessage(this.props.roomId, theContent)
@@ -304,6 +349,13 @@ class FileUploadInput extends Component {
         ? <video ref={this.mediaPreview} class="video-message-preview media-message-thumbnail" controls src={state.previewUrl} />
         : state.mediaType === "image"
         ? <img ref={this.mediaPreview} class="image-message-preview media-message-thumbnail" src={this.state.previewUrl} />
+        : state.mediaType === "audio" && state.stream
+        ? <Fragment>
+          {//workaround for firefox bug: https://bugzilla-dev.allizom.org/show_bug.cgi?id=1178751
+            this.mediaElement.mozCaptureStream ? <audio ref={this.secondaryAudio} srcObject={state.stream} /> : null 
+          }
+          <AudioVisualizer class="audio-message-preview media-message-thumbnail" height="100" onclick={this.handleMediaClick} stream={state.stream} />
+        </Fragment>
         : state.mediaType === "default"
         ? <div id="file-uploader-preview">
           <span>{Icons.file}</span>

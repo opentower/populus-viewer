@@ -100,22 +100,22 @@ function readFileAsArrayBuffer(file) {
   })
 }
 
-export function loadVideoElement(videoFile) {
+export function loadMediaElement(mediaFile, tag) {
   return new Promise((resolve, reject) => {
     // Load the file into an html element
-    const video = document.createElement("video")
-    const theUrl = URL.createObjectURL(videoFile)
-    video.src = theUrl
+    const element = document.createElement(tag)
+    const theUrl = URL.createObjectURL(mediaFile)
+    element.src = theUrl
     // Once ready, returns its size
-    // Wait until we have enough data to thumbnail the first frame.
-    video.onloadeddata = _ => {
+    // Wait until we have enough data to thumbnail the first frame, or get metadata
+    element.onloadeddata = _ => {
       URL.revokeObjectURL(theUrl)
-      resolve(video)
+      resolve(element)
     }
     // XXX: this was previously using FileReader and a data URL, but an
     // apparent bug in firefox 98 seems to prevent FileReader-generated data
     // urls from being used with video elements
-    video.onerror = e => reject(e)
+    element.onerror = e => reject(e)
   })
 }
 

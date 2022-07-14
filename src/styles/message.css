@@ -390,7 +390,8 @@ html[data-scrollbars="hidden"] .message-body pre::-webkit-scrollbar { display: n
 
 .media-message-thumbnail {
   border-radius:20px;
-  max-width:calc(100% - 20px)
+  max-width:calc(100% - 20px);
+  overflow:hidden;
 }
 
 img.media-message-thumbnail {
@@ -398,6 +399,7 @@ img.media-message-thumbnail {
 }
 
 .image-message-preview,
+.audio-message-preview,
 .video-message-preview {
   margin:10px;
   width: calc(100% - 30px);
