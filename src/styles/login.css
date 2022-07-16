@@ -72,14 +72,6 @@
     margin-left:0px;
 }
 
-#login input, #registration input {
-    grid-column: 2 / 3 ;
-    padding:7px;
-    border:none;
-    background:var(--input-background);
-    outline-offset: -2px;
-}
-
 #login div, #registration div {
     padding-top:.5em;
     grid-column: 1 / 3 ;

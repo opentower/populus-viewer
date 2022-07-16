@@ -414,13 +414,13 @@ class UserData extends Component {
     return (
       <Fragment>
         <label htmlFor="servername">Server</label>
-        <input value={props.server} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
+        <input class="styled-input" value={props.server} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
         <div class="userdata-form-info">{props.connectionMessage}</div>
         <label htmlFor="username">Username</label>
-        <input autocomplete="username" value={props.name} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
+        <input class="styled-input" autocomplete="username" value={props.name} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
         <div class="userdata-form-info">{state.usernameMessage}</div>
         <label htmlFor="password">Password</label>
-        <input autocomplete={props.newAccount ? "new-password" : "current-password"} value={props.password} oninput={this.validatePassword} type="password" ref={this.passwordInput} id="password" name="password" />
+        <input class="styled-input" autocomplete={props.newAccount ? "new-password" : "current-password"} value={props.password} oninput={this.validatePassword} type="password" ref={this.passwordInput} id="password" name="password" />
         <div class="userdata-form-info">{state.passwordMessage}</div>
       </Fragment>
     )

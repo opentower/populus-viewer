@@ -119,6 +119,7 @@ body[data-modal-visible] {
   padding:7px;
   border:none;
   background:var(--input-background);
+  outline-offset: -2px;
 }
 
 .styled-rule {
