@@ -6,7 +6,7 @@
   /* 1px to compensate for border */
   --widget-2-width: calc(100vw - var(--widget-control-width) + 1px);
   --widget-control-width:40px;
-  --transitionSizing: max-width 0.5s ease, width 0.5s ease,  left 0.5s ease, right 0.5s ease, padding 0.5s ease;
+  --transitionSizing: height 0.5s ease, max-width 0.5s ease, width 0.5s ease,  left 0.5s ease, right 0.5s ease, padding 0.5s ease;
 }
 
 #sidepanel {

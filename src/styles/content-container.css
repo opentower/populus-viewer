@@ -1,6 +1,6 @@
 #content-container {
     position: relative;
-    overflow:auto;
+    overflow: auto;
     height: calc(100% - var(--navHeight));
     --contentWidth: calc(100%);
     width: var(--contentWidth);
