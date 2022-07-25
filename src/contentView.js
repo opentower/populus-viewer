@@ -13,6 +13,7 @@ import History from './history.js'
 import Client from './client.js'
 import DocumentNavbar from "./documentNavbar.js"
 import MediaNavbar from "./mediaNavbar.js"
+import ImageNavbar from "./imageNavbar.js"
 import { spaceChild, spaceParent, lastViewed } from "./constants.js"
 import Location from './utils/location.js'
 import Resource from './utils/resource.js'
@@ -529,6 +530,7 @@ export default class ContentView extends Component {
           `${this.props.eventFocused ? "/" + this.props.eventFocused : ""}`
         )
       }
+      // TODO: Could DRY props here if the names were more uniform
       return <PdfContent
             filteredAnnotationContents={this.state.filteredAnnotationContents}
             ref={this.content}
@@ -640,6 +642,26 @@ export default class ContentView extends Component {
         closeAnnotation={this.closeAnnotation}
         hasAnnotations={this.state.filteredAnnotationContents.length > 0}
         timeStamp={timestamp}
+        resourceAlias={this.props.resourceAlias}
+        total={this.state.resourceLength}
+        focus={this.state.focus}
+        eventFocused={this.props.eventFocused}
+        focusNext={this.focusNext}
+        focusPrev={this.focusPrev}
+        room={this.state.room}
+        roomFocused={this.props.roomFocused}
+        content={this.content}
+        contentContainer={this.contentContainer}
+        contentWidthPx={this.state.contentWidthPx}
+        toggleAnnotations={this.toggleAnnotations}
+        setNavHeight={this.setNavHeight}
+        />
+    } else if (this.state.mimetype?.match(/^image/)) {
+      return <ImageNavbar hasSelection={this.state.hasSelection}
+        annotationsVisible={this.state.annotationsVisible}
+        openAnnotation={this.openAnnotation}
+        closeAnnotation={this.closeAnnotation}
+        hasAnnotations={this.state.filteredAnnotationContents.length > 0}
         resourceAlias={this.props.resourceAlias}
         total={this.state.resourceLength}
         focus={this.state.focus}
