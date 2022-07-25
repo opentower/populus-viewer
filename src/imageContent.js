@@ -36,10 +36,12 @@ export default class ImageContent extends Component {
   }
 
   drawImage = imageUrl => {
-    const width = document.body.clientWidth
-    const height = document.body.clientHeight
-    this.props.setContentDimensions(height,width)
-    this.setState({imageUrl})
+    const theImage = new Image()
+    theImage.src = imageUrl
+    theImage.onload = _ => {
+      this.props.setContentDimensions(theImage.height, theImage.width)
+      this.setState({imageUrl})
+    }
   }
 
   render(props, state) {

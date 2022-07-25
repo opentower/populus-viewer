@@ -675,6 +675,7 @@ export default class ContentView extends Component {
         contentWidthPx={this.state.contentWidthPx}
         toggleAnnotations={this.toggleAnnotations}
         setNavHeight={this.setNavHeight}
+        setZoom={this.setZoom}
         />
     } else return null
   }

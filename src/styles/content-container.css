@@ -15,6 +15,7 @@ html[data-scrollbars="hidden"] #content-container {
 
 html[data-scrollbars="hidden"] #content-container::-webkit-scrollbar { display: none; }
 
+#image-view,
 #document-view {
     position:relative;
     display: flex;

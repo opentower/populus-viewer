@@ -47,9 +47,9 @@ export default class ImageNavbar extends Component {
 
   pause = _ => this.props.content.current.pause()
 
-  zoomIn = _ => this.props.content.current.setZoom(this.props.content.current.zoomFactor + .1)
+  zoomOut = _ => this.props.setZoom(zoomFactor => zoomFactor - 0.1)
 
-  zoomOut = _ => this.props.content.current.setZoom(this.props.content.current.zoomFactor - .1)
+  zoomIn = _ => this.props.setZoom(zoomFactor => zoomFactor + 0.1)
 
   toggleMoreOptions = _ => {
     if (this.state.moreOptionsVisible) this.props.setNavHeight(75)
