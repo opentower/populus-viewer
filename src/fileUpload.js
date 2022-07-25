@@ -99,6 +99,7 @@ export default class FileUpload extends Component {
       case "video/mpeg"   : fileValid = true
       case "video/webm"   : fileValid = true
     }
+    if (theFile.type?.match(/^image/)) fileValid = true
     if (theFile.size >= limit ) fileValid = false
     this.setState({fileValid})
     if (!fileValid) {
@@ -197,7 +198,7 @@ export default class FileUpload extends Component {
           <input name="file"
             oninput={this.validateFile}
             ref={this.fileLoader}
-            accept="application/pdf, audio/wav, audio/mpeg, audio/x-m4a, audio/mp4, audio/aac, audio/aacp, audio/flac, video/mp4, video/mpeg, video/webm"
+            accept="application/pdf, audio/wav, audio/mpeg, audio/x-m4a, audio/mp4, audio/aac, audio/aacp, audio/flac, video/mp4, video/mpeg, video/webm, image/*"
             type="file"
           />
         </div>

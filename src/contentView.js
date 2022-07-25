@@ -8,6 +8,7 @@ import AnnotationListing from "./annotationListing.js"
 import SearchResults from "./searchResults.js"
 import PdfContent from "./pdfContent.js"
 import MediaContent from "./mediaContent.js"
+import ImageContent from "./imageContent.js"
 import History from './history.js'
 import Client from './client.js'
 import DocumentNavbar from "./documentNavbar.js"
@@ -581,6 +582,26 @@ export default class ContentView extends Component {
             setMediaDuration={this.setResourceLength}
             setContentDimensions={this.setContentDimensions}
             setMediaLoadingStatus={this.setLoadingStatus}
+          />
+    } else if (this.state.mimetype?.match(/^image/)) {
+      return <ImageContent 
+            filteredAnnotationContents={this.state.filteredAnnotationContents}
+            ref={this.content}
+            key={this.props.resourceAlias} // tear this down when resource changes
+            resourceAlias={this.props.resourceAlias}
+            resource={this.state.resource}
+            room={this.state.room}
+            roomFocused={this.props.roomFocused}
+            eventFocused={this.props.eventFocused}
+            secondaryFocus={this.state.secondaryFocus}
+            mimetype={this.state.mimetype}
+            setFocus={this.setFocus}
+            setMobileButtonColor={this.setMobileButtonColor}
+            unsetFocus={this.unsetFocus}
+            focus={this.state.focus}
+            showChat={this.showChat}
+            setContentDimensions={this.setContentDimensions}
+            setImageLoadingStatus={this.setLoadingStatus}
           />
     } else return null
   }
