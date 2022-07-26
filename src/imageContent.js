@@ -1,4 +1,4 @@
-import { h, Component } from 'preact';
+import { h, createRef, Component } from 'preact';
 import Resource from './utils/resource.js'
 import './styles/imageContent.css'
 
@@ -45,17 +45,70 @@ export default class ImageContent extends Component {
     }
   }
 
+  createSelection = e => {
+    this.setState({
+      selectionRect: new ImageAnnotation({
+        x: e.offsetX, 
+        y: e.offsetY, 
+        h:100, 
+        w:100,
+        imageWidth: this.props.contentWidthPx,
+        imageHeight: this.props.contentHeightPx,
+      })
+    })
+  }
+
   render(props, state) {
-    const annotations = [{x:50,y:50,width:100,height:100}]
     return <div id="image-view">
       <img src={state.imageUrl} />
       <ImageOverlay 
+        createSelection={this.createSelection}
         contentWidthPx={props.contentWidthPx}
         contentHeightPx={props.contentHeightPx}
-      >
-        {annotations}
+      >{this.state.selectionRect ? [this.state.selectionRect] : null}
       </ImageOverlay>
     </div>
+  }
+}
+
+class ImageAnnotation {
+  constructor({x,y,h,w, imageHeight, imageWidth}) {
+    this.x = x 
+    this.y = y
+    this.h = h
+    this.w = w
+    this.imageHeight = imageHeight
+    this.imageWidth = imageWidth
+    this.maskRef = createRef()
+    this.rectRef = createRef()
+  }
+
+  onpointerdown = e => {
+    e.stopPropagation()
+    this.initialX = this.x
+    this.initialY = this.y
+    this.initialOffsetX = e.offsetX
+    this.initialOffsetY = e.offsetY
+    this.rectRef.current.setPointerCapture(e.pointerId)
+    this.rectRef.current.addEventListener('pointermove', this.handleDrag)
+    this.rectRef.current.addEventListener('pointerup', _ => {
+      delete this.initialX
+      delete this.initialY
+      delete this.initialOffsetX
+      delete this.initialOffsetY
+      this.rectRef.current?.releasePointerCapture(e.pointerId)
+      this.rectRef.current?.removeEventListener('pointermove', this.handleDrag)
+    })
+  }
+
+  handleDrag = e => {
+    e.preventDefault()
+    this.x = Math.round(Math.min(Math.max(0, this.initialX + (e.offsetX- this.initialOffsetX )), this.imageWidth - this.w))
+    this.y = Math.round(Math.min(Math.max(0, this.initialY + (e.offsetY  - this.initialOffsetY)), this.imageHeight - this.h))
+    this.rectRef.current.setAttribute("x", this.x)
+    this.rectRef.current.setAttribute("y", this.y)
+    this.maskRef.current.setAttribute("x", this.x)
+    this.maskRef.current.setAttribute("y", this.y)
   }
 }
 
@@ -64,10 +117,11 @@ class ImageOverlay extends Component {
     const outerPath = `M0 0 h${props.contentWidthPx} v${props.contentHeightPx} h-${props.contentWidthPx}z`
     const masks = props.children?.map(child => 
       <rect 
+        ref={child.maskRef}
         x={child.x}
         y={child.y}
-        width={child.width}
-        height={child.height}/>
+        width={child.w}
+        height={child.h}/>
     )
     const rects = props.children?.map(child => 
       <rect
@@ -76,10 +130,11 @@ class ImageOverlay extends Component {
         class="image-annotation-rect"
         x={child.x} 
         y={child.y} 
-        width={child.width}
-        height={child.height}/>
+        onpointerdown={child.onpointerdown}
+        width={child.w}
+        height={child.h}/>
     )
-    return <svg id="image-overlay">
+    return <svg onpointerdown={props.createSelection} id="image-overlay">
       <defs>
         <mask id="mask">
           <path fill="white" d={outerPath}/>
