@@ -603,6 +603,8 @@ export default class ContentView extends Component {
             focus={this.state.focus}
             showChat={this.showChat}
             setContentDimensions={this.setContentDimensions}
+            contentHeightPx={this.state.contentHeightPx}
+            contentWidthPx={this.state.contentWidthPx}
             setImageLoadingStatus={this.setLoadingStatus}
           />
     } else return null

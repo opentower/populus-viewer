@@ -1,5 +1,6 @@
 import { h, Component } from 'preact';
 import Resource from './utils/resource.js'
+import './styles/imageContent.css'
 
 export default class ImageContent extends Component {
 
@@ -45,8 +46,48 @@ export default class ImageContent extends Component {
   }
 
   render(props, state) {
+    const annotations = [{x:50,y:50,width:100,height:100}]
     return <div id="image-view">
       <img src={state.imageUrl} />
+      <ImageOverlay 
+        contentWidthPx={props.contentWidthPx}
+        contentHeightPx={props.contentHeightPx}
+      >
+        {annotations}
+      </ImageOverlay>
     </div>
+  }
+}
+
+class ImageOverlay extends Component {
+  render (props, state) {
+    const outerPath = `M0 0 h${props.contentWidthPx} v${props.contentHeightPx} h-${props.contentWidthPx}z`
+    const masks = props.children?.map(child => 
+      <rect 
+        x={child.x}
+        y={child.y}
+        width={child.width}
+        height={child.height}/>
+    )
+    const rects = props.children?.map(child => 
+      <rect
+        ref={child.rectRef}
+        mask="url(#mask)"
+        class="image-annotation-rect"
+        x={child.x} 
+        y={child.y} 
+        width={child.width}
+        height={child.height}/>
+    )
+    return <svg id="image-overlay">
+      <defs>
+        <mask id="mask">
+          <path fill="white" d={outerPath}/>
+          {masks}
+        </mask>
+      </defs>
+      <path mask="url(#mask)" fill="black" d={outerPath}/>
+      {rects}
+    </svg>
   }
 }
