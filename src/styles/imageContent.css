@@ -9,3 +9,11 @@
 .image-annotation-rect {
   cursor: grab;
 }
+
+.image-annotation-rect-resize-w {
+  cursor: ew-resize;
+}
+
+.image-annotation-rect-resize-h {
+  cursor: ns-resize;
+}
