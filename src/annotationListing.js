@@ -236,6 +236,7 @@ export default class AnnotationListing extends Component {
         <AnnotationListingEntry
             key={loc.getChild()}
             typing={state.typing[loc.getChild()]}
+            resource={props.resource}
             annotationLocation={loc}
             focusByRoomId={props.focusByRoomId}
             focus={props.focus}
@@ -357,7 +358,11 @@ class AnnotationListingEntry extends Component {
       ref={this.entry}
       onclick={this.handleClick}
       class="annotation-listing-entry">
-      <LocationPreview showPosition={true} location={props.annotationLocation} />
+      <LocationPreview 
+        showPosition={true}
+        resource={props.resource}
+        location={props.annotationLocation}
+      />
       <AnnotationListingComment
         creator={this.creator}
         unread={props.annotationLocation.getUnread()}

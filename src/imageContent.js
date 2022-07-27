@@ -1,6 +1,11 @@
 import { h, createRef, Fragment, Component } from 'preact';
 import Resource from './utils/resource.js'
+import Location from './utils/location.js'
+import Client from './client.js'
+import * as Matrix from "matrix-js-sdk"
+import { onlineOrAlert } from "./utils/alerts.js"
 import './styles/imageContent.css'
+import { mscLocation, mscMediaFragment, populusHighlight, spaceChild, spaceParent } from "./constants.js"
 
 export default class ImageContent extends Component {
 
@@ -45,9 +50,11 @@ export default class ImageContent extends Component {
     }
   }
 
+  hasSelection() { return !!this.state.selection }
+
   createSelection = e => {
     this.setState({
-      selectionRect: new ImageAnnotation({
+      selection: new ImageAnnotation({
         x: e.offsetX, 
         y: e.offsetY, 
         h:100, 
@@ -56,8 +63,71 @@ export default class ImageContent extends Component {
         imageHeight: this.props.contentHeightPx,
         selection: true,
       })
+    }, _ => document.dispatchEvent(new Event("selectionchange")))
+  }
+
+  clearSelection = _ => this.setState({selection: null}, _ => 
+    document.dispatchEvent(new Event("selectionchange")))
+
+  generateLocation = _ => {
+    return {
+      [mscMediaFragment]: {
+          x: this.state.selection.x,
+          y: this.state.selection.y,
+          w: this.state.selection.w,
+          h: this.state.selection.h
+      },
+      [populusHighlight]: {
+        activityStatus: "pending",
+        creator: Client.client.getUserId()
+      }
+    }
+  }
+
+  commitRegion = _ => {
+    if (!onlineOrAlert()) return
+    const theDomain = Client.client.getDomain()
+    const theRoomState = this.props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const theLevels = theRoomState.getStateEvents(Matrix.EventType.RoomPowerLevels, "")
+    const locationData = this.generateLocation()
+    return Client.client.createRoom({
+      visibility: "private",
+      name: `selected region at ${this.state.selection.x},${this.state.selection.y}`,
+      power_level_content_override: {
+        users: Object.assign({}, theLevels.getContent().users, {
+          [Client.client.getUserId()]: 100
+        })
+      },
+      initial_state: [{
+        type: Matrix.EventType.RoomJoinRules,
+        state_key: "",
+        content: {join_rule: "public"}
+      },
+      {
+        type: spaceParent, // we indicate that the current room is the parent
+        content: { via: [theDomain], [mscLocation]: locationData },
+        state_key: this.props.room.roomId
+      }
+      ]
+    }).then(roominfo => {
+      // set child event in pdfRoom State
+      this.clearSelection()
+      const childContent = { via: [theDomain], [mscLocation]: locationData }
+      // We focus on a new fake placeholder event to potentially insert the highlight immediately
+      const fakeEvent = new Matrix.MatrixEvent({
+        type: spaceChild,
+        origin_server_ts: new Date().getTime(),
+        room_id: this.props.room.roomId,
+        sender: Client.client.getUserId(),
+        state_key: roominfo.room_id,
+        content: childContent
+      })
+      Client.client.sendStateEvent(this.props.room.roomId, spaceChild, childContent, roominfo.room_id)
+      this.props.setFocus(new Location(fakeEvent))
+      this.props.showChat()
     })
   }
+
 
   render(props, state) {
     return <div id="image-view">
@@ -66,7 +136,7 @@ export default class ImageContent extends Component {
         createSelection={this.createSelection}
         contentWidthPx={props.contentWidthPx}
         contentHeightPx={props.contentHeightPx}
-      >{this.state.selectionRect ? this.state.selectionRect : null}
+      >{this.state.selection ? this.state.selection : null}
       </ImageOverlay>
     </div>
   }

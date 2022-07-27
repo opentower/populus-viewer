@@ -24,6 +24,7 @@
   height: 1em;
 }
 
+.preview-media-fragment img,
 .preview-media-fragment video {
   display:none;
 }

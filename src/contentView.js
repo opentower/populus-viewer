@@ -337,7 +337,7 @@ export default class ContentView extends Component {
     if (this.state.mimetype === "application/pdf") {
       if (this.state.pindropMode?.x) this.content.current.commitPin(this.state.pindropMode.x, this.state.pindropMode.y, this.state.pindropMode.page)
       else this.content.current.commitHighlight()
-    } else if (this.state.mimetype?.match(/^audio|^video/)) {
+    } else if (this.state.mimetype?.match(/^audio|^video|^image/)) {
       this.content.current.commitRegion()
     }
   }
@@ -751,6 +751,7 @@ export default class ContentView extends Component {
               focusByRoomId={this.focusByRoomId}
               focusNext={this.focusNext}
               focusPrev={this.focusPrev}
+              resource={this.state.resource}
               room={state.room}
             />
           }

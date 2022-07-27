@@ -16,8 +16,8 @@ export default class LocationPreview extends Component{
   }
 
   componentWillUnmount() {
-    this.mediaElement.current?.pause()
-    this.secondaryAudio.current?.pause()
+    this.mediaElement.current?.pause?.()
+    this.secondaryAudio.current?.pause?.()
   }
 
   mediaElement = createRef()
@@ -43,14 +43,11 @@ export default class LocationPreview extends Component{
 
   handleLoadedMetadata = _ => {
     if (!this.mediaRect) {
-      this.canvasElement.current.width = this.mediaElement.current.videoWidth
-      this.canvasElement.current.height = this.mediaElement.current.videoHeight
-      this.mediaRect = new DOMRect(
-        0,
-        0,
-        this.mediaElement.current.videoWidth,
-        this.mediaElement.current.videoHeight
-      )
+      const theWidth = this.mediaElement.current.videoWidth || this.mediaElement.current.width
+      const theHeight = this.mediaElement.current.videoHeight || this.mediaElement.current.height
+      this.canvasElement.current.width = theWidth
+      this.canvasElement.current.height = theHeight
+      this.mediaRect = new DOMRect( 0, 0, theWidth, theHeight)
     }
   }
 
@@ -59,7 +56,7 @@ export default class LocationPreview extends Component{
     this.setState({ stream })
   }
 
-  handleSeeked = _ => {
+  refreshCanvas = _ => {
     const ctx = this.canvasElement.current.getContext('2d', {alpha: false})
     ctx.drawImage(
       this.mediaElement.current, 
@@ -75,18 +72,7 @@ export default class LocationPreview extends Component{
   }
 
   projectToCanvas = _ => {
-    const ctx = this.canvasElement.current.getContext('2d', {alpha: false})
-    ctx.drawImage(
-      this.mediaElement.current, 
-      this.mediaRect.x,
-      this.mediaRect.y,
-      this.mediaRect.width,
-      this.mediaRect.height,
-      0,
-      0,
-      this.mediaRect.width,
-      this.mediaRect.height,
-    )
+    this.refreshCanvas()
     if (this.mediaElement.current.paused) return
     requestAnimationFrame(this.projectToCanvas)
   }
@@ -101,12 +87,15 @@ export default class LocationPreview extends Component{
   initializeUrl = async _ => {
     const mediaSrc = await this.props.resource.hasFetched
     this.setState({mediaSrc}, _ => {
-      const location = this.props.location.getIntervalStart()
-      if (location !== 0) {
-        this.mediaElement.current.currentTime = location / 1000 
-      } else {
-        this.mediaElement.current.currentTime = 1
-        //we build in a millisecond seek to make sure the seeked event is triggered
+      if (this.props.resource?.mimetype?.match(/^image/)) this.refreshCanvas() 
+      if (this.props.resource?.mimetype?.match(/^video|^audio/)) {
+        const location = this.props.location.getIntervalStart()
+        if (location !== 0) {
+          this.mediaElement.current.currentTime = location / 1000 
+        } else {
+          this.mediaElement.current.currentTime = 1
+          //we build in a millisecond seek to make sure the seeked event is triggered
+        }
       }
     })
   }
@@ -123,7 +112,11 @@ export default class LocationPreview extends Component{
         </div>
     } else if (props.location.getType() === "media-fragment") {
       return <div class="preview-media-fragment">
-          {props.showPosition 
+          {props.showPosition && props.resource?.mimetype?.match(/^image/)
+            ? <div class="preview-media-fragment-position">{Icons.image}
+              <span>Image selection at {this.mediaRect.x},{this.mediaRect.y}</span>
+            </div>
+            : props.showPosition
             ? <div class="preview-media-fragment-position">{Icons.headphones}
               <span>From {toClockTime(props.location.getIntervalStart() / 1000)} to {toClockTime(props.location.getIntervalEnd() / 1000)}</span>
             </div>
@@ -143,8 +136,13 @@ export default class LocationPreview extends Component{
             </div>
             : props.resource?.mimetype?.match(/^video/)
             ? <div class="preview-media-fragment-video">
-              <video src={state.mediaSrc} ref={this.mediaElement} onloadedmetadata={this.handleLoadedMetadata} onseeked={this.handleSeeked} ontimeupdate={this.handleTimeUpdate} />
+              <video src={state.mediaSrc} ref={this.mediaElement} onloadedmetadata={this.handleLoadedMetadata} onseeked={this.refreshCanvas} ontimeupdate={this.handleTimeUpdate} />
               <canvas width={this.mediaRect?.width} height={this.mediaRect?.height} onclick={this.handleMediaClick} ref={this.canvasElement}/>
+            </div>
+            : props.resource?.mimetype?.match(/^image/)
+            ? <div class="preview-media-fragment-image">
+              <img src={state.mediaSrc} ref={this.mediaElement} onloadedmetadata={this.handleLoadedMetadata} />
+              <canvas width={this.mediaRect?.width} height={this.mediaRect?.height} ref={this.canvasElement}/>
             </div>
             : null 
           }
