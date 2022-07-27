@@ -87,7 +87,6 @@ export default class LocationPreview extends Component{
   initializeUrl = async _ => {
     const mediaSrc = await this.props.resource.hasFetched
     this.setState({mediaSrc}, _ => {
-      if (this.props.resource?.mimetype?.match(/^image/)) this.refreshCanvas() 
       if (this.props.resource?.mimetype?.match(/^video|^audio/)) {
         const location = this.props.location.getIntervalStart()
         if (location !== 0) {
@@ -141,7 +140,7 @@ export default class LocationPreview extends Component{
             </div>
             : props.resource?.mimetype?.match(/^image/)
             ? <div class="preview-media-fragment-image">
-              <img src={state.mediaSrc} ref={this.mediaElement} onloadedmetadata={this.handleLoadedMetadata} />
+              <img src={state.mediaSrc} ref={this.mediaElement} onload={this.refreshCanvas} />
               <canvas width={this.mediaRect?.width} height={this.mediaRect?.height} ref={this.canvasElement}/>
             </div>
             : null 
