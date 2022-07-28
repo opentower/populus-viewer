@@ -7,6 +7,10 @@
 }
 
 .image-annotation-rect {
+  cursor: pointer;
+}
+
+svg[data-image-selecting] .image-annotation-rect {
   cursor: grab;
 }
 

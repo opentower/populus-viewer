@@ -61,7 +61,6 @@ export default class ImageContent extends Component {
         w:100,
         imageWidth: this.props.contentWidthPx,
         imageHeight: this.props.contentHeightPx,
-        selection: true,
       })
     }, _ => document.dispatchEvent(new Event("selectionchange")))
   }
@@ -128,34 +127,57 @@ export default class ImageContent extends Component {
     })
   }
 
+  getAnnotations() {
+    return this.props.filteredAnnotationContents.map(loc => {
+      return new ImageAnnotation({
+        location: loc,
+        imageWidth: this.props.contentWidthPx,
+        imageHeight: this.props.contentHeightPx,
+        setFocus: this.props.setFocus
+      })
+    })
+  }
 
   render(props, state) {
     return <div id="image-view">
       <img src={state.imageUrl} />
       <ImageOverlay 
-        createSelection={this.createSelection}
+        handlePointerDown={state.selection ? this.clearSelection : this.createSelection}
         contentWidthPx={props.contentWidthPx}
         contentHeightPx={props.contentHeightPx}
-      >{this.state.selection ? this.state.selection : null}
+      >{this.state.selection 
+        ? this.state.selection 
+        : this.getAnnotations()
+      }
       </ImageOverlay>
     </div>
   }
 }
 
+// XXX We don't use a component here since this should control two different
+// <rect>s that need to appear in different places
 class ImageAnnotation {
-  constructor({x,y,h,w, imageHeight, imageWidth, selection}) {
-    this.x = x 
-    this.y = y
-    this.h = h
-    this.w = w
+  constructor({x,y,h,w, location, setFocus, imageHeight, imageWidth}) {
+    const rect = location?.getMediaRect()
+    this.x = rect?.x || x
+    this.y = rect?.y || y
+    this.h = rect?.height || h
+    this.w = rect?.width || w
+    this.location = location
     this.imageHeight = imageHeight
-    this.selection = selection
+    this.selection = !location
+    this.setFocus = setFocus
     this.imageWidth = imageWidth
     this.maskRef = createRef()
     this.rectRef = createRef()
     this.rectResizeHRef = createRef()
     this.rectResizeWRef = createRef()
     this.key = Date.now()
+  }
+
+  focusAnnotation = e => {
+    e.stopPropagation() //prevent a secondary seek
+    this.setFocus(this.location)
   }
 
   startDrag = e => {
@@ -261,6 +283,7 @@ class ImageOverlay extends Component {
       key={child.key + 1}
       ref={child.rectRef}
       mask="url(#mask)"
+      onpointerdown={child.focusAnnotation}
       class="image-annotation-rect"
       x={child.x} 
       y={child.y} 
@@ -305,8 +328,9 @@ class ImageOverlay extends Component {
   </Fragment>
 
   render (props, state) {
+    console.log(props.children)
     const outerPath = `M0 0 h${props.contentWidthPx} v${props.contentHeightPx} h-${props.contentWidthPx}z`
-    return <svg onpointerdown={props.createSelection} id="image-overlay">
+    return <svg data-image-selecting={!!props.children?.selection} onpointerdown={props.handlePointerDown} id="image-overlay">
       <defs>
         <mask id="mask">
           <path fill="white" d={outerPath}/>
