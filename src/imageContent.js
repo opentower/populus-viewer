@@ -131,6 +131,8 @@ export default class ImageContent extends Component {
     return this.props.filteredAnnotationContents.map(loc => {
       return new ImageAnnotation({
         location: loc,
+        // we pass in focus so that it will be recalculated with renders
+        focused: loc.getChild() === this.props.focus?.getChild(),
         imageWidth: this.props.contentWidthPx,
         imageHeight: this.props.contentHeightPx,
         setFocus: this.props.setFocus
@@ -142,6 +144,7 @@ export default class ImageContent extends Component {
     return <div id="image-view">
       <img src={state.imageUrl} />
       <ImageOverlay 
+        focus={props.focus}
         handlePointerDown={state.selection ? this.clearSelection : this.createSelection}
         contentWidthPx={props.contentWidthPx}
         contentHeightPx={props.contentHeightPx}
@@ -157,7 +160,7 @@ export default class ImageContent extends Component {
 // XXX We don't use a component here since this should control two different
 // <rect>s that need to appear in different places
 class ImageAnnotation {
-  constructor({x,y,h,w, location, setFocus, imageHeight, imageWidth}) {
+  constructor({x,y,h,w, location, focused, setFocus, imageHeight, imageWidth}) {
     const rect = location?.getMediaRect()
     this.x = rect?.x || x
     this.y = rect?.y || y
@@ -168,6 +171,7 @@ class ImageAnnotation {
     this.selection = !location
     this.setFocus = setFocus
     this.imageWidth = imageWidth
+    this.focused = focused
     this.maskRef = createRef()
     this.rectRef = createRef()
     this.rectResizeHRef = createRef()
@@ -266,7 +270,15 @@ class ImageAnnotation {
 }
 
 class ImageOverlay extends Component {
+
   getMasks = _ => this.props.children?.map(this.toMask)
+
+  componentDidUpdate(prevProps) {
+    if (prevProps.focus?.getChild() !== this.props.focus?.getChild()) {
+      console.log(this.focusedRect)
+      this.focusedRect?.current?.scrollIntoView({block:"center", inline:"center"})
+    }
+  }
 
   toMask = child => <rect 
       key={child.key}
@@ -279,7 +291,9 @@ class ImageOverlay extends Component {
 
   getRects = _ => this.props.children?.map(this.toRect)
 
-  toRect = child => <rect
+  toRect = child => {
+    if (child.focused) this.focusedRect = child.rectRef
+    return <rect
       key={child.key + 1}
       ref={child.rectRef}
       mask="url(#mask)"
@@ -289,7 +303,9 @@ class ImageOverlay extends Component {
       y={child.y} 
       width={child.w}
       height={child.h}
+      data-annotation-focused={child.focused}
     />
+  }
 
   toSelection = child => <Fragment>
     <rect
@@ -328,7 +344,6 @@ class ImageOverlay extends Component {
   </Fragment>
 
   render (props, state) {
-    console.log(props.children)
     const outerPath = `M0 0 h${props.contentWidthPx} v${props.contentHeightPx} h-${props.contentWidthPx}z`
     return <svg data-image-selecting={!!props.children?.selection} onpointerdown={props.handlePointerDown} id="image-overlay">
       <defs>
