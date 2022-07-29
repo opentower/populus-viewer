@@ -10,6 +10,10 @@
   cursor: pointer;
 }
 
+[data-annotations-hidden] #image-overlay {
+  display:none;
+}
+
 svg[data-image-selecting] .image-annotation-rect {
   cursor: grab;
 }
