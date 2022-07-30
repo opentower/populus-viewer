@@ -22,7 +22,12 @@
     left: calc(
       (100% + 5px) * (1 - max(var(--chatVisible), var(--listingVisible)))
     );
-    width: calc(var(--sidepanelWidth) * min(1,var(--chatVisible) + var(--listingVisible))) ;
+    width: calc(
+      max(
+        var(--widget-control-width),
+        var(--sidepanelWidth) * min(1,var(--chatVisible) + var(--listingVisible))
+      )
+    );
     transition: var(--transitionSizing)
 }
 
