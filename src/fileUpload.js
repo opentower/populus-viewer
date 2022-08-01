@@ -274,6 +274,7 @@ export default class FileUpload extends Component {
 class FileUploadPreview extends Component {
   render(props) {
     if (props.file.type === "application/pdf") return <PdfUploadPreview ref={props.uploadPreview} key={props.file.name} file={props.file} />
+    if (props.file.type.match(/^image/)) return <ImageUploadPreview ref={props.uploadPreview} key={props.file.name} file={props.file} />
     if (props.file.type.match(/^audio|^video/)) return <MediaUploadPreview ref={props.uploadPreview} key={props.file.name} file={props.file} />
     return <GenericUploadPreview ref={props.uploadPreview} file={props.file}/>
   }
@@ -415,6 +416,23 @@ class MediaUploadPreview extends Component {
           <button onClick={this.generatePeaks}>{Icons.waveform}</button>
         </ToolTip>
       </div>
+    </div>
+  }
+}
+
+class ImageUploadPreview extends Component {
+  constructor(props) {
+    super(props)
+    this.imageUrl = URL.createObjectURL(this.props.file)
+  }
+
+  componentWillUnmount() { 
+    URL.revokeObjectURL(this.imageUrl) 
+  }
+
+  render() {
+    return <div id="image-upload-preview">
+      <img src={this.imageUrl} />
     </div>
   }
 }

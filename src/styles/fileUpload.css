@@ -113,6 +113,7 @@
   position:relative;
 }
 
+#image-upload-preview img,
 #media-upload-preview video {
   width:100%;
 }
