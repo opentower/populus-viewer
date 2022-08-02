@@ -8,7 +8,7 @@
   left:0px;
   right:0;
   background: var(--content-backdrop);
-  overflow:hidden;
+  overflow:visible;
   --margin-unit: 17px
 }
 
@@ -54,6 +54,7 @@
 #login hr, #registration hr {
   width:100%;
   margin-bottom:15px;
+  margin-top:0px;
 }
 
 #login input:invalid, #registration input:invalid {
@@ -72,10 +73,7 @@
     margin-left:0px;
 }
 
-#login div, #registration div {
-    padding-top:.5em;
-    grid-column: 1 / 3 ;
-}
+#login div, #registration div { grid-column: 1 / 3 ; }
 
 #login-options {
   background:var(--content-background);
@@ -162,7 +160,7 @@
       min-width:100vw;
       overflow:visible;
       border:unset;
-      padding: unset;
+      padding: calc(3 * var(--margin-unit)) 0 calc(4 * var(--margin-unit)) 0;
       display:grid;
       justify-items:center;
       align-items:center;
@@ -182,7 +180,7 @@
       background: var(--content-background)
     }
 
-    #login-backdrop rect {
+    #login-backdrop {
       display:none;
     }
 
