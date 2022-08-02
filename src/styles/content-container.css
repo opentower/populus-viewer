@@ -8,6 +8,11 @@
     background: var(--content-backdrop);
 }
 
+#content-container[data-touches="1"]
+#content-container[data-touches="2"] {
+  touch-action: "none"
+}
+
 html[data-scrollbars="hidden"] #content-container {
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width:none;

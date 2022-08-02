@@ -46,7 +46,6 @@ export default class ContentView extends Component {
       contentWidthPx: null,
       contentHeightPx: null,
       zoomFactor: null,
-      pinching: false
     }
     this.annotationChildEvents = {}
     this.annotationParentEvents = {}
@@ -113,29 +112,23 @@ export default class ContentView extends Component {
     }
   }
 
-  handlePointerDown = e => {
-    this.pointerCache.push(e)
-    if (this.pointerCache.length === 2) {
-      this.initialDistance = Math.abs(this.pointerCache[0].clientX - this.pointerCache[1].clientX)
+  handleTouchStart = e => {
+    this.contentContainer.current.dataset.touches = e.touches.length
+    if (e.touches.length === 2) {
+      // if two fingers are down, start a pinch
+      this.initialDistance = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX)**2 + (e.touches[0].clientY - e.touches[1].clientY)**2)
       this.initialZoom = this.state.zoomFactor
-      this.setState({pinching: true})
     }
   }
 
-  handlePointerUp = e => {
-    this.pointerCache = this.pointerCache.filter(pointerEv => pointerEv.pointerId !== e.pointerId)
-    if (this.state.pinching && this.pointerCache.length !== 2) this.setState({pinching: false})
-  }
+  handleTouchEnd = e => this.contentContainer.current.dataset.touches = e.touches.length
 
-  handlePointerMove = e => {
-    // update cache
-    this.pointerCache.forEach((pointerEvent, index) => {
-      if (e.pointerId === pointerEvent.pointerId) this.pointerCache[index] = e
-    })
-    // if two fingers are down, see if we're pinching
-    if (this.pointerCache.length === 2) {
-      const touchDistance = Math.abs(this.pointerCache[0].clientX - this.pointerCache[1].clientX)
-      this.setZoom(_ => this.initialZoom * (touchDistance / this.initialDistance))
+
+  handleTouchMove = e => {
+    if (e.touches.length === 2) {
+      // if two fingers are down, handle a pinch update
+      const newDistance = Math.sqrt((e.touches[0].clientX - e.touches[1].clientX)**2 + (e.touches[0].clientY - e.touches[1].clientY)**2)
+      this.setZoom(_ => this.initialZoom * ( newDistance / this.initialDistance))
     }
   }
 
@@ -143,7 +136,7 @@ export default class ContentView extends Component {
 
   content = createRef()
 
-  pointerCache = []
+  touchCache = []
 
   setNavHeight = px => this.setState({ navHeight: px })
 
@@ -693,16 +686,15 @@ export default class ContentView extends Component {
       "--chatFocused": state.focus ? 1 : 0,
       "--selectColor": this.userColor.solid,
       "--mobileButtonColor": state.mobileButtonColor,
-      "touch-action": state.pinching ? "none" : null
     }
     return <div
       style={dynamicDocumentStyle}
       id="content-container"
       ref={this.contentContainer}
-      onPointerDown={this.handlePointerDown}
-      onPointerUp={this.handlePointerUp}
-      onPointerCancel={this.handlePointerUp}
-      onPointerLeave={this.handlePointerUp}
+      onTouchStart={this.handleTouchStart}
+      onTouchEnd={this.handleTouchEnd}
+      onTouchMove={this.handleTouchMove}
+      onTouchCancel={this.handleTouchEnd}
       data-annotations-hidden={!state.annotationsVisible}
       data-pindrop-mode={state.pindropMode
         ? (state.pindropMode?.x && "placed") || "unplaced"

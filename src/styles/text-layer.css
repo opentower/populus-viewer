@@ -16,7 +16,13 @@
     /* a slight skootch here to make up for span padding */
 }
 
+[data-touches="2"] .text-layer,
 [data-pindrop-mode] .text-layer { display:none; }
+
+[data-touches="2"] .text-layer > span,
+[data-touches="1"] .text-layer > span {
+    touch-action:none;
+  }
 
 .text-layer > span {
     color:transparent;
