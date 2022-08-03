@@ -122,10 +122,16 @@ class Login extends Component {
       SSOProviders: [],
       loading: "loading"
     })
+    // we spawn a control token here to be sure to only mark things as failed
+    // if there's not another query already going
+    const flowControlToken = {}
+    this.flowControl = flowControlToken
     Client.initClient()
       .then(client => client.loginFlows())
       .then(this.handleFlows)
-      .catch(_ => this.setState({ loading: "failed"}))
+      .catch(_ => this.flowControl === flowControlToken 
+        ? this.setState({ loading: "failed"}) 
+        : null)
   }
 
   handleFlows = flows => {
@@ -397,7 +403,7 @@ class UserData extends Component {
     }
   }
 
-  validatePassword = (e) => {
+  validatePassword = e => {
     this.props.setPassword(e.target.value)
     if (e.target.value.length < 8 && e.target.value.length > 0) {
       this.passwordInput.current.setCustomValidity("Bad Password")
@@ -408,19 +414,21 @@ class UserData extends Component {
     }
   }
 
+  handleFocus = e => {e.target.scrollIntoView({block: "center"})}
+
   handleServerInput = e => this.props.setServer(e.target.value)
 
   render (props, state) {
     return (
       <Fragment>
         <label htmlFor="servername">Server</label>
-        <input class="styled-input" value={props.server} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
+        <input class="styled-input" value={props.server} onfocus={this.handleFocus} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
         <div class="userdata-form-info">{props.connectionMessage}</div>
         <label htmlFor="username">Username</label>
-        <input class="styled-input" autocomplete="username" value={props.name} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
+        <input class="styled-input" autocomplete="username" value={props.name} onfocus={this.handleFocus} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
         <div class="userdata-form-info">{state.usernameMessage}</div>
         <label htmlFor="password">Password</label>
-        <input class="styled-input" autocomplete={props.newAccount ? "new-password" : "current-password"} value={props.password} oninput={this.validatePassword} type="password" ref={this.passwordInput} id="password" name="password" />
+        <input class="styled-input" autocomplete={props.newAccount ? "new-password" : "current-password"} onfocus={this.handleFocus} value={props.password} oninput={this.validatePassword} type="password" ref={this.passwordInput} id="password" name="password" />
         <div class="userdata-form-info">{state.passwordMessage}</div>
       </Fragment>
     )

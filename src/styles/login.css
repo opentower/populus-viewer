@@ -8,7 +8,7 @@
   left:0px;
   right:0;
   background: var(--content-backdrop);
-  overflow:visible;
+  overflow:hidden;
   --margin-unit: 17px
 }
 
@@ -155,7 +155,7 @@
     animation: pulse-opacity 2s infinite; 
 }
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-height: 450px), only screen and (max-width: 600px) {
     #login-wrapper {
       min-width:100vw;
       overflow:visible;
@@ -164,6 +164,10 @@
       display:grid;
       justify-items:center;
       align-items:center;
+    }
+
+    #login-container {
+      overflow:visible;
     }
 
     #login-options {
