@@ -53,20 +53,34 @@ export default class ImageContent extends Component {
   hasSelection() { return !!this.state.selection }
 
   createSelection = e => {
-    this.setState({
-      selection: new ImageAnnotation({
-        x: e.offsetX, 
-        y: e.offsetY, 
-        h:100, 
-        w:100,
-        imageWidth: this.props.contentWidthPx,
-        imageHeight: this.props.contentHeightPx,
-      })
-    }, _ => document.dispatchEvent(new Event("selectionchange")))
+    if (this.longPressTimeout) return
+    this.longPressTimeout = setTimeout(_ => {
+      this.setState({
+        selection: new ImageAnnotation({
+          x: e.offsetX, 
+          y: e.offsetY, 
+          h:100, 
+          w:100,
+          imageWidth: this.props.contentWidthPx,
+          imageHeight: this.props.contentHeightPx,
+        })
+      }, _ => document.dispatchEvent(new Event("selectionchange")))
+    }, 500)
   }
 
-  clearSelection = _ => this.setState({selection: null}, _ => 
-    document.dispatchEvent(new Event("selectionchange")))
+  handlePointerCancel = _ => {
+    clearTimeout(this.longPressTimeout)
+    delete this.longPressTimeout
+  }
+
+  clearSelection = _ => {
+    this.setState({
+      selection: null
+    }, _ => document.dispatchEvent(new Event("selectionchange")))
+    // XXX If the clear is the result of a two-finger zoom gesture, this
+    // prevents the second finger from triggering a new selection
+    this.longPressTimeout = setTimeout(_ => { })
+  }
 
   generateLocation = _ => {
     return {
@@ -141,10 +155,13 @@ export default class ImageContent extends Component {
   }
 
   render(props, state) {
-    return <div id="image-view">
+    return <div 
+      data-image-selecting={!!state.selection}
+      id="image-view" >
       <img src={state.imageUrl} />
       <ImageOverlay 
         focus={props.focus}
+        handlePointerCancel={this.handlePointerCancel}
         handlePointerDown={state.selection ? this.clearSelection : this.createSelection}
         contentWidthPx={props.contentWidthPx}
         contentHeightPx={props.contentHeightPx}
@@ -186,15 +203,19 @@ class ImageAnnotation {
 
   startDrag = e => {
     e.stopPropagation()
+    if (this.initialPointer) return
     this.initialX = this.x
     this.initialY = this.y
     this.initialOffsetX = e.offsetX
     this.initialOffsetY = e.offsetY
+    this.initialPointer = e.pointerId
     this.rectRef.current.setPointerCapture(e.pointerId)
     this.rectRef.current.addEventListener('pointermove', this.handleDrag)
-    this.rectRef.current.addEventListener('pointerup', _ => {
+    this.rectRef.current.addEventListener('pointerup', e => {
+      if (e.pointerId !== this.initialPointer) return
       delete this.initialX
       delete this.initialY
+      delete this.initialPointer
       delete this.initialOffsetX
       delete this.initialOffsetY
       this.rectRef.current?.releasePointerCapture(e.pointerId)
@@ -204,6 +225,7 @@ class ImageAnnotation {
 
   handleDrag = e => {
     e.preventDefault()
+    if (e.pointerId !== this.initialPointer) return
     this.x = Math.round(Math.min(Math.max(0, this.initialX + (e.offsetX- this.initialOffsetX )), this.imageWidth - this.w))
     this.y = Math.round(Math.min(Math.max(0, this.initialY + (e.offsetY  - this.initialOffsetY)), this.imageHeight - this.h))
     this.updateSizes()
@@ -228,11 +250,15 @@ class ImageAnnotation {
 
   startResizeW = e => {
     e.stopPropagation()
+    if (this.initialPointer) return
     this.rectResizeWRef.current.setPointerCapture(e.pointerId)
     this.initialWidth = this.w
     this.initialOffsetX = e.offsetX
+    this.initialPointer = e.pointerId
     this.rectResizeWRef.current.addEventListener('pointermove', this.handleResizeW)
-    this.rectResizeWRef.current.addEventListener('pointerup', _ => {
+    this.rectResizeWRef.current.addEventListener('pointerup', e => {
+      if (e.pointerId !== this.initialPointer) return
+      delete this.initialPointer
       delete this.initialWidth
       delete this.initialOffsetX
       this.rectResizeWRef.current?.releasePointerCapture(e.pointerId)
@@ -242,13 +268,17 @@ class ImageAnnotation {
 
   startResizeH = e => {
     e.stopPropagation()
+    if (this.initialPointer) return
     this.rectResizeHRef.current.setPointerCapture(e.pointerId)
     this.initialHeight = this.h
     this.initialOffsetY = e.offsetY
+    this.initialPointer = e.pointerId
     this.rectResizeHRef.current.addEventListener('pointermove', this.handleResizeH)
     this.rectResizeHRef.current.addEventListener('pointerup', _ => {
+      if (e.pointerId !== this.initialPointer) return
       delete this.initialHeight
       delete this.initialOffsetY
+      delete this.initialPointer
       this.rectResizeHRef.current?.releasePointerCapture(e.pointerId)
       this.rectResizeHRef.current?.removeEventListener('pointermove', this.handleResizeH)
     })
@@ -256,6 +286,7 @@ class ImageAnnotation {
 
   handleResizeW = e => {
     e.preventDefault()
+    if (e.pointerId !== this.initialPointer) return
     //the 40px minimum here accomodates the handles
     this.w = Math.round(Math.min(this.imageWidth - this.x, Math.max(40, this.initialWidth + (e.offsetX - this.initialOffsetX))))
     this.updateSizes()
@@ -263,6 +294,7 @@ class ImageAnnotation {
 
   handleResizeH = e => {
     e.preventDefault()
+    if (e.pointerId !== this.initialPointer) return
     //the 40px minimum here accomodates the handles
     this.h = Math.round(Math.min(this.imageHeight - this.y, Math.max(40, this.initialHeight + (e.offsetY - this.initialOffsetY))))
     this.updateSizes()
@@ -345,7 +377,11 @@ class ImageOverlay extends Component {
 
   render (props, state) {
     const outerPath = `M0 0 h${props.contentWidthPx} v${props.contentHeightPx} h-${props.contentWidthPx}z`
-    return <svg data-image-selecting={!!props.children?.selection} onpointerdown={props.handlePointerDown} id="image-overlay">
+    return <svg 
+      onPointerCancel={props.handlePointerCancel}
+      onPointerUp={props.handlePointerCancel}
+      onPointerDown={props.handlePointerDown} 
+      id="image-overlay">
       <defs>
         <mask id="mask">
           <path fill="white" d={outerPath}/>

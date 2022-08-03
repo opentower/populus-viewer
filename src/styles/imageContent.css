@@ -1,3 +1,12 @@
+#image-view[data-image-selecting] {
+  touch-action:none;
+}
+
+
+#image-view img { 
+  pointer-events:none;
+}
+
 #image-overlay {
   position:absolute;
   height:100%;
@@ -6,15 +15,13 @@
   cursor:crosshair;
 }
 
-.image-annotation-rect {
-  cursor: pointer;
-}
+.image-annotation-rect { cursor: pointer; }
 
 [data-annotations-hidden] #image-overlay {
   display:none;
 }
 
-svg[data-image-selecting] .image-annotation-rect {
+[data-image-selecting] svg .image-annotation-rect {
   cursor: grab;
 }
 
