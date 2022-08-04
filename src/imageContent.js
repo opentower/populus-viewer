@@ -347,7 +347,7 @@ class ImageOverlay extends Component {
       key={child.key + 2}
       ref={child.rectRef}
       mask="url(#mask)"
-      class="image-annotation-rect"
+      class="image-annotation-rect-drag"
       x={child.x} 
       y={child.y} 
       onpointerdown={child.startDrag}

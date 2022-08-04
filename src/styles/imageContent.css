@@ -21,7 +21,7 @@
   display:none;
 }
 
-[data-image-selecting] svg .image-annotation-rect {
+.image-annotation-rect-drag {
   cursor: grab;
 }
 
