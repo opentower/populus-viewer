@@ -54,11 +54,15 @@ export default class ImageContent extends Component {
 
   createSelection = e => {
     if (this.longPressTimeout) return
+    const initialOffsetX = e.offsetX
+    const initialOffsetY = e.offsetY
+    // Firefox doesn't keep the offsets of the pointer event around, for some
+    // reason, so we store them here.
     this.longPressTimeout = setTimeout(_ => {
       this.setState({
         selection: new ImageAnnotation({
-          x: e.offsetX, 
-          y: e.offsetY, 
+          x: initialOffsetX, 
+          y: initialOffsetY, 
           h:100, 
           w:100,
           imageWidth: this.props.contentWidthPx,
@@ -307,7 +311,6 @@ class ImageOverlay extends Component {
 
   componentDidUpdate(prevProps) {
     if (prevProps.focus?.getChild() !== this.props.focus?.getChild()) {
-      console.log(this.focusedRect)
       this.focusedRect?.current?.scrollIntoView({block:"center", inline:"center"})
     }
   }
