@@ -127,13 +127,13 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
 }
 
 .annotation-listing-features > svg {
-  height:14px;
-  width:14px;
+  height:24px;
+  width:24px;
   padding-right:5px;
 }
 
 .annotation-listing-features {
-  height:14px;
+  height:24px;
   padding-left:5px;
   color:var(--content-secondary-text);
 }

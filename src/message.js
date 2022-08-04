@@ -103,6 +103,8 @@ export class AnnotationMessage extends Component {
 
   hasFocus = _ => this.location === this.props.secondaryFocus
 
+  mediaRect = this.location?.getMediaRect()
+
   render(props) {
     const locationType = this.location.getType()
     if (!locationType) return
@@ -122,11 +124,22 @@ export class AnnotationMessage extends Component {
               </span>
             : locationType == "media-fragment"
             ? <span class="annotation-banner">
-                <span>From </span>
-                <a onClick={this.handleLinkClick}
-                  href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${Math.floor(this.location.getIntervalStart() / 1000)}/${this.props.roomId}`} >
-                  {toClockTime(this.location.getIntervalStart() / 1000)} to {toClockTime(this.location.getIntervalEnd() / 1000)}
-                </a>:
+                {props.resource?.mimetype?.match(/^image/) 
+                  ? <Fragment>
+                    <span>Image selection at </span>
+                    <a onClick={this.handleLinkClick}
+                      href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${Math.floor(this.location.getIntervalStart() / 1000)}/${this.props.roomId}`} >
+                      {this.mediaRect.x},{this.mediaRect.y}
+                    </a>:
+                  </Fragment>
+                  : <Fragment>
+                    <span>From </span>
+                    <a onClick={this.handleLinkClick}
+                      href={`${window.location.origin}${window.location.pathname}#/${encodeURIComponent(props.resourceAlias)}/${Math.floor(this.location.getIntervalStart() / 1000)}/${this.props.roomId}`} >
+                      {toClockTime(this.location.getIntervalStart() / 1000)} to {toClockTime(this.location.getIntervalEnd() / 1000)}
+                    </a>:
+                  </Fragment>
+                }
               </span>
             : null
           }
