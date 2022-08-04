@@ -89,6 +89,10 @@
 }
 
 #pdf-upload-preview {
+  position:relative;
+}
+
+#pdf-upload-preview-outer-wrapper {
   display:flex;
   position:relative;
   justify-content:center;
@@ -97,7 +101,6 @@
   max-height:50vh;
   overflow:auto;
 }
-
 
 #pdf-upload-preview-wrapper {
   position:relative;
@@ -118,6 +121,9 @@
   width:100%;
 }
 
+#pdf-upload-preview {
+  overflow:hidden;
+}
 
 #media-upload-preview-controls button, #pdf-upload-preview-controls button {
   cursor: pointer;

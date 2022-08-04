@@ -320,17 +320,19 @@ class PdfUploadPreview extends Component {
       "--selectColor": this.userColor.solid,
     }
     return <div id="pdf-upload-preview">
-        <div id="pdf-upload-preview-wrapper" style={dynamicDocumentStyle}>
-        <PdfCanvas
-          pdfScale={1}
-          setPdfDimensions={this.setPdfDimensions}
-          setPdfFitRatio={this.setPdfFitRatio}
-          hasFetched={true}
-          pdfPromise={state.pdfPromise}
-          textLayer={this.textLayer}
-          pageFocused={state.pdfPage}
-          setPdfLoadingStatus={_ => {}}
-        />
+        <div id="pdf-upload-preview-outer-wrapper" style={dynamicDocumentStyle}>
+          <div id="pdf-upload-preview-wrapper" style={dynamicDocumentStyle}>
+          <PdfCanvas
+            pdfScale={1}
+            setPdfDimensions={this.setPdfDimensions}
+            setPdfFitRatio={this.setPdfFitRatio}
+            hasFetched={true}
+            pdfPromise={state.pdfPromise}
+            textLayer={this.textLayer}
+            pageFocused={state.pdfPage}
+            setPdfLoadingStatus={_ => {}}
+          />
+        </div>
       </div>
       <div id="pdf-upload-preview-controls">
         <button onClick={this.prevPage} id="document-preview-prev">{Icons.chevronLeft}</button>
