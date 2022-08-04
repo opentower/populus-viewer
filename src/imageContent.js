@@ -232,7 +232,7 @@ class ImageAnnotation {
     if (e.pointerId !== this.initialPointer) return
     this.x = Math.round(Math.min(Math.max(0, this.initialX + (e.offsetX- this.initialOffsetX )), this.imageWidth - this.w))
     this.y = Math.round(Math.min(Math.max(0, this.initialY + (e.offsetY  - this.initialOffsetY)), this.imageHeight - this.h))
-    this.updateSizes()
+    requestAnimationFrame(this.updateSizes)
   }
 
   updateSizes = _ => {
