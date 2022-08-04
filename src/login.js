@@ -18,10 +18,6 @@ export default class LoginView extends Component {
     }
   }
 
-  componentDidMount() { 
-    this.loginWrapper.current.style.height = `${this.loginElement.current.scrollHeight}px`
-  }
-
   componentDidUpdate() { 
     this.resizeObserver.disconnect()
     this.resizeObserver.observe(this.loginElement.current)
