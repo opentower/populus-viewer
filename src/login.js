@@ -410,7 +410,7 @@ class UserData extends Component {
     }
   }
 
-  handleFocus = e => {e.target.scrollIntoView({block: "center"})}
+  handleFocus = e => {window.innerHeight < 450 && e.target.scrollIntoView({block: "center"})}
 
   handleServerInput = e => this.props.setServer(e.target.value)
 
