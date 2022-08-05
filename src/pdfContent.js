@@ -216,6 +216,10 @@ export default class PdfContent extends Component {
     if (this.secondaryPage?.current?.hasSelection()) return this.secondaryPage?.current?.generateLocation(theSelection)
   }
 
+  zoomMin = 1
+
+  zoomMax = 5
+
   hasSelection = _ => {
     return this.mainPage.current.hasSelection() || this.secondaryPage?.current?.hasSelection()
   }

@@ -101,6 +101,10 @@ export default class ImageContent extends Component {
     }
   }
 
+  zoomMin = 0.2
+
+  zoomMax = 10
+
   commitRegion = _ => {
     if (!onlineOrAlert()) return
     const theDomain = Client.client.getDomain()
@@ -159,21 +163,23 @@ export default class ImageContent extends Component {
   }
 
   render(props, state) {
-    return <div 
-      data-image-selecting={!!state.selection}
-      id="image-view" >
-      <img src={state.imageUrl} />
-      <ImageOverlay 
-        focus={props.focus}
-        handlePointerCancel={this.handlePointerCancel}
-        handlePointerDown={state.selection ? this.clearSelection : this.createSelection}
-        contentWidthPx={props.contentWidthPx}
-        contentHeightPx={props.contentHeightPx}
-      >{this.state.selection 
-        ? this.state.selection 
-        : this.getAnnotations()
-      }
-      </ImageOverlay>
+    return <div id="image-view-wrapper">
+      <div 
+        data-image-selecting={!!state.selection}
+        id="image-view" >
+        <img src={state.imageUrl} />
+        <ImageOverlay 
+          focus={props.focus}
+          handlePointerCancel={this.handlePointerCancel}
+          handlePointerDown={state.selection ? this.clearSelection : this.createSelection}
+          contentWidthPx={props.contentWidthPx}
+          contentHeightPx={props.contentHeightPx}
+        >{this.state.selection 
+          ? this.state.selection 
+          : this.getAnnotations()
+        }
+        </ImageOverlay>
+      </div>
     </div>
   }
 }

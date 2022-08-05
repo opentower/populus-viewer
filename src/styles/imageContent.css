@@ -2,9 +2,14 @@
   touch-action:none;
 }
 
-
 #image-view img { 
   pointer-events:none;
+}
+
+#image-view-wrapper {
+  height: calc(var(--zoomFactor) * var(--contentHeightPx));
+  width: calc(var(--zoomFactor) * var(--contentWidthPx)); 
+  overflow:hidden;
 }
 
 #image-overlay {

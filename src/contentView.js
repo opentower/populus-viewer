@@ -224,9 +224,9 @@ export default class ContentView extends Component {
 
   setZoom = zoomFunction => {
     let zoomFactor = zoomFunction(this.state.zoomFactor)
-    if (zoomFactor < 1) this.setState({zoomFactor: 1})
+    if (zoomFactor < this.content.current.zoomMin) this.setState({zoomFactor: this.content.current.zoomMin})
     else {
-      zoomFactor = Math.min(zoomFactor, 5)
+      zoomFactor = Math.min(zoomFactor, this.content.current.zoomMax)
       const unscaledInternalOffsetX = (this.contentContainer.current.clientWidth / 2)
       const scaledInternalOffsetX = ((this.contentContainer.current.clientWidth / 2) / this.state.zoomFactor) * zoomFactor
       const scaledLeft = (this.contentContainer.current.scrollLeft / this.state.zoomFactor) * zoomFactor
@@ -596,9 +596,11 @@ export default class ContentView extends Component {
             focus={this.state.focus}
             showChat={this.showChat}
             setContentDimensions={this.setContentDimensions}
+            contentContainer={this.contentContainer}
             contentHeightPx={this.state.contentHeightPx}
             contentWidthPx={this.state.contentWidthPx}
             setImageLoadingStatus={this.setLoadingStatus}
+            zoomFactor={this.state.zoomFactor}
           />
     } else return null
   }
