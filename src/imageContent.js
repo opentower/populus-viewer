@@ -61,8 +61,8 @@ export default class ImageContent extends Component {
     this.longPressTimeout = setTimeout(_ => {
       this.setState({
         selection: new ImageAnnotation({
-          x: initialOffsetX, 
-          y: initialOffsetY, 
+          x: Math.round(initialOffsetX), 
+          y: Math.round(initialOffsetY), 
           h:100, 
           w:100,
           imageWidth: this.props.contentWidthPx,
