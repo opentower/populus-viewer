@@ -601,6 +601,7 @@ export default class ContentView extends Component {
             contentWidthPx={this.state.contentWidthPx}
             setImageLoadingStatus={this.setLoadingStatus}
             zoomFactor={this.state.zoomFactor}
+            setZoom={this.setZoom}
           />
     } else return null
   }

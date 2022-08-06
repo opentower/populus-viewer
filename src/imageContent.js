@@ -46,6 +46,8 @@ export default class ImageContent extends Component {
     theImage.src = imageUrl
     theImage.onload = _ => {
       this.props.setContentDimensions(theImage.height, theImage.width)
+      const widthRatio = (window.innerWidth - 80) / theImage.width
+      if (widthRatio < 1) this.props.setZoom(_ => Math.max(0.2, widthRatio))
       this.setState({imageUrl})
     }
   }
