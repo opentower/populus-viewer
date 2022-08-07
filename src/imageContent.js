@@ -46,8 +46,8 @@ export default class ImageContent extends Component {
     theImage.src = imageUrl
     theImage.onload = _ => {
       this.props.setContentDimensions(theImage.height, theImage.width)
-      const widthRatio = (window.innerWidth - 80) / theImage.width
-      if (widthRatio < 1) this.props.setZoom(_ => Math.max(0.2, widthRatio))
+      const widthRatio = this.props.contentContainer.current.offsetWidth / theImage.width
+      if (widthRatio < 1) this.props.setZoom(_ => widthRatio)
       this.setState({imageUrl})
     }
   }
@@ -103,7 +103,14 @@ export default class ImageContent extends Component {
     }
   }
 
-  zoomMin = 0.2
+  get zoomMin () { 
+    if (!this.props.contentWidthPx) return 0
+    return Math.min(
+      1, 
+      this.props.contentContainer.current.offsetWidth / this.props.contentWidthPx, 
+      this.props.contentContainer.current.offsetHeight / this.props.contentHeightPx 
+    )
+  }
 
   zoomMax = 10
 
@@ -165,6 +172,7 @@ export default class ImageContent extends Component {
   }
 
   render(props, state) {
+    if (!props.contentWidthPx) return
     return <div id="image-view-wrapper">
       <div 
         data-image-selecting={!!state.selection}
