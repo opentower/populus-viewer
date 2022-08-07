@@ -20,13 +20,13 @@ feature requests are welcome.
 
 ## Features
 
-https://user-images.githubusercontent.com/6383381/146051091-1c1e29b8-0d6c-4b87-9f49-2247e108e34e.mp4
+https://user-images.githubusercontent.com/6383381/183310450-fa4c1809-3e1b-4375-929e-b9eb20b5c4b5.mp4
 
 Populus-Viewer currently supports:
 
 - Highlight and pin-drop annotations on PDFs 
 - Timespan annotations on audio and video files 
-- Annotating spatial regions of video files
+- Annotating spatial regions of images and video files
 - Audio and video messages
 - Message edits and redactions
 - Replies and reactions
