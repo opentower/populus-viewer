@@ -186,6 +186,8 @@ class FileUploadInput extends Component {
 
   getFile = _ => this.props.file || this.fileLoader.current.files[0]
 
+  setFileFromInput = _ => this.validateFile(this.fileLoader.current.files[0])
+
   validateFile = file => {
     const limit = Client.mediaConfig["m.upload.size"]
     if (file.size >= limit) {
