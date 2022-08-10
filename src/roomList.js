@@ -169,7 +169,10 @@ export default class RoomList extends Component {
       const roomMemberIds = inRoom.map(m => m.userId)
       const roomMemberNames = inRoom.map(m => m.name)
       const roomMembers = roomMemberIds.concat(roomMemberNames)
-      const parents = state.getStateEvents("m.space.parent").map(e => Client.client.getRoom(e.getStateKey())?.name).filter(e => e)
+      const parents = state.getStateEvents("m.space.parent")
+        .filter(e => !!e.getContent().via)
+        .map(e => Client.client.getRoom(e.getStateKey())?.name)
+        .filter(e => e)
       return searchNames.every(name => room.name.toLowerCase().includes(name.toLowerCase())) &&
         (searchIds.length > 0 ? searchIds.some(id => room.roomId === id) : true) &&
         searchMembers.every(member => roomMembers.some(roomMember => roomMember.toLowerCase().includes(member.toLowerCase()))) &&
