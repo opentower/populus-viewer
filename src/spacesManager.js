@@ -8,6 +8,7 @@ import ManageMembership from './manageMembership.js'
 import Resource from './utils/resource.js'
 import RoomSettings from './roomSettings.js'
 import SearchBar from './search.js'
+import LeaveRoom from './leaveRoom.js'
 import RoomIcon from './roomIcon.js'
 import { RoomIconPlaceholder } from './roomIcon.js'
 import * as Icons from './icons.js'
@@ -307,11 +308,16 @@ class SpaceListing extends Component {
     Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
   }
 
+  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Leave Room?", `for ${this.props.room.name}`)
+
   roomColor = new RoomColor(this.props.room.name)
 
   render(props, state) {
     const userMember = props.room.getMember(Client.client.getUserId())
     const isAdmin = userMember.powerLevel >= 100
+    const canInvite = props.room.getLiveTimeline()
+      .getState(Matrix.EventTimeline.FORWARDS)
+      .hasSufficientPowerLevelFor("invite", userMember.powerLevel)
     // should do this in a more fine-grained way with hasSufficientPowerLevelFor
     return <div style={this.roomColor.styleVariables} class="space-listing">
       <h3>
@@ -323,10 +329,11 @@ class SpaceListing extends Component {
       </h3>
       { state.actionsVisible
         ? <div class="space-listing-actions">
-            <button class="small-icon" onclick={this.addChild}>{ Icons.newDiscussion }</button>
-            <button class="small-icon" onclick={this.openMembership}>{ Icons.userPlus }</button>
-            <button class="small-icon" onclick={this.openSettings}>{ Icons.settings }</button>
-          </div>
+          {isAdmin ? <button class="small-icon" onclick={this.addChild}>{ Icons.newDiscussion }</button> : null}
+          {canInvite ? <button class="small-icon" onclick={this.openMembership}>{ Icons.userPlus }</button> : null}
+          {isAdmin ? <button class="small-icon" onclick={this.openSettings}>{ Icons.settings }</button> : null}
+          <button class="small-icon" onclick={this.handleClose}>{ Icons.exit }</button>
+        </div>
         : null
       }
       <div class="space-listing-children">
