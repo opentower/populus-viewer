@@ -322,10 +322,7 @@ class SpaceListing extends Component {
     return <div style={this.roomColor.styleVariables} class="space-listing">
       <h3>
         <span onclick={this.searchMe}>{props.room.name}</span>
-        {isAdmin
-          ? <button data-narrow-view={props.oneColumn} onclick={this.toggleActions}>{Icons.moreVertical}</button>
-          : null
-        }
+        <button data-narrow-view={props.oneColumn} onclick={this.toggleActions}>{Icons.moreVertical}</button>
       </h3>
       { state.actionsVisible
         ? <div class="space-listing-actions">
