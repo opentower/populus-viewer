@@ -25,7 +25,7 @@ export default class SplashView extends Component {
 }
 
 function PopulusLogo () {
-  return <svg id="splash-logo" width="31mm" height="31mm" version="1.1" viewBox="-10 -10 45 45" xmlns="http://www.w3.org/2000/svg">
+  return <svg id="splash-logo" width="31mm" height="31mm" version="1.1" viewBox="-4.5 -4.5 40 40" xmlns="http://www.w3.org/2000/svg">
    <g transform="translate(-15.196 -28.116)">
     <circle id="splash-logo-back" cx="30.696" cy="43.616" r="15" style="paint-order:stroke fill markers"/>
     <circle cx="30.696" cy="43.616" r="15" fill="#fff" stroke-linejoin="round" style="paint-order:stroke fill markers"/>
