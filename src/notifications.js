@@ -163,7 +163,7 @@ class Notification extends Component {
 
   originResource = this.originRoom
     .getLiveTimeline().getState(Matrix.EventTimeline.BACKWARDS)
-    .getStateEvents(spaceParent)?.[0].getStateKey()
+    .getStateEvents(spaceParent)[0]?.getStateKey()
 
   originAlias = this.originResource
     ? Client.client.getRoom(this.originResource)?.getCanonicalAlias()
@@ -176,10 +176,6 @@ class Notification extends Component {
     : null
 
   originLocation = this.originAnnotation ? new Location(this.originAnnotation) : null
-
-  originAnnotationRoom = this.originLocation
-    ? Client.client.getRoom(this.originLocation.getChild())
-    : null
 
   getTopic = _ => {
     switch (this.originLocation.getType()) {
@@ -198,12 +194,13 @@ class Notification extends Component {
       case "highlight" : History.push(`/${alias}/${origin.getPageIndex()}/${origin.getChild()}/${eventId}`); break
       case "text" : History.push(`/${alias}/${origin.getPageIndex()}/${origin.getChild()}/${eventId}`); break
       case "media-fragment" : History.push(`/${alias}/${this.originLocation.getIntervalStart()}/${origin.getChild()}/${eventId}`); break
-      default : console.log("unrecognized location type")
+      default : console.log(`unrecognized location type: ${JSON.stringify(this.originLocation)}`)
     }
   }
 
   render(props, state) {
-    if (Client.client.getRoom(this.originResource)) {
+    // can sometimes take a second for these to sync with newly joined rooms. We don't render in that case
+    if (Client.client.getRoom(this.originResource) && this.originLocation) {
       return <div
         onclick={this.originAlias ? this.handleClick : null }
         class={state.unread ? "notification unread-notification" : "notification"}
@@ -223,13 +220,6 @@ class Notification extends Component {
         </div>
       </div>
     }
-    return <div
-        class={state.unread ? "notification unread-notification" : "notification"}
-        style={this.userColor.styleVariables}>
-        <div class="notification-header">
-          Notification from departed room
-        </div>
-      </div>
   }
 }
 
