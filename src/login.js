@@ -90,7 +90,10 @@ class Login extends Component {
       SSOProviders: [],
       loading: false
     }
-    if (this.props.server && queryParameters.get("sso")) this.trySSO(queryParameters.get("sso"), queryParameters.get("server"))
+    if (this.props.server && queryParameters.get("sso")) {
+      this.doingSSO = true
+      this.trySSO(queryParameters.get("sso"), queryParameters.get("server"))
+    }
   }
 
   componentDidMount() {
@@ -179,6 +182,7 @@ class Login extends Component {
       : state.loading === "badurl"
       ? "the server name should look like 'matrix.org'"
       : null
+    if (this.doingSSO) return <div id="login-sso-loader">Redirecting...</div>
     return <div ref={props.loginElement} id="login">
       <h3>Login To Populus</h3>
       <form id="loginForm" onSubmit={this.handleSubmit}>
