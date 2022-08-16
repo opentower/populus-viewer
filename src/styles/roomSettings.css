@@ -104,6 +104,10 @@ div#room-settings-avatar-selector {
 
 .room-settings-role-user {
   text-align:left;
+  display:inline-block;
+  overflow:hidden;
+  width:100%;
+  text-overflow:ellipsis;
 }
 
 .room-settings-role-change-info {

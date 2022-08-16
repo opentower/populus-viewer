@@ -9,6 +9,7 @@
   justify-content:center;
   z-index:20;
   overflow-y:auto;
+  overflow-x:hidden;
 }
 
 #modal-background {
