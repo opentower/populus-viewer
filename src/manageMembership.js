@@ -213,7 +213,6 @@ class Unban extends Component {
     .catch(alert)
 
   render(props) {
-    console.log(props.user)
     return <button class="unban-candidate" onclick={this.unban}>
       <span class="small-icon">{Icons.userCheck}</span>
       <span><MemberPill member={props.member} /></span>

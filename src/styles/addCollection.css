@@ -1,0 +1,85 @@
+
+
+#create-collection {
+    margin-top:20px;
+    display:grid;
+    grid-template-columns: 180px 1fr;
+}
+
+#create-collection > label {
+    grid-column: 1 / 2 ;
+}
+
+#create-collection > input, #create-collection > textarea {
+    grid-column: 2 / 3 ;
+    margin-bottom:.5em;
+    resize:none;
+}
+
+
+#create-collection label {
+  margin:5px;
+  margin-left:0px;
+}
+
+.name-validation-detail {
+    color:var(--content-text-dimmed);
+    grid-column: 2 / 3 ;
+    font-size:10pt;
+    position:relative;
+    top:-8px;
+}
+
+#create-collection-submit {
+    grid-column: 1 / 2 ;
+}
+
+#add-collection-unarchive-list {
+  margin-top:20px;
+}
+
+.unarchive-collection svg {
+  height:1.2em;
+  vertical-align:bottom;
+}
+
+.unarchive-collection {
+  display: grid;
+  height:28px;
+  grid-template-columns: 2em 1fr;
+  background: none;
+  border: none;
+  font-weight: bold;
+  cursor: pointer;
+  position: relative;
+  text-align:left;
+}
+
+.unarchive-collection > span {
+  padding-bottom:10px;
+  white-space:pre;
+  overflow-x:auto;
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width:none;
+}
+
+.unarchive-collection > span::-webkit-scrollbar { display: none; }
+
+.unarchive-collection[data-change-pending] {
+  color:var(--content-text-dimmed);
+}
+
+.unarchive-collection:hover {
+  left:5px
+}
+
+@media only screen and (max-width: 600px) {
+    #create-collection { grid-template-columns: 1fr; }
+
+    .name-validation-detail,
+    #create-collection > input, 
+    #create-collection > textarea { 
+        grid-column: 1 / 2;
+        min-width: 0px; /* helps prevent overflow on very narrow viewports */
+    }
+}

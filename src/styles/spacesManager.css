@@ -16,7 +16,7 @@
   margin:0px
 }
 
-#create-space {
+#add-space {
   display:flex;
   align-items:center;
   background:none;
@@ -32,7 +32,7 @@
   transition: color .5s ease;
 }
 
-#create-space:hover {
+#add-space:hover {
   color: var(--content-text);
 }
 
@@ -87,11 +87,6 @@
 
 .space-listing-more:hover {
   color:var(--content-text);
-}
-
-#create-collection {
-    display:grid;
-    grid-template-columns: 180px 1fr;
 }
 
 #manage-discussion-select-view {
@@ -156,41 +151,9 @@ html[data-scrollbars="hidden"] #available-discussions-list::-webkit-scrollbar {
   left:5px
 }
 
-#create-collection > label {
-    grid-column: 1 / 2 ;
-}
-
-#create-collection > input, #create-collection > textarea {
-    grid-column: 2 / 3 ;
-    margin-bottom:.5em;
-    border:none;
-    background:var(--input-background);
-}
-
-.name-validation-detail {
-    color:var(--content-text-dimmed);
-    grid-column: 2 / 3 ;
-    font-size:10pt;
-    position:relative;
-    top:-8px;
-}
-
-#create-collection-submit {
-    grid-column: 1 / 2 ;
-}
-
 @media only screen and (max-width: 600px) {
-    #create-collection { grid-template-columns: 1fr; }
-
     .space-listing h3 {
       display:grid;
       grid-template-columns: 1fr auto;
-    }
-
-    .name-validation-detail,
-    #create-collection > input, 
-    #create-collection > textarea { 
-        grid-column: 1 / 2;
-        min-width: 0px; /* helps prevent overflow on very narrow viewports */
     }
 } 

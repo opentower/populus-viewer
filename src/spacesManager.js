@@ -9,6 +9,8 @@ import Resource from './utils/resource.js'
 import RoomSettings from './roomSettings.js'
 import SearchBar from './search.js'
 import LeaveRoom from './leaveRoom.js'
+import ArchiveRoom from './archiveRoom.js'
+import AddCollection from './addCollection.js'
 import RoomIcon from './roomIcon.js'
 import { RoomIconPlaceholder } from './roomIcon.js'
 import * as Icons from './icons.js'
@@ -22,7 +24,7 @@ export default class SpacesManager extends Component {
     this.state = {
       spaces: Client.client.getVisibleRooms()
         .filter(room => room.getMyMembership() === "join")
-        .filter(this.isCollection)
+        .filter(this.isActiveCollection)
     }
   }
 
@@ -32,7 +34,7 @@ export default class SpacesManager extends Component {
       this.setState({
         spaces: Client.client.getVisibleRooms()
           .filter(room => room.getMyMembership() === "join")
-          .filter(this.isCollection)
+          .filter(this.isActiveCollection)
       })
     })
   }
@@ -61,11 +63,13 @@ export default class SpacesManager extends Component {
   componentDidMount () {
     Client.client.on("Room", this.handleRoom)
     Client.client.on("Room.name", this.handleRoom)
+    Client.client.on("Room.accountData", this.handleRoom)
   }
 
   componentWillUnmount () {
     Client.client.off("Room", this.handleRoom)
     Client.client.off("Room.name", this.handleRoom)
+    Client.client.off("Room.accountData", this.handleRoom)
   }
 
   filterSet = s => {
@@ -84,15 +88,16 @@ export default class SpacesManager extends Component {
       : null
   }
 
-  isCollection(room) {
+  isActiveCollection(room) {
     const roomState = room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
     const creation = roomState.getStateEvents("m.room.create", "")
     const isSpace = creation?.getContent()?.type === "m.space"
-    return isSpace && !Resource.hasResource(room)
+    const isActive = !room.tags["m.lowpriority"]
+    return isSpace && isActive && !Resource.hasResource(room)
   }
 
-  createCollection = _ => {
-    Modal.set(<CreateCollection />, "Create Collection")
+  addCollection = _ => {
+    Modal.set(<AddCollection />, "Add New Collection")
   }
 
   render(props, state) {
@@ -103,93 +108,9 @@ export default class SpacesManager extends Component {
         {state.spaces.map(room => <SpaceListing filterToggle={this.filterToggle} filterSet={this.filterSet} oneColumn={props.oneColumn} key={room.roomId} room={room} />)}
       </div>
       <div>
-        <button onclick={this.createCollection} id="create-space">New Collection</button>
+        <button onclick={this.addCollection} id="add-space">Add Collection</button>
       </div>
     </div>
-  }
-}
-
-class CreateCollection extends Component {
-  constructor(props) {
-    super(props)
-    this.state = {
-      querying: false,
-      nameavailable: false
-    }
-  }
-
-  mainForm = createRef()
-
-  collectionNameInput = createRef()
-
-  collectionTopicInput = createRef()
-
-  // DRY duplication with pdfUpload
-  validateName = _ => {
-    clearTimeout(this.namingTimeout)
-    this.setState({querying: true})
-    this.namingTimeout = setTimeout(_ => {
-      Client.client.getRoomIdForAlias(`#${this.toAlias(this.collectionNameInput.current.value)}:${Client.client.getDomain()}`)
-        .then(_ => this.setState({querying: false, nameavailable: false}))
-        .catch(err => {
-          if (this.collectionNameInput.current.value === "") this.setState({querying: false, nameavailable: false})
-          else if (err.errcode === "M_NOT_FOUND") this.setState({querying: false, nameavailable: true})
-          else alert(err)
-        })
-    }, 1000)
-  }
-
-  toAlias(s) {
-    // replace forbidden characters
-    return s.replace(/[\s:]/g, '_')
-  }
-
-  handleSubmit = async e => {
-    e.preventDefault()
-    const theName = this.collectionNameInput.current.value
-    const theAlias = this.toAlias(theName)
-    const theTopic = this.collectionTopicInput.current.value
-    await Client.client.createRoom({
-      room_alias_name: theAlias,
-      visibility: "private",
-      name: theName,
-      topic: theTopic,
-      // We declare the room a space
-      creation_content: { type: "m.space" },
-      initial_state: [
-        // we allow anyone to join, by default, for now
-        {
-          type: "m.room.join_rules",
-          state_key: "",
-          content: {join_rule: "public"}
-        }
-      ]
-    }).catch(err => { alert(err); })
-    Modal.hide()
-  }
-
-  render(_props, state) {
-    return <Fragment>
-      <form ref={this.mainForm} onSubmit={this.handleSubmit} id="create-collection">
-        <label for="name">Collection Name</label>
-        <input name="name" oninput={this.validateName} ref={this.collectionNameInput} />
-        <div class="name-validation-detail">{
-          state.querying
-            ? "querying..."
-            : state.nameavailable
-              ? "name available"
-              : "name unavailable"
-          }
-        </div>
-        <label for="topic" >Collection Topic</label>
-        <textarea name="topic" ref={this.collectionTopicInput} />
-        <div id="create-collection-submit">
-          <button disabled={state.querying || !state.nameavailable} class="styled-button" ref={this.submitButton} type="submit">
-            Create Collection
-          </button>
-        </div>
-      </form>
-    </Fragment>
   }
 }
 
@@ -310,6 +231,8 @@ class SpaceListing extends Component {
 
   handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Leave Room?", `for ${this.props.room.name}`)
 
+  archiveRoom = _ => Modal.set(<ArchiveRoom room={this.props.room} />, "Archive Collection?", `for ${this.props.room.name}`)
+
   roomColor = new RoomColor(this.props.room.name)
 
   render(props, state) {
@@ -329,6 +252,7 @@ class SpaceListing extends Component {
           {isAdmin ? <button class="small-icon" onclick={this.addChild}>{ Icons.newDiscussion }</button> : null}
           {canInvite ? <button class="small-icon" onclick={this.openMembership}>{ Icons.userPlus }</button> : null}
           {isAdmin ? <button class="small-icon" onclick={this.openSettings}>{ Icons.settings }</button> : null}
+          <button class="small-icon" onclick={this.archiveRoom}>{ Icons.archive }</button>
           <button class="small-icon" onclick={this.handleClose}>{ Icons.exit }</button>
         </div>
         : null
