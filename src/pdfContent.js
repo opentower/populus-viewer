@@ -53,7 +53,11 @@ export default class PdfContent extends Component {
       prevProps.pageFocused !== this.props.pageFocused // on page focus changing
     ) {
       if (this.props.pageFocused < 1 || this.props.pageFocused > this.props.resourceLength) this.handleBadPage()
-      else this.updateSavedLocation()
+      else {
+        this.updateSavedLocation()
+        if (this.props.pageFocused > prevProps.pageFocused) this.props.contentContainer.current.scrollTop = 0
+        else if (this.props.pageFocused < prevProps.pageFocused) this.props.contentContainer.current.scrollTop = this.props.contentContainer.current.scrollHeight
+      }
     }
   }
 

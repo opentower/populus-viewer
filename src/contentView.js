@@ -538,6 +538,7 @@ export default class ContentView extends Component {
             searchString={this.state.searchString}
             secondaryFocus={this.state.secondaryFocus}
             setFocus={this.setFocus}
+            contentContainer={this.contentContainer}
             setContentDimensions={this.setContentDimensions}
             setPdfLoadingStatus={this.setLoadingStatus}
             setPdfText={this.setSearchText}

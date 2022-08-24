@@ -81,8 +81,6 @@ export default class DocumentNavbar extends Component {
         `${this.props.roomFocused ? "/" + this.props.roomFocused : ""}` +
         `${this.props.eventFocused ? "/" + this.props.eventFocused : ""}`
       )
-
-      this.props.contentContainer.current.scrollTop = this.props.contentContainer.current.scrollHeight
     }
   }
 
@@ -94,7 +92,6 @@ export default class DocumentNavbar extends Component {
         `${this.props.roomFocused ? "/" + this.props.roomFocused : ""}` +
         `${this.props.eventFocused ? "/" + this.props.eventFocused : ""}`
       )
-      this.props.contentContainer.current.scrollTop = 0
     }
   }
 
