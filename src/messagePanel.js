@@ -73,21 +73,14 @@ export default class MessagePanel extends Component {
   openPendingAnnotation = (theContent, eventInterface) => {
     const theDomain = Client.client.getDomain()
     if (this.props.focus.getStatus() === "pending") {
-      const diff = {
+      const newHighlight = Object.assign({}, this.props.focus.location[populusHighlight], {
         activityStatus: "open",
         rootEventId: eventInterface.event_id,
         rootContent: theContent
-      }
-      const highlightData = this.props.focus.location[mscPdfHighlight]
-      const textData = this.props.focus.location[mscPdfText]
-      const mediaFragmentData = this.props.focus.location[mscMediaFragment]
-      const locationData = {
-        // TODO should also set the content property of the msc highlight with fallback text
-        [populusHighlight]: Object.assign(this.props.focus.location[populusHighlight], diff),
-        ...(highlightData && {[mscPdfHighlight]: highlightData}),
-        ...(textData && {[mscPdfText]: textData}),
-        ...(mediaFragmentData && {[mscMediaFragment]: mediaFragmentData})
-      }
+      })
+      const locationData = Object.assign({}, this.props.focus.location, {
+        [populusHighlight]: newHighlight
+      })
       const newContent = { via: [theDomain], [mscLocation]: locationData }
       Client.client
         .sendStateEvent(this.props.resourceId, spaceChild, newContent, this.props.focus.getChild())
