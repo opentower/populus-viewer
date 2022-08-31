@@ -6,6 +6,7 @@ import * as Replies from './utils/replies.js'
 import { processRegex } from './processRegex.js'
 import Client from './client.js'
 import ToolTip from './utils/tooltip.js'
+import 'emoji-picker-element'
 import * as CommonMark from 'commonmark'
 
 export default class MessageFrame extends Component {
@@ -175,6 +176,8 @@ class ActionsOnOthersMessages extends Component {
 
   actions = createRef()
 
+  picker = createRef()
+
   // necessary to clear component on mobile
   clearCarefully = e => {
     if (e.target === this.actions.current) return
@@ -200,14 +203,15 @@ class ActionsOnOthersMessages extends Component {
 
   selectEmoji = _ => this.setState({ selecting: "emoji" })
 
-  pickEmoji = _ => this.setState({ selecting: "emoji-picker" })
+  pickEmoji = _ => this.setState({ selecting: "emoji-picker" }, 
+    _ => this.picker.current.shadowRoot.querySelector("input").focus())
 
   clearSelecting = _ => this.setState({ selecting: null })
 
   render(props, state) {
     switch (state.selecting) {
       case "emoji-picker" : return <div ref={this.actions} data-active class="message-actions">
-          <emoji-picker onemoji-click={this.handleEmojiClick} />
+          <emoji-picker ref={this.picker} onemoji-click={this.handleEmojiClick} />
           <button key="a" style={{position: "relative", left: "250px"}} onclick={this.clearSelecting}>{Icons.close}</button>
         </div>
       case "emoji" : return <div ref={this.actions} data-active class="message-actions">
