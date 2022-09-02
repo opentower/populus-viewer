@@ -267,12 +267,17 @@ class MessageEditor extends Component {
   constructor(props) {
     super(props)
     this.currentContent = props.event.getContent()
-    if (Replies.isReply(this.currentContent)) {
-      this.setState({ value: Replies.stripFallbackPlainString(this.currentContent.body) })
-    } else this.setState({ value: this.currentContent.body })
+    this.state = {
+      value: Replies.isReply(this.currentContent) 
+        ? Replies.stripFallbackPlainString(this.currentContent.body)
+        : this.currentContent.body
+    }
   }
 
   componentDidMount() {
+    //We need to toggle these to get everything computed so that the second resize works
+    this.input.current.style.height = 'auto';
+    this.input.current.style.height = `${this.input.current.scrollHeight}px`;
     this.resize()
   }
 
