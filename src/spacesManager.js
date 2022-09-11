@@ -12,6 +12,7 @@ import LeaveRoom from './leaveRoom.js'
 import ArchiveRoom from './archiveRoom.js'
 import AddCollection from './addCollection.js'
 import RoomIcon from './roomIcon.js'
+import ToolTip from './utils/tooltip.js'
 import { RoomIconPlaceholder } from './roomIcon.js'
 import * as Icons from './icons.js'
 import { RoomColor } from './utils/colors.js'
@@ -249,11 +250,30 @@ class SpaceListing extends Component {
       </h3>
       { state.actionsVisible
         ? <div class="space-listing-actions">
-          {isAdmin ? <button class="small-icon" onclick={this.addChild}>{ Icons.newDiscussion }</button> : null}
-          {canInvite ? <button class="small-icon" onclick={this.openMembership}>{ Icons.userPlus }</button> : null}
-          {isAdmin ? <button class="small-icon" onclick={this.openSettings}>{ Icons.settings }</button> : null}
-          <button class="small-icon" onclick={this.archiveRoom}>{ Icons.archive }</button>
-          <button class="small-icon" onclick={this.handleClose}>{ Icons.exit }</button>
+          {isAdmin 
+            ? <ToolTip content="Add new discussion">
+              <button class="small-icon" onclick={this.addChild}>{ Icons.newDiscussion }</button> 
+            </ToolTip>
+            : null
+          }
+          {canInvite 
+            ? <ToolTip content="Manage membership">
+              <button class="small-icon" onclick={this.openMembership}>{ Icons.userPlus }</button> 
+            </ToolTip>
+            : null
+          }
+          {isAdmin 
+              ? <ToolTip content="Configure settings">
+                <button class="small-icon" onclick={this.openSettings}>{ Icons.settings }</button> 
+              </ToolTip>
+              : null
+          }
+          <ToolTip content="Hide and archive">
+            <button class="small-icon" onclick={this.archiveRoom}>{ Icons.archive }</button>
+          </ToolTip>
+          <ToolTip content="Leave collection">
+            <button class="small-icon" onclick={this.handleClose}>{ Icons.exit }</button>
+          </ToolTip>
         </div>
         : null
       }
