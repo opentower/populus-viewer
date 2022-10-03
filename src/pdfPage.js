@@ -17,7 +17,6 @@ export default class PdfPage extends Component {
     // single source of truth for PDF scale, pdfcanvas w/h are pdf dimensions (in userspace units) times scale
   }
 
-
   textLayer = createRef()
 
   annotationLayer = createRef()

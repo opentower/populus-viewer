@@ -8,6 +8,7 @@ import * as Matrix from "matrix-js-sdk"
 import WaveSurfer from 'wavesurfer.js'
 import ToolTip from "./utils/tooltip.js"
 import { UserColor } from "./utils/colors.js"
+import { loadImageElement, blurhashFromFile } from "./utils/media.js"
 import { formatBytes , mulberry32, hashString } from './utils/math.js'
 import * as Icons from './icons.js'
 import Client from './client.js'
@@ -37,6 +38,8 @@ export default class FileUpload extends Component {
 
   roomTopicInput = createRef()
 
+  avatarImageInput = createRef()
+
   submitButton = createRef()
 
   uploadPreview = createRef()
@@ -61,6 +64,17 @@ export default class FileUpload extends Component {
   }
 
   handleToggle = _ => this.setState(oldState => { return { details: !oldState.details } })
+
+  uploadAvatar = _ => this.avatarImageInput.current.click()
+
+  removeAvatar = _ => this.setState({ previewUrl: null })
+
+  updatePreview = _ => {
+    this.avatarImage = this.avatarImageInput.current.files[0]
+    if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
+      this.setState({previewUrl: URL.createObjectURL(this.avatarImage) })
+    }
+  }
 
   aliasInputHandler = e => {
     e.stopPropagation()
@@ -171,6 +185,24 @@ export default class FileUpload extends Component {
     }).catch(alert)
     // make sure we've got the room before returning to the main view
     await Client.client.getRoomWithState(room_id)
+    if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
+      const {width, height} = await loadImageElement(this.avatarImage)
+      this.setState({progress: "generating blurhash..."})
+      const blurhash = await blurhashFromFile(this.avatarImage)
+      await Client.client.uploadContent(this.avatarImage, { progressHandler: this.progressHandler })
+        .then(e => Client.client
+          .sendStateEvent(room_id, Matrix.EventType.RoomAvatar, {
+            info: {
+              w: width,
+              h: height,
+              mimetype: this.avatarImage.type ? this.avatarImage.type : "application/octet-stream",
+              size: this.avatarImage.size,
+              blurhash
+            },
+            url: e
+          }, "")
+        )
+    } 
     this.mainForm.current.reset()
     this.props.showMainView()
   }
@@ -227,6 +259,16 @@ export default class FileUpload extends Component {
             }
           </div>
         }
+        <label class="top-aligned-label" for="topic">Room Avatar</label>
+        <div id="file-upload-avatar-wrapper">
+          {state.previewUrl
+            ? <img onclick={this.uploadAvatar} id="file-upload-avatar-selector" src={state.previewUrl} />
+            : <div key="file-upload-avatar-selector" onclick={this.uploadAvatar} id="file-upload-avatar-selector" />}
+          {state.previewUrl ? <button id="file-upload-change-avatar" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
+          {!state.previewUrl ? <button id="file-upload-change-avatar" type="button" onclick={this.uploadAvatar}>Add Avatar</button> : null}
+        </div>
+        <input name="room-avatar" id="file-upload-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
+        <div class="file-upload-form-detail">Add an image to display with this discussion</div>
         <label class="top-aligned-label" for="topic">Topic of Discussion</label>
         <textarea
           class="styled-input"

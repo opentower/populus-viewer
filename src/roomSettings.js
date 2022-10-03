@@ -116,8 +116,6 @@ export default class RoomSettings extends Component {
 
   handleKeydown = e => e.stopPropagation() // don't go to global keypress handler
 
-  handleUploadAvatar = _ => this.avatarImageInput.current.click()
-
   handleDiscoveryChange = e => this.setState({ discovery: e.target.value })
 
   progressHandler = (progress) => this.setState({progress})
@@ -280,7 +278,7 @@ export default class RoomSettings extends Component {
             ? <Fragment>
               <div id="room-settings-avatar-wrapper">
                 {state.previewUrl
-                  ? <img onclick={this.mayChangeAvatar && this.handleUploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
+                  ? <img onclick={this.mayChangeAvatar && this.uploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
                   : <div key="room-settings-avatar-selector" onclick={this.mayChangeAvatar && this.uploadAvatar} id="room-settings-avatar-selector" />}
                 {state.previewUrl && this.mayChangeAvatar ? <button id="room-settings-change-avatar" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
                 {!state.previewUrl && this.mayChangeAvatar ? <button id="room-settings-change-avatar" type="button" onclick={this.uploadAvatar}>Add Avatar</button> : null}

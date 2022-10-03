@@ -152,6 +152,45 @@
   padding-right: 5px;
 }
 
+#file-upload-avatar-wrapper {
+  position:relative;
+}
+
+#file-upload-avatar-selector {
+    cursor: pointer;
+    display:block;
+    height:180px;
+    max-height:180px;
+    width:100%;
+    object-fit:cover;
+    border-radius:10px;
+    margin:auto;
+    margin-bottom:10px;
+}
+
+#file-upload-change-avatar {
+  position: absolute;
+  bottom:20px;
+  right:10px;
+  border:none;
+  background:rgba(255,255,255,.5);
+  border-radius:5px;
+  transition:background .25s ease;
+  cursor: pointer;
+}
+
+#file-upload-change-avatar:hover {
+  background:rgba(255,255,255,.8);
+}
+
+div#file-upload-avatar-selector {
+    background : #ababab;
+}
+
+#file-upload-selector-hidden {
+    display:none;
+}
+
 @media only screen and (max-width: 600px) {
     #file-upload-form,
     .file-upload-details-wrapper {
