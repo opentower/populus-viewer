@@ -1,0 +1,39 @@
+#select-avatar-wrapper {
+  position:relative;
+}
+
+#select-avatar-selector {
+    cursor: pointer;
+    display:block;
+    height:180px;
+    max-height:180px;
+    width:100%;
+    object-fit:cover;
+    border-radius:10px;
+    margin:auto;
+    margin-bottom:10px;
+}
+
+#select-avatar-change-avatar {
+  position: absolute;
+  bottom:20px;
+  right:10px;
+  border:none;
+  background:rgba(255,255,255,.5);
+  border-radius:5px;
+  transition:background .25s ease;
+  cursor: pointer;
+}
+
+#select-avatar-change-avatar:hover {
+  background:rgba(255,255,255,.8);
+}
+
+div#select-avatar-selector {
+    background : #ababab;
+}
+
+#select-avatar-selector-hidden {
+    display:none;
+}
+

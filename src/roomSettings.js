@@ -1,12 +1,12 @@
 import { h, Component, createRef, Fragment } from 'preact';
 import Client from './client.js'
 import * as Matrix from "matrix-js-sdk"
-import { loadImageElement, blurhashFromFile } from "./utils/media.js"
 import Location from './utils/location.js'
 import Resource from './utils/resource.js'
 import * as Icons from './icons.js'
 import * as PopupMenu from './popUpMenu.js'
 import Modal from './modal.js'
+import AvatarSelector from './avatarSelector.js'
 import { mscLocation, spaceParent, spaceChild } from './constants.js';
 import "./styles/roomSettings.css"
 
@@ -74,7 +74,7 @@ export default class RoomSettings extends Component {
 
   settingsForm = createRef()
 
-  avatarImageInput = createRef()
+  avatarSelector = createRef()
 
   roomTopicTextarea = createRef()
 
@@ -119,6 +119,8 @@ export default class RoomSettings extends Component {
   handleDiscoveryChange = e => this.setState({ discovery: e.target.value })
 
   progressHandler = (progress) => this.setState({progress})
+
+  avatarUpdateHandler = () => this.setState({avatarUpdated: true})
 
   roleToPowerLevel = role => role === "admin" ? 100
       : role === "mod" ? 50
@@ -171,37 +173,12 @@ export default class RoomSettings extends Component {
       await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomPowerLevels, this.powerLevels).catch(this.raiseErr)
     }
 
-    if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
-      const {width, height} = await loadImageElement(this.avatarImage)
-      this.setState({progress: "generating blurhash..."})
-      const blurhash = await blurhashFromFile(this.avatarImage)
-      await Client.client.uploadContent(this.avatarImage, { progressHandler: this.progressHandler })
-        .then(e => Client.client
-          .sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomAvatar, {
-            info: {
-              w: width,
-              h: height,
-              mimetype: this.avatarImage.type ? this.avatarImage.type : "application/octet-stream",
-              size: this.avatarImage.size,
-              blurhash
-            },
-            url: e
-          }, "")
-        )
-    } else if (!this.state.previewUrl) {
-      Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomAvatar, {}, "")
-    }
+    await this.avatarSelector.current.uploadAvatar()
+
     Modal.hide()
   }
 
   raiseErr = _ => alert("Something went wrong. You may not have permission to adjust some of these settings.")
-
-  updatePreview = _ => {
-    this.avatarImage = this.avatarImageInput.current.files[0]
-    if (this.avatarImage && /^image/.test(this.avatarImage.type)) {
-      this.setState({previewUrl: URL.createObjectURL(this.avatarImage) })
-    }
-  }
 
   publishReferences() {
     const theDomain = Client.client.getDomain()
@@ -239,10 +216,6 @@ export default class RoomSettings extends Component {
 
   showPermissions = _ => this.setState({view: "PERMISSIONS"})
 
-  uploadAvatar = _ => this.avatarImageInput.current.click()
-
-  removeAvatar = _ => this.setState({ previewUrl: null })
-
   setPowerLevelRole = (s,role) => this.setState({[s]:role})
 
   setUsers = users => this.setState({users})
@@ -260,7 +233,7 @@ export default class RoomSettings extends Component {
       this.state.roomTopic !== this.initialRoomTopic                ||
       this.state.readability !== this.initialReadability            ||
       this.state.spaceVisibility !== this.initialSpaceVisibility    ||
-      this.avatarImage && /^image/.test(this.avatarImage.type)
+      this.state.avatarUpdated
 
     return <Fragment>
       <div id="room-settings-select-view" class="select-view">
@@ -276,14 +249,13 @@ export default class RoomSettings extends Component {
           id="room-settings-form">
           {state.view === "APPEARANCE"
             ? <Fragment>
-              <div id="room-settings-avatar-wrapper">
-                {state.previewUrl
-                  ? <img onclick={this.mayChangeAvatar && this.uploadAvatar} id="room-settings-avatar-selector" src={state.previewUrl} />
-                  : <div key="room-settings-avatar-selector" onclick={this.mayChangeAvatar && this.uploadAvatar} id="room-settings-avatar-selector" />}
-                {state.previewUrl && this.mayChangeAvatar ? <button id="room-settings-change-avatar" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
-                {!state.previewUrl && this.mayChangeAvatar ? <button id="room-settings-change-avatar" type="button" onclick={this.uploadAvatar}>Add Avatar</button> : null}
-              </div>
-              <input name="room-avatar" id="room-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
+              <AvatarSelector 
+                ref={this.avatarSelector}
+                previewUrl={state.previewUrl} 
+                room={props.room}
+                progressHandler={this.progressHandler}
+                handleUpdate={this.avatarUpdateHandler}
+              />
               <div class="room-settings-info" />
               <label htmlFor="room-name">Room Name</label>
               <input name="room-name"
