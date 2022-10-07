@@ -1,0 +1,122 @@
+.message-frame {
+    position:relative;
+    display: grid;
+    width:100%;
+    justify-items: left;
+    grid-template-areas: "ident content";
+    grid-template-columns: fit-content(10%) auto;
+    transition: background-color .2s ease;
+}
+
+.message-from-user {
+    grid-template-columns: auto fit-content(10%);
+    grid-template-areas: "content ident";
+    text-align:right;
+    flex-direction:row-reverse;
+}
+
+.message-decoration {
+    position:relative;
+    grid-area: ident;
+    width:0px;
+    padding-top:10px;
+    padding-bottom:10px;
+    padding-left:12px;
+    margin-right:20px;
+    border-right: 5px solid var(--user_light);
+    background: var(--content-background);
+}
+
+.message-from-user > .message-decoration {
+    padding-left:0px;
+    margin-right:0px;
+    padding-right:12px;
+    margin-left:15px;
+    border-right: none;
+    border-left: 5px solid var(--user_light);
+}
+
+.message-actions {
+    width:calc(var(--widget-1-width) - 25px);
+    padding:5px;
+    visibility:hidden;
+    position:absolute;
+    text-align:right;
+    top:-38px;
+}
+
+.message-actions > button {
+    cursor: pointer;
+    margin:0px;
+    margin-left:5px;
+    border:2px solid var(--user_light);
+    padding-left:4px;
+    padding-right:4px;
+    background:var(--content-background);
+    min-height:30px;
+    vertical-align:bottom;
+}
+
+.message-actions > button:hover {
+    background-color: var(--user_light);
+}
+
+.message-actions > button > svg {
+  height:16px;
+  width:16px;
+}
+
+.message-actions > button:first-child {
+    margin-left:0px;
+}
+
+.message-actions > button:last-child {
+    margin-right:0px;
+}
+
+.message-actions > emoji-picker {
+  position:absolute;
+  bottom: 0px;
+  right:0px;
+  --num-columns: 6;
+  width:250px;
+}
+
+.message-from-user .message-actions {
+    left:unset;
+    right: 14px;
+    text-align:left;
+}
+
+.message-frame .message-actions[data-active],
+.message-frame:hover .message-actions  {
+    visibility:visible;
+}
+
+/* status vanishes on sent. We probably want a warning for a "not_sent" status,
+ * whuch means that sending has failed */
+.message-frame[data-event-status] {
+    color:var(--content-text-dimmed);
+}
+
+.message-frame .message-frame-status {
+  position: absolute;
+  right: 25px;
+  bottom: 5px;
+  width:300px;
+  font-size:10pt;
+  color:var(--content-text-dimmed);
+}
+
+.message-frame .message-frame-status a {
+  text-decoration:underline;
+  cursor:pointer;
+}
+
+.message-frame:hover {
+    background-color: var(--user_ultralight);
+}
+
+.message-from-user .message-body  {
+    padding-left:15px;
+}

@@ -8,6 +8,7 @@ import Client from './client.js'
 import ToolTip from './utils/tooltip.js'
 import 'emoji-picker-element'
 import * as CommonMark from 'commonmark'
+import './styles/messageFrame.css'
 
 export default class MessageFrame extends Component {
   constructor(props) {
