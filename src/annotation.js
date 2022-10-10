@@ -83,7 +83,7 @@ export default class AnnotationLayer extends Component {
         const annotationId = loc.getChild()
         const rightSide = this.props.fixedSide 
           ? this.props.fixedSide === "right"
-          : loc.getChild().charCodeAt(1) % 2 === 1
+          : null 
         switch (loc.getType()) {
           case 'text': return <Pindrop
             key={loc.event.getId()}
@@ -178,6 +178,21 @@ class Pindrop extends Component {
 }
 
 class Highlight extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {rightSide: this.calculateSide(props)}
+  }
+
+  calculateSide(props) {
+      if (props.pdfWidthAdjustedPx > this.boundingRect.width * 2) {
+        const rightMargin = props.pdfWidthAdjustedPx - (this.boundingRect.width + this.boundingRect.x)
+        if (rightMargin < this.boundingRect.x) return true
+        else return false
+      } else {
+        return props.location.getChild().charCodeAt(1) % 2 === 1
+      }
+  }
+
   shouldComponentUpdate(nextProps) {
     if (nextProps.pdfWidthAdjustedPx === 0) return false
     if (nextProps.pdfHeightAdjustedPx === this.props.pdfHeightAdjustedPx) return
@@ -191,11 +206,7 @@ class Highlight extends Component {
       this.clientRects = this.props.location.getQuadPoints().map(qp =>
         QuadPoints.fromQuadArray(qp).toDOMRectInHeight(nextProps.pdfHeightAdjustedPx)
       )
-      if (nextProps.pdfWidthAdjustedPx > this.boundingRect.width * 2) {
-        const rightMargin = nextProps.pdfWidthAdjustedPx - (this.boundingRect.width + this.boundingRect.x)
-        if (rightMargin < this.boundingRect.x) this.rightSide = true
-        if (rightMargin > this.boundingRect.x) this.rightSide = false
-      }
+      this.setState({rightSide: this.calculateSide(nextProps)})
     }
   }
 
@@ -216,7 +227,7 @@ class Highlight extends Component {
 
   userColor = new UserColor(this.props.location.getCreator())
 
-  render(props) {
+  render(props, state) {
     if (!this.props.pdfWidthAdjustedPx) return null
     const spans = this.clientRects.map(
       rect => <RectSpan
@@ -235,7 +246,7 @@ class Highlight extends Component {
       id={this.roomId}>
       <BarTab
         pdfWidthAdjustedPx={props.pdfWidthAdjustedPx}
-        rightSide={props.rightSide}
+        rightSide={props.rightSide ?? state.rightSide}
         gutterDepth={props.gutterDepth}
         rect={this.boundingRect}
         zoomFactor={props.zoomFactor}
