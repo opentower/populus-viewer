@@ -438,7 +438,14 @@ class Anchor extends Component {
     return <div ref={this.scrollAnchorDiv} id={props.fullyScrolled ? null : "scroll-anchor"}>
       {props.fullyScrolled
         ? props.children
-        : "loading..."
+        : <svg width="350px" height="80px" viewBox="0 0 350 80">
+          <rect x="0" y="1" width="120" height="20" ry="10" rx="10"/>
+          <rect x="130" y="1" width="180" height="20" ry="10" rx="10"/>
+          <rect x="0" y="30" width="180" height="20" ry="10" rx="10"/>
+          <rect x="190" y="30" width="120" height="20" ry="10" rx="10"/>
+          <rect x="0" y="60" width="50" height="20" ry="10" rx="10"/>
+          <rect x="60" y="60" width="150" height="20" ry="10" rx="10"/>
+        </svg>
       } 
     </div>
   }

@@ -27,8 +27,11 @@
     font-weight:bold;
 }
 
+#scroll-anchor svg * {
+  fill:var(--low-contrast-background);
+}
+
 #anchor-chat-flags svg {
-  color:var(--content-text-dimmed);
   opacity:0;
 }
 
