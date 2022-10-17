@@ -9,7 +9,6 @@ import WaveSurfer from 'wavesurfer.js'
 import ToolTip from "./utils/tooltip.js"
 import AvatarSelector from "./avatarSelector.js"
 import { UserColor } from "./utils/colors.js"
-import { loadImageElement, blurhashFromFile } from "./utils/media.js"
 import { formatBytes , mulberry32, hashString } from './utils/math.js'
 import * as Icons from './icons.js'
 import Client from './client.js'
@@ -196,7 +195,7 @@ export default class FileUpload extends Component {
         <div id="file-upload-chooser"> {state.fileValid 
             ? <Fragment>
               <span>{this.fileLoader.current.files[0].name}</span>
-              <button onclick={this.clearFile} class="small-icon">{Icons.close}</button>
+              <button type="button" onclick={this.clearFile} class="small-icon">{Icons.close}</button>
             </Fragment>
             : <button type="button" class="styled-button" onclick={this.chooseFile}>Click to Choose a File</button>
           }
