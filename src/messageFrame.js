@@ -207,11 +207,13 @@ class ActionsOnOthersMessages extends Component {
   pickEmoji = _ => this.setState({ selecting: "emoji-picker" }, 
     _ => this.picker.current.shadowRoot.querySelector("input").focus())
 
+  handleEmojiKeydown = e => e.stopPropagation() 
+
   clearSelecting = _ => this.setState({ selecting: null })
 
   render(props, state) {
     switch (state.selecting) {
-      case "emoji-picker" : return <div ref={this.actions} data-active class="message-actions">
+      case "emoji-picker" : return <div ref={this.actions} onKeydown={this.handleEmojiKeydown} data-active class="message-actions">
           <emoji-picker ref={this.picker} onemoji-click={this.handleEmojiClick} />
           <button key="a" style={{position: "relative", left: "250px"}} onclick={this.clearSelecting}>{Icons.close}</button>
         </div>
