@@ -9,6 +9,7 @@ import * as Icons from './icons.js'
 
 async function discoverServer(domain) {
   const clientConfig = await Matrix.AutoDiscovery.findClientConfig(domain)
+  if (clientConfig["m.homeserver"].state !== "SUCCESS") throw Error("failed autodiscovery")
   localStorage.setItem("baseUrl", clientConfig["m.homeserver"].base_url)
 }
 
@@ -120,10 +121,6 @@ class Login extends Component {
   }
 
   queryServers = _ => {
-    this.setState({
-      SSOProviders: [],
-      loading: "loading"
-    })
     // we spawn a control token here to be sure to only mark things as failed
     // if there's not another query already going
     const flowControlToken = {}
@@ -166,12 +163,19 @@ class Login extends Component {
   setServer = v => {
     clearTimeout(this.serverTimeout)
     if (v.match(/[^/]*\.[^/]*/) || v === "") {
+      this.setState({
+        SSOProviders: [],
+        loading: "loading"
+      })
       this.props.setServer(v, _ => {
-        this.serverTimeout = setTimeout( this.queryServers), 200
+        this.serverTimeout = setTimeout(this.queryServers, 200)
       })
     } else {
       this.props.setServer(v)
-      this.setState({loading: v.length > 0 ? "badurl" : null})
+      this.setState({
+        SSOProviders: [],
+        loading: v.length > 0 ? "badurl" : null
+      })
     }
   }
 
