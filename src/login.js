@@ -7,6 +7,11 @@ import Toast from './toast.js'
 import * as Matrix from 'matrix-js-sdk'
 import * as Icons from './icons.js'
 
+async function discoverServer(domain) {
+  const clientConfig = await Matrix.AutoDiscovery.findClientConfig(domain)
+  localStorage.setItem("baseUrl", clientConfig["m.homeserver"].base_url)
+}
+
 export default class LoginView extends Component {
   constructor(props) {
     super(props)
@@ -63,7 +68,7 @@ export default class LoginView extends Component {
   }
 }
 
-function BackgroundDecorations(props) {
+function BackgroundDecorations() {
   clearTimeout(this.debounceLockTimeout)
   this.debounceLockTimeout = setTimeout(_ => this.debounceLock = false, 500)
   if (this.debounceLock) return this.memo
@@ -103,7 +108,7 @@ class Login extends Component {
   handleSubmit = e => {
     e.preventDefault()
     this.setState({submitting: true})
-    if (this.props.server) localStorage.setItem("baseUrl", `https://${this.props.server}`)
+    if (this.props.server) discoverServer(this.props.server)
     else localStorage.setItem("baseUrl", serverRoot)
     Client.initClient()
       .then(client => client.loginWithPassword(this.props.name.toLowerCase(), this.props.password))
@@ -115,8 +120,6 @@ class Login extends Component {
   }
 
   queryServers = _ => {
-    if (this.props.server) localStorage.setItem("baseUrl", `https://${this.props.server}`)
-    else localStorage.setItem("baseUrl", serverRoot)
     this.setState({
       SSOProviders: [],
       loading: "loading"
@@ -124,13 +127,17 @@ class Login extends Component {
     // we spawn a control token here to be sure to only mark things as failed
     // if there's not another query already going
     const flowControlToken = {}
-    this.flowControl = flowControlToken
-    Client.initClient()
-      .then(client => client.loginFlows())
-      .then(this.handleFlows)
-      .catch(_ => this.flowControl === flowControlToken 
-        ? this.setState({ loading: "failed"}) 
-        : null)
+    this.flowControl = flowControlToken;
+
+    (this.props.server 
+        ? discoverServer(this.props.server)
+        : Promise.resolve(localStorage.setItem("baseUrl", serverRoot))
+    ).then(_ => Client.initClient())
+     .then(client => client.loginFlows())
+     .then(this.handleFlows)
+     .catch(_ => this.flowControl === flowControlToken 
+       ? this.setState({ loading: "failed"}) 
+       : null)
   }
 
   handleFlows = flows => {
@@ -144,6 +151,7 @@ class Login extends Component {
       SSOProviders: theSSO.identity_providers
     })
   }
+
 
   trySSO = (idpId, server, e) => {
     e?.preventDefault()
@@ -250,14 +258,15 @@ class Registration extends Component {
   beginRegistrationFlow = async e => {
     e.preventDefault()
     this.setState({ registrationStage: "retrieving-auth" })
-    if (this.props.server) this.server = `https://${this.props.server}`
-    else this.server = serverRoot
-    localStorage.setItem("baseUrl", this.server)
+    if (this.props.server) await discoverServer(this.props.server)
+    else localStorage.setItem("baseUrl", serverRoot)
+
     await Client.initClient()
     try {
       await Client.client.register(this.props.name.toLowerCase(), this.props.password, undefined, {})
     } catch (err) {
       if (err.data?.session && err.data.params["m.login.recaptcha"]) {
+        console.log(err.data)
         this.authSession = err.data.session
         this.recaptchaKey = err.data.params["m.login.recaptcha"].public_key
         this.setState({ registrationStage: "awaiting-recaptcha" })
@@ -267,7 +276,7 @@ class Registration extends Component {
           case "ConnectionError" : {
             Toast.set(<Fragment>
               <h3 id="toast-header">Can't connect</h3>
-              <div><p>Tried to connect to a server at {this.server}</p><p> Double-check that address?</p></div>
+              <div><p>Tried to connect to a server at {Client.client.getHomeserverUrl()}</p><p> Double-check that address?</p></div>
               </Fragment>
             )
             break
@@ -275,7 +284,7 @@ class Registration extends Component {
           case "M_USER_IN_USE" : {
             Toast.set(<Fragment>
               <h3 id="toast-header">Can't register</h3>
-              <div><p>Sorry, the name <code>{this.props.name}</code> is already in use at <code>{this.server}</code></p><p> Try a different name or server?</p></div>
+              <div><p>Sorry, the name <code>{this.props.name}</code> is already in use at <code>{Client.client.getHomeserverUrl()}</code></p><p> Try a different name or server?</p></div>
               </Fragment>
             )
             this.props.setName("")
