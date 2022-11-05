@@ -8,7 +8,12 @@ import * as Matrix from 'matrix-js-sdk'
 import * as Icons from './icons.js'
 
 async function discoverServer(domain) {
-  const clientConfig = await Matrix.AutoDiscovery.findClientConfig(domain)
+  let clientConfig = await Matrix.AutoDiscovery.findClientConfig(domain)
+  if (clientConfig["m.homeserver"].state !== "SUCCESS") {
+      if (!domain.includes("://")) domain = "https://" + domain
+      console.log(domain)
+      clientConfig = await Matrix.AutoDiscovery.fromDiscoveryConfig({"m.homeserver": { "base_url" : domain }})
+  }
   if (clientConfig["m.homeserver"].state !== "SUCCESS") throw Error("failed autodiscovery")
   localStorage.setItem("baseUrl", clientConfig["m.homeserver"].base_url)
 }
