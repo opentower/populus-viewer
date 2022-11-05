@@ -55,7 +55,7 @@ export default class AvatarSelector extends Component {
   }
 
   render(props, state) {
-      return <div id="select-avatar-wrapper">
+    return <div id="select-avatar-wrapper">
         {state.previewUrl
           ? <img onclick={this.chooseAvatar} id="select-avatar-selector" src={state.previewUrl} />
           : <div key="select-avatar-selector" onclick={this.chooseAvatar} id="select-avatar-selector" />}

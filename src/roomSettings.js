@@ -41,12 +41,13 @@ export default class RoomSettings extends Component {
     this.joinLink = `${window.location.protocol}//${window.location.hostname}${window.location.pathname}` +
       `?join=${encodeURIComponent(props.room.roomId)}&via=${Client.client.getDomain()}`
     this.powerLevels = this.roomState.getStateEvents(Matrix.EventType.RoomPowerLevels, "")?.getContent()
+
     // TODO: add a warning for the case where the powerLevels event is missing
 
     this.member = props.room.getMember(Client.client.getUserId())
 
     this.state = {
-      previewUrl: props.room.getAvatarUrl(`https://${Client.client.getDomain()}`, 400, 400, "crop"),
+      previewUrl: props.room.getAvatarUrl(Client.client.getHomeserverUrl(), 400, 400, "crop"),
       joinRule: this.initialJoinRule,
       roomName: this.initialRoomName,
       readability: this.initialReadability,
