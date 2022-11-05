@@ -19,6 +19,7 @@ export default class AvatarSelector extends Component {
 
   removeAvatar = _ => {
     this.setState({ previewUrl: null })
+    delete this.avatarImage
     this.props.handleUpdate?.()
   }
 
@@ -49,7 +50,7 @@ export default class AvatarSelector extends Component {
             url: e
           }, "")
         )
-    } else if (this.state.previewUrl === null) { // null indicates deleted here
+    } else if (this.state.previewUrl === null && this.props.room) { // null indicates deleted here
       await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomAvatar, {}, "")
     }
   }
