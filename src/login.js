@@ -113,16 +113,18 @@ class Login extends Component {
 
   handleSubmit = e => {
     e.preventDefault()
-    this.setState({submitting: true})
-    if (this.props.server) discoverServer(this.props.server)
-    else localStorage.setItem("baseUrl", serverRoot)
-    Client.initClient()
-      .then(client => client.loginWithPassword(this.props.name.toLowerCase(), this.props.password))
-      .then(this.props.loginHandler)
-      .catch(e => {
-        this.setState({submitting: false})
-        window.alert(e)
-      })
+    this.setState({submitting: true});
+
+    (this.props.server 
+        ? discoverServer(this.props.server)
+        : Promise.resolve(localStorage.setItem("baseUrl", serverRoot))
+    ).then(() => Client.initClient())
+     .then(client => client.loginWithPassword(this.props.name.toLowerCase(), this.props.password))
+     .then(this.props.loginHandler)
+     .catch(e => {
+       this.setState({submitting: false})
+       window.alert(e)
+     })
   }
 
   queryServers = _ => {
@@ -134,10 +136,10 @@ class Login extends Component {
     (this.props.server 
         ? discoverServer(this.props.server)
         : Promise.resolve(localStorage.setItem("baseUrl", serverRoot))
-    ).then(_ => Client.initClient())
+    ).then(() => Client.initClient())
      .then(client => client.loginFlows())
      .then(this.handleFlows)
-     .catch(_ => this.flowControl === flowControlToken 
+     .catch(() => this.flowControl === flowControlToken 
        ? this.setState({ loading: "failed"}) 
        : null)
   }
@@ -156,13 +158,11 @@ class Login extends Component {
 
 
   trySSO = (idpId, server, e) => {
-    e?.preventDefault()
-    if (server) localStorage.setItem("baseUrl", `https://${server}`)
-    Client.client
-      ? window.location.replace(Client.client.getSsoLoginUrl(window.location.href, "sso", idpId))
-      : Client.initClient().then(client => {
-        window.location.replace(client.getSsoLoginUrl(window.location.href, "sso", idpId))
-      })
+    e?.preventDefault();
+
+    (server ? discoverServer(server) : Promise.resolve(null))
+      .then(() => Client.client || Client.initClient())
+      .then(client => window.location.replace(client.getSsoLoginUrl(window.location.href, "sso", idpId)))
   }
 
   setServer = v => {
