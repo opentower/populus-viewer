@@ -7,7 +7,6 @@ import { spaceChild, mscMarkupMsgKey } from "./constants.js"
 import Client from './client.js'
 import MemberPill from './memberPill.js'
 import { UserColor } from './utils/colors.js'
-import { toClockTime } from './utils/temporal.js'
 import SearchBar from './search.js'
 import { DisplayContent } from './message.js'
 import LocationPreview from './locationPreview.js'
