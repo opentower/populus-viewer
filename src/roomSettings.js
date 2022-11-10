@@ -6,6 +6,7 @@ import Resource from './utils/resource.js'
 import * as Icons from './icons.js'
 import * as PopupMenu from './popUpMenu.js'
 import Modal from './modal.js'
+import CopyButton from './utils/copyButton.js'
 import AvatarSelector from './avatarSelector.js'
 import { mscLocation, spaceParent, spaceChild } from './constants.js';
 import "./styles/roomSettings.css"
@@ -336,7 +337,10 @@ export default class RoomSettings extends Component {
             </Fragment>
             : state.view === "LINKS" ? <Fragment>
                 <label>Join Link</label>
-                <pre id="room-settings-join-link">{this.joinLink}</pre>
+                <div class="room-settings-link-group">
+                  <pre id="room-settings-join-link">{this.joinLink} </pre>
+                  <CopyButton copy={this.joinLink}/>
+                </div>
                 <div class="room-settings-info">
                   Clicking this link will cause an attempt to join this room
                 </div>

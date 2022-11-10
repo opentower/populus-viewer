@@ -109,8 +109,14 @@
   margin-right:10px;
 }
 
-#room-settings-join-link {
+.room-settings-link-group {
   grid-column: 2/3;
+  display:grid;
+  grid-template-columns: 1fr 31px;
+  align-items:center;
+}
+
+#room-settings-join-link {
   font-size:10pt;
   overflow-x:auto;
   user-select:all;
@@ -159,7 +165,8 @@ html[data-scrollbars="hidden"] #room-settings-join-link::-webkit-scrollbar { dis
   #room-settings-submit-wrapper,
   #room-settings-avatar-wrapper,
   #room-settings-progress,
-  #room-settings-join-link {
+  #room-settings-progress,
+  .room-settings-link-group {
     grid-column: 1/2;
   }
 }

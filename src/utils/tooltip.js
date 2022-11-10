@@ -20,6 +20,14 @@ export default class ToolTip extends Component {
     if (prev.content !== this.props.content) this.tippy.setProps(this.props) 
   }
 
+  show() {
+    this.tippy.show()
+  }
+
+  hide() {
+    this.tippy.show()
+  }
+
   render(props) {
     return props.children
   }
