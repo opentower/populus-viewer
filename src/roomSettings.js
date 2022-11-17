@@ -37,6 +37,9 @@ export default class RoomSettings extends Component {
       this.mayChangeSpaceVisibility = this.resourceState.maySendStateEvent(spaceChild, Client.client.getUserId())
     }
 
+    this.restrictedAvailable = !["1","2","3","4","5","6","7"].includes(props.room.getVersion()) && 
+      this.resourceState?.getStateEvents(spaceChild, props.room.roomId)?.getContent()
+
     this.mayChangeReadability = this.roomState.maySendStateEvent(Matrix.EventType.RoomHistoryVisibility, Client.client.getUserId())
 
     this.joinLink = `${window.location.protocol}//${window.location.hostname}${window.location.pathname}` +
@@ -68,7 +71,10 @@ export default class RoomSettings extends Component {
     this.roomTopicTextarea.current.style.height = `${this.roomTopicTextarea.current.scrollHeight}px`;
   }
 
-  componentWillUnmount() { this.resizeObserver.disconnect() }
+  componentWillUnmount() { 
+    this.resizeObserver.disconnect() 
+    clearTimeout(this.allowOverflow)
+  }
 
   resizeObserver = new ResizeObserver(_ => this.resize())
 
@@ -155,7 +161,14 @@ export default class RoomSettings extends Component {
     this.setState({progress: "updating settings..."})
     this.forceUpdate()
     if (this.state.discovery !== this.initialDiscovery) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.discovery).catch(this.raiseErr)
-    if (this.state.joinRule !== this.initialJoinRule) await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomJoinRules, {join_rule: this.state.joinRule}, "").catch(this.raiseErr)
+    if (this.state.joinRule !== this.initialJoinRule) {
+      const newRule = {
+        join_rule: this.state.joinRule, 
+        ...(this.state.joinRule === "restricted" && {allow: [{type:"m.room_membership", room_id: this.props.resource.room.roomId}]})
+      }
+      console.log(newRule)
+      await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomJoinRules, newRule, "").catch(this.raiseErr)
+    }
     if (this.state.spaceVisibility !== this.initialSpaceVisibility) this.state.spaceVisibility === "visible" ? this.publishReferences() : this.hideReferences()
     if (this.state.roomName !== this.initialRoomName) await Client.client.setRoomName(this.props.room.roomId, this.state.roomName).catch(this.raiseErr)
     if (this.state.roomTopic !== this.initialRoomTopic) await Client.client.setRoomTopic(this.props.room.roomId, this.state.roomTopic).catch(this.raiseErr)
@@ -300,11 +313,12 @@ export default class RoomSettings extends Component {
               <select class="styled-input" value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
                 <option value="public">Public</option>
                 <option value="invite">Invite-Only</option>
+                <option disabled={!this.restrictedAvailable} value="restricted">Restricted</option>
               </select>
               <div class="room-settings-info">
-                {state.joinRule === "public"
-                  ? "anyone who can find the room may join"
-                  : "an explicit invitation is required before joining"
+                { state.joinRule === "public" ? "anyone who can find the room may join"
+                : state.joinRule === "invite" ? "an explicit invitation is required before joining"
+                : "only someone with access to the resource being annotated may join"
                 }
               </div>
               <label htmlFor="readability">Readability</label>
