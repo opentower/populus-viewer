@@ -38,7 +38,8 @@ export default class RoomSettings extends Component {
     }
 
     this.restrictedAvailable = !["1","2","3","4","5","6","7"].includes(props.room.getVersion()) && 
-      this.resourceState?.getStateEvents(spaceChild, props.room.roomId)?.getContent()
+        this.roomState.getStateEvents(spaceParent).length > 0
+      
 
     this.mayChangeReadability = this.roomState.maySendStateEvent(Matrix.EventType.RoomHistoryVisibility, Client.client.getUserId())
 
@@ -162,11 +163,13 @@ export default class RoomSettings extends Component {
     this.forceUpdate()
     if (this.state.discovery !== this.initialDiscovery) await Client.client.setRoomDirectoryVisibility(this.props.room.roomId, this.state.discovery).catch(this.raiseErr)
     if (this.state.joinRule !== this.initialJoinRule) {
+      const allowList = this.props.resource 
+        ? [{type:"m.room_membership", room_id: this.props.resource.room.roomId}]
+        : this.roomState.getStateEvents(spaceParent).map(ev => ({ type:"m.room_membership", room_id: ev.getStateKey() }))
       const newRule = {
         join_rule: this.state.joinRule, 
-        ...(this.state.joinRule === "restricted" && {allow: [{type:"m.room_membership", room_id: this.props.resource.room.roomId}]})
+        ...(this.state.joinRule === "restricted" && {allow: allowList})
       }
-      console.log(newRule)
       await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomJoinRules, newRule, "").catch(this.raiseErr)
     }
     if (this.state.spaceVisibility !== this.initialSpaceVisibility) this.state.spaceVisibility === "visible" ? this.publishReferences() : this.hideReferences()
@@ -318,7 +321,8 @@ export default class RoomSettings extends Component {
               <div class="room-settings-info">
                 { state.joinRule === "public" ? "anyone who can find the room may join"
                 : state.joinRule === "invite" ? "an explicit invitation is required before joining"
-                : "only someone with access to the resource being annotated may join"
+                : props.resource ? "only someone with access to the resource being annotated may join"
+                : "only someone with access to a collection containing this resource may join"
                 }
               </div>
               <label htmlFor="readability">Readability</label>
