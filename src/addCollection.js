@@ -3,6 +3,7 @@ import Client from './client.js'
 import * as Matrix from "matrix-js-sdk"
 import * as Icons from './icons.js'
 import Resource from './utils/resource.js'
+import Modal from './modal.js'
 import './styles/addCollection.css'
 
 export default class AddCollection extends Component {
