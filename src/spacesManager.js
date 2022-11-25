@@ -16,7 +16,7 @@ import ToolTip from './utils/tooltip.js'
 import { RoomIconPlaceholder } from './roomIcon.js'
 import * as Icons from './icons.js'
 import { RoomColor } from './utils/colors.js'
-import { spaceChild, spaceParent, populusCollectionChild } from "./constants.js"
+import { populusCollectionChild } from "./constants.js"
 
 export default class SpacesManager extends Component {
   constructor(props) {
@@ -45,7 +45,7 @@ export default class SpacesManager extends Component {
     SpacesManager.initialized = true
     SpacesManager.spaces = {}
     Client.client.on("RoomState.events", e => {
-      if (SpacesManager.spaces[e.getRoomId()] && e.getType() === spaceChild) {
+      if (SpacesManager.spaces[e.getRoomId()] && e.getType() === Matrix.EventType.SpaceChild) {
         if (e.getContent().via) {
           const responsePromise = Client.client.getRoomHierarchy(e.getStateKey(), 1, 0)
           responsePromise.then(response => {
@@ -387,10 +387,10 @@ class CurrentDiscussionListing extends Component {
   removeMe = async _ => {
     this.setState({pending: true})
     await Client.client
-      .sendStateEvent(this.props.collection.roomId, spaceChild, {}, this.props.child.room_id)
+      .sendStateEvent(this.props.collection.roomId, Matrix.EventType.SpaceChild, {}, this.props.child.room_id)
       .catch(toastError("Couldn't remove discussion from collection"))
     await Client.client
-      .sendStateEvent(this.props.child.room_id, spaceParent, {}, this.props.collection.roomId)
+      .sendStateEvent(this.props.child.room_id, Matrix.EventType.SpaceParent, {}, this.props.collection.roomId)
       .catch(toastError("Couldn't remove collection as parent of discussion"))
   }
 
@@ -415,10 +415,10 @@ class AvailableDiscussionListing extends Component {
     }
     const parentContent = { via: [theDomain] }
     await Client.client
-      .sendStateEvent(this.props.collection.roomId, spaceChild, childContent, this.props.room.roomId)
+      .sendStateEvent(this.props.collection.roomId, Matrix.EventType.SpaceChild, childContent, this.props.room.roomId)
       .catch(toastError("Couldn't add discussion to collection"))
     await Client.client
-      .sendStateEvent(this.props.room.roomId, spaceParent, parentContent, this.props.collection.roomId)
+      .sendStateEvent(this.props.room.roomId, Matrix.EventType.SpaceParent, parentContent, this.props.collection.roomId)
       .catch(toastError("Couldn't add collection as parent of discussion"))
   }
 

@@ -1,6 +1,6 @@
 import { h, createRef, Component, Fragment } from 'preact';
 import './styles/fileUpload.css'
-import { mscResourceData, spaceChild, populusWaveformPCM } from "./constants.js"
+import { mscResourceData, populusWaveformPCM } from "./constants.js"
 import { onlineOrAlert } from "./utils/alerts.js"
 import PdfCanvas from "./pdfCanvas.js"
 import * as PDFJS from "pdfjs-dist/webpack"
@@ -168,7 +168,7 @@ export default class FileUpload extends Component {
       power_level_content_override: {
         events: {
           // we allow anyone to annotate, by default, for now
-          [spaceChild]: 0
+          [Matrix.EventType.SpaceChild]: 0
         }
       }
     }).catch(alert)

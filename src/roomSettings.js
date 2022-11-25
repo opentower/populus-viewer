@@ -8,7 +8,7 @@ import * as PopupMenu from './popUpMenu.js'
 import Modal from './modal.js'
 import CopyButton from './utils/copyButton.js'
 import AvatarSelector from './avatarSelector.js'
-import { mscLocation, spaceParent, spaceChild } from './constants.js';
+import { mscLocation } from './constants.js';
 import "./styles/roomSettings.css"
 
 export default class RoomSettings extends Component {
@@ -31,14 +31,14 @@ export default class RoomSettings extends Component {
     this.initialReadability = props.room.getHistoryVisibility()
 
     if (this.resourceState) {
-      this.initialSpaceVisibility = this.resourceState.getStateEvents(spaceChild, props.room.roomId)?.getContent()?.via
+      this.initialSpaceVisibility = this.resourceState.getStateEvents(Matrix.EventType.SpaceChild, props.room.roomId)?.getContent()?.via
         ? "visible"
         : "hidden"
-      this.mayChangeSpaceVisibility = this.resourceState.maySendStateEvent(spaceChild, Client.client.getUserId())
+      this.mayChangeSpaceVisibility = this.resourceState.maySendStateEvent(Matrix.EventType.SpaceChild, Client.client.getUserId())
     }
 
     this.restrictedAvailable = !["1","2","3","4","5","6","7"].includes(props.room.getVersion()) && 
-      this.resourceState?.getStateEvents(spaceChild, props.room.roomId)?.getContent()
+      this.resourceState?.getStateEvents(Matrix.EventType.SpaceChild, props.room.roomId)?.getContent()
 
     this.mayChangeReadability = this.roomState.maySendStateEvent(Matrix.EventType.RoomHistoryVisibility, Client.client.getUserId())
 
@@ -96,7 +96,7 @@ export default class RoomSettings extends Component {
     // assume you can if you have 50 power---per advice from #matrix-spec, since this is implementation-dependent
     const discovery = await Client.client.getRoomDirectoryVisibility(this.props.room.roomId)
     this.initialDiscovery = discovery.visibility
-    const references = this.roomState.getStateEvents(spaceParent)
+    const references = this.roomState.getStateEvents(Matrix.EventType.SpaceParent)
     this.setState({ references, discovery: discovery.visibility })
   }
 
@@ -140,7 +140,7 @@ export default class RoomSettings extends Component {
       !!this.state.kick           ||
       !!this.state.redact         ||
       !!this.state.events_default ||
-      !!this.state[spaceChild]    ||
+      !!this.state[Matrix.EventType.SpaceChild]    ||
       this.rolesUpdated()
       
 
@@ -182,7 +182,7 @@ export default class RoomSettings extends Component {
       if (this.state.kick) this.powerLevels.kick = this.roleToPowerLevel(this.state.kick)
       if (this.state.redact) this.powerLevels.redact = this.roleToPowerLevel(this.state.redact)
       if (this.state.events_default) this.powerLevels.events_default = this.roleToPowerLevel(this.state.events_default)
-      if (this.state[spaceChild]) this.powerLevels.events[spaceChild] = this.roleToPowerLevel(this.state[spaceChild])
+      if (this.state[Matrix.EventType.SpaceChild]) this.powerLevels.events[Matrix.EventType.SpaceChild] = this.roleToPowerLevel(this.state[Matrix.EventType.SpaceChild])
       if (this.rolesUpdated()) this.powerLevels.users = this.state.users
 
       await Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.RoomPowerLevels, this.powerLevels).catch(this.raiseErr)
@@ -205,7 +205,7 @@ export default class RoomSettings extends Component {
         [mscLocation]: theLocation.location
       }
       Client.client
-        .sendStateEvent(theLocation.getParent(), spaceChild, childContent, this.props.room.roomId)
+        .sendStateEvent(theLocation.getParent(), Matrix.EventType.SpaceChild, childContent, this.props.room.roomId)
         .catch(e => alert(e))
     }
   }
@@ -216,7 +216,7 @@ export default class RoomSettings extends Component {
       if (!theLocation.isValid()) continue
       const childContent = {}
       Client.client
-        .sendStateEvent(theLocation.getParent(), spaceChild, childContent, this.props.room.roomId)
+        .sendStateEvent(theLocation.getParent(), Matrix.EventType.SpaceChild, childContent, this.props.room.roomId)
         .catch(e => alert(e))
     }
   }
@@ -422,8 +422,8 @@ export default class RoomSettings extends Component {
                    ? <ConfigurePowerForState 
                       setPowerLevelRole={this.setPowerLevelRole}
                       powerLevels={this.powerLevels}
-                      type={spaceChild}
-                      requiredRole={state[spaceChild]}
+                      type={Matrix.EventType.SpaceChild}
+                      requiredRole={state[Matrix.EventType.SpaceChild]}
                       label="Annotate"
                       member={this.member}
                       act="create annotations" />

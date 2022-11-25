@@ -7,7 +7,7 @@ import * as Matrix from "matrix-js-sdk"
 import { unionRects } from "./utils/layout.js"
 import { onlineOrAlert } from "./utils/alerts.js"
 import { textFromPdfSelection, rectsFromPdfSelection } from './utils/selection.js'
-import { mscLocation, mscPdfText, mscPdfHighlight, populusHighlight, spaceChild, spaceParent } from "./constants.js"
+import { mscLocation, mscPdfText, mscPdfHighlight, populusHighlight } from "./constants.js"
 
 export default class PdfPage extends Component {
   constructor(props) {
@@ -83,7 +83,7 @@ export default class PdfPage extends Component {
         content: {join_rule: "public"}
       },
       {
-        type: spaceParent, // we indicate that the current room is the parent
+        type: Matrix.EventType.SpaceParent, // we indicate that the current room is the parent
         content: { via: [theDomain], [mscLocation]: locationData },
         state_key: this.props.room.roomId
       }
@@ -101,7 +101,7 @@ export default class PdfPage extends Component {
         state_key: roominfo.room_id,
         content: childContent
       })
-      Client.client.sendStateEvent(this.props.room.roomId, spaceChild, childContent, roominfo.room_id)
+      Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.SpaceChild, childContent, roominfo.room_id)
       return fakeEvent
     })
   }
@@ -143,7 +143,7 @@ export default class PdfPage extends Component {
         content: {join_rule: "public"}
       },
       {
-        type: spaceParent, // we indicate that the current room is the parent
+        type: Matrix.EventType.SpaceParent, // we indicate that the current room is the parent
         content: {
           via: [theDomain],
           [mscLocation]: locationData
@@ -165,7 +165,7 @@ export default class PdfPage extends Component {
         state_key: roominfo.room_id,
         content: childContent
       })
-      Client.client.sendStateEvent(this.props.room.roomId, spaceChild, childContent, roominfo.room_id)
+      Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.SpaceChild, childContent, roominfo.room_id)
       return fakeEvent
     }).catch(e => alert(e))
   }

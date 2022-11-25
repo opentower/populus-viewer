@@ -5,7 +5,6 @@ import Location from "./utils/location.js"
 import ToolTip from "./utils/tooltip.js"
 import { UserColor } from "./utils/colors.js"
 import './styles/navbar.css';
-import { spaceChild } from "./constants.js"
 import History from './history.js'
 import Resource from "./utils/resource.js"
 import Client from './client.js'
@@ -245,7 +244,7 @@ class Pages extends Component {
 
   handleTypingNotification = (ev, member) => {
     const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
+    const theChildRelation = theRoomState.getStateEvents(Matrix.EventType.SpaceChild, member.roomId)
     // We use nested state here because we want to pass this part of the state to a child
     if (theChildRelation) {
       this.setState(prevState => {

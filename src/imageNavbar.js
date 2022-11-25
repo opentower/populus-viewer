@@ -1,7 +1,6 @@
 import { h, createRef, Component } from 'preact';
 import * as Icons from './icons.js';
 import * as Matrix from "matrix-js-sdk"
-import { spaceChild } from "./constants.js"
 import ToolTip from "./utils/tooltip.js"
 import './styles/navbar.css';
 import History from './history.js'
@@ -15,7 +14,7 @@ export default class ImageNavbar extends Component {
     super(props);
     // Could add a listener to update this live
     const roomState = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    this.canAnnotate = roomState.maySendStateEvent(spaceChild, Client.client.getUserId())
+    this.canAnnotate = roomState.maySendStateEvent(Matrix.EventType.SpaceChild, Client.client.getUserId())
   }
 
   componentDidMount() {

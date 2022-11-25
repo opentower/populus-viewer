@@ -5,7 +5,7 @@ import Client from './client.js'
 import * as Matrix from "matrix-js-sdk"
 import { onlineOrAlert } from "./utils/alerts.js"
 import './styles/imageContent.css'
-import { mscLocation, mscMediaFragment, populusHighlight, spaceChild, spaceParent } from "./constants.js"
+import { mscLocation, mscMediaFragment, populusHighlight } from "./constants.js"
 
 export default class ImageContent extends Component {
 
@@ -134,7 +134,7 @@ export default class ImageContent extends Component {
         content: {join_rule: "public"}
       },
       {
-        type: spaceParent, // we indicate that the current room is the parent
+        type: Matrix.EventType.SpaceParent, // we indicate that the current room is the parent
         content: { via: [theDomain], [mscLocation]: locationData },
         state_key: this.props.room.roomId
       }
@@ -145,14 +145,14 @@ export default class ImageContent extends Component {
       const childContent = { via: [theDomain], [mscLocation]: locationData }
       // We focus on a new fake placeholder event to potentially insert the highlight immediately
       const fakeEvent = new Matrix.MatrixEvent({
-        type: spaceChild,
+        type: Matrix.EventType.SpaceChild,
         origin_server_ts: new Date().getTime(),
         room_id: this.props.room.roomId,
         sender: Client.client.getUserId(),
         state_key: roominfo.room_id,
         content: childContent
       })
-      Client.client.sendStateEvent(this.props.room.roomId, spaceChild, childContent, roominfo.room_id)
+      Client.client.sendStateEvent(this.props.room.roomId, Matrix.EventType.SpaceChild, childContent, roominfo.room_id)
       this.props.setFocus(new Location(fakeEvent))
       this.props.showChat()
     })

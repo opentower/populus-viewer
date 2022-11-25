@@ -2,7 +2,6 @@ import { h, Component, createRef } from 'preact';
 import * as Matrix from "matrix-js-sdk"
 import { UserColor } from './utils/colors.js'
 import { TextMessage } from './message.js'
-import { spaceParent, spaceChild, mscResourceData } from "./constants.js"
 import { isUnread } from './utils/unread.js'
 import { dateReducer } from './utils/temporal.js'
 import Location from './utils/location.js'
@@ -163,7 +162,7 @@ class Notification extends Component {
 
   originResource = this.originRoom
     .getLiveTimeline().getState(Matrix.EventTimeline.BACKWARDS)
-    .getStateEvents(spaceParent)[0]?.getStateKey()
+    .getStateEvents(Matrix.EventType.SpaceParent)[0]?.getStateKey()
 
   originAlias = this.originResource
     ? Client.client.getRoom(this.originResource)?.getCanonicalAlias()
@@ -172,7 +171,7 @@ class Notification extends Component {
   originAnnotation = this.originResource
     ? Client.client.getRoom(this.originResource)
       ?.getLiveTimeline().getState(Matrix.EventTimeline.BACKWARDS)
-      .getStateEvents(spaceChild, this.originRoom.roomId)
+      .getStateEvents(Matrix.EventType.SpaceChild, this.originRoom.roomId)
     : null
 
   originLocation = this.originAnnotation ? new Location(this.originAnnotation) : null

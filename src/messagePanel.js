@@ -1,8 +1,9 @@
 import * as Icons from "./icons.js"
+import * as Matrix from "matrix-js-sdk"
 import { h, createRef, Fragment, Component } from 'preact';
 import * as CommonMark from 'commonmark'
 import { loadImageElement, loadMediaElement, createThumbnail, blurhashFromFile } from "./utils/media.js"
-import { spaceChild, spaceParent, mscLocation, mscParent, mscMarkupMsgKey, mscPdfText, mscMediaFragment, mscPdfHighlight, populusHighlight } from "./constants.js"
+import { mscLocation, mscParent, mscMarkupMsgKey, populusHighlight } from "./constants.js"
 import { processRegex } from './processRegex.js'
 import { UserColor } from './utils/colors.js'
 import { formatBytes } from './utils/math.js'
@@ -83,10 +84,10 @@ export default class MessagePanel extends Component {
       })
       const newContent = { via: [theDomain], [mscLocation]: locationData }
       Client.client
-        .sendStateEvent(this.props.resourceId, spaceChild, newContent, this.props.focus.getChild())
+        .sendStateEvent(this.props.resourceId, Matrix.EventType.SpaceChild, newContent, this.props.focus.getChild())
         .catch(e => alert(e))
       Client.client
-        .sendStateEvent(this.props.focus.getChild(), spaceParent, newContent, this.props.resourceId)
+        .sendStateEvent(this.props.focus.getChild(), Matrix.EventType.SpaceParent, newContent, this.props.resourceId)
         .catch(e => alert(e))
     }
   }

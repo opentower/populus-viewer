@@ -3,7 +3,7 @@ import './styles/annotationListing.css'
 import * as Matrix from "matrix-js-sdk"
 import { renderLatexInElement } from './latex.js'
 import { processLinks } from './links.js'
-import { spaceChild, mscMarkupMsgKey } from "./constants.js"
+import { mscMarkupMsgKey } from "./constants.js"
 import Client from './client.js'
 import MemberPill from './memberPill.js'
 import { UserColor } from './utils/colors.js'
@@ -37,7 +37,7 @@ export default class AnnotationListing extends Component {
 
   handleTypingNotification = (event, member) => {
     const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
+    const theChildRelation = theRoomState.getStateEvents(Matrix.EventType.SpaceChild, member.roomId)
     // We use nested state here because we want to pass this part of the state to a child
     if (theChildRelation) {
       this.setState(prevState => {
@@ -350,7 +350,6 @@ class AnnotationListingEntry extends Component {
   render(props, state) {
     const typing = typeof (props.typing) === "object" && Object.keys(props.typing).length > 0 ? true : null
     const focused = props.focus?.getChild() === props.annotationLocation.getChild()
-    const annotationType = props.annotationLocation.getType()
     return <div style={this.userColor.styleVariables}
       data-annotation-entry-typing={typing}
       data-annotation-entry-focused={focused}

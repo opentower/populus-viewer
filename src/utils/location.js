@@ -1,5 +1,6 @@
 import Client from '../client.js'
-import { spaceParent, spaceChild, mscLocation, populusHighlight, mscPdfText, mscPdfHighlight, mscMediaFragment, mscMarkupMsgKey, mscParent } from "../constants.js"
+import * as Matrix from "matrix-js-sdk"
+import { mscLocation, populusHighlight, mscPdfText, mscPdfHighlight, mscMediaFragment, mscMarkupMsgKey, mscParent } from "../constants.js"
 
 export default class Location {
   constructor(theEvent) {
@@ -39,21 +40,21 @@ export default class Location {
   }
 
   getOrientation() {
-    if (this.event.getType() === spaceParent) return "parent"
-    if (this.event.getType() === spaceChild) return "child"
+    if (this.event.getType() === Matrix.EventType.SpaceParent) return "parent"
+    if (this.event.getType() === Matrix.EventType.SpaceChild) return "child"
   }
 
   getParent() {
-    if (this.event.getType() === spaceParent) return this.event.getStateKey()
-    if (this.event.getType() === spaceChild) return this.event.getRoomId()
+    if (this.event.getType() === Matrix.EventType.SpaceParent) return this.event.getStateKey()
+    if (this.event.getType() === Matrix.EventType.SpaceChild) return this.event.getRoomId()
     if (this.event.getType() === "m.room.message") {
       return this.event.getContent()[mscMarkupMsgKey]?.[mscParent]
     }
   }
 
   getChild() {
-    if (this.event.getType() === spaceParent) return this.event.getRoomId()
-    if (this.event.getType() === spaceChild) return this.event.getStateKey()
+    if (this.event.getType() === Matrix.EventType.SpaceParent) return this.event.getRoomId()
+    if (this.event.getType() === Matrix.EventType.SpaceChild) return this.event.getStateKey()
     if (this.event.getType() === "m.room.message") return this.event.getRoomId()
   }
 

@@ -4,7 +4,7 @@ import * as Matrix from "matrix-js-sdk"
 import { TextMessage, AnnotationMessage, EmoteMessage, NoticeMessage, FileMessage, ImageMessage, VideoMessage, AudioMessage } from './message.js'
 import MessagePanel from './messagePanel.js'
 import { UserColor } from './utils/colors.js'
-import { mscMarkupMsgKey, spaceParent, spaceChild, mscLocation } from './constants.js'
+import { mscMarkupMsgKey, mscLocation } from './constants.js'
 import UserInfoHeader from './userInfoHeader.js'
 import Client from './client.js'
 import Toast from "./toast.js"
@@ -480,8 +480,8 @@ class FlagSelector extends Component {
       .getRoom(this.props.focus.getChild())
       .getLiveTimeline()
       .getState(Matrix.EventTimeline.FORWARDS)
-    if (!chatRoomState.maySendStateEvent(spaceParent, Client.client.getUserId())) return
-    const spaceParentEvents = chatRoomState.getStateEvents(spaceParent)
+    if (!chatRoomState.maySendStateEvent(Matrix.EventType.SpaceParent, Client.client.getUserId())) return
+    const spaceParentEvents = chatRoomState.getStateEvents(Matrix.EventType.SpaceParent)
     for (const spaceParentEvent of spaceParentEvents) {
       const theLocation = new Location(spaceParentEvent)
       if (!theLocation.isValid()) continue
@@ -492,19 +492,19 @@ class FlagSelector extends Component {
         [mscLocation]: newLocation
       }
       Client.client
-        .sendStateEvent(this.props.focus.getChild(), spaceParent, newParentContent, this.props.focus.getParent()) 
+        .sendStateEvent(this.props.focus.getChild(), Matrix.EventType.SpaceParent, newParentContent, this.props.focus.getParent()) 
         .catch(e => alert(e))
       const spaceChildEvent = Client.client
         .getRoom(this.props.focus.getParent())
         .getLiveTimeline()
         .getState(Matrix.EventTimeline.FORWARDS)
-        .getStateEvents(spaceChild, theLocation.getChild())
+        .getStateEvents(Matrix.EventType.SpaceChild, theLocation.getChild())
       const newChildContent = {
         via: spaceChildEvent.getContent().via,
         [mscLocation]: newLocation
       }
       if (newChildContent.via) Client.client
-        .sendStateEvent(this.props.focus.getParent(), spaceChild, newChildContent, this.props.focus.getChild()) // should be conditional on room visible
+        .sendStateEvent(this.props.focus.getParent(), Matrix.EventType.SpaceChild, newChildContent, this.props.focus.getChild()) // should be conditional on room visible
         .catch(e => this.handleError(e))
     }
   }

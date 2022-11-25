@@ -14,7 +14,7 @@ import Client from './client.js'
 import DocumentNavbar from "./documentNavbar.js"
 import MediaNavbar from "./mediaNavbar.js"
 import ImageNavbar from "./imageNavbar.js"
-import { spaceChild, spaceParent, lastViewed } from "./constants.js"
+import { lastViewed } from "./constants.js"
 import Location from './utils/location.js'
 import Resource from './utils/resource.js'
 import SyncIndicator from './syncIndicator.js'
@@ -76,11 +76,11 @@ export default class ContentView extends Component {
   }
 
   handleStateUpdate = e => {
-    if (e.getStateKey() === this.state.room?.roomId && e.getType() === spaceParent) {
+    if (e.getStateKey() === this.state.room?.roomId && e.getType() === Matrix.EventType.SpaceParent) {
       this.updateAnnotation(new Location(e))
       if (e.getRoomId() === this.state.focus?.getChild()) this.refreshFocus()
     }
-    if (e.getRoomId() === this.state.room?.roomId && e.getType() === spaceChild) {
+    if (e.getRoomId() === this.state.room?.roomId && e.getType() === Matrix.EventType.SpaceChild) {
       this.updateAnnotation(new Location(e))
       if (e.getStateKey() === this.state.focus?.getChild()) this.refreshFocus()
     }
@@ -341,8 +341,8 @@ export default class ContentView extends Component {
     }
     const discussionId = this.state.focus.getChild()
     const resourceId = this.state.room.roomId
-    Client.client.sendStateEvent(resourceId, spaceChild, {}, discussionId)
-    Client.client.sendStateEvent(discussionId, spaceParent, {}, resourceId)
+    Client.client.sendStateEvent(resourceId, Matrix.EventType.SpaceChild, {}, discussionId)
+    Client.client.sendStateEvent(discussionId, Matrix.EventType.SpaceParent, {}, resourceId)
       .catch(e => {
         switch (e) {
           case "M_FORBIDDEN" : {
@@ -462,7 +462,7 @@ export default class ContentView extends Component {
       this.annotationChildEvents = {}
       const allParents = Client.client.getVisibleRooms()
         .map(room => room.getLiveTimeline())
-        .map(timeline => timeline.getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceParent))
+        .map(timeline => timeline.getState(Matrix.EventTimeline.FORWARDS).getStateEvents(Matrix.EventType.SpaceParent))
       for (const parent of [].concat(...allParents)) {
         if (parent.getStateKey() === this.state.room.roomId) {
           if (parent.getTs() < 1648936377334) continue // don't load old parents, for legacy compatibility
@@ -471,7 +471,7 @@ export default class ContentView extends Component {
         }
       }
       const locations = this.state.room.getLiveTimeline()
-        .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
+        .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(Matrix.EventType.SpaceChild)
         .map(ev => new Location(ev))
         .filter(this.insertable)
       for (const loc of locations) this.annotationChildEvents[loc.getChild()] = loc

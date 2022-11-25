@@ -1,5 +1,5 @@
 import { h, Fragment, Component, createRef } from 'preact';
-import { spaceChild, lastViewed } from "./constants.js"
+import { lastViewed } from "./constants.js"
 import { decode } from "blurhash"
 import Resource from "./utils/resource.js"
 import Location from "./utils/location.js"
@@ -463,14 +463,14 @@ class AnnotationData extends Component {
 
   updateAnnotations = _ => {
     const annotations = this.props.room.getLiveTimeline()
-      .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(spaceChild)
+      .getState(Matrix.EventTimeline.FORWARDS).getStateEvents(Matrix.EventType.SpaceChild)
       .map(ev => new Location(ev))
       .filter(loc => loc.isValid() && loc.getStatus() === "open")
     this.setState({annotations})
   }
 
   handleStateUpdate = e => {
-    if (e.getRoomId() === this.props.room.roomId && e.getType() === spaceChild) {
+    if (e.getRoomId() === this.props.room.roomId && e.getType() === Matrix.EventType.SpaceChild) {
       this.updateAnnotations()
     }
   }

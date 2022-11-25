@@ -5,7 +5,6 @@ import Location from "./utils/location.js"
 import ToolTip from "./utils/tooltip.js"
 import { UserColor } from "./utils/colors.js"
 import './styles/navbar.css';
-import { spaceChild } from "./constants.js"
 import History from './history.js'
 import Resource from "./utils/resource.js"
 import Client from './client.js'
@@ -17,7 +16,7 @@ export default class DocumentNavbar extends Component {
     super(props);
     // Could add a listener to update this live
     const roomState = props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    this.canAnnotate = roomState.maySendStateEvent(spaceChild, Client.client.getUserId())
+    this.canAnnotate = roomState.maySendStateEvent(Matrix.EventType.SpaceChild, Client.client.getUserId())
     this.state = {
       value: props.pageFocused,
       pageViewVisible: false,
@@ -254,7 +253,7 @@ class Pages extends Component {
 
   handleTypingNotification = (ev, member) => {
     const theRoomState = Client.client.getRoom(this.props.room?.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
+    const theChildRelation = theRoomState.getStateEvents(Matrix.EventType.SpaceChild, member.roomId)
     // We use nested state here because we want to pass this part of the state to a child
     if (theChildRelation) {
       this.setState(prevState => {

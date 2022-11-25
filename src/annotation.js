@@ -1,7 +1,6 @@
 import { h, createRef, Component } from 'preact';
 import * as Layout from "./utils/layout.js"
 import * as Matrix from "matrix-js-sdk"
-import { spaceChild } from "./constants.js"
 import { UserColor } from "./utils/colors.js"
 import QuadPoints from './utils/quadPoints.js'
 import Client from './client.js'
@@ -25,7 +24,7 @@ export default class AnnotationLayer extends Component {
 
   handleTypingNotification = (event, member) => {
     const theRoomState = Client.client.getRoom(this.props.roomId).getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
-    const theChildRelation = theRoomState.getStateEvents(spaceChild, member.roomId)
+    const theChildRelation = theRoomState.getStateEvents(Matrix.EventType.SpaceChild, member.roomId)
     // We use nested state here because we want to pass this part of the state to a child
     if (theChildRelation) {
       this.setState(prevState => {
