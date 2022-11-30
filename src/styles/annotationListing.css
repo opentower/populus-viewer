@@ -185,7 +185,7 @@ html[data-scrollbars="hidden"] #annotation-entries-wrapper::-webkit-scrollbar { 
 
 .annotation-listing-comment pre, .annotation-listing-comment-unread pre{
   overflow-y: scroll;
-  max-width: calc(var(--widget-2-width) - 50px);
+  max-width: calc(var(--widget-2-width) - 75px);
   text-overflow:ellipsis;
 }
 
