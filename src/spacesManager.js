@@ -73,13 +73,6 @@ export default class SpacesManager extends Component {
     Client.client.off("Room.accountData", this.handleRoom)
   }
 
-  filterSet = s => {
-    this.props.setFilterItems([s])
-    this.props.showMainView
-      ? this.props.showMainView()
-      : null
-  }
-
   filterToggle = s => {
     const newItems = this.props.filterItems.filter(item => item.value !== s.value)
     if (newItems.length === this.props.filterItems.length) newItems.push(s)
@@ -106,7 +99,7 @@ export default class SpacesManager extends Component {
       <h1>Collections</h1>
       <hr class="styled-rule" />
       <div id="spaces-list">
-        {state.spaces.map(room => <SpaceListing filterToggle={this.filterToggle} filterSet={this.filterSet} oneColumn={props.oneColumn} key={room.roomId} room={room} />)}
+        {state.spaces.map(room => <SpaceListing filterToggle={this.filterToggle} oneColumn={props.oneColumn} key={room.roomId} room={room} />)}
       </div>
       <div>
         <button onclick={this.addCollection} id="add-space">Add Collection</button>
@@ -194,7 +187,7 @@ class SpaceListing extends Component {
       />, "Manage Discussions", `to ${this.props.room.name}`)
     : null
 
-  searchMe = _ => this.props.filterSet({
+  searchMe = _ => this.props.filterToggle({
     display: <Fragment><span class="small-icon">{Icons.collection}</span>{this.props.room.name}</Fragment>,
     value: `*${this.props.room.name}`
   })
