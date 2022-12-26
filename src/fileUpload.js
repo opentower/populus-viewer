@@ -191,7 +191,7 @@ export default class FileUpload extends Component {
         : null
       }
       <form id="file-upload-form" ref={this.mainForm} onsubmit={this.uploadFile}>
-        <label for="file"> File to Discuss</label>
+        <label for="file">File to Discuss</label>
         <div id="file-upload-chooser"> {state.fileValid 
             ? <Fragment>
               <span>{this.fileLoader.current.files[0].name}</span>
@@ -251,7 +251,14 @@ export default class FileUpload extends Component {
           <summary>Advanced Settings</summary>
           <div class="file-upload-details-wrapper">
             <label for="discussion" >Canonical Alias</label>
-            <input name="discussion" value={state.alias} placeholder={this.toAlias(state.name)} oninput={this.aliasInputHandler} ref={this.roomAliasInput} type="text" />
+            <input class="styled-input"
+              name="discussion"
+              value={state.alias}
+              placeholder={this.toAlias(state.name)}
+              oninput={this.aliasInputHandler}
+              ref={this.roomAliasInput}
+              type="text"
+            />
             {!state.details
               ? null
               : <div class="file-upload-form-detail">{
