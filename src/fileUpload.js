@@ -19,6 +19,7 @@ export default class FileUpload extends Component {
     this.state = {
       querying: false,
       aliasAvailable: false,
+      urlValid: false,
       fileValid: false,
       name: "",
       alias: "",
@@ -35,6 +36,8 @@ export default class FileUpload extends Component {
   roomNameInput = createRef()
 
   roomAliasInput = createRef()
+
+  externalURLInput = createRef()
 
   roomTopicInput = createRef()
 
@@ -70,7 +73,12 @@ export default class FileUpload extends Component {
     this.setState({alias: this.toAlias(e.target.value)}, this.validateAlias)
   }
 
-  validateAlias = _ => {
+  externalURLInputHandler = e => {
+    e.stopPropagation()
+    this.setState({externalURL: e.target.value}, this.validateURL)
+  }
+
+  validateAlias = () => {
     clearTimeout(this.namingTimeout)
     this.setState({querying: true})
     const alias = this.state.alias.length > 0 ? this.state.alias : this.toAlias(this.state.name)
@@ -85,7 +93,13 @@ export default class FileUpload extends Component {
     }, 1000)
   }
 
-  validateFile = _ => {
+  validateURL = () =>  {
+    this.setState({urlValid: this.state.externalURL.match(
+      /^(http(s):\/\/.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/
+    )});
+  }
+
+  validateFile = () => {
     const theFile = this.fileLoader.current.files[0]
     const limit = Client.mediaConfig["m.upload.size"]
     let fileValid = false
@@ -267,6 +281,27 @@ export default class FileUpload extends Component {
                   : state.aliasAvailable
                     ? "alias available"
                     : "alias unavailable"
+                }
+              </div>
+            }
+            <label for="external-url">External URL</label>
+            <input class="styled-input"
+              name="external-url"
+              value={state.externalURL}
+              placeholder={"URL to an external resource"}
+              onkeydown={this.keydownHandler}
+              oninput={this.externalURLInputHandler}
+              ref={this.externalURLInput}
+              type="text"
+            />
+            {!state.details
+              ? null
+              : <div class="file-upload-form-detail">{
+                state.fileValid
+                  ? "Remove file selection to use external URL"
+                  : state.urlValid
+                    ? "Valid URL"
+                    : "Invalid URL"
                 }
               </div>
             }
