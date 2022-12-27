@@ -33,12 +33,6 @@ export default class FileUpload extends Component {
 
   fileLoader = createRef()
 
-  roomNameInput = createRef()
-
-  roomAliasInput = createRef()
-
-  externalURLInput = createRef()
-
   roomTopicInput = createRef()
 
   avatarSelector = createRef()
@@ -131,9 +125,15 @@ export default class FileUpload extends Component {
     return s.replace(/[\s:]/g, '_')
   }
 
+  uploadError = e => {
+    alert(`Something went wrong while uploading. here's the message: ${e.message}`)
+    this.submitButton.current.setAttribute("disabled", false)
+  }
+
   uploadFile = async e => {
     e.preventDefault()
     if (!onlineOrAlert()) return
+    this.submitButton.current.setAttribute("disabled", true)
     const theFile = this.fileLoader.current.files[0]
     const theName = this.state.name
     const theAlias = this.state.alias.length > 0 ? this.state.alias : this.toAlias(this.state.name)
@@ -141,11 +141,10 @@ export default class FileUpload extends Component {
     let waveformMxc
     if (this.uploadPreview?.current?.pcm) {
       waveformMxc = await Client.client.uploadContent(JSON.stringify(this.uploadPreview?.current?.pcm), { progressHandler: this.progressHandler })
-        .catch(alert)
+        .catch(this.uploadError)
     }
     const mxc = await Client.client.uploadContent(theFile, { progressHandler: this.progressHandler })
-      .catch(alert)
-    this.submitButton.current.setAttribute("disabled", true)
+      .catch(this.uploadError)
     const { room_id } = await Client.client.createRoom({
       room_alias_name: theAlias,
       visibility: "private",
@@ -232,7 +231,7 @@ export default class FileUpload extends Component {
           value={state.name} 
           onkeydown={this.keydownHandler} 
           oninput={this.nameInputHandler} 
-          ref={this.roomNameInput} type="text" 
+          type="text" 
         />
         {state.details
           ? null
@@ -270,7 +269,6 @@ export default class FileUpload extends Component {
               value={state.alias}
               placeholder={this.toAlias(state.name)}
               oninput={this.aliasInputHandler}
-              ref={this.roomAliasInput}
               type="text"
             />
             {!state.details
@@ -291,7 +289,6 @@ export default class FileUpload extends Component {
               placeholder={"URL to an external resource"}
               onkeydown={this.keydownHandler}
               oninput={this.externalURLInputHandler}
-              ref={this.externalURLInput}
               type="text"
             />
             {!state.details
@@ -308,7 +305,10 @@ export default class FileUpload extends Component {
           </div>
         </details>
         <div id="file-upload-form-submit">
-          <button disabled={state.progress || state.querying || !state.aliasAvailable || !state.fileValid} class="styled-button" ref={this.submitButton} type="submit">
+          <button disabled={state.progress || state.querying || !state.aliasAvailable || !(state.fileValid || state.urlValid)} 
+            class="styled-button" 
+            ref={this.submitButton} 
+            type="submit">
             { state.progress ? "Uploading..." : "Create Discussion" }
           </button>
         </div>
@@ -364,7 +364,7 @@ class PdfUploadPreview extends Component {
 
   setPdfFitRatio = pdfFitRatio => this.setState({pdfFitRatio})
 
-  render(props, state) {
+  render(_props, state) {
     const dynamicDocumentStyle = {
       "--pdfFitRatio": state.pdfFitRatio,
       "--pdfWidthPx": `${state.pdfWidthPx}px`,
