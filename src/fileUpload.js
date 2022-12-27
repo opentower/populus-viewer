@@ -17,7 +17,7 @@ export default class FileUpload extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      querying: false,
+      queryingAlias: false,
       aliasAvailable: false,
       urlValid: false,
       fileValid: false,
@@ -27,7 +27,7 @@ export default class FileUpload extends Component {
     }
   }
 
-  namingTimeout = null
+  queryAliasTimeout = null
 
   mainForm = createRef()
 
@@ -73,49 +73,64 @@ export default class FileUpload extends Component {
   }
 
   validateAlias = () => {
-    clearTimeout(this.namingTimeout)
-    this.setState({querying: true})
+    clearTimeout(this.queryAliasTimeout)
+    this.setState({queryingAlias: true})
     const alias = this.state.alias.length > 0 ? this.state.alias : this.toAlias(this.state.name)
-    this.namingTimeout = setTimeout(_ => {
+    this.queryAliasTimeout = setTimeout(_ => {
       Client.client.getRoomIdForAlias(`#${alias}:${Client.client.getDomain()}`)
-        .then(_ => this.setState({querying: false, aliasAvailable: false}))
+        .then(_ => this.setState({queryingAlias: false, aliasAvailable: false}))
         .catch(err => {
-          if (alias === "") this.setState({querying: false, aliasAvailable: false})
-          else if (err.errcode === "M_NOT_FOUND") this.setState({querying: false, aliasAvailable: true})
+          if (alias === "") this.setState({queryingAlias: false, aliasAvailable: false})
+          else if (err.errcode === "M_NOT_FOUND") this.setState({queryingAlias: false, aliasAvailable: true})
           else alert(err)
         })
     }, 1000)
   }
 
   validateURL = () =>  {
-    this.setState({urlValid: this.state.externalURL.match(
+    clearTimeout(this.queryURLTimeout)
+    const urlValid = this.state.externalURL.match(
       /^(http(s):\/\/.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/
-    )});
+    )
+    this.setState({urlValid, queryingURL: urlValid})
+    this.queryURLTimeout = setTimeout(_ => {
+      fetch(this.state.externalURL, { method: "HEAD" })
+        .then(response => {
+          const urlContentType = response.headers.get("content-type")
+          console.log(urlContentType)
+          const fileTypeValid = this.validateFileType(urlContentType)
+          this.setState({urlValid: fileTypeValid, queryingURL: false, urlContentType})
+        })
+        .catch(() => this.setState({urlValid: false, queryingURL: false, urlContentType: null}))
+    }, 1000)
+  }
+
+  validateFileType(type) {
+    switch (type) {
+      case "application/pdf" : return true
+      case "audio/wav"       : return true
+      case "audio/mpeg"      : return true
+      case "audio/mp4"       : return true
+      case "audio/x-m4a"     : return true
+      case "audio/aac"       : return true
+      case "audio/aacp"      : return true
+      case "audio/flac"      : return true
+      case "video/mp4"       : return true
+      case "video/mpeg"      : return true
+      case "video/webm"      : return true
+    }
+    if (theFile.type?.match(/^image/)) return true
+    return false
   }
 
   validateFile = () => {
     const theFile = this.fileLoader.current.files[0]
     const limit = Client.mediaConfig["m.upload.size"]
-    let fileValid = false
-    switch (theFile.type) {
-      case "application/pdf" : fileValid = true
-      case "audio/wav"    : fileValid = true
-      case "audio/mpeg"   : fileValid = true
-      case "audio/mp4"    : fileValid = true
-      case "audio/x-m4a"  : fileValid = true
-      case "audio/aac"    : fileValid = true
-      case "audio/aacp"   : fileValid = true
-      case "audio/flac"   : fileValid = true
-      case "video/mp4"    : fileValid = true
-      case "video/mpeg"   : fileValid = true
-      case "video/webm"   : fileValid = true
-    }
-    if (theFile.type?.match(/^image/)) fileValid = true
-    if (theFile.size >= limit ) fileValid = false
+    let fileValid = this.validateFileType(theFile.type) && !(theFile.size >= limit)
     this.setState({fileValid})
     if (!fileValid) {
       if (theFile.size >= limit) alert(`Sorry, this file is too large to be uploaded. Your current server limits uploads to ${formatBytes(limit)}.`)
-      else alert("Please make sure that the file you're uploading is of a supported filetype and has the right extension at the end of its name. Supported filetypes are: pdf, wav, mp3, mp4, m4a, aac, mpeg, webm, and flac.")
+      else alert("It looks like you might be uploading an unsupported filetype. Please make sure that the file you're uploading is of a supported filetype and has the right extension at the end of its name.")
       this.mainForm.current.reset()
     }
   }
@@ -236,7 +251,7 @@ export default class FileUpload extends Component {
         {state.details
           ? null
           : <div class="file-upload-form-detail">{
-            state.querying
+            state.queryingAlias
               ? "querying..."
               : state.aliasAvailable
                 ? "name available"
@@ -274,11 +289,11 @@ export default class FileUpload extends Component {
             {!state.details
               ? null
               : <div class="file-upload-form-detail">{
-                state.querying
+                state.queryingAlias
                   ? "querying..."
                   : state.aliasAvailable
-                    ? "alias available"
-                    : "alias unavailable"
+                  ? "alias available"
+                  : "alias unavailable"
                 }
               </div>
             }
@@ -296,16 +311,18 @@ export default class FileUpload extends Component {
               : <div class="file-upload-form-detail">{
                 state.fileValid
                   ? "Remove file selection to use external URL"
+                  : state.queryingURL
+                  ? "Checking url..."
                   : state.urlValid
-                    ? "Valid URL"
-                    : "Invalid URL"
+                  ? "Valid URL"
+                  : "Invalid URL"
                 }
               </div>
             }
           </div>
         </details>
         <div id="file-upload-form-submit">
-          <button disabled={state.progress || state.querying || !state.aliasAvailable || !(state.fileValid || state.urlValid)} 
+          <button disabled={state.progress || state.queryingAlias || !state.aliasAvailable || !(state.fileValid || state.urlValid)} 
             class="styled-button" 
             ref={this.submitButton} 
             type="submit">
