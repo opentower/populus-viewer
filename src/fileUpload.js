@@ -19,7 +19,7 @@ export default class FileUpload extends Component {
     this.state = {
       queryingAlias: false,
       aliasAvailable: false,
-      urlValid: false,
+      urlDefect: "Invalid URL",
       fileValid: false,
       name: "",
       alias: "",
@@ -92,16 +92,29 @@ export default class FileUpload extends Component {
     const urlValid = this.state.externalURL.match(
       /^(http(s):\/\/.)[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)$/
     )
-    this.setState({urlValid, queryingURL: urlValid})
+    if (!urlValid) {
+      this.setState({ urlDefect: "Invalid URL", queryingURL: false })
+      return
+    }
+    this.setState({ urlDefect: null, queryingURL: true})
     this.queryURLTimeout = setTimeout(_ => {
       fetch(this.state.externalURL, { method: "HEAD" })
         .then(response => {
           const urlContentType = response.headers.get("content-type")
-          console.log(urlContentType)
           const fileTypeValid = this.validateFileType(urlContentType)
-          this.setState({urlValid: fileTypeValid, queryingURL: false, urlContentType})
+          console.log(urlContentType, fileTypeValid)
+          this.setState({
+            urlDefect: fileTypeValid ? null : `Found ${urlContentType} — not an annotatable file type`,
+            queryingURL: false,
+            urlContentType,
+          })
         })
-        .catch(() => this.setState({urlValid: false, queryingURL: false, urlContentType: null}))
+        .catch(e => this.setState({
+            urlDefect: "Couldn't connect - Likely cross-domain access is forbidden",
+            queryingURL: false, 
+            urlContentType: null
+          }, console.log(e))
+        )
     }, 1000)
   }
 
@@ -119,7 +132,7 @@ export default class FileUpload extends Component {
       case "video/mpeg"      : return true
       case "video/webm"      : return true
     }
-    if (theFile.type?.match(/^image/)) return true
+    if (type?.match(/^image/)) return true
     return false
   }
 
@@ -313,16 +326,16 @@ export default class FileUpload extends Component {
                   ? "Remove file selection to use external URL"
                   : state.queryingURL
                   ? "Checking url..."
-                  : state.urlValid
-                  ? "Valid URL"
-                  : "Invalid URL"
+                  : state.urlDefect
+                  ? state.urlDefect
+                  : "Valid URL" 
                 }
               </div>
             }
           </div>
         </details>
         <div id="file-upload-form-submit">
-          <button disabled={state.progress || state.queryingAlias || !state.aliasAvailable || !(state.fileValid || state.urlValid)} 
+          <button disabled={state.progress || state.queryingAlias || !state.aliasAvailable || !(state.fileValid || !state.urlDefect)} 
             class="styled-button" 
             ref={this.submitButton} 
             type="submit">
