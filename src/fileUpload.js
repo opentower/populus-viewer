@@ -102,7 +102,6 @@ export default class FileUpload extends Component {
         .then(response => {
           const urlContentType = response.headers.get("content-type")
           const fileTypeValid = this.validateFileType(urlContentType)
-          console.log(urlContentType, fileTypeValid)
           this.setState({
             urlDefect: fileTypeValid ? null : `Found ${urlContentType} — not an annotatable file type`,
             queryingURL: false,
@@ -110,7 +109,7 @@ export default class FileUpload extends Component {
           })
         })
         .catch(e => this.setState({
-            urlDefect: "Couldn't connect - Likely cross-domain access is forbidden",
+            urlDefect: "Couldn't connect — Likely cross-domain access is forbidden",
             queryingURL: false, 
             urlContentType: null
           }, console.log(e))
@@ -158,14 +157,19 @@ export default class FileUpload extends Component {
     this.submitButton.current.setAttribute("disabled", false)
   }
 
-  uploadFile = async e => {
+  uploadHandler = async e => {
     e.preventDefault()
     if (!onlineOrAlert()) return
     this.submitButton.current.setAttribute("disabled", true)
+    const room_id = this.state.fileValid ? await this.uploadFile() : await this.uploadExternalLink() 
+    const theRoom = await Client.client.getRoomWithState(room_id)
+    await this.avatarSelector.current.uploadAvatar(theRoom)
+    this.mainForm.current.reset()
+    this.props.showMainView()
+  }
+
+  uploadFile = async () => {
     const theFile = this.fileLoader.current.files[0]
-    const theName = this.state.name
-    const theAlias = this.state.alias.length > 0 ? this.state.alias : this.toAlias(this.state.name)
-    const theTopic = this.roomTopicInput.current.value
     let waveformMxc
     if (this.uploadPreview?.current?.pcm) {
       waveformMxc = await Client.client.uploadContent(JSON.stringify(this.uploadPreview?.current?.pcm), { progressHandler: this.progressHandler })
@@ -174,10 +178,12 @@ export default class FileUpload extends Component {
     const mxc = await Client.client.uploadContent(theFile, { progressHandler: this.progressHandler })
       .catch(this.uploadError)
     const { room_id } = await Client.client.createRoom({
-      room_alias_name: theAlias,
+      room_alias_name: this.state.alias.length > 0 
+        ? this.state.alias 
+        : this.toAlias(this.state.name),
       visibility: "private",
-      name: theName,
-      topic: theTopic,
+      name: this.state.name,
+      topic: this.roomTopicInput.current.value,
       // We declare the room a space
       creation_content: {
         type: "m.space",
@@ -214,10 +220,42 @@ export default class FileUpload extends Component {
       }
     }).catch(alert)
     // make sure we've got the room before returning to the main view
-    const theRoom = await Client.client.getRoomWithState(room_id)
-    await this.avatarSelector.current.uploadAvatar(theRoom)
-    this.mainForm.current.reset()
-    this.props.showMainView()
+    return room_id
+  }
+
+  uploadExternalLink = async () => {
+    const { room_id } = await Client.client.createRoom({
+      room_alias_name: this.state.alias.length > 0 
+        ? this.state.alias 
+        : this.toAlias(this.state.name),
+      visibility: "private",
+      name: this.state.name,
+      topic: this.roomTopicInput.current.value,
+      // We declare the room a space
+      creation_content: {
+        type: "m.space",
+        [mscResourceData]: {
+          url: this.state.externalURL,
+          mimetype: this.state.urlContentType,
+        }
+      },
+      initial_state: [
+        // we allow anyone to join, by default, for now
+        {
+          type: Matrix.EventType.RoomJoinRules,
+          state_key: "",
+          content: {join_rule: "public"}
+        },
+      ],
+      power_level_content_override: {
+        events: {
+          // we allow anyone to annotate, by default, for now
+          [Matrix.EventType.SpaceChild]: 0
+        }
+      }
+    }).catch(alert)
+    // make sure we've got the room before returning to the main view
+    return room_id
   }
 
   render (_, state) {
@@ -231,7 +269,7 @@ export default class FileUpload extends Component {
         </Fragment>
         : null
       }
-      <form id="file-upload-form" ref={this.mainForm} onsubmit={this.uploadFile}>
+      <form id="file-upload-form" ref={this.mainForm} onsubmit={this.uploadHandler}>
         <label for="file">File to Discuss</label>
         <div id="file-upload-chooser"> {state.fileValid 
             ? <Fragment>
@@ -328,7 +366,7 @@ export default class FileUpload extends Component {
                   ? "Checking url..."
                   : state.urlDefect
                   ? state.urlDefect
-                  : "Valid URL" 
+                  : `Valid URL - found ${state.urlContentType}`
                 }
               </div>
             }
