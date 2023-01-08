@@ -1,6 +1,8 @@
 import { h, Component, Fragment } from 'preact';
+import * as Matrix from "matrix-js-sdk"
 import Client from './client.js'
 import Modal from './modal.js'
+import Resource from './utils/resource.js'
 
 export default class LeaveRoom extends Component {
   leaveRoom = async _ => {
@@ -14,16 +16,44 @@ export default class LeaveRoom extends Component {
     Modal.hide()
   }
 
-  render(props) {
-    return <Fragment>
+  sort = Resource.hasResource(this.props.room)
+    ? "discussion"
+    : this.props.room.isSpaceRoom()
+    ? "collection"
+    : "annotation"
+
+  deepForget = async _ => {
+    const theState = this.props.room.getLiveTimeline().getState(Matrix.EventTimeline.FORWARDS)
+    const theChildren = theState.getStateEvents(Matrix.EventType.SpaceChild)
+      .filter(child => Client.client.getRoom(child.getStateKey()))
+    await new Promise(res => this.setState({progress:0, childTotal:theChildren.length}, res))
+    for (const child of theChildren) {
+      await Client.client.leave(child.getStateKey())
+      await Client.client.forget(child.getStateKey())
+      await new Promise(res => this.setState(oldState => ({progress:oldState.progress + 1}), res))
+    }
+    this.forgetRoom()
+  }
+
+  render(_props,state) {
+    return <div>
       <p>
-        To stop receiving updates about this room, and remove it from your room listing:</p>
-      <button onClick={this.leaveRoom} class="styled-button">Leave This Room</button>
+        To stop receiving updates about this {this.sort}, and remove it from your {this.sort} listing:</p>
+      <button onClick={this.leaveRoom} class="styled-button">Leave this {this.sort}</button>
       <p>
-        To also removed all stored room history, and no longer see the room as
-        an option to join or add to collections:
+        To also removed all stored history, and no longer see the {this.sort} as
+        an option to join{this.sort === "discussion" ? " or add to collections:" : ":"}
       </p>
-      <button onClick={this.forgetRoom} class="styled-button">Forget This Room</button>
-    </Fragment>
+      <button onClick={this.forgetRoom} class="styled-button">Forget this {this.sort}</button>
+      { this.sort === "discussion" 
+        ? <><p>
+            To entirely forget this discussion <i>and all associated annotations</i>:
+          </p>
+          <button onClick={this.deepForget} class="styled-button">Entirely forget this discussion</button>
+          {state.childTotal && <p> Forgetting: {state.progress} / {state.childTotal} </p>}
+        </>
+        : null
+      }
+    </div>
   }
 }
