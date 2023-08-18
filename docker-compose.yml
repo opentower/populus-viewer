@@ -1,0 +1,9 @@
+version: '3'
+services:
+  populus-viewer:
+    image: kroschu/populus-viewer-arm
+    ports:
+      - 9000:9000
+    volumes:
+      - ./dist:/app/dist
+    command: npm run-script serve
