@@ -324,10 +324,10 @@ export default class RoomSettings extends Component {
                 : "тільки той, хто має доступ до мед. карти, що містить цей запис, може приєднатися"
                 }
               </div>
-              <label htmlFor="readability">Readability</label>
+              <label htmlFor="readability">Читабельність</label>
               <select class="styled-input" value={state.readability} disabled={!this.mayChangeReadability} name="readability" onchange={this.handleReadabilityChange}>
-                <option value="shared">Members Only</option>
-                <option value="world_readable">World Readable</option>
+                <option value="shared">Виключно для учасників</option>
+                <option value="world_readable">Загально доступна</option>
               </select>
               <div class="room-settings-info">
                 {state.readability === "world_readable"
