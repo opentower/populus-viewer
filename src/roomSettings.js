@@ -319,7 +319,7 @@ export default class RoomSettings extends Component {
               </select>
               <div class="room-settings-info">
                 { state.joinRule === "public" ? "anyone who can find the room may join"
-                : state.joinRule === "invite" ? "an explicit invitation is required before joining"
+                : state.joinRule === "invite" ? "для приєднання потрібне спеціальне запрошення"
                 : props.resource ? "приєднатися може лише той, хто має доступ до запису, що анотується"
                 : "тільки той, хто має доступ до мед. карти, що містить цей запис, може приєднатися"
                 }
