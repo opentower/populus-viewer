@@ -10,6 +10,6 @@ export default function ArchiveRoom(props) {
     <button onClick={() => {
       Client.client.setRoomTag(props.room.roomId, "m.lowpriority", {order: 0.5})
       Modal.hide()
-    }} class="styled-button">Archive this room</button>
+    }} class="styled-button">Перенестм в архів</button>
   </>
 }
