@@ -1,5 +1,5 @@
 # Використовуємо базовий образ Node.js
-FROM node:latest
+FROM arm32v7/node:latest
 
 # Встановлюємо директорію робочого простору в контейнері
 WORKDIR /app
