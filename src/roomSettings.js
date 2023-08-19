@@ -331,7 +331,7 @@ export default class RoomSettings extends Component {
               </select>
               <div class="room-settings-info">
                 {state.readability === "world_readable"
-                  ? "anyone can see what's happening in the room"
+                  ? "будь-хто може бачити, що відбувається"
                   : "only room members can see what's happening in the room"
                 }
               </div>
