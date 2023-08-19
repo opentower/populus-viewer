@@ -212,7 +212,7 @@ class Login extends Component {
           setName={props.setName}
           name={props.name} />
         <div>
-          <button disabled={!this.canSubmit()} class="styled-button" >Логін</button>
+          <button disabled={!this.canSubmit()} class="styled-button" >Вхід</button>
         </div>
       </form>
       {state.SSOProviders.length > 0 
