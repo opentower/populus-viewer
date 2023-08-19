@@ -142,9 +142,9 @@ export default class ContentView extends Component {
   catchFetchResourceError = e => {
     Toast.set(<Fragment>
       <h3 id="toast-header">Не вдалося отримати ресурс...</h3>
-      <div>Намагалися зґ: </div>
+      <div>Намагалися отриматм: </div>
       <pre>{this.props.resourceAlias}</pre>
-      <div>Here's the error message:</div>
+      <div>Сповіщення про помилку:</div>
       <pre>{e.message}</pre>
     </Fragment>)
     History.push('/')
@@ -158,7 +158,7 @@ export default class ContentView extends Component {
       contentHeightPx: null,
       zoomFactor: null,
       resourceLength: null,
-      loadingStatus: "loading...",
+      loadingStatus: "завантаження...",
     }, res))
     const aliasResponse = await Client.client.getRoomIdForAlias(`#${this.props.resourceAlias}`).catch(this.catchFetchResourceError)
     if (this.errorCondition) return
