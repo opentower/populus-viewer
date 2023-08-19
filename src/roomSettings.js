@@ -320,8 +320,8 @@ export default class RoomSettings extends Component {
               <div class="room-settings-info">
                 { state.joinRule === "public" ? "anyone who can find the room may join"
                 : state.joinRule === "invite" ? "an explicit invitation is required before joining"
-                : props.resource ? "only someone with access to the resource being annotated may join"
-                : "only someone with access to a collection containing this resource may join"
+                : props.resource ? "приєднатися може лише той, хто має доступ до запису, що анотується"
+                : "тільки той, хто має доступ до мед. карти, що містить цей запис, може приєднатися"
                 }
               </div>
               <label htmlFor="readability">Readability</label>
