@@ -210,7 +210,7 @@ export default class RoomList extends Component {
         </button>
         <button data-current-button={state.sort === "ACTIVITY"}
                 onClick={this.sortByActivity}
-                class="styled-button">Activity</button>
+                class="styled-button">Зміни</button>
         <button data-current-button={state.sort === "NAME"}
                 onClick={this.sortByName}
                 class="styled-button">Name</button>
