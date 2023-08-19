@@ -459,7 +459,7 @@ function TopAnchor(props) {
     <FlagSelector focus={props.focus}/>
     <div id="scroll-done">
       { props.focus.getStatus() === "pending"
-        ? "Awaiting your comment..."
+        ? "В очікувані комениарів..."
         : null
       }
     </div>
@@ -469,7 +469,7 @@ function TopAnchor(props) {
 class FlagSelector extends Component {
   handleError = e => {
     Toast.set(<Fragment>
-      <h3 id="toast-header">Couldn't mark as question</h3>
+      <h3 id="toast-header">Не </h3>
       <div>Maybe you don't have permission to edit this annotation? Here's the error message:</div>
       <pre>{e.message}</pre>
     </Fragment>)
