@@ -500,7 +500,7 @@ class ConfigurePowerForState extends Component {
         <select class="styled-input" value={currentRole} disabled={!this.mayChangePowerLevel} name={props.label} onchange={this.handleChange}>
           <option disabled={props.member.powerLevels < 100} value="admin">Лише адміністратор</option>
           <option disabled={props.member.powerLevels < 50} value="mod">Модератор </option>
-          <option value="member">Будьr</option>
+          <option value="member">Будь хто</option>
           {this.initialRole === "custom" ? <option value="custom">Custom Value</option>: null}
         </select>
         <div class="room-settings-info">
