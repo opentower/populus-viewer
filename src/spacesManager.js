@@ -96,13 +96,13 @@ export default class SpacesManager extends Component {
 
   render(props, state) {
     return <div id="spaces-manager">
-      <h1>Collections</h1>
+      <h1>Карточкиі</h1>
       <hr class="styled-rule" />
       <div id="spaces-list">
         {state.spaces.map(room => <SpaceListing filterToggle={this.filterToggle} oneColumn={props.oneColumn} key={room.roomId} room={room} />)}
       </div>
       <div>
-        <button onclick={this.addCollection} id="add-space">Add Collection</button>
+        <button onclick={this.addCollection} id="add-space">ім'я сервера має виглядати як 'matrix.org'</button>
       </div>
     </div>
   }
@@ -409,10 +409,10 @@ class AvailableDiscussionListing extends Component {
     const parentContent = { via: [theDomain] }
     await Client.client
       .sendStateEvent(this.props.collection.roomId, Matrix.EventType.SpaceChild, childContent, this.props.room.roomId)
-      .catch(toastError("Couldn't add discussion to collection"))
+      .catch(toastError("Не вдалося додати обговорення до колекції"))
     await Client.client
       .sendStateEvent(this.props.room.roomId, Matrix.EventType.SpaceParent, parentContent, this.props.collection.roomId)
-      .catch(toastError("Couldn't add collection as parent of discussion"))
+      .catch(toastError("Не вдалося додати картоку як батька обговорення"))
   }
 
   render(props, state) {

@@ -197,7 +197,7 @@ class Login extends Component {
       : state.loading === "failed"
       ? "couldn't connect to server"
       : state.loading === "badurl"
-      ? "the server name should look like 'matrix.org'"
+      ? "ім'я сервера має виглядати як 'matrix.org'"
       : null
     if (this.doingSSO) return <div id="login-sso-loader">переходиимо...</div>
     return <div ref={props.loginElement} id="login">
