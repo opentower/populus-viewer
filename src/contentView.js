@@ -347,7 +347,7 @@ export default class ContentView extends Component {
         switch (e) {
           case "M_FORBIDDEN" : {
             Toast.set(<Fragment>
-              <div>Annotation still visible to creator</div>
+              <div>Анотацію все ще видно автору</div>
               <div style="margin-top:10px">
                 Because you're not a moderator for that annotation you just
                 removed, it has been detatched but not deleted: it will remain
