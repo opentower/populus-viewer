@@ -156,7 +156,7 @@ export default class SearchResults extends Component {
       {this.props.pdfText
         ? <Fragment>
           <div id="pdf-search-term">
-            <div><b>Search Results For:</b></div>
+            <div><b>Результати пошуку для:</b></div>
             <SearchBar
               hint="Alt-/"
               searchInput={this.searchInput}
@@ -176,7 +176,7 @@ export default class SearchResults extends Component {
           />
           )}
         </Fragment>
-        : <div id="pdf-search-warn"><b>Indexing Pdf, Please Wait...</b></div>
+        : <div id="pdf-search-warn"><b>Індексація Pdf, Зачекайте Wait...</b></div>
         }
     </div>
   }
