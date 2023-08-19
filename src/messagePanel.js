@@ -119,7 +119,7 @@ export default class MessagePanel extends Component {
         { state.mode === "Default"
           ? state.buttons === 1
             ? <Fragment>
-                <button id="submitButton" onclick={this.submitCurrentInput}>Зберегти</button>
+                <button id="submitButton" onclick={this.submitCurrentInput}>Надіслати</button>
                 <ToolTip key="record-audio" content="Запис аудіоповідомлення">
                   <button onclick={this.setModeRecordAudio}>{Icons.mic}</button>
                 </ToolTip>
@@ -148,7 +148,7 @@ export default class MessagePanel extends Component {
                 }
             </Fragment>
           : <Fragment>
-              <button id="submitButton" onclick={this.submitCurrentInput}>Зберегти</button>
+              <button id="submitButton" onclick={this.submitCurrentInput}>Надіслати</button>
               <button id="cancelButton" onclick={this.setModeDefault}>Відміна</button>
           </Fragment>
         }
