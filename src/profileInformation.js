@@ -66,7 +66,7 @@ export default class ProfileInfomation extends Component {
     // insertion of divs causes click events to get handled by the wrong
     // elements as they bubble up through the DOM otherwise
     return <div id="profile-information">
-      <h2>Update Your Profile</h2>
+      <h2>Оновити особисті дані</h2>
       <hr class="styled-rule" />
       <form id="profileInformationForm" ref={this.mainForm} onsubmit={this.updateProfile}>
         <label>My User Id</label>
