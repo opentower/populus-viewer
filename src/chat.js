@@ -470,7 +470,7 @@ class FlagSelector extends Component {
   handleError = e => {
     Toast.set(<Fragment>
       <h3 id="toast-header">Не визначено як питання</h3>
-      <div>e:</div>
+      <div>Можливо, у вас немає дозволу на редагування цієї нотатки? Ось повідомлення про помилку:</div>
       <pre>{e.message}</pre>
     </Fragment>)
   }
