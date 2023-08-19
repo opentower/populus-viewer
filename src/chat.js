@@ -469,8 +469,8 @@ function TopAnchor(props) {
 class FlagSelector extends Component {
   handleError = e => {
     Toast.set(<Fragment>
-      <h3 id="toast-header">Не </h3>
-      <div>Maybe you don't have permission to edit this annotation? Here's the error message:</div>
+      <h3 id="toast-header">Не визначено як питання</h3>
+      <div>e:</div>
       <pre>{e.message}</pre>
     </Fragment>)
   }
