@@ -291,13 +291,11 @@ function UploadIcon (props) {
 
 function AboutCard (props) {
   return <div id="welcome-about-card">
-    <div>Populus-Viewer</div>
+    <div>Вхідимир Анатолійович Коваленко</div>
     <hr class="styled-rule" />
     <div id="welcome-about-card-icons">
-      <div><span class="small-icon">{Icons.matrix}</span> <a target="_blank" href="https://matrix.to/#/#opentower:matrix.org">Chat with developers</a></div>
-      <div><span class="small-icon">{Icons.github}</span> <a target="_blank" href="https://github.com/opentower/populus-viewer/issues">Report a bug or request a feature</a></div>
     </div>
     <hr class="styled-rule" />
-    <div> Open-Tower © 2022. All Rights Reserved</div>
+    <div>Телефон: +380964267234</div>
   </div>
 }
