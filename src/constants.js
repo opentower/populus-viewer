@@ -1,6 +1,6 @@
 export const pdfStateType = "com.open-tower.populus.pdf" // increment to start over with a fresh event type
 export const lastViewed = "com.open-tower.populus.lastPositionViewed"
-export const serverRoot = `https://matrix.populus.open-tower.com`
+export const serverRoot = `https://conduit.m-e.pp.ua`
 export const joinRule = "m.room.join_rules"
 export const mscParent = "com.open-tower.msc3574.markup.parent"
 export const mscResourceData = "com.open-tower.msc3574.markup.resource"
