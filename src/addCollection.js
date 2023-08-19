@@ -145,7 +145,7 @@ class CreateCollection extends Component {
             ? "querying..."
             : state.nameavailable
               ? "name available"
-              : "name unavailable"
+              : "ім'я недоступне"
           }
         </div>
         <label for="topic" >Collection Topic</label>

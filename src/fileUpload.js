@@ -260,7 +260,7 @@ export default class FileUpload extends Component {
 
   render (_, state) {
     return <div id="file-upload">
-      <h2> Upload a new file</h2>
+      <h2> Додати документ</h2>
       <hr class="styled-rule" />
       { state.fileValid 
         ? <Fragment>
@@ -270,13 +270,13 @@ export default class FileUpload extends Component {
         : null
       }
       <form id="file-upload-form" ref={this.mainForm} onsubmit={this.uploadHandler}>
-        <label for="file">File to Discuss</label>
+        <label for="file">Файл</label>
         <div id="file-upload-chooser"> {state.fileValid 
             ? <Fragment>
               <span>{this.fileLoader.current.files[0].name}</span>
               <button type="button" onclick={this.clearFile} class="small-icon">{Icons.close}</button>
             </Fragment>
-            : <button type="button" class="styled-button" onclick={this.chooseFile}>Click to Choose a File</button>
+            : <button type="button" class="styled-button" onclick={this.chooseFile}>Завантажте з вашого пристрою</button>
           }
           <input name="file"
             oninput={this.validateFile}
@@ -291,7 +291,7 @@ export default class FileUpload extends Component {
             : <span>&nbsp;</span>
           }
         </div>
-        <label for="discussion" >Name for Discussion</label>
+        <label for="discussion" >Назва документу</label>
         <input class="styled-input" 
           name="discussion" 
           value={state.name} 
@@ -306,17 +306,17 @@ export default class FileUpload extends Component {
               ? "querying..."
               : state.aliasAvailable
                 ? "name available"
-                : "name unavailable"
+                : "ім'я недоступне"
             }
           </div>
         }
-        <label class="top-aligned-label" for="topic">Room Avatar</label>
+        <label class="top-aligned-label" for="topic">Зображення документу</label>
         <AvatarSelector 
           ref={this.avatarSelector} 
           progressHandler={this.progressHandler}
         />
-        <div class="file-upload-form-detail">Add an image to display with this discussion</div>
-        <label class="top-aligned-label" for="topic">Topic of Discussion</label>
+        <div class="file-upload-form-detail">Додайте зображення першої сторінки чи частини документу</div>
+        <label class="top-aligned-label" for="topic">Опис документу</label>
         <textarea
           class="styled-input"
           name="topic"
@@ -327,9 +327,9 @@ export default class FileUpload extends Component {
           data-gramm="false" // disable grammarly
         />
         <details open={state.details} ontoggle={this.handleToggle}>
-          <summary>Advanced Settings</summary>
+          <summary>Додаткові налаштування</summary>
           <div class="file-upload-details-wrapper">
-            <label for="discussion" >Canonical Alias</label>
+            <label for="discussion" >Псевдонім</label>
             <input class="styled-input"
               name="discussion"
               value={state.alias}
@@ -344,15 +344,15 @@ export default class FileUpload extends Component {
                   ? "querying..."
                   : state.aliasAvailable
                   ? "alias available"
-                  : "alias unavailable"
+                  : "псевдонім недоступний"
                 }
               </div>
             }
-            <label for="external-url">External URL</label>
+            <label for="external-url">Зовнішня URL-адреса</label>
             <input class="styled-input"
               name="external-url"
               value={state.externalURL}
-              placeholder={"URL to an external resource"}
+              placeholder={"URL-адреса опису прецедента"}
               onkeydown={this.keydownHandler}
               oninput={this.externalURLInputHandler}
               type="text"
@@ -377,7 +377,7 @@ export default class FileUpload extends Component {
             class="styled-button" 
             ref={this.submitButton} 
             type="submit">
-            { state.progress ? "Uploading..." : "Create Discussion" }
+            { state.progress ? "Створення..." : "Створити запис" }
           </button>
         </div>
         {state.progress
