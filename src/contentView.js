@@ -349,10 +349,7 @@ export default class ContentView extends Component {
             Toast.set(<Fragment>
               <div>Анотацію все ще видно автору</div>
               <div style="margin-top:10px">
-                Because you're not a moderator for that annotation you just
-                removed, it has been detatched but not deleted: it will remain
-                visible to its creator and members, although it won't be
-                visible to other viewers of this resource.
+                Оскільки ви не є модератором цієї анотації, яку ви щойно вилучили, вона буде вилучена, але не видалена: вона залишиться видимою для її автора і учасників обговорення, хоча і не буде видимою для інших.
               </div>
             </Fragment>)
             break
