@@ -141,8 +141,8 @@ export default class ContentView extends Component {
 
   catchFetchResourceError = e => {
     Toast.set(<Fragment>
-      <h3 id="toast-header">Couldn't fetch the resource...</h3>
-      <div>Tried to fetch: </div>
+      <h3 id="toast-header">Не вдалося отримати ресурс...</h3>
+      <div>Намагалися зґ: </div>
       <pre>{this.props.resourceAlias}</pre>
       <div>Here's the error message:</div>
       <pre>{e.message}</pre>
