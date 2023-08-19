@@ -94,7 +94,7 @@ export default class ContentView extends Component {
         Toast.set(
           <Fragment>
             <h3 id="toast-header">Hey!</h3>
-            <div>Another device is viewing a different position.</div>
+            <div>На іншому пристрої триває перегляд іншого запису.</div>
             <div style="margin-top:10px">
               <button
                 onclick={_ => {
