@@ -293,7 +293,7 @@ function AboutCard (props) {
   return <div id="welcome-about-card">
     <div>Володимир Анатолійович Коваленко</div>
     <hr class="styled-rule" />
-    <div id="welcome-about-card-icons">1975р.
+    <div id="welcome-about-card-icons">1975р. Луцьк. Грабовського 7а 11
     </div>
     <hr class="styled-rule" />
     <div>Телефон: +380964267234</div>
