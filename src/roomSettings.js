@@ -313,9 +313,9 @@ export default class RoomSettings extends Component {
               </div>
               <label htmlFor="joinRule">Join Rule</label>
               <select class="styled-input" value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
-                <option value="public">Public</option>
-                <option value="invite">Invite-Only</option>
-                <option disabled={!this.restrictedAvailable} value="restricted">Restricted</option>
+                <option value="public">Публічна</option>
+                <option value="invite">Для запрошених</option>
+                <option disabled={!this.restrictedAvailable} value="restricted">Обмежено</option>
               </select>
               <div class="room-settings-info">
                 { state.joinRule === "public" ? "anyone who can find the room may join"
