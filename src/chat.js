@@ -552,6 +552,6 @@ class TypingIndicator extends Component {
     if (howMany === 0) return <div class="typing-indicator">&nbsp;</div>
     else if (howMany === 1) return <div class="typing-indicator">{displayNames[0]} пише</div>
     else if (howMany === 2) return <div class="typing-indicator">{displayNames[0]} та {displayNames[1]} пишуть</div>
-    return <div class="typing-indicator">кілька л</div>
+    return <div class="typing-indicator">кілька людей зараз відписують</div>
   }
 }
