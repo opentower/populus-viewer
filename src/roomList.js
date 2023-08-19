@@ -260,18 +260,18 @@ class RoomEntry extends Component {
 
   toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
 
-  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
+  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Керування учасниками", `для ${this.props.room.name}`)
 
-  openSettings = _ => Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Room Settings", `for ${this.props.room.name}`)
+  openSettings = _ => Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Налаштування спілкування", `для ${this.props.room.name}`)
 
-  handleEditTags = _ => Modal.set(<TagEditor room={this.props.room} />, "Edit Tags", `for ${this.props.room.name}`)
+  handleEditTags = _ => Modal.set(<TagEditor room={this.props.room} />, "Редагувати теги", `для ${this.props.room.name}`)
 
   toggleFavorite = _ => {
     if (this.props.room.tags["m.favourite"]) Client.client.deleteRoomTag(this.props.room.roomId, "m.favourite")
     else Client.client.setRoomTag(this.props.room.roomId, "m.favourite", {order: 0.5})
   }
 
-  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Leave Room?", `for ${this.props.room.name}`)
+  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Вийти з спілкування?", ` ${this.props.room.name}`)
 
   render (props, state) {
     const userMember = props.room.getMember(Client.client.getUserId())
@@ -298,7 +298,7 @@ class RoomEntry extends Component {
           { state.buttonsVisible ? <ToolTip placement="right" content="Leave conversation"><button onClick={this.handleClose}>{Icons.exit}</button></ToolTip> : null }
           { state.buttonsVisible ? <ToolTip placement="right" content="Edit room tags"><button onClick={this.handleEditTags}>{Icons.tag}</button></ToolTip> : null }
           { state.buttonsVisible && canInvite ? <ToolTip placement="right" content="Manage membership"><button onClick={this.openMembership}>{Icons.userPlus}</button></ToolTip> : null }
-          { state.buttonsVisible && isAdmin ? <ToolTip placement="right" content="Configure room settings"><button onClick={this.openSettings}>{Icons.settings}</button></ToolTip> : null }
+          { state.buttonsVisible && isAdmin ? <ToolTip placement="right" content="Configure Налаштування спілкування"><button onClick={this.openSettings}>{Icons.settings}</button></ToolTip> : null }
         </div>
       </div>
     </div>

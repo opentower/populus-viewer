@@ -215,15 +215,15 @@ class SpaceListing extends Component {
 
   openSettings = _ => {
     this.setState({ actionsVisible: false })
-    Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Room Settings", `for ${this.props.room.name}`)
+    Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Налаштування спілкування", `для ${this.props.room.name}`)
   }
 
   openMembership = _ => {
     this.setState({ actionsVisible: false })
-    Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
+    Modal.set(<ManageMembership room={this.props.room} />, "Хто спілкується", `по темі ${this.props.room.name}`)
   }
 
-  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Leave Room?", `for ${this.props.room.name}`)
+  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Припинити спілкування?", ` ${this.props.room.name}`)
 
   archiveRoom = _ => Modal.set(<ArchiveRoom room={this.props.room} />, "Archive Collection?", `for ${this.props.room.name}`)
 

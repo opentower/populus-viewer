@@ -105,51 +105,51 @@ export default class MessagePanel extends Component {
 
   openSettings = _ => {
     const theRoom = Client.client.getRoom(this.props.focus.getChild())
-    Modal.set(<RoomSettings joinLink resource={this.props.resource} room={theRoom} />, "Room Settings", `for ${theRoom.name}`)
+    Modal.set(<RoomSettings joinLink resource={this.props.resource} room={theRoom} />, "Налаштування спілкування", `про ${theRoom.name}`)
   }
 
   render(props, state) {
     const theRoom = Client.client.getRoom(props.focus.getChild())
     const userMember = theRoom?.getMember(Client.client.getUserId())
     const isAdmin = userMember ? userMember.powerLevel >= 100 : false
-    if (theRoom && !theRoom.maySendMessage()) return <div id="message-panel-disabled">Read-only Discussion</div>
+    if (theRoom && !theRoom.maySendMessage()) return <div id="message-panel-disabled">Тільки для читання</div>
     return <div style={this.userColor.styleVariables} id="messageComposer">
       {this.getInput()}
       <div id="submit-button-wrapper">
         { state.mode === "Default"
           ? state.buttons === 1
             ? <Fragment>
-                <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
-                <ToolTip key="record-audio" content="Record audio message">
+                <button id="submitButton" onclick={this.submitCurrentInput}>Зберегти</button>
+                <ToolTip key="record-audio" content="Запис аудіоповідомлення">
                   <button onclick={this.setModeRecordAudio}>{Icons.mic}</button>
                 </ToolTip>
-                <ToolTip key="record-video" content="Record video message">
+                <ToolTip key="record-video" content="Записати відеозвернення">
                   <button onclick={this.setModeRecordVideo}>{Icons.video}</button>
                 </ToolTip>
-                <ToolTip key="more-options" content="More options">
+                <ToolTip key="more-options" content="Більше опцій">
                   <button ref={this.showMoreButton} onclick={this.showMore}>{Icons.moreHorizontal}</button>
                 </ToolTip>
             </Fragment>
             : <Fragment>
-                <ToolTip key="more-options-2" content="More options">
+                <ToolTip key="more-options-2" content="Більше опцій">
                   <button ref={this.showLessButton} onclick={this.showLess}>{Icons.moreHorizontal}</button>
                 </ToolTip>
-                <ToolTip key="quote-highlighted" content="Quote highlighted">
+                <ToolTip key="quote-highlighted" content="Виділено цитату">
                   <button id="quote-button" disabled={!props.hasSelection} onclick={this.sendSelection}>{Icons.quote}</button>
                 </ToolTip>
-                <ToolTip key="Upload-file" content="Upload file">
+                <ToolTip key="Upload-file" content="Надіслати файл">
                   <button onclick={this.setModeSendFile}>{Icons.upload}</button>
                 </ToolTip>
                 {isAdmin
-                  ? <ToolTip key="configure-room" content="Configure room settings">
+                  ? <ToolTip key="configure-room" content="Налаштування спілкування">
                     <button onclick={this.openSettings}>{Icons.settings}</button>
                   </ToolTip>
                   : null
                 }
             </Fragment>
           : <Fragment>
-              <button id="submitButton" onclick={this.submitCurrentInput}>Submit</button>
-              <button id="cancelButton" onclick={this.setModeDefault}>Cancel</button>
+              <button id="submitButton" onclick={this.submitCurrentInput}>Зберегти</button>
+              <button id="cancelButton" onclick={this.setModeDefault}>Відміна</button>
           </Fragment>
         }
       </div>
