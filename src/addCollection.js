@@ -58,7 +58,7 @@ export default class AddCollection extends Component {
     return <>
       <div id="add-collection-select-view" class="select-view">
         <button onClick={this.createCollection} data-current-button={state.creating}>Create Collection</button>
-        <button onClick={this.unarchiveCollection} disabled={state.archived.length === 0} data-current-button={!state.creating}>Restore from Archive</button>
+        <button onClick={this.unarchiveCollection} disabled={state.archived.length === 0} data-current-button={!state.creating}>Відновити з архіву </button>
       </div>
       <div id="add-collection-list-wrapper" ref={this.currentListWrapper}>
         {state.creating
