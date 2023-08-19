@@ -359,8 +359,8 @@ class AddChild extends Component {
     return <Fragment>
       <SearchBar search={state.search} setSearch={this.filterDiscussions} />
       <div id="manage-discussion-select-view" class="select-view">
-        <button onClick={this.addDiscussions} data-current-button={state.adding}>Add Discussions</button>
-        <button onClick={this.removeDiscussions} data-current-button={!state.adding}>Remove Discussions</button>
+        <button onClick={this.addDiscussions} data-current-button={state.adding}>Додати обговорення</button>
+        <button onClick={this.removeDiscussions} data-current-button={!state.adding}>Видалити обговорення</button>
       </div>
       <div id="manage-discussion-list-wrapper" ref={this.currentListWrapper}>
         {state.adding
