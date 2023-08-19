@@ -199,9 +199,9 @@ class Login extends Component {
       : state.loading === "badurl"
       ? "the server name should look like 'matrix.org'"
       : null
-    if (this.doingSSO) return <div id="login-sso-loader">Redirecting...</div>
+    if (this.doingSSO) return <div id="login-sso-loader">переходиимо...</div>
     return <div ref={props.loginElement} id="login">
-      <h3>Login To Populus</h3>
+      <h3>Зайти в Карточки</h3>
       <form id="loginForm" onSubmit={this.handleSubmit}>
         <UserData
           connectionMessage={connectionMessage}
@@ -212,7 +212,7 @@ class Login extends Component {
           setName={props.setName}
           name={props.name} />
         <div>
-          <button disabled={!this.canSubmit()} class="styled-button" >Login</button>
+          <button disabled={!this.canSubmit()} class="styled-button" >Логін</button>
         </div>
       </form>
       {state.SSOProviders.length > 0 
@@ -244,8 +244,8 @@ class Login extends Component {
         }
       <div id="login-options">
         <hr class="styled-rule" />
-        <span>Don't have an account? </span>
-        <a disabled={state.submitting} onClick={props.switchView("register")} >Register</a>
+        <span>Не зареєстровані?? </span>
+        <a disabled={state.submitting} onClick={props.switchView("register")} >Зареєструватись</a>
       </div>
     </div>
   }
@@ -439,13 +439,13 @@ class UserData extends Component {
   render (props, state) {
     return (
       <Fragment>
-        <label htmlFor="servername">Server</label>
+        <label htmlFor="servername">Сервер</label>
         <input class="styled-input" value={props.server} onfocus={this.handleFocus} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="Створення...-e.pp.ua" />
         <div class="userdata-form-info">{props.connectionMessage}</div>
-        <label htmlFor="username">Username</label>
+        <label htmlFor="username">Користувач</label>
         <input class="styled-input" autocomplete="username" value={props.name} onfocus={this.handleFocus} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
         <div class="userdata-form-info">{state.usernameMessage}</div>
-        <label htmlFor="password">Password</label>
+        <label htmlFor="password">Пароль</label>
         <input class="styled-input" autocomplete={props.newAccount ? "new-password" : "current-password"} onfocus={this.handleFocus} value={props.password} oninput={this.validatePassword} type="password" ref={this.passwordInput} id="password" name="password" />
         <div class="userdata-form-info">{state.passwordMessage}</div>
       </Fragment>
