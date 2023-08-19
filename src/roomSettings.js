@@ -284,7 +284,7 @@ export default class RoomSettings extends Component {
                 onInput={this.handleNameInput}
               />
               <div class="room-settings-info"></div>
-              <label class="top-aligned-label" htmlFor="room-topic">Topic</label>
+              <label class="top-aligned-label" htmlFor="room-topic">Тема</label>
               <textarea ref={this.roomTopicTextarea} name="room-topic"
                 class="styled-input"
                 value={state.roomTopic}
@@ -302,8 +302,8 @@ export default class RoomSettings extends Component {
                 value={state.discovery}
                 name="discovery"
                 onchange={this.handleDiscoveryChange}>
-                <option value="private">Private</option>
-                <option value="public">Publicly Listed</option>
+                <option value="private">Приватно</option>
+                <option value="public">Публічний перегляд</option>
               </select>
               <div class="room-settings-info">
                 {state.discovery === "public"
