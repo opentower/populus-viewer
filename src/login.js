@@ -440,7 +440,7 @@ class UserData extends Component {
     return (
       <Fragment>
         <label htmlFor="servername">Server</label>
-        <input class="styled-input" value={props.server} onfocus={this.handleFocus} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
+        <input class="styled-input" value={props.server} onfocus={this.handleFocus} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="Створення...-e.pp.ua" />
         <div class="userdata-form-info">{props.connectionMessage}</div>
         <label htmlFor="username">Username</label>
         <input class="styled-input" autocomplete="username" value={props.name} onfocus={this.handleFocus} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
