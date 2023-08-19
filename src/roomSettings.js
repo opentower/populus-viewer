@@ -344,8 +344,8 @@ export default class RoomSettings extends Component {
                   </select>
                   <div class="room-settings-info">
                     {state.spaceVisibility === "visible"
-                      ? "the annotation is visible to everyone"
-                      : "the annotation is hidden unless you've already seen it"
+                      ? "анотацію бачать усі"
+                      : "анотацію буде приховано, якщо ви її ще не бачили"
                     }
                   </div>
                 </Fragment>
