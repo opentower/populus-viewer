@@ -195,7 +195,7 @@ export default class RoomSettings extends Component {
     Modal.hide()
   }
 
-  raiseErr = _ => alert("Something went wrong. You may not have permission to adjust some of these settings.")
+  raiseErr = _ => alert("Щось пішло не так. Можливо, у вас немає дозволу на зміну деяких з цих налаштувань.")
 
   publishReferences() {
     const theDomain = Client.client.getDomain()
