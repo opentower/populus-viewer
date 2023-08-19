@@ -176,7 +176,7 @@ export default class SearchResults extends Component {
           />
           )}
         </Fragment>
-        : <div id="pdf-search-warn"><b>Індексація Pdf, Зачекайте Wait...</b></div>
+        : <div id="pdf-search-warn"><b>Індексація Pdf, Зачекайте будьласка...</b></div>
         }
     </div>
   }
