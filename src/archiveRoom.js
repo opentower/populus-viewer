@@ -6,7 +6,6 @@ export default function ArchiveRoom(props) {
   return <>
     <p>Ви зараз видалите мед. книжку з вашого списку, але ви все одно
       зможете відновити її за допомогою кнопки "Додати мед. книжку"
-
     </p>
     <button onClick={() => {
       Client.client.setRoomTag(props.room.roomId, "m.lowpriority", {order: 0.5})
