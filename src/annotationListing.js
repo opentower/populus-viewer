@@ -264,12 +264,12 @@ export default class AnnotationListing extends Component {
                   {props.mimetype === "application/pdf" 
                     ? <button data-current-button={state.sort === "Page"}
                         onClick={this.sortByPage}
-                        class="styled-button">Page</button>
+                        class="styled-button">Сторінка</button>
                     : null
                   }
                 </div>
                   {Object.values(props.annotationContents).length === 0
-                    ? <div class="empty-marker"><b>Немає анотацій до запи</b></div>
+                    ? <div class="empty-marker"><b>Немає анотацій до записів</b></div>
                     : props.filteredAnnotationContents.length === 0
                       ? <div class="empty-marker"><b>Немає анотацій, що відповідають пошуку</b></div>
                       : state.sortOrder === 1 ? theAnnotations : theAnnotations.reverse()
