@@ -383,11 +383,11 @@ function AnnotationListingComment(props) {
       case "m.audio" : body = <div class="annotation-listing-fallback"><p>Sent an audio recording</p></div>; break
       case "m.emote" : {
         if (content[mscMarkupMsgKey]) body = <div class="annotation-listing-fallback"><p>Sent an annotation</p></div>
-        else body = <div class="annotation-listing-fallback"><p>Sent a message</p></div>
+        else body = <div class="annotation-listing-fallback"><p>Відправив повідомлення</p></div>
         break
       }
       default :
-        body = <div class="annotation-listing-fallback"><p>Sent a message</p></div>
+        body = <div class="annotation-listing-fallback"><p>Відправив повідомлення</p></div>
     }
     return <Fragment>
       <div
@@ -406,6 +406,6 @@ function AnnotationListingComment(props) {
       </div>
     </Fragment>
   } else if (props.annotationLocation.getStatus() === "pending") {
-    return <div class="annotation-listing-pending">awaiting your comment... </div>
+    return <div class="annotation-listing-pending">чекаємо на ваш коментар... </div>
   }
 }

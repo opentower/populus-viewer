@@ -244,7 +244,7 @@ class Login extends Component {
         }
       <div id="login-options">
         <hr class="styled-rule" />
-        <span>Не зареєстровані?? </span>
+        <span>Не зареєстровані? </span>
         <a disabled={state.submitting} onClick={props.switchView("register")} >Зареєструватись</a>
       </div>
     </div>
@@ -440,7 +440,7 @@ class UserData extends Component {
     return (
       <Fragment>
         <label htmlFor="servername">Сервер</label>
-        <input class="styled-input" value={props.server} onfocus={this.handleFocus} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="Створення...-e.pp.ua" />
+        <input class="styled-input" value={props.server} onfocus={this.handleFocus} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="conduit.m-e.pp.ua" />
         <div class="userdata-form-info">{props.connectionMessage}</div>
         <label htmlFor="username">Користувач</label>
         <input class="styled-input" autocomplete="username" value={props.name} onfocus={this.handleFocus} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
