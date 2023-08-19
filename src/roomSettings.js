@@ -332,14 +332,14 @@ export default class RoomSettings extends Component {
               <div class="room-settings-info">
                 {state.readability === "world_readable"
                   ? "будь-хто може бачити, що відбувається"
-                  : "only room members can see what's happening in the room"
+                  : "тільки запрошені учасники можуть бачити, що відбувається"
                 }
               </div>
               { this.initialSpaceVisibility 
                 ? <Fragment>
-                  <label htmlFor="spaceVisibility">Visibility</label>
+                  <label htmlFor="spaceVisibility">Видимість</label>
                   <select class="styled-input" value={state.spaceVisibility} disabled={!this.mayChangeSpaceVisibility} name="spaceVisibility" onchange={this.handleSpaceVisibilityChange}>
-                    <option value="visible">Visible </option>
+                    <option value="visible">Видима </option>
                     <option value="hidden">Hidden</option>
                   </select>
                   <div class="room-settings-info">
