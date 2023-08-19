@@ -291,9 +291,9 @@ function UploadIcon (props) {
 
 function AboutCard (props) {
   return <div id="welcome-about-card">
-    <div>Вхідимир Анатолійович Коваленко</div>
+    <div>Володимир Анатолійович Коваленко</div>
     <hr class="styled-rule" />
-    <div id="welcome-about-card-icons">
+    <div id="welcome-about-card-icons">1975р.
     </div>
     <hr class="styled-rule" />
     <div>Телефон: +380964267234</div>
