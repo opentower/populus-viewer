@@ -334,9 +334,9 @@ export default class ContentView extends Component {
   closeAnnotation = _ => {
     const isCreator = Client.client.getUserId() === this.state.focus.getCreator()
     const isMod = this.state.room.getMember(Client.client.getUserId()).powerLevel >= 50
-    if (!confirm('Are you sure you want to close this annotation?')) return
+    if (!confirm('Ви впевнені, що хочете закрити цю анотацію?')) return
     if (!isCreator && !isMod) {
-      alert("Only moderators can close annotations that they didn't create")
+      alert("Тільки ведучий лікар можуе закрити анотації, яку він не створював")
       return
     }
     const discussionId = this.state.focus.getChild()
