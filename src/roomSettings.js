@@ -318,7 +318,7 @@ export default class RoomSettings extends Component {
                 <option disabled={!this.restrictedAvailable} value="restricted">Обмежено</option>
               </select>
               <div class="room-settings-info">
-                { state.joinRule === "public" ? "Долучитися може кожен, хто знайде документ"
+                { state.joinRule === "public" ? "Долучитися може кожен, хто знайде цей запис"
                 : state.joinRule === "invite" ? "для приєднання потрібне спеціальне запрошення"
                 : props.resource ? "приєднатися може лише той, хто має доступ до запису, що анотується"
                 : "тільки той, хто має доступ до мед. карти, що містить цей запис, може приєднатися"
@@ -327,7 +327,7 @@ export default class RoomSettings extends Component {
               <label htmlFor="readability">Читабельність</label>
               <select class="styled-input" value={state.readability} disabled={!this.mayChangeReadability} name="readability" onchange={this.handleReadabilityChange}>
                 <option value="shared">Виключно для учасників</option>
-                <option value="world_readable">Загально доступна</option>
+                <option value="world_readable">Загального доступа</option>
               </select>
               <div class="room-settings-info">
                 {state.readability === "world_readable"
