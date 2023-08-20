@@ -307,8 +307,8 @@ export default class RoomSettings extends Component {
               </select>
               <div class="room-settings-info">
                 {state.discovery === "public"
-                  ? "документ з'явиться в результатах пошуку"
-                  : "документ не буде відображатися в результатах пошуку"
+                  ? "запис з'явиться в результатах пошуку"
+                  : "запис не буде відображатися в результатах пошуку"
                 }
               </div>
               <label htmlFor="joinRule">Обмеженя доступу</label>
