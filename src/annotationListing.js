@@ -270,12 +270,10 @@ export default class AnnotationListing extends Component {
                 </div>
                   {Object.values(props.annotationContents).length === 0
 <<<<<<< Updated upstream
-                    ? <div class="empty-marker"><b>Немає анотацій до записів</b></div>
-=======
-                    ? <div class="empty-marker"><b>Анотацій ще немає</b></div>
->>>>>>> Stashed changes
+                    ? Пацієнт<b>Немає анотацій до записів</b></div>
+
                     : props.filteredAnnotationContents.length === 0
-                      ? <div class="empty-marker"><b>Немає анотацій, що відповідають пошуку</b></div>
+                      ? Пацієнт<b>Немає анотацій, що відповідають пошуку</b></div>
                       : state.sortOrder === 1 ? theAnnotations : theAnnotations.reverse()
                   }
               </div>
