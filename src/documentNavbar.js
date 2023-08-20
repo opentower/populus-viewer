@@ -102,7 +102,7 @@ export default class DocumentNavbar extends Component {
     ev.preventDefault();
     const currentPage = Number.isNaN(parseInt(this.state.value, 10)) ? 1 : parseInt(this.state.value, 10)
     if (currentPage > 0 && currentPage <= this.props.total) History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${currentPage}/`)
-    else alert("Out of range");
+    else alert("Поза зоною дії");
   }
 
   handleClick = e => History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${parseInt(e.target.value, 10)}`)
