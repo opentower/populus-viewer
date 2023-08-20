@@ -201,7 +201,7 @@ class Login extends Component {
       : null
     if (this.doingSSO) return <div id="login-sso-loader">переходиимо...</div>
     return <div ref={props.loginElement} id="login">
-      <h3>Зайти в Карточки</h3>
+      <h3>Зайти в МедКарти</h3>
       <form id="loginForm" onSubmit={this.handleSubmit}>
         <UserData
           connectionMessage={connectionMessage}
