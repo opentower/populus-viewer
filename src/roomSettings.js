@@ -501,11 +501,11 @@ class ConfigurePowerForState extends Component {
           <option disabled={props.member.powerLevels < 100} value="admin">Лише пацієнт</option>
           <option disabled={props.member.powerLevels < 50} value="mod">Сімейний лікар </option>
           <option value="member">Будь хто з мед. персоналу</option>
-          {this.initialRole === "custom" ? <option value="custom">Custom Value</option>: null}
+          {this.initialRole === "custom" ? <option value="custom">Статус доступності</option>: null}
         </select>
         <div class="room-settings-info">
           {currentRole === "admin" ? `Only admins can ${props.act}`
-            : currentRole === "mod" ? `Admins and moderators can ${props.act}`
+            : currentRole === "mod" ? `паціє ${props.act}`
             : currentRole === "member" ? `Any room member can ${props.act}`
             : `Powerlevel ${this.initialPowerLevel} is required to ${props.act}`
           }
