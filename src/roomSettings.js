@@ -745,7 +745,7 @@ class RoleListing extends Component {
         <span class="small-icon">{props.deactivated ? Icons.userPlus : Icons.userMinus}</span>
         <span class="room-settings-role-user"> {props.user}</span>
         {props.activated ? <span class="room-settings-role-change-info">will be added to this role</span> : null}
-        {props.deactivated ? <span class="room-settings-role-change-info">will be removed from this role</span> : null}
+        {props.deactivated ? <span class="room-settings-role-change-info">буде усунуто з цієї ролі</span> : null}
         {(props.deactivated || props.activated) && Client.client.getUserId() === props.user 
             ? <span style={{marginTop: "5px", color:"red"}} class="room-settings-role-change-info">
                 <b>Уважно!</b>:Зміна власної ролі може бути незворотною і призвести до того, що ви втратите доступ до запису.
