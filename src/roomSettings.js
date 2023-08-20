@@ -699,7 +699,7 @@ class ModList extends Component {
           power={50} />)
     }
     if (mods.length > 0) return mods
-    else return <div class="room-settings-role-empty">None</div>
+    else return <div class="room-settings-role-empty">Пусто</div>
   }
 
   toggleMod = user => {
