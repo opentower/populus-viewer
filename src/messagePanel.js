@@ -52,13 +52,13 @@ export default class MessagePanel extends Component {
 
   setModeRecordVideo = _ => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      alert("Your browser looks like it doesn't support accessing the webcam...")
+      alert("Схоже, що ваш браузер не підтримує доступ до веб-камери...")
     } else this.setState({ mode: "RecordVideo" })
   }
 
   setModeRecordAudio = _ => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      alert("Your browser looks like it doesn't support accessing the webcam...")
+      alert("Схоже, що ваш браузер не підтримує доступ до веб-камери...")
     } else this.setState({ mode: "RecordAudio" })
   }
 
