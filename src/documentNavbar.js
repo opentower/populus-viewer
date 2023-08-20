@@ -165,7 +165,7 @@ export default class DocumentNavbar extends Component {
             </button>
           </ToolTip>
           <form class="nav-position" onSubmit={this.handleSubmit}>
-            <ToolTip content="Show page navigation" offset={this.toolTipOffset}>
+            <ToolTip content="Show page navigationПоказати навігацію" offset={this.toolTipOffset}>
               <button type="button"
                 class={state.pageViewVisible ? "nav-toggled" : null}
                 onclick={this.togglePageNav}>{Icons.page}
@@ -181,12 +181,12 @@ export default class DocumentNavbar extends Component {
             <span>/</span>
             <span ref={this.pageTotal} id="nav-total-pages">{props.total}</span>
           </form>
-          <ToolTip content="Go to next page (j, →)" offset={this.toolTipOffset}>
+          <ToolTip content="На наступну сторінку (j, →)" offset={this.toolTipOffset}>
             <button disabled={props.total > props.pageFocused ? null : "disabled"} 
               onclick={this.nextPage}>{Icons.chevronRight}
             </button>
           </ToolTip>
-          <ToolTip content="Go to next annotation (Alt + Tab)" offset={[0, 30]}>
+          <ToolTip content="До наст (Alt + Tab)" offset={[0, 30]}>
             <button disabled={!props.hasAnnotations}
               onclick={props.focusNext}>{Icons.chevronsRight}
             </button>
