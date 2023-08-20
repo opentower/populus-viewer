@@ -327,7 +327,7 @@ export default class RoomSettings extends Component {
               <label htmlFor="readability">Читабельність</label>
               <select class="styled-input" value={state.readability} disabled={!this.mayChangeReadability} name="readability" onchange={this.handleReadabilityChange}>
                 <option value="shared">Виключно для учасників</option>
-                <option value="world_readable">Загального доступа</option>
+                <option value="world_readable">Загального доступу</option>
               </select>
               <div class="room-settings-info">
                 {state.readability === "world_readable"
