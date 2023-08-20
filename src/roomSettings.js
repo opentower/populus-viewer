@@ -744,7 +744,7 @@ class RoleListing extends Component {
         class="room-settings-role-listing">
         <span class="small-icon">{props.deactivated ? Icons.userPlus : Icons.userMinus}</span>
         <span class="room-settings-role-user"> {props.user}</span>
-        {props.activated ? <span class="room-settings-role-change-info">will be added to this role</span> : null}
+        {props.activated ? <span class="room-settings-role-change-info">буде додано в цю роль</span> : null}
         {props.deactivated ? <span class="room-settings-role-change-info">буде усунуто з цієї ролі</span> : null}
         {(props.deactivated || props.activated) && Client.client.getUserId() === props.user 
             ? <span style={{marginTop: "5px", color:"red"}} class="room-settings-role-change-info">
@@ -772,7 +772,7 @@ class OtherRoleList extends Component {
   render() {
     if (!this.getOtherRoles()) return null
     else return <div class="room-settings-role-list">
-      <h5>Other Roles</h5>
+      <h5>Інші ролі</h5>
       {this.getOtherRoles()}
     </div>
   }
