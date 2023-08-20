@@ -341,9 +341,9 @@ export default class FileUpload extends Component {
               ? null
               : <div class="file-upload-form-detail">{
                 state.queryingAlias
-                  ? "querying..."
+                  ? "запитуємо..."
                   : state.aliasAvailable
-                  ? "alias available"
+                  ? "псевдонім доступний"
                   : "псевдонім недоступний"
                 }
               </div>
@@ -361,12 +361,12 @@ export default class FileUpload extends Component {
               ? null
               : <div class="file-upload-form-detail">{
                 state.fileValid
-                  ? "Remove file selection to use external URL"
+                  ? "Видалити вибір файлу для використання зовнішньої URL-адреси"
                   : state.queryingURL
-                  ? "Checking url..."
+                  ? "Перевірка url..."
                   : state.urlDefect
                   ? state.urlDefect
-                  : `Valid URL - found ${state.urlContentType}`
+                  : `Дійсна URL-адреса - знайдено ${state.urlContentType}`
                 }
               </div>
             }
@@ -531,7 +531,7 @@ class MediaUploadPreview extends Component {
       <div id="media-upload-preview-waveform">
       </div>
       <div id="media-upload-preview-controls">
-        <ToolTip content={state.playing ? "Pause preview" : "Play preview" }>
+        <ToolTip content={state.playing ? "Призупинити перегляд" : "Перегляд відео" }>
           <button onClick={this.playPause}>{state.playing ? Icons.pauseButton : Icons.playButton }</button>
         </ToolTip>
         <ToolTip content={"Improve waveform"}>

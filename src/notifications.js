@@ -112,9 +112,9 @@ export default class NotificationListing extends Component {
 function Anchor(props) {
   return props.fullyLoaded
     ? <div>
-      <div id="scroll-done">All notifications loaded</div>
+      <div id="scroll-done">Усі сповіщення завантажені</div>
     </div>
-    : <div id="scroll-anchor">loading...</div>
+    : <div id="scroll-anchor">завантажуємо...</div>
 }
 
 function TextNotification(props) {
