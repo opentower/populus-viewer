@@ -563,8 +563,8 @@ class ConfigurePowerForKey extends Component {
         <div class="room-settings-info">
           {currentRole === "admin" ? `Лише пацієнт ${props.act}`
             : currentRole === "mod" ? `Пацієнт та ведучий лікар ${props.act}`
-            : currentRole === "member" ? `Any room member can ${props.act}`
-            : `Powerlevel ${this.initialPowerLevel} is required to ${props.act}`
+            : currentRole === "member" ? `Всі хто має доступ ${props.act}`
+            : `Powerlevel ${this.initialPowerLevel}  можуть ${props.act}`
           }
         </div>
       </Fragment>
