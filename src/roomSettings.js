@@ -359,7 +359,7 @@ export default class RoomSettings extends Component {
                   <CopyButton copy={this.joinLink}/>
                 </div>
                 <div class="room-settings-info">
-                Натискання на це посилання призведе до спроби отримати доступ до запису
+                натискання на це посилання призведе до спроби отримати доступ до анотування запису
                 </div>
               </Fragment>
             : state.view === "ROLES" ? <Fragment>
