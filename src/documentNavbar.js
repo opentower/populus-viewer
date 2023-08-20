@@ -191,17 +191,17 @@ export default class DocumentNavbar extends Component {
               onclick={props.focusNext}>{Icons.chevronsRight}
             </button>
           </ToolTip>
-          <ToolTip content="Remove annotation (Alt + r)" offset={this.toolTipOffset}>
+          <ToolTip content="Видалити анотацію (Alt + r)" offset={this.toolTipOffset}>
             <button disabled={this.canAnnotate && props.focus && !props.hasSelection ? null : "disabled"}
               onclick={props.closeAnnotation}>{Icons.removeAnnotation}
             </button>
           </ToolTip>
-          <ToolTip content="More options" offset={this.toolTipOffset}>
+          <ToolTip content="Більше варіантів" offset={this.toolTipOffset}>
             <button onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
           </ToolTip>
         </div>
         <div inert={!state.moreOptionsVisible} ref={this.bottomWrapper} class="nav-button-wrapper bottom-wrapper">
-          <ToolTip content="Manage membership" theme="bordered">
+          <ToolTip content="Керуємо доступом" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.openMembership}>{Icons.userPlus}
             </button>
           </ToolTip>
