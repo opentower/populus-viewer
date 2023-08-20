@@ -603,7 +603,7 @@ class AdminList extends Component {
           />)
     }
     if (admins.length > 0) return admins
-    else return <div class="room-settings-role-empty">No admins!</div>
+    else return <div class="room-settings-role-empty">Не вказано </div>
   }
 
   toggleAdmin = user => {
