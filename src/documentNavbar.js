@@ -186,7 +186,7 @@ export default class DocumentNavbar extends Component {
               onclick={this.nextPage}>{Icons.chevronRight}
             </button>
           </ToolTip>
-          <ToolTip content="До наст (Alt + Tab)" offset={[0, 30]}>
+          <ToolTip content="До наступної анотації (Alt + Tab)" offset={[0, 30]}>
             <button disabled={!props.hasAnnotations}
               onclick={props.focusNext}>{Icons.chevronsRight}
             </button>
