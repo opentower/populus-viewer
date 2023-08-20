@@ -311,9 +311,9 @@ export default class RoomSettings extends Component {
                   : "документ не буде відображатися в результатах пошуку"
                 }
               </div>
-              <label htmlFor="joinRule">Join Rule</label>
+              <label htmlFor="joinRule">Обмеженя доступу</label>
               <select class="styled-input" value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
-                <option value="public">Публічна</option>
+                <option value="public">Публічний</option>
                 <option value="invite">Для запрошених</option>
                 <option disabled={!this.restrictedAvailable} value="restricted">Обмежено</option>
               </select>
