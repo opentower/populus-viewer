@@ -220,10 +220,10 @@ export default class DocumentNavbar extends Component {
           <ToolTip content="Додати пін" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.startPindrop}>{Icons.pin}</button>
           </ToolTip>
-          <ToolTip content="Toggle Two-Up View" theme="bordered">
+          <ToolTip content="Переключити до двостороннього перегляду" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.content.current?.toggleSecondary}>{Icons.columns}</button>
           </ToolTip>
-          <ToolTip content="Search Within PDF" theme="bordered">
+          <ToolTip content="Пошук всередині PDF" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.showSearch}>{Icons.search}</button>
           </ToolTip>
         </div>
