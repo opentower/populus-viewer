@@ -46,7 +46,7 @@ export default class LeaveRoom extends Component {
       <button onClick={this.forgetRoom} class="styled-button">Forget this {this.sort}</button>
       { this.sort === "discussion" 
         ? <><p>
-            To entirely forget this discussion <i>and all associated annotations</i>:
+            Повністю видалити це спілкування <i>і всі пов'язані з ним анотації</i>:
           </p>
           <button onClick={this.deepForget} class="styled-button">Entirely forget this discussion</button>
           {state.childTotal && <p> Forgetting: {state.progress} / {state.childTotal} </p>}
