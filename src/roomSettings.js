@@ -307,7 +307,7 @@ export default class RoomSettings extends Component {
               </select>
               <div class="room-settings-info">
                 {state.discovery === "public"
-                  ? "the room will appear in room search results"
+                  ? "доокумент з'явиться в результатах пошуку"
                   : "the room will not appear in room search results"
                 }
               </div>
