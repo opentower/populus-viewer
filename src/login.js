@@ -442,7 +442,7 @@ class UserData extends Component {
         <label htmlFor="servername">Сервер</label>
         <input class="styled-input" value={props.server} onfocus={this.handleFocus} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="conduit.m-e.pp.ua" />
         <div class="userdata-form-info">{props.connectionMessage}</div>
-        <label htmlFor="username">Користувач</label>
+        <label htmlFor="username">Пацієнт</label>
         <input class="styled-input" autocomplete="username" value={props.name} onfocus={this.handleFocus} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
         <div class="userdata-form-info">{state.usernameMessage}</div>
         <label htmlFor="password">Пароль</label>
