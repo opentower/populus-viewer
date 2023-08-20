@@ -436,8 +436,8 @@ export default class RoomSettings extends Component {
             : null
           }
           <div id="room-settings-submit-wrapper">
-            <button disabled={!updated} className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
-            <button className="styled-button" onClick={this.cancel} >Cancel</button>
+            <button disabled={!updated} className="styled-button" onClick={this.handleSubmit} >Зберегти зміни</button>
+            <button className="styled-button" onClick={this.cancel} >Відмовитись</button>
           </div>
           {typeof(state.progress) === "string"
             ? <div id="room-settings-progress">
