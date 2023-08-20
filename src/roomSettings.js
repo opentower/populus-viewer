@@ -603,7 +603,7 @@ class AdminList extends Component {
           />)
     }
     if (admins.length > 0) return admins
-    else return <div class="room-settings-role-empty">Не вказано власника</div>
+    else return <div class="room-settings-role-empty">Не вибрано пацієнта</div>
   }
 
   toggleAdmin = user => {
@@ -623,7 +623,7 @@ class AdminList extends Component {
 
   render(props) {
     return <div class="room-settings-role-list">
-      <h5>Власник</h5>
+      <h5>Пацієнт</h5>
       {this.getAdmins()}
       {this.canAdd ? <AddRole users={props.users} addRole={this.addAdmin} room={props.room}/> : null}
     </div>
