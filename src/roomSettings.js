@@ -258,7 +258,7 @@ export default class RoomSettings extends Component {
         <button onClick={this.showAccess} data-current-button={state.view==="ACCESS"}>Доступність</button>
         <button onClick={this.showRoles} data-current-button={state.view==="ROLES"}>Медики</button>
         <button onClick={this.showPermissions} data-current-button={state.view==="PERMISSIONS"}>Дозволи</button>
-        {props.joinLink ? <button onClick={this.showLinks} data-current-button={state.view==="LINKS"}>Links</button> : null}
+        {props.joinLink ? <button onClick={this.showLinks} data-current-button={state.view==="LINKS"}>Посилання</button> : null}
       </div>
       <div ref={this.settingsFormWrapper} id="room-settings-form-wrapper">
         <form 
