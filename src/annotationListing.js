@@ -377,10 +377,10 @@ function AnnotationListingComment(props) {
     let body
     switch (content.msgtype) {
       case "m.text" : body = DisplayContent({content}); break
-      case "m.notice" : body = <div class="annotation-listing-fallback"><p>Sent a notice</p></div>; break
-      case "m.image" : body = <div class="annotation-listing-fallback"><p>Sent a file</p></div>; break
-      case "m.video" : body = <div class="annotation-listing-fallback"><p>Sent a video</p></div>; break
-      case "m.audio" : body = <div class="annotation-listing-fallback"><p>Sent an audio recording</p></div>; break
+      case "m.notice" : body = <div class="annotation-listing-fallback"><p>Відправив повідомлення</p></div>; break
+      case "m.image" : body = <div class="annotation-listing-fallback"><p>Відправив файл</p></div>; break
+      case "m.video" : body = <div class="annotation-listing-fallback"><p>Відправив відео</p></div>; break
+      case "m.audio" : body = <div class="annotation-listing-fallback"><p>Відправив аудіозапис</p></div>; break
       case "m.emote" : {
         if (content[mscMarkupMsgKey]) body = <div class="annotation-listing-fallback"><p>Sent an annotation</p></div>
         else body = <div class="annotation-listing-fallback"><p>Відправив повідомлення</p></div>
