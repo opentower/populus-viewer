@@ -103,7 +103,7 @@ export default class ManageMembership extends Component {
       <SearchBar search={state.search} setSearch={this.filterMembers} />
       <div id="invite-select-view" class="select-view">
         <button disabled={!canInvite} onClick={this.joinMembers} data-current-button={state.view === "JOINING"}>Запрошення</button> 
-        <button disabled={!canKick} onClick={this.kickMembers} data-current-button={state.view === "KICKING"}>видалення</button> 
+        <button disabled={!canKick} onClick={this.kickMembers} data-current-button={state.view === "KICKING"}>Видалення</button> 
         <button disabled={!canBan} onClick={this.banMembers} data-current-button={state.view === "BANNING"}>Блокування</button> 
         <button disabled={!canUnban} onClick={this.unbanMembers} data-current-button={state.view === "UNBANNING"}>Розбокування</button> 
       </div>
