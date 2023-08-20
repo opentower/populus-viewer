@@ -122,7 +122,7 @@ export default class ImageContent extends Component {
     const locationData = this.generateLocation()
     return Client.client.createRoom({
       visibility: "private",
-      name: `selected region at ${this.state.selection.x},${this.state.selection.y}`,
+      name: `обрана частина зображення ${this.state.selection.x},${this.state.selection.y}`,
       power_level_content_override: {
         users: Object.assign({}, theLevels.getContent().users, {
           [Client.client.getUserId()]: 100
