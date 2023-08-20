@@ -47,7 +47,7 @@ class PopulusViewer extends Component {
     Client.client.startClient().then(_ => {
       Client.client.getMediaConfig().then(conf => Client.mediaConfig = conf)
       this.setState({
-        initializationStage: "performing initial sync",
+        initializationStage: "виконуємо початкову синхронізацію",
         loggedIn: true
       })
     })

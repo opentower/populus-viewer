@@ -96,13 +96,13 @@ export default class SpacesManager extends Component {
 
   render(props, state) {
     return <div id="spaces-manager">
-      <h1>Карточкиі</h1>
+      <h1>Карти пацієнта</h1>
       <hr class="styled-rule" />
       <div id="spaces-list">
         {state.spaces.map(room => <SpaceListing filterToggle={this.filterToggle} oneColumn={props.oneColumn} key={room.roomId} room={room} />)}
       </div>
       <div>
-        <button onclick={this.addCollection} id="add-space">ім'я сервера має виглядати як 'matrix.org'</button>
+        <button onclick={this.addCollection} id="add-space">Додаи нову мед. картку</button>
       </div>
     </div>
   }
