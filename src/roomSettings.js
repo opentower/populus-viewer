@@ -359,7 +359,7 @@ export default class RoomSettings extends Component {
                   <CopyButton copy={this.joinLink}/>
                 </div>
                 <div class="room-settings-info">
-                  Clicking this link will cause an attempt to join this room
+                Натискання на це посилання призведе до спроби отримати доступ до запису
                 </div>
               </Fragment>
             : state.view === "ROLES" ? <Fragment>
