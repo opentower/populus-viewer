@@ -499,14 +499,14 @@ class ConfigurePowerForState extends Component {
         <label htmlFor={props.label}>{props.label}</label>
         <select class="styled-input" value={currentRole} disabled={!this.mayChangePowerLevel} name={props.label} onchange={this.handleChange}>
           <option disabled={props.member.powerLevels < 100} value="admin">Лише пацієнт</option>
-          <option disabled={props.member.powerLevels < 50} value="mod">В лікар </option>
+          <option disabled={props.member.powerLevels < 50} value="mod">Ведучий лікар </option>
           <option value="member">Будь хто з мед. персоналу</option>
           {this.initialRole === "custom" ? <option value="custom">Статус доступності</option>: null}
         </select>
         <div class="room-settings-info">
           {currentRole === "admin" ? `Only admins can ${props.act}`
             : currentRole === "mod" ? `пацієнт та ведучий лікар ${props.act}`
-            : currentRole === "member" ? `Any room member can ${props.act}`
+            : currentRole === "member" ? `інший мед. персонал ${props.act}`
             : `Powerlevel ${this.initialPowerLevel} is required to ${props.act}`
           }
         </div>
