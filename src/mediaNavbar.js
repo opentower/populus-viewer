@@ -63,7 +63,7 @@ export default class MediaNavbar extends Component {
     this.setState(oldState => { return {moreOptionsVisible: !oldState.moreOptionsVisible} })
   }
 
-  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
+  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Управління доступом", `для ${this.props.room.name}`)
 
   render(props, state) {
 

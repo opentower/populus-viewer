@@ -124,7 +124,7 @@ export default class DocumentNavbar extends Component {
     }
   }
 
-  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
+  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Управління доступом", `для ${this.props.room.name}`)
 
   zoomOut = _ => this.props.setZoom(zoomFactor => zoomFactor - 0.1)
 
