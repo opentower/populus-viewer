@@ -558,10 +558,10 @@ class ConfigurePowerForKey extends Component {
           <option value="admin">Втключно пацієнт</option>
           <option value="mod">Ведучий лікар та пацієнт</option>
           <option value="member">Інший мед. персонал</option>
-          {this.initialRole === "custom" ? <option value="custom">Custom Value</option>: null}
+          {this.initialRole === "custom" ? <option value="custom">Рівень доступності</option>: null}
         </select>
         <div class="room-settings-info">
-          {currentRole === "admin" ? `Only admins can ${props.act}`
+          {currentRole === "admin" ? ` ${props.act}`
             : currentRole === "mod" ? `Admins and moderators can ${props.act}`
             : currentRole === "member" ? `Any room member can ${props.act}`
             : `Powerlevel ${this.initialPowerLevel} is required to ${props.act}`
