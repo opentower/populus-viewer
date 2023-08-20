@@ -603,7 +603,7 @@ class AdminList extends Component {
           />)
     }
     if (admins.length > 0) return admins
-    else return <div class="room-settings-role-empty">Не вказано </div>
+    else return <div class="room-settings-role-empty">Не вказано власника</div>
   }
 
   toggleAdmin = user => {
@@ -623,7 +623,7 @@ class AdminList extends Component {
 
   render(props) {
     return <div class="room-settings-role-list">
-      <h5>Administrators</h5>
+      <h5>Власник</h5>
       {this.getAdmins()}
       {this.canAdd ? <AddRole users={props.users} addRole={this.addAdmin} room={props.room}/> : null}
     </div>
@@ -719,7 +719,7 @@ class ModList extends Component {
 
   render(props) {
     return <div class="room-settings-role-list">
-      <h5>Moderators</h5>
+      <h5>Ведучий лікар</h5>
       {this.getMods()}
       {this.canAdd ? <AddRole users={props.users} addRole={this.addMod} room={props.room}/> : null}
     </div>
