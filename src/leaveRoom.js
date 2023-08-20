@@ -41,8 +41,7 @@ export default class LeaveRoom extends Component {
         Щоб припинити отримувати оновлення про це {this.sort}, та видаліть його з вашого {this.sort} списку:</p>
       <button onClick={this.leaveRoom} class="styled-button">Leave this {this.sort}</button>
       <p>
-        Щоб також видалити всю збережену історію, і більше не бачити {this.sort} as
-        an option to join{this.sort === "discussion" ? " or add to collections:" : ":"}
+        Щоб також видалити всю збережену історію, і більше не бачити {this.sort} як варіант долучитися{this.sort === "discussion" ? " або додати до мед. карти:" : ":"}
       </p>
       <button onClick={this.forgetRoom} class="styled-button">Forget this {this.sort}</button>
       { this.sort === "discussion" 
