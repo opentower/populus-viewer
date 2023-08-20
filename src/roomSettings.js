@@ -507,7 +507,7 @@ class ConfigurePowerForState extends Component {
           {currentRole === "admin" ? `Only admins can ${props.act}`
             : currentRole === "mod" ? `пацієнт та ведучий лікар ${props.act}`
             : currentRole === "member" ? `інший мед. персонал ${props.act}`
-            : `Powerlevel ${this.initialPowerLevel} is required to ${props.act}`
+            : `Рівень доступу ${this.initialPowerLevel} є необхідним ${props.act}`
           }
         </div>
       </Fragment>
