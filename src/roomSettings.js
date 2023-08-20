@@ -256,8 +256,8 @@ export default class RoomSettings extends Component {
       <div id="room-settings-select-view" class="select-view">
         <button onClick={this.showAppearance} data-current-button={state.view==="APPEARANCE"}>Зовнішній вигляд</button>
         <button onClick={this.showAccess} data-current-button={state.view==="ACCESS"}>Доступність</button>
-        <button onClick={this.showRoles} data-current-button={state.view==="ROLES"}>Roles</button>
-        <button onClick={this.showPermissions} data-current-button={state.view==="PERMISSIONS"}>Permissions</button>
+        <button onClick={this.showRoles} data-current-button={state.view==="ROLES"}>Медики</button>
+        <button onClick={this.showPermissions} data-current-button={state.view==="PERMISSIONS"}>Дозволи</button>
         {props.joinLink ? <button onClick={this.showLinks} data-current-button={state.view==="LINKS"}>Links</button> : null}
       </div>
       <div ref={this.settingsFormWrapper} id="room-settings-form-wrapper">
