@@ -48,7 +48,7 @@ export default class LeaveRoom extends Component {
         ? <><p>
             Повністю видалити це спілкування <i>і всі пов'язані з ним анотації</i>:
           </p>
-          <button onClick={this.deepForget} class="styled-button">Entirely forget this discussion</button>
+          <button onClick={this.deepForget} class="styled-button">Забудьте про цю розмову</button>
           {state.childTotal && <p> Forgetting: {state.progress} / {state.childTotal} </p>}
         </>
         : null
