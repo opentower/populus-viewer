@@ -557,7 +557,7 @@ class ConfigurePowerForKey extends Component {
         <select class="styled-input" value={currentRole} disabled={!this.mayChangePowerLevel} name={props.label} onchange={this.handleChange}>
           <option value="admin">Втключно пацієнт</option>
           <option value="mod">Ведучий лікар та пацієнт</option>
-          <option value="member">Інший</option>
+          <option value="member">Інший мед. персонал</option>
           {this.initialRole === "custom" ? <option value="custom">Custom Value</option>: null}
         </select>
         <div class="room-settings-info">
