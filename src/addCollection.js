@@ -134,7 +134,7 @@ class CreateCollection extends Component {
   render(_props, state) {
     return <Fragment>
       <form ref={this.mainForm} onSubmit={this.handleSubmit} id="create-collection">
-        <label for="name">Collection Name</label>
+        <label for="name">Назва карти</label>
         <input 
           name="name"
           class="styled-input"
@@ -142,20 +142,20 @@ class CreateCollection extends Component {
           ref={this.collectionNameInput} />
         <div class="name-validation-detail">{
           state.querying
-            ? "querying..."
+            ? "запитую..."
             : state.nameavailable
-              ? "name available"
-              : "ім'я недоступне"
+              ? "назва вірна"
+              : "назва некоректна чи не доступна"
           }
         </div>
-        <label for="topic" >Collection Topic</label>
+        <label for="topic" >Опис карти</label>
         <textarea 
           name="topic" 
           class="styled-input"
           ref={this.collectionTopicInput} />
         <div id="create-collection-submit">
           <button disabled={state.querying || !state.nameavailable} class="styled-button" ref={this.submitButton} type="submit">
-            Create Collection
+            Додати мед. карту
           </button>
         </div>
       </form>
