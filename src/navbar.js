@@ -111,7 +111,7 @@ export default class DocumentNavbar extends Component {
   mainMenu = _ => History.push("/")
 
   download = _ => {
-    if (confirm("do you want to download the file you're annotating?")) {
+    if (confirm("Ви хочете завантажити файл, який ви анотуєте?")) {
       const file = new Resource(this.props.room)
       window.open(file.httpUrl)
     }

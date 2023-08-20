@@ -213,10 +213,10 @@ export default class RoomList extends Component {
                 class="styled-button">Зміни</button>
         <button data-current-button={state.sort === "NAME"}
                 onClick={this.sortByName}
-                class="styled-button">Name</button>
+                class="styled-button">Назва</button>
         <button data-current-button={state.sort === "CREATION"}
                 onClick={this.sortByCreation}
-                class="styled-button">Creation</button>
+                class="styled-button">Створення</button>
       </div>
       <FilterList setFilterItems={props.setFilterItems} filterItems={props.filterItems} />
       {/* TODO: We're probably going to need to debounce this rather than searching with each render, for longer lists of rooms */}

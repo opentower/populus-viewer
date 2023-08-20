@@ -260,7 +260,7 @@ export default class AnnotationListing extends Component {
                     class="styled-button">Зміни</button>
                   <button data-current-button={state.sort === "Creation"}
                     onClick={this.sortByCreation}
-                    class="styled-button">Creation</button>
+                    class="styled-button">Створення</button>
                   {props.mimetype === "application/pdf" 
                     ? <button data-current-button={state.sort === "Page"}
                         onClick={this.sortByPage}

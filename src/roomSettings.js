@@ -274,7 +274,7 @@ export default class RoomSettings extends Component {
                 handleUpdate={this.avatarUpdateHandler}
               />
               <div class="room-settings-info" />
-              <label htmlFor="room-name">Room Name</label>
+              <label htmlFor="room-name">Назва запису</label>
               <input name="room-name"
                 type="text"
                 class="styled-input"
@@ -296,7 +296,7 @@ export default class RoomSettings extends Component {
             </Fragment>
             : state.view === "ACCESS"
             ? <Fragment>
-              <label htmlFor="discovery">Discovery</label>
+              <label htmlFor="discovery">Видимість</label>
               <select disabled={!state.discovery|| !this.mayChangeDiscovery}
                 class="styled-input"
                 value={state.discovery}
@@ -353,7 +353,7 @@ export default class RoomSettings extends Component {
               }
             </Fragment>
             : state.view === "LINKS" ? <Fragment>
-                <label>Join Link</label>
+                <label>Приєднатися за посиланням</label>
                 <div class="room-settings-link-group">
                   <pre id="room-settings-join-link">{this.joinLink} </pre>
                   <CopyButton copy={this.joinLink}/>
@@ -383,14 +383,14 @@ export default class RoomSettings extends Component {
                   powerLevels={this.powerLevels}
                   powerKey="invite"
                   requiredRole={state.invite}
-                  label="Invite"
+                  label="Запросити"
                   member={this.member}
                   act="invite new members" />
                 <ConfigurePowerForKey
                   setPowerLevelRole={this.setPowerLevelRole}
                   powerLevels={this.powerLevels}
                   powerKey="kick"
-                  label="Kick"
+                  label="Видалити"
                   requiredRole={state.kick}
                   member={this.member}
                   act="remove users from the room" />
@@ -398,7 +398,7 @@ export default class RoomSettings extends Component {
                   setPowerLevelRole={this.setPowerLevelRole}
                   powerLevels={this.powerLevels}
                   powerKey="ban"
-                  label="Ban"
+                  label="Заблокувати"
                   requiredRole={state.ban}
                   member={this.member}
                   act="remove users and ban them from rejoining" />
@@ -406,7 +406,7 @@ export default class RoomSettings extends Component {
                   setPowerLevelRole={this.setPowerLevelRole}
                   powerLevels={this.powerLevels}
                   powerKey="redact"
-                  label="Redact"
+                  label="Редагувати"
                   requiredRole={state.redact}
                   member={this.member}
                   act="remove any message from the room" />
@@ -416,7 +416,7 @@ export default class RoomSettings extends Component {
                       setPowerLevelRole={this.setPowerLevelRole}
                       powerLevels={this.powerLevels}
                       powerKey="events_default"
-                      label="Message"
+                      label="Повідомлення"
                       requiredRole={state.events_default}
                       member={this.member}
                       act="send messages" />
@@ -427,7 +427,7 @@ export default class RoomSettings extends Component {
                       powerLevels={this.powerLevels}
                       type={Matrix.EventType.SpaceChild}
                       requiredRole={state[Matrix.EventType.SpaceChild]}
-                      label="Annotate"
+                      label="Анотації"
                       member={this.member}
                       act="create annotations" />
                   : null 

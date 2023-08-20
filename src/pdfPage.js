@@ -70,7 +70,7 @@ export default class PdfPage extends Component {
     // TODO: we should set room_alias_name and name, in a useful way based on the selection
     return Client.client.createRoom({
       visibility: "private",
-      name: `highlighted passage on page ${this.props.pageFocused}`,
+      name: `виділений фрагмент на сторінці ${this.props.pageFocused}`,
       power_level_content_override: {
         users: Object.assign({}, theLevels[0].getContent().users, {
           [Client.client.getUserId()]: 100
