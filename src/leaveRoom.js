@@ -38,7 +38,7 @@ export default class LeaveRoom extends Component {
   render(_props,state) {
     return <div>
       <p>
-        To stop receiving updates about this {this.sort}, and remove it from your {this.sort} listing:</p>
+        Щоб припинити отримувати оновлення про це {this.sort}, та видаліть його з вашого {this.sort} списку:</p>
       <button onClick={this.leaveRoom} class="styled-button">Leave this {this.sort}</button>
       <p>
         To also removed all stored history, and no longer see the {this.sort} as
