@@ -2,17 +2,14 @@
     "version": 2,
     "builds": [
       {
-        "src": "index.html",
-        "use": "@vercel/static-build",
-        "config": {
-          "distDir": "dist"
-        }
+        "src": "docker-compose.yml",
+        "use": "@vercel/docker-compose"
       }
     ],
     "routes": [
       {
         "src": "/(.*)",
-        "dest": "/index.html"
+        "dest": "populus-viewer:9000/$1"
       }
     ]
   }
