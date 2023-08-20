@@ -146,15 +146,15 @@ export default class DocumentNavbar extends Component {
             current={props.pageFocused} />
         <div id="nav-background" />
         <div class="nav-button-wrapper top-wrapper">
-          <ToolTip content="Go to main menu (ESC)" offset={this.toolTipOffset}>
+          <ToolTip content="В головне меню (ESC)" offset={this.toolTipOffset}>
             <button onclick={this.mainMenu}>{Icons.home}</button>
           </ToolTip>
-          <ToolTip content="Add annotation (Alt + a)" offset={this.toolTipOffset} >
+          <ToolTip content="Додати анотацію (Alt + a)" offset={this.toolTipOffset} >
             <button disabled={this.canAnnotate && (props.hasSelection || props.pindropMode?.x) ? null : "disabled"}
               onclick={props.openAnnotation}>{Icons.addAnnotation}
             </button>
           </ToolTip>
-          <ToolTip content="Go to previous annotation (Alt + Shift + Tab)" offset={this.toolTipOffset}>
+          <ToolTip content="GґДо попередн (Alt + Shift + Tab)" offset={this.toolTipOffset}>
             <button disabled={!props.hasAnnotations}
               onclick={props.focusPrev}>{Icons.chevronsLeft}
             </button>
