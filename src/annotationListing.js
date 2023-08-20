@@ -269,7 +269,7 @@ export default class AnnotationListing extends Component {
                   }
                 </div>
                   {Object.values(props.annotationContents).length === 0
-<<<<<<< Updated upstream
+
                     ? Пацієнт<b>Немає анотацій до записів</b></div>
 
                     : props.filteredAnnotationContents.length === 0
