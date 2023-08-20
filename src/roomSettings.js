@@ -561,8 +561,8 @@ class ConfigurePowerForKey extends Component {
           {this.initialRole === "custom" ? <option value="custom">Рівень доступності</option>: null}
         </select>
         <div class="room-settings-info">
-          {currentRole === "admin" ? ` ${props.act}`
-            : currentRole === "mod" ? `Admins and moderators can ${props.act}`
+          {currentRole === "admin" ? `Лише пацієнт ${props.act}`
+            : currentRole === "mod" ? `Пацієнт та ведучий лікар ${props.act}`
             : currentRole === "member" ? `Any room member can ${props.act}`
             : `Powerlevel ${this.initialPowerLevel} is required to ${props.act}`
           }
