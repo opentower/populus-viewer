@@ -340,7 +340,7 @@ export default class RoomSettings extends Component {
                   <label htmlFor="spaceVisibility">Видимість</label>
                   <select class="styled-input" value={state.spaceVisibility} disabled={!this.mayChangeSpaceVisibility} name="spaceVisibility" onchange={this.handleSpaceVisibilityChange}>
                     <option value="visible">Видима </option>
-                    <option value="hidden">Hidden</option>
+                    <option value="hidden">Пртховпна</option>
                   </select>
                   <div class="room-settings-info">
                     {state.spaceVisibility === "visible"
