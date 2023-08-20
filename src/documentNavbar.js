@@ -214,10 +214,10 @@ export default class DocumentNavbar extends Component {
           <ToolTip content="Збільшити (+)" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.zoomIn}>{Icons.zoomin}</button>
           </ToolTip>
-          <ToolTip content="Toggle annotation visibility (Alt + v)" theme="bordered">
+          <ToolTip content="Перемикання видимості анотацій (Alt + v)" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
           </ToolTip>
-          <ToolTip content="Add Pin" theme="bordered">
+          <ToolTip content="Додати пін" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.startPindrop}>{Icons.pin}</button>
           </ToolTip>
           <ToolTip content="Toggle Two-Up View" theme="bordered">
