@@ -154,12 +154,12 @@ export default class DocumentNavbar extends Component {
               onclick={props.openAnnotation}>{Icons.addAnnotation}
             </button>
           </ToolTip>
-          <ToolTip content="GґДо попередн (Alt + Shift + Tab)" offset={this.toolTipOffset}>
+          <ToolTip content="До попередньої анотації (Alt + Shift + Tab)" offset={this.toolTipOffset}>
             <button disabled={!props.hasAnnotations}
               onclick={props.focusPrev}>{Icons.chevronsLeft}
             </button>
           </ToolTip>
-          <ToolTip content="Go to previous page (k, ←)" offset={this.toolTipOffset}>
+          <ToolTip content="На попередню сторінку (k, ←)" offset={this.toolTipOffset}>
             <button disabled={props.pageFocused > 1 ? null : "disabled"}
               onclick={this.prevPage}>{Icons.chevronLeft}
             </button>
