@@ -91,16 +91,16 @@ export default class ProfileInfomation extends Component {
           </div>
         </details>
         <details>
-          <summary>Advanced Options</summary>
+          <summary>Додаткові налаштування</summary>
           <div id="profile-advanced-options">
-            <label>Мій токен доступу</label>
+            <label>Системний токен</label>
             <pre>{Client.client.getAccessToken()}</pre>
           </div>
         </details>
         <div key="profileInformationFormSubmit" id="profileInformationFormSubmit">
-          <button class="styled-button" ref={this.submitButton} type="submit">Update Profile</button>
-          {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
-          <button class="styled-button" type="button" onclick={props.logoutHandler}>Logout</button>
+          <button class="styled-button" ref={this.submitButton} type="submit">Оновити дані</button>
+          {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Видалити фото</button> : null}
+          <button class="styled-button" type="button" onclick={props.logoutHandler}>Вийти</button>
         </div>
         {this.state.progress
           ? <div id="profileInformationFormProgress">
