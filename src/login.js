@@ -371,14 +371,14 @@ class Registration extends Component {
                 data-callback="recaptchaHandler" />
             </div>
             <hl style="styled-rule" />
-            <div>OR, <button class="styled-button" onClick={props.switchView("login")} >Login With Existing Account</button></div>
+            <div>OR, <button class="styled-button" onClick={props.switchView("login")} >Увійдіть з існуючим обліковим записом</button></div>
             <script src="https://www.google.com/recaptcha/api.js" async defer />
           </form>
         </div>
       }
       case "awaiting-server" : {
         return <div ref={props.loginElement} id="registration">
-          <h3>Register an account</h3>
+          <h3>Зареєструйте обліковий запис</h3>
           <form
             onSubmit={this.beginRegistrationFlow}
             id="registerForm">
@@ -390,12 +390,12 @@ class Registration extends Component {
               password={props.password}
               setName={props.setName}
               name={props.name} />
-            <div><button disabled={!this.canSubmit()} class="styled-button">Register a New Account</button></div>
+            <div><button disabled={!this.canSubmit()} class="styled-button">Зареєструйте новий обліковий запис</button></div>
             <div id="login-options">
               <hr class="styled-rule" />
-              <span>Already have an account? </span>
+              <span>Вже маєте обліковий запис? </span>
               <a onClick={props.switchView("login")} >
-                Login With Existing Account
+                Увійдіть з існуючим обліковим записом
               </a>
             </div>
           </form>
@@ -414,7 +414,7 @@ class UserData extends Component {
     this.props.setName(e.target.value)
     if (/[^a-zA-Z0-9._=/]/.test(e.target.value)) {
       this.usernameInput.current.setCustomValidity("Bad Character")
-      this.setState({usernameMessage: "Usernames can include only a-z, 0-9, =, _ or '.'"})
+      this.setState({usernameMessage: "Імена користувачів можуть містити лише символи a-z, 0-9, =, _ або '.'"})
     } else {
       this.usernameInput.current.setCustomValidity("")
       this.setState({usernameMessage: null})
@@ -425,7 +425,7 @@ class UserData extends Component {
     this.props.setPassword(e.target.value)
     if (e.target.value.length < 8 && e.target.value.length > 0) {
       this.passwordInput.current.setCustomValidity("Bad Password")
-      this.setState({passwordMessage: "Passwords must be at least 8 characters"})
+      this.setState({passwordMessage: "Пароль повинен містити щонайменше 8 символів"})
     } else {
       this.passwordInput.current.setCustomValidity("")
       this.setState({passwordMessage: null})
