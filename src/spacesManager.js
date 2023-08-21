@@ -91,7 +91,7 @@ export default class SpacesManager extends Component {
   }
 
   addCollection = _ => {
-    Modal.set(<AddCollection />, "Add New Collection")
+    Modal.set(<AddCollection />, "Додати нову мед. карту")
   }
 
   render(props, state) {
