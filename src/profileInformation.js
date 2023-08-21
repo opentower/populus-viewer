@@ -69,31 +69,31 @@ export default class ProfileInfomation extends Component {
       <h2>Оновити особисті дані</h2>
       <hr class="styled-rule" />
       <form id="profileInformationForm" ref={this.mainForm} onsubmit={this.updateProfile}>
-        <label>My User Id</label>
+        <label>Ідентифікатор кор-ча</label>
         <div id="profile-information-userid">
           {Client.client.getUserId()}
         </div>
-        <label>My Display Name</label>
+        <label>Повне ім'я</label>
         <input class="styled-input" onkeydown={this.handleKeydown} placeholder={state.displayName} ref={this.displayNameInput} type="text" />
-        <label class="top-aligned-label">My Avatar</label>
+        <label class="top-aligned-label">Фото</label>
         {state.previewUrl
           ? <img onclick={this.chooseAvatar} id="profileSelector" src={state.previewUrl} />
           : <div key="profileSelector" onclick={this.chooseAvatar} id="profileSelector" />}
         <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
         <details>
-          <summary>Display Options</summary>
+          <summary>Видимість</summary>
           <div id="profile-display-options">
-            <label for="scrollbar-visibility">Scrollbars</label>
+            <label for="scrollbar-visibility">в системі</label>
             <select class="styled-input" ref={this.scrollbarVisibleSelect} name="scrollbar-visibility">
-              <option value="hidden">Hidden</option>
-              <option selected={this.scrollbarsVisible} value="visible">Visible</option>
+              <option value="hidden">Не видимий</option>
+              <option selected={this.scrollbarsVisible} value="visible">Видимий</option>
             </select>
           </div>
         </details>
         <details>
           <summary>Advanced Options</summary>
           <div id="profile-advanced-options">
-            <label>My Access Token</label>
+            <label>Мій токен доступу</label>
             <pre>{Client.client.getAccessToken()}</pre>
           </div>
         </details>
