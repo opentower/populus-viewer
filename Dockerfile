@@ -1,5 +1,5 @@
 # Використовуємо базовий образ Node.js
-FROM arm32v7/node:gallium-slim
+FROM arm32v7/node:gallium-alpine
 
 # Встановлюємо директорію робочого простору в контейнері
 WORKDIR /app
