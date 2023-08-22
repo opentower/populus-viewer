@@ -210,7 +210,7 @@ class ReplyPreview extends Component {
     const senderColors = new UserColor(this.state.liveEvent.getSender())
     let displayBody
     if (!this.state.liveEvent.getContent().msgtype) {
-      displayBody = <div class="redacted-preview">Original Message Deleted</div>
+      displayBody = <div class="redacted-preview">Початкове повідомлення видалено</div>
     } else {
       switch (this.state.liveEvent.getContent().msgtype) {
         case "m.video": {

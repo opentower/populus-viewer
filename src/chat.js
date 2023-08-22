@@ -406,11 +406,11 @@ class RedactedMessage extends Component {
     return props.isMe
       ? <div class="redacted message-frame message-from-user" style={this.userColor.styleVariables}>
         <div class="message-decoration" />
-        <div class="message-body">{props.count > 1 ? `${props.count} messages deleted` : "message deleted"}</div>
+        <div class="message-body">{props.count > 1 ? `${props.count} messages deleted` : "повідомлення видалено"}</div>
       </div>
       : <div class="redacted message-frame" style={this.userColor.styleVariables}>
         <div class="message-decoration" />
-        <div class="message-body">{props.count > 1 ? `${props.count} messages deleted` : "message deleted"}</div>
+        <div class="message-body">{props.count > 1 ? `${props.count} messages deleted` : "повідомлення видалено"}</div>
       </div>
   }
 }
