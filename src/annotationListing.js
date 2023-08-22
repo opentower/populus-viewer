@@ -142,7 +142,7 @@ export default class AnnotationListing extends Component {
             if (thePage < loc.getPageIndex()) {
               const newPage = loc.getPageIndex()
               divider = <div class="annotation-listing-divider">
-                <span>Page {state.sortOrder === 1 ? newPage : thePage}</span>
+                <span>Сторінка {state.sortOrder === 1 ? newPage : thePage}</span>
               </div>
               thePage = newPage
             } else divider = <div class="annotation-listing-divider" />

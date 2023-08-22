@@ -102,7 +102,7 @@ export default class SpacesManager extends Component {
         {state.spaces.map(room => <SpaceListing filterToggle={this.filterToggle} oneColumn={props.oneColumn} key={room.roomId} room={room} />)}
       </div>
       <div>
-        <button onclick={this.addCollection} id="add-space">Додаи нову мед. картку</button>
+        <button onclick={this.addCollection} id="add-space">Додати нову мед. картку</button>
       </div>
     </div>
   }
