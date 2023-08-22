@@ -351,8 +351,8 @@ class MessageEditor extends Component {
         oninput={this.handleInput}
         data-gramm="false" // disable grammarly
       />
-      <button onclick={this.sendResponse}>Submit Changes</button>
-      <button onclick={this.props.closeEditor}>Cancel</button>
+      <button onclick={this.sendResponse}>Надіслати зміни</button>
+      <button onclick={this.props.closeEditor}>Відмінити</button>
     </div>
   }
 }
@@ -413,8 +413,8 @@ class ReplyComposer extends Component {
         oninput={this.handleInput}
         data-gramm="false" // disable grammarly
       />
-      <button onclick={this.sendResponse}>Send Reply</button>
-      <button onclick={this.props.closeEditor}>Cancel</button>
+      <button onclick={this.sendResponse}>Надіслати відповідь</button>
+      <button onclick={this.props.closeEditor}>Відмінити</button>
     </div>
   }
 }
