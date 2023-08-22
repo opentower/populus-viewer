@@ -206,7 +206,7 @@ class SpaceListing extends Component {
   }
 
   joinChild = roomId => Client.client.joinRoom(roomId, { viaServers: this.state.via[roomId] })
-    .catch(toastError("Couldn't join this discussion"))
+    .catch(toastError("Не вдалося долучитися до обговорення"))
 
   toggleChild = (roomId, name) => this.props.filterToggle({
     value: roomId,
@@ -220,10 +220,10 @@ class SpaceListing extends Component {
 
   openMembership = _ => {
     this.setState({ actionsVisible: false })
-    Modal.set(<ManageMembership room={this.props.room} />, "Хто спілкується", `по темі ${this.props.room.name}`)
+    Modal.set(<ManageMembership room={this.props.room} />, "Хто спілкується", `в ${this.props.room.name}`)
   }
 
-  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Припинити спілкування?", ` ${this.props.room.name}`)
+  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Видалити мед. карту?", ` ${this.props.room.name}`)
 
   archiveRoom = _ => Modal.set(<ArchiveRoom room={this.props.room} />, "Перенести до архіву?", `>>> ${this.props.room.name}`)
 
@@ -381,10 +381,10 @@ class CurrentDiscussionListing extends Component {
     this.setState({pending: true})
     await Client.client
       .sendStateEvent(this.props.collection.roomId, Matrix.EventType.SpaceChild, {}, this.props.child.room_id)
-      .catch(toastError("Couldn't remove discussion from collection"))
+      .catch(toastError("Не вдалося видалити дискусію з списку"))
     await Client.client
       .sendStateEvent(this.props.child.room_id, Matrix.EventType.SpaceParent, {}, this.props.collection.roomId)
-      .catch(toastError("Couldn't remove collection as parent of discussion"))
+      .catch(toastError("Не вдалося видалити мед. карту, що містить обговорення"))
   }
 
   render(props, state) {

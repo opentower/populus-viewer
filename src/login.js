@@ -193,13 +193,13 @@ class Login extends Component {
 
   render(props, state) {
     const connectionMessage = state.loading === "loading"
-      ? "loading server information..."
+      ? "завантаження інформації про сервер..."
       : state.loading === "failed"
-      ? "couldn't connect to server"
+      ? "не вдалося підключитися до сервера"
       : state.loading === "badurl"
       ? "ім'я сервера має виглядати як 'matrix.org'"
       : null
-    if (this.doingSSO) return <div id="login-sso-loader">переходиимо...</div>
+    if (this.doingSSO) return <div id="login-sso-loader">переходимо...</div>
     return <div ref={props.loginElement} id="login">
       <h3>Зайти в МедКарти</h3>
       <form id="loginForm" onSubmit={this.handleSubmit}>
@@ -212,12 +212,12 @@ class Login extends Component {
           setName={props.setName}
           name={props.name} />
         <div>
-          <button disabled={!this.canSubmit()} class="styled-button" >Вхід</button>
+          <button disabled={!this.canSubmit()} class="styled-button" >Вхід на сервіс</button>
         </div>
       </form>
       {state.SSOProviders.length > 0 
         ? <Fragment>
-            <h4>Or, login via:</h4>
+            <h4>Або увійдіть за допомогою:</h4>
             <div id="login-sso-providers">
               {
                 state.SSOProviders.map(
@@ -284,16 +284,16 @@ class Registration extends Component {
           // should analyze for other errors here.
           case "ConnectionError" : {
             Toast.set(<Fragment>
-              <h3 id="toast-header">Can't connect</h3>
-              <div><p>Tried to connect to a server at {Client.client.getHomeserverUrl()}</p><p> Double-check that address?</p></div>
+              <h3 id="toast-header">Не можу з'єднатися</h3>
+              <div><p>Спробував підключитися до сервера за адресою {Client.client.getHomeserverUrl()}</p><p> Перевірте ще раз цю адресу</p></div>
               </Fragment>
             )
             break
           }
           case "M_USER_IN_USE" : {
             Toast.set(<Fragment>
-              <h3 id="toast-header">Can't register</h3>
-              <div><p>Sorry, the name <code>{this.props.name}</code> is already in use at <code>{Client.client.getHomeserverUrl()}</code></p><p> Try a different name or server?</p></div>
+              <h3 id="toast-header">Не вдається зареєструватися</h3>
+              <div><p>Вибачте, ім'я <code>{this.props.name}</code> вже застосовується на <code>{Client.client.getHomeserverUrl()}</code></p><p> Спробуйте інше ім'я</p></div>
               </Fragment>
             )
             this.props.setName("")
@@ -301,8 +301,8 @@ class Registration extends Component {
           }
           default : 
             Toast.set(<Fragment>
-              <h3 id="toast-header">Something went wrong</h3>
-              <div>Sorry, here's the error</div>
+              <h3 id="toast-header">Щось не так</h3>
+              <div>Вибачте, сталася помилка</div>
               <pre>{err.name}: {err.message}</pre>
               </Fragment>
             )

@@ -103,13 +103,13 @@ export default class FileUpload extends Component {
           const urlContentType = response.headers.get("content-type")
           const fileTypeValid = this.validateFileType(urlContentType)
           this.setState({
-            urlDefect: fileTypeValid ? null : `Found ${urlContentType} — not an annotatable file type`,
+            urlDefect: fileTypeValid ? null : `Знайдено ${urlContentType} — тип файлу не дл анотацій`,
             queryingURL: false,
             urlContentType,
           })
         })
         .catch(e => this.setState({
-            urlDefect: "Couldn't connect — Likely cross-domain access is forbidden",
+            urlDefect: "Не вдалося підключитися - ймовірно, міждоменний доступ заборонено",
             queryingURL: false, 
             urlContentType: null
           }, console.log(e))

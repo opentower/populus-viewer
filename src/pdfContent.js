@@ -117,10 +117,10 @@ export default class PdfContent extends Component {
 
   catchFetchPdfError = e => {
     Toast.set(<Fragment>
-      <h3 id="toast-header">Couldn't fetch the PDF...</h3>
-      <div>Tried to fetch: </div>
+      <h3 id="toast-header">Не вдалося завантажити PDF-файл...</h3>
+      <div>Спробував отримати: </div>
       <pre>{this.props.resourceAlias}</pre>
-      <div>Here's the error message:</div>
+      <div>Ось повідомлення про помилку:</div>
       <pre>{e.message}</pre>
     </Fragment>)
     History.push('/')
