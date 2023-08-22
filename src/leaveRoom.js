@@ -38,17 +38,17 @@ export default class LeaveRoom extends Component {
   render(_props,state) {
     return <div>
       <p>
-        Щоб припинити отримувати оновлення про це {this.sort}, та видаліть його з вашого {this.sort} списку:</p>
-      <button onClick={this.leaveRoom} class="styled-button">Leave this {this.sort}</button>
+        Щоб припинити отримувати сповіщення від лікаря по запису, та видалити його з мед. карти:</p>
+      <button onClick={this.leaveRoom} class="styled-button">Видалити з карти</button>
       <p>
-        Щоб також видалити всю збережену історію, і більше не бачити {this.sort} як варіант долучитися{this.sort === "discussion" ? " або додати до мед. карти:" : ":"}
+        Щоб також видалити всю збережену історію, і більше не бачити запис в загальному списку" : ":"
       </p>
-      <button onClick={this.forgetRoom} class="styled-button">Forget this {this.sort}</button>
+      <button onClick={this.forgetRoom} class="styled-button">Забути запис</button>
       { this.sort === "discussion" 
         ? <><p>
-            Повністю видалити це спілкування <i>і всі пов'язані з ним анотації</i>:
+            Повністю видалити цей <i> запис, всі пов'язані з ним анотації</i>:
           </p>
-          <button onClick={this.deepForget} class="styled-button">Забудьте про цю розмову</button>
+          <button onClick={this.deepForget} class="styled-button">Знищити</button>
           {state.childTotal && <p> Forgetting: {state.progress} / {state.childTotal} </p>}
         </>
         : null
