@@ -225,7 +225,7 @@ class SpaceListing extends Component {
 
   handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Припинити спілкування?", ` ${this.props.room.name}`)
 
-  archiveRoom = _ => Modal.set(<ArchiveRoom room={this.props.room} />, "Archive Collection?", `for ${this.props.room.name}`)
+  archiveRoom = _ => Modal.set(<ArchiveRoom room={this.props.room} />, "Перенести до архіву?", `>>> ${this.props.room.name}`)
 
   roomColor = new RoomColor(this.props.room.name)
 
