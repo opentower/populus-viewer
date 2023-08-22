@@ -271,7 +271,7 @@ class RoomEntry extends Component {
     else Client.client.setRoomTag(this.props.room.roomId, "m.favourite", {order: 0.5})
   }
 
-  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Вийти з спілкування?", ` ${this.props.room.name}`)
+  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Видалити запис?", ` ${this.props.room.name}`)
 
   render (props, state) {
     const userMember = props.room.getMember(Client.client.getUserId())
