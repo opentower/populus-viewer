@@ -274,7 +274,7 @@ export default class RoomSettings extends Component {
                 handleUpdate={this.avatarUpdateHandler}
               />
               <div class="room-settings-info" />
-              <label htmlFor="room-name">Назва запису</label>
+              <label htmlFor="room-name">Назва карти</label>
               <input name="room-name"
                 type="text"
                 class="styled-input"
@@ -284,7 +284,7 @@ export default class RoomSettings extends Component {
                 onInput={this.handleNameInput}
               />
               <div class="room-settings-info"></div>
-              <label class="top-aligned-label" htmlFor="room-topic">Тема</label>
+              <label class="top-aligned-label" htmlFor="room-topic">Примітки</label>
               <textarea ref={this.roomTopicTextarea} name="room-topic"
                 class="styled-input"
                 value={state.roomTopic}

@@ -262,7 +262,7 @@ class RoomEntry extends Component {
 
   openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Керування учасниками", `для ${this.props.room.name}`)
 
-  openSettings = _ => Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Налаштування спілкування", `для ${this.props.room.name}`)
+  openSettings = _ => Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Налаштування", `для ${this.props.room.name}`)
 
   handleEditTags = _ => Modal.set(<TagEditor room={this.props.room} />, "Редагувати теги", `для ${this.props.room.name}`)
 
@@ -292,13 +292,13 @@ class RoomEntry extends Component {
           <MemberListing room= {props.room} memberLimit={props.memberLimit} />
         </div>
         <div class="room-listing-entry-buttons">
-          { state.buttonsVisible ? null : <ToolTip placement="right" content="Toggle buttons"><button onClick={this.toggleButtons}>{Icons.moreVertical}</button></ToolTip>}
-          { state.buttonsVisible ? <ToolTip placement="right" content="Toggle buttons"><button onClick={this.toggleButtons}>{Icons.close}</button> </ToolTip> : null }
-          { state.buttonsVisible ? <ToolTip placement="right" content="Toggle favorite"><button onClick={this.toggleFavorite}>{Icons.star}</button></ToolTip> : null }
-          { state.buttonsVisible ? <ToolTip placement="right" content="Leave conversation"><button onClick={this.handleClose}>{Icons.exit}</button></ToolTip> : null }
-          { state.buttonsVisible ? <ToolTip placement="right" content="Edit room tags"><button onClick={this.handleEditTags}>{Icons.tag}</button></ToolTip> : null }
-          { state.buttonsVisible && canInvite ? <ToolTip placement="right" content="Manage membership"><button onClick={this.openMembership}>{Icons.userPlus}</button></ToolTip> : null }
-          { state.buttonsVisible && isAdmin ? <ToolTip placement="right" content="Configure Налаштування спілкування"><button onClick={this.openSettings}>{Icons.settings}</button></ToolTip> : null }
+          { state.buttonsVisible ? null : <ToolTip placement="right" content="Перемикачі"><button onClick={this.toggleButtons}>{Icons.moreVertical}</button></ToolTip>}
+          { state.buttonsVisible ? <ToolTip placement="right" content="Перемикачі"><button onClick={this.toggleButtons}>{Icons.close}</button> </ToolTip> : null }
+          { state.buttonsVisible ? <ToolTip placement="right" content="додати в обране"><button onClick={this.toggleFavorite}>{Icons.star}</button></ToolTip> : null }
+          { state.buttonsVisible ? <ToolTip placement="right" content="Вийти з розмови"><button onClick={this.handleClose}>{Icons.exit}</button></ToolTip> : null }
+          { state.buttonsVisible ? <ToolTip placement="right" content="Редагування тегів"><button onClick={this.handleEditTags}>{Icons.tag}</button></ToolTip> : null }
+          { state.buttonsVisible && canInvite ? <ToolTip placement="right" content="Управління членством"><button onClick={this.openMembership}>{Icons.userPlus}</button></ToolTip> : null }
+          { state.buttonsVisible && isAdmin ? <ToolTip placement="right" content="Змінити алаштування"><button onClick={this.openSettings}>{Icons.settings}</button></ToolTip> : null }
         </div>
       </div>
     </div>

@@ -105,7 +105,7 @@ export default class MessagePanel extends Component {
 
   openSettings = _ => {
     const theRoom = Client.client.getRoom(this.props.focus.getChild())
-    Modal.set(<RoomSettings joinLink resource={this.props.resource} room={theRoom} />, "Налаштування спілкування", `про ${theRoom.name}`)
+    Modal.set(<RoomSettings joinLink resource={this.props.resource} room={theRoom} />, "Налаштування", `про ${theRoom.name}`)
   }
 
   render(props, state) {
@@ -141,7 +141,7 @@ export default class MessagePanel extends Component {
                   <button onclick={this.setModeSendFile}>{Icons.upload}</button>
                 </ToolTip>
                 {isAdmin
-                  ? <ToolTip key="configure-room" content="Налаштування спілкування">
+                  ? <ToolTip key="configure-room" content="Налаштування">
                     <button onclick={this.openSettings}>{Icons.settings}</button>
                   </ToolTip>
                   : null

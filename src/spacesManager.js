@@ -215,7 +215,7 @@ class SpaceListing extends Component {
 
   openSettings = _ => {
     this.setState({ actionsVisible: false })
-    Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Налаштування спілкування", `для ${this.props.room.name}`)
+    Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Налаштування", `для ${this.props.room.name}`)
   }
 
   openMembership = _ => {
