@@ -105,7 +105,7 @@ export default class MessagePanel extends Component {
 
   openSettings = _ => {
     const theRoom = Client.client.getRoom(this.props.focus.getChild())
-    Modal.set(<RoomSettings joinLink resource={this.props.resource} room={theRoom} />, "Налаштування", `про ${theRoom.name}`)
+    Modal.set(<RoomSettings joinLink resource={this.props.resource} room={theRoom} />, "Налаштування", `>>> ${theRoom.name}`)
   }
 
   render(props, state) {
