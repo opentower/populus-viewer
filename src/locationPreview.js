@@ -113,11 +113,11 @@ export default class LocationPreview extends Component{
       return <div class="preview-media-fragment">
           {props.showPosition && props.resource?.mimetype?.match(/^image/)
             ? <div class="preview-media-fragment-position">{Icons.image}
-              <span>Image selection at {this.mediaRect.x},{this.mediaRect.y}</span>
+              <span>Вибрано зображення на {this.mediaRect.x},{this.mediaRect.y}</span>
             </div>
             : props.showPosition
             ? <div class="preview-media-fragment-position">{Icons.headphones}
-              <span>From {toClockTime(props.location.getIntervalStart() / 1000)} to {toClockTime(props.location.getIntervalEnd() / 1000)}</span>
+              <span>З {toClockTime(props.location.getIntervalStart() / 1000)} по {toClockTime(props.location.getIntervalEnd() / 1000)}</span>
             </div>
             : null
           }

@@ -38,18 +38,17 @@ export default class LeaveRoom extends Component {
   render(_props,state) {
     return <div>
       <p>
-        To stop receiving updates about this {this.sort}, and remove it from your {this.sort} listing:</p>
-      <button onClick={this.leaveRoom} class="styled-button">Leave this {this.sort}</button>
+        Щоб припинити отримувати сповіщення від лікаря по цій карті, та видалити її з  списку мед. карт.</p>
+      <button onClick={this.leaveRoom} class="styled-button">Видалити з списку мед. карт </button>
       <p>
-        To also removed all stored history, and no longer see the {this.sort} as
-        an option to join{this.sort === "discussion" ? " or add to collections:" : ":"}
+        Щоб також видалити всю збережену історію спілкування з лікарем.
       </p>
-      <button onClick={this.forgetRoom} class="styled-button">Forget this {this.sort}</button>
+      <button onClick={this.forgetRoom} class="styled-button">Видалити з списку мед. карт та очистити історію.</button>
       { this.sort === "discussion" 
         ? <><p>
-            To entirely forget this discussion <i>and all associated annotations</i>:
+            Повністю видалити цей <i> запис, всі пов'язані з ним анотації.</i>:
           </p>
-          <button onClick={this.deepForget} class="styled-button">Entirely forget this discussion</button>
+          <button onClick={this.deepForget} class="styled-button">Знищити запис</button>
           {state.childTotal && <p> Forgetting: {state.progress} / {state.childTotal} </p>}
         </>
         : null

@@ -210,13 +210,13 @@ export default class RoomList extends Component {
         </button>
         <button data-current-button={state.sort === "ACTIVITY"}
                 onClick={this.sortByActivity}
-                class="styled-button">Activity</button>
+                class="styled-button">Зміни</button>
         <button data-current-button={state.sort === "NAME"}
                 onClick={this.sortByName}
-                class="styled-button">Name</button>
+                class="styled-button">Назва</button>
         <button data-current-button={state.sort === "CREATION"}
                 onClick={this.sortByCreation}
-                class="styled-button">Creation</button>
+                class="styled-button">Створення</button>
       </div>
       <FilterList setFilterItems={props.setFilterItems} filterItems={props.filterItems} />
       {/* TODO: We're probably going to need to debounce this rather than searching with each render, for longer lists of rooms */}
@@ -260,18 +260,18 @@ class RoomEntry extends Component {
 
   toggleButtons = _ => this.setState(oldState => { return { buttonsVisible: !oldState.buttonsVisible } })
 
-  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
+  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Керування учасниками", `для ${this.props.room.name}`)
 
-  openSettings = _ => Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Room Settings", `for ${this.props.room.name}`)
+  openSettings = _ => Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Налаштування", `для ${this.props.room.name}`)
 
-  handleEditTags = _ => Modal.set(<TagEditor room={this.props.room} />, "Edit Tags", `for ${this.props.room.name}`)
+  handleEditTags = _ => Modal.set(<TagEditor room={this.props.room} />, "Редагувати теги", `для ${this.props.room.name}`)
 
   toggleFavorite = _ => {
     if (this.props.room.tags["m.favourite"]) Client.client.deleteRoomTag(this.props.room.roomId, "m.favourite")
     else Client.client.setRoomTag(this.props.room.roomId, "m.favourite", {order: 0.5})
   }
 
-  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Leave Room?", `for ${this.props.room.name}`)
+  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Видалити запис?", ` ${this.props.room.name}`)
 
   render (props, state) {
     const userMember = props.room.getMember(Client.client.getUserId())
@@ -292,13 +292,13 @@ class RoomEntry extends Component {
           <MemberListing room= {props.room} memberLimit={props.memberLimit} />
         </div>
         <div class="room-listing-entry-buttons">
-          { state.buttonsVisible ? null : <ToolTip placement="right" content="Toggle buttons"><button onClick={this.toggleButtons}>{Icons.moreVertical}</button></ToolTip>}
-          { state.buttonsVisible ? <ToolTip placement="right" content="Toggle buttons"><button onClick={this.toggleButtons}>{Icons.close}</button> </ToolTip> : null }
-          { state.buttonsVisible ? <ToolTip placement="right" content="Toggle favorite"><button onClick={this.toggleFavorite}>{Icons.star}</button></ToolTip> : null }
-          { state.buttonsVisible ? <ToolTip placement="right" content="Leave conversation"><button onClick={this.handleClose}>{Icons.exit}</button></ToolTip> : null }
-          { state.buttonsVisible ? <ToolTip placement="right" content="Edit room tags"><button onClick={this.handleEditTags}>{Icons.tag}</button></ToolTip> : null }
-          { state.buttonsVisible && canInvite ? <ToolTip placement="right" content="Manage membership"><button onClick={this.openMembership}>{Icons.userPlus}</button></ToolTip> : null }
-          { state.buttonsVisible && isAdmin ? <ToolTip placement="right" content="Configure room settings"><button onClick={this.openSettings}>{Icons.settings}</button></ToolTip> : null }
+          { state.buttonsVisible ? null : <ToolTip placement="right" content="Перемикачі"><button onClick={this.toggleButtons}>{Icons.moreVertical}</button></ToolTip>}
+          { state.buttonsVisible ? <ToolTip placement="right" content="Перемикачі"><button onClick={this.toggleButtons}>{Icons.close}</button> </ToolTip> : null }
+          { state.buttonsVisible ? <ToolTip placement="right" content="Додати в обране"><button onClick={this.toggleFavorite}>{Icons.star}</button></ToolTip> : null }
+          { state.buttonsVisible ? <ToolTip placement="right" content="Вийти"><button onClick={this.handleClose}>{Icons.exit}</button></ToolTip> : null }
+          { state.buttonsVisible ? <ToolTip placement="right" content="Редагування тегів"><button onClick={this.handleEditTags}>{Icons.tag}</button></ToolTip> : null }
+          { state.buttonsVisible && canInvite ? <ToolTip placement="right" content="Управління членством"><button onClick={this.openMembership}>{Icons.userPlus}</button></ToolTip> : null }
+          { state.buttonsVisible && isAdmin ? <ToolTip placement="right" content="Змінити алаштування"><button onClick={this.openSettings}>{Icons.settings}</button></ToolTip> : null }
         </div>
       </div>
     </div>

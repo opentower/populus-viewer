@@ -56,7 +56,7 @@ export class TagEditor extends Component {
             value={state.newTag}
             onkeyup={this.handleKeyup}
             onblur={this.handleBlur}
-            placeholder="new tag" />
+            placeholder="новий тег" />
         </div>
       </Fragment>
   }

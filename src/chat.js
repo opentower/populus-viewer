@@ -406,11 +406,11 @@ class RedactedMessage extends Component {
     return props.isMe
       ? <div class="redacted message-frame message-from-user" style={this.userColor.styleVariables}>
         <div class="message-decoration" />
-        <div class="message-body">{props.count > 1 ? `${props.count} messages deleted` : "message deleted"}</div>
+        <div class="message-body">{props.count > 1 ? `${props.count} messages deleted` : "повідомлення видалено"}</div>
       </div>
       : <div class="redacted message-frame" style={this.userColor.styleVariables}>
         <div class="message-decoration" />
-        <div class="message-body">{props.count > 1 ? `${props.count} messages deleted` : "message deleted"}</div>
+        <div class="message-body">{props.count > 1 ? `${props.count} messages deleted` : "повідомлення видалено"}</div>
       </div>
   }
 }
@@ -459,7 +459,7 @@ function TopAnchor(props) {
     <FlagSelector focus={props.focus}/>
     <div id="scroll-done">
       { props.focus.getStatus() === "pending"
-        ? "Awaiting your comment..."
+        ? "В очікувані комениарів..."
         : null
       }
     </div>
@@ -469,8 +469,8 @@ function TopAnchor(props) {
 class FlagSelector extends Component {
   handleError = e => {
     Toast.set(<Fragment>
-      <h3 id="toast-header">Couldn't mark as question</h3>
-      <div>Maybe you don't have permission to edit this annotation? Here's the error message:</div>
+      <h3 id="toast-header">Не визначено як питання</h3>
+      <div>Можливо, у вас немає дозволу на редагування цієї нотатки? Ось повідомлення про помилку:</div>
       <pre>{e.message}</pre>
     </Fragment>)
   }
@@ -550,8 +550,8 @@ class TypingIndicator extends Component {
     const displayNames = state.typing.map(typer => Client.client.getUser(typer).displayName)
     const howMany = displayNames.length
     if (howMany === 0) return <div class="typing-indicator">&nbsp;</div>
-    else if (howMany === 1) return <div class="typing-indicator">{displayNames[0]} is typing</div>
-    else if (howMany === 2) return <div class="typing-indicator">{displayNames[0]} and {displayNames[1]} are typing</div>
-    return <div class="typing-indicator">several people are typing</div>
+    else if (howMany === 1) return <div class="typing-indicator">{displayNames[0]} пише</div>
+    else if (howMany === 2) return <div class="typing-indicator">{displayNames[0]} та {displayNames[1]} пишуть</div>
+    return <div class="typing-indicator">кілька людей зараз відписують</div>
   }
 }

@@ -186,7 +186,7 @@ class ReplyPreview extends Component {
         // https://github.com/matrix-org/dendrite/issues/670
         //
         // Hence, 404s right now.
-        console.log("couldn't retrieve - is this a dendrite server? see https://github.com/matrix-org/dendrite/issues/670")
+        console.log("не вдалося отримати - це сервер dendrite? див. https://github.com/matrix-org/dendrite/issues/670")
         console.log(e)
       }
     }
@@ -210,7 +210,7 @@ class ReplyPreview extends Component {
     const senderColors = new UserColor(this.state.liveEvent.getSender())
     let displayBody
     if (!this.state.liveEvent.getContent().msgtype) {
-      displayBody = <div class="redacted-preview">Original Message Deleted</div>
+      displayBody = <div class="redacted-preview">Початкове повідомлення видалено</div>
     } else {
       switch (this.state.liveEvent.getContent().msgtype) {
         case "m.video": {

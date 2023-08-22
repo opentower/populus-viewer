@@ -142,7 +142,7 @@ export default class AnnotationListing extends Component {
             if (thePage < loc.getPageIndex()) {
               const newPage = loc.getPageIndex()
               divider = <div class="annotation-listing-divider">
-                <span>Page {state.sortOrder === 1 ? newPage : thePage}</span>
+                <span>Сторінка {state.sortOrder === 1 ? newPage : thePage}</span>
               </div>
               thePage = newPage
             } else divider = <div class="annotation-listing-divider" />
@@ -257,21 +257,21 @@ export default class AnnotationListing extends Component {
                   </button>
                   <button data-current-button={state.sort === "Activity"}
                     onClick={this.sortByActivity}
-                    class="styled-button">Activity</button>
+                    class="styled-button">Зміни</button>
                   <button data-current-button={state.sort === "Creation"}
                     onClick={this.sortByCreation}
-                    class="styled-button">Creation</button>
+                    class="styled-button">Створення</button>
                   {props.mimetype === "application/pdf" 
                     ? <button data-current-button={state.sort === "Page"}
                         onClick={this.sortByPage}
-                        class="styled-button">Page</button>
+                        class="styled-button">Сторінка</button>
                     : null
                   }
                 </div>
-                  {Object.values(props.annotationContents).length === 0
-                    ? <div class="empty-marker"><b>No annotations yet available</b></div>
+                {Object.values(props.annotationContents).length === 0
+                    ? <div class="empty-marker"><b>Немає анотацій до записів</b></div>
                     : props.filteredAnnotationContents.length === 0
-                      ? <div class="empty-marker"><b>No annotations matching search</b></div>
+                      ? <div class="empty-marker"><b>Немає анотацій, що відповідають пошуку</b></div>
                       : state.sortOrder === 1 ? theAnnotations : theAnnotations.reverse()
                   }
               </div>
@@ -377,17 +377,17 @@ function AnnotationListingComment(props) {
     let body
     switch (content.msgtype) {
       case "m.text" : body = DisplayContent({content}); break
-      case "m.notice" : body = <div class="annotation-listing-fallback"><p>Sent a notice</p></div>; break
-      case "m.image" : body = <div class="annotation-listing-fallback"><p>Sent a file</p></div>; break
-      case "m.video" : body = <div class="annotation-listing-fallback"><p>Sent a video</p></div>; break
-      case "m.audio" : body = <div class="annotation-listing-fallback"><p>Sent an audio recording</p></div>; break
+      case "m.notice" : body = <div class="annotation-listing-fallback"><p>Відправив повідомлення</p></div>; break
+      case "m.image" : body = <div class="annotation-listing-fallback"><p>Відправив файл</p></div>; break
+      case "m.video" : body = <div class="annotation-listing-fallback"><p>Відправив відео</p></div>; break
+      case "m.audio" : body = <div class="annotation-listing-fallback"><p>Відправив аудіозапис</p></div>; break
       case "m.emote" : {
         if (content[mscMarkupMsgKey]) body = <div class="annotation-listing-fallback"><p>Sent an annotation</p></div>
-        else body = <div class="annotation-listing-fallback"><p>Sent a message</p></div>
+        else body = <div class="annotation-listing-fallback"><p>Відправив повідомлення</p></div>
         break
       }
       default :
-        body = <div class="annotation-listing-fallback"><p>Sent a message</p></div>
+        body = <div class="annotation-listing-fallback"><p>Відправив повідомлення</p></div>
     }
     return <Fragment>
       <div
@@ -406,6 +406,6 @@ function AnnotationListingComment(props) {
       </div>
     </Fragment>
   } else if (props.annotationLocation.getStatus() === "pending") {
-    return <div class="annotation-listing-pending">awaiting your comment... </div>
+    return <div class="annotation-listing-pending">чекаємо на ваш коментар... </div>
   }
 }

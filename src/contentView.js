@@ -94,7 +94,7 @@ export default class ContentView extends Component {
         Toast.set(
           <Fragment>
             <h3 id="toast-header">Hey!</h3>
-            <div>Another device is viewing a different position.</div>
+            <div>На іншому пристрої триває перегляд іншого запису.</div>
             <div style="margin-top:10px">
               <button
                 onclick={_ => {
@@ -141,10 +141,10 @@ export default class ContentView extends Component {
 
   catchFetchResourceError = e => {
     Toast.set(<Fragment>
-      <h3 id="toast-header">Couldn't fetch the resource...</h3>
-      <div>Tried to fetch: </div>
+      <h3 id="toast-header">Не вдалося отримати ресурс...</h3>
+      <div>Намагалися отриматм: </div>
       <pre>{this.props.resourceAlias}</pre>
-      <div>Here's the error message:</div>
+      <div>Сповіщення про помилку:</div>
       <pre>{e.message}</pre>
     </Fragment>)
     History.push('/')
@@ -158,7 +158,7 @@ export default class ContentView extends Component {
       contentHeightPx: null,
       zoomFactor: null,
       resourceLength: null,
-      loadingStatus: "loading...",
+      loadingStatus: "завантаження...",
     }, res))
     const aliasResponse = await Client.client.getRoomIdForAlias(`#${this.props.resourceAlias}`).catch(this.catchFetchResourceError)
     if (this.errorCondition) return
@@ -334,9 +334,9 @@ export default class ContentView extends Component {
   closeAnnotation = _ => {
     const isCreator = Client.client.getUserId() === this.state.focus.getCreator()
     const isMod = this.state.room.getMember(Client.client.getUserId()).powerLevel >= 50
-    if (!confirm('Are you sure you want to close this annotation?')) return
+    if (!confirm('Ви впевнені, що хочете закрити цю анотацію?')) return
     if (!isCreator && !isMod) {
-      alert("Only moderators can close annotations that they didn't create")
+      alert("Тільки ведучий лікар можуе закрити анотації, яку він не створював")
       return
     }
     const discussionId = this.state.focus.getChild()
@@ -347,12 +347,9 @@ export default class ContentView extends Component {
         switch (e) {
           case "M_FORBIDDEN" : {
             Toast.set(<Fragment>
-              <div>Annotation still visible to creator</div>
+              <div>Анотацію все ще видно автору</div>
               <div style="margin-top:10px">
-                Because you're not a moderator for that annotation you just
-                removed, it has been detatched but not deleted: it will remain
-                visible to its creator and members, although it won't be
-                visible to other viewers of this resource.
+                Оскільки ви не є модератором цієї анотації, яку ви щойно вилучили, вона буде вилучена, але не видалена: вона залишиться видимою для її автора і учасників обговорення, хоча і не буде видимою для інших.
               </div>
             </Fragment>)
             break
@@ -397,7 +394,7 @@ export default class ContentView extends Component {
     }
     if (typeof this.state.loadingStatus === "number") {
       return <div id="document-view-loading">
-          <span>Downloading...</span>
+          <span>Завантажую...</span>
           <progress class="styled-progress" max="1" value={this.state.loadingStatus} />
         </div>
     }

@@ -321,10 +321,10 @@ export default class MediaContent extends Component {
 
   catchFetchMediaError = e => {
     Toast.set(<Fragment>
-      <h3 id="toast-header">Couldn't fetch the {this.isVideo ? "audio file" : "video"}...</h3>
+      <h3 id="toast-header">Не зміг знайти {this.isVideo ? "audio file" : "video"}...</h3>
       <div>Tried to fetch: </div>
       <pre>{this.props.resourceAlias}</pre>
-      <div>Here's the error message:</div>
+      <div>Нижче наведено повідомлення про помилку:</div>
       <pre>{e.message}</pre>
     </Fragment>)
     History.push('/')
@@ -355,8 +355,8 @@ export default class MediaContent extends Component {
     if (theMedia.pcm && !MediaContent.MediaStore[theMedia.pcm]) {
       MediaContent.PCMStore[theMedia.pcm] = window.fetch(Client.client.getHttpUriForMxcFromHS(theMedia.pcm))
         .then(response => response.json())
-        .catch(err => console.log("Couldn't fetch PCM data", err))
-    } else if (theMedia.pcm) { console.log(`found PCM for ${this.props.room.name} in store` ) }
+        .catch(err => console.log("Не вдалося отримати дані PCM", err))
+    } else if (theMedia.pcm) { console.log(`знайдено PCM для ${this.props.room.name} ` ) }
     if (this.isVideo) this.props.setMobileButtonColor("var(--contrast-text)")
     if (this.errorCondition) return
     MediaContent.MediaStore[theMedia.url].then(mediaUrl => this.props.resource.resolveFetch(mediaUrl))

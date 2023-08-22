@@ -43,7 +43,7 @@ export default class MediaNavbar extends Component {
   mainMenu = _ => History.push("/")
 
   download = _ => {
-    if (confirm("do you want to download the file you're annotating?")) {
+    if (confirm("Ви хочете завантажити файл, який ви анотуєте?")) {
       const file = new Resource(this.props.room)
       window.open(file.httpUrl)
     }
@@ -63,7 +63,7 @@ export default class MediaNavbar extends Component {
     this.setState(oldState => { return {moreOptionsVisible: !oldState.moreOptionsVisible} })
   }
 
-  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
+  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Управління доступом", `для ${this.props.room.name}`)
 
   render(props, state) {
 

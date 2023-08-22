@@ -66,41 +66,41 @@ export default class ProfileInfomation extends Component {
     // insertion of divs causes click events to get handled by the wrong
     // elements as they bubble up through the DOM otherwise
     return <div id="profile-information">
-      <h2>Update Your Profile</h2>
+      <h2>Оновити особисті дані</h2>
       <hr class="styled-rule" />
       <form id="profileInformationForm" ref={this.mainForm} onsubmit={this.updateProfile}>
-        <label>My User Id</label>
+        <label>Ідентифікатор кор-ча</label>
         <div id="profile-information-userid">
           {Client.client.getUserId()}
         </div>
-        <label>My Display Name</label>
+        <label>Повне ім'я</label>
         <input class="styled-input" onkeydown={this.handleKeydown} placeholder={state.displayName} ref={this.displayNameInput} type="text" />
-        <label class="top-aligned-label">My Avatar</label>
+        <label class="top-aligned-label">Фото</label>
         {state.previewUrl
           ? <img onclick={this.chooseAvatar} id="profileSelector" src={state.previewUrl} />
           : <div key="profileSelector" onclick={this.chooseAvatar} id="profileSelector" />}
         <input id="profileInformationFormHidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
         <details>
-          <summary>Display Options</summary>
+          <summary>Видимість</summary>
           <div id="profile-display-options">
-            <label for="scrollbar-visibility">Scrollbars</label>
+            <label for="scrollbar-visibility">в системі</label>
             <select class="styled-input" ref={this.scrollbarVisibleSelect} name="scrollbar-visibility">
-              <option value="hidden">Hidden</option>
-              <option selected={this.scrollbarsVisible} value="visible">Visible</option>
+              <option value="hidden">Не видимий</option>
+              <option selected={this.scrollbarsVisible} value="visible">Видимий</option>
             </select>
           </div>
         </details>
         <details>
-          <summary>Advanced Options</summary>
+          <summary>Додаткові налаштування</summary>
           <div id="profile-advanced-options">
-            <label>My Access Token</label>
+            <label>Системний токен</label>
             <pre>{Client.client.getAccessToken()}</pre>
           </div>
         </details>
         <div key="profileInformationFormSubmit" id="profileInformationFormSubmit">
-          <button class="styled-button" ref={this.submitButton} type="submit">Update Profile</button>
-          {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
-          <button class="styled-button" type="button" onclick={props.logoutHandler}>Logout</button>
+          <button class="styled-button" ref={this.submitButton} type="submit">Оновити дані</button>
+          {state.previewUrl ? <button class="styled-button" type="button" onclick={this.removeAvatar}>Видалити фото</button> : null}
+          <button class="styled-button" type="button" onclick={props.logoutHandler}>Вийти</button>
         </div>
         {this.state.progress
           ? <div id="profileInformationFormProgress">

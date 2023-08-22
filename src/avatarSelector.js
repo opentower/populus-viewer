@@ -60,8 +60,8 @@ export default class AvatarSelector extends Component {
         {state.previewUrl
           ? <img onclick={this.chooseAvatar} id="select-avatar-selector" src={state.previewUrl} />
           : <div key="select-avatar-selector" onclick={this.chooseAvatar} id="select-avatar-selector" />}
-        {state.previewUrl ? <button id="select-avatar-change-avatar" type="button" onclick={this.removeAvatar}>Remove Avatar</button> : null}
-        {!state.previewUrl ? <button id="select-avatar-change-avatar" type="button" onclick={this.chooseAvatar}>Add Avatar</button> : null}
+        {state.previewUrl ? <button id="select-avatar-change-avatar" type="button" onclick={this.removeAvatar}>Видалити Ваше фото</button> : null}
+        {!state.previewUrl ? <button id="select-avatar-change-avatar" type="button" onclick={this.chooseAvatar}>Додати фото</button> : null}
         <input id="select-avatar-selector-hidden" onchange={this.updatePreview} ref={this.avatarImageInput} accept="image/*" type="file" />
       </div>
   }

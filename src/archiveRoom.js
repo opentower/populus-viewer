@@ -4,13 +4,12 @@ import Modal from './modal.js'
 
 export default function ArchiveRoom(props) {
   return <>
-    <p>
-      Doing so will remove the collection from your main list, but you'll still
-      be able to restore it using the "Add Collection" button.
+    <p>Ви зараз видалите мед. книжку з вашого списку, але ви все одно
+      зможете відновити її за допомогою кнопки "Додати мед. книжку"
     </p>
     <button onClick={() => {
       Client.client.setRoomTag(props.room.roomId, "m.lowpriority", {order: 0.5})
       Modal.hide()
-    }} class="styled-button">Archive this room</button>
+    }} class="styled-button">Перенести  в архів</button>
   </>
 }

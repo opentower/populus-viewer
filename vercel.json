@@ -1,0 +1,15 @@
+{
+    "version": 2,
+    "builds": [
+      {
+        "src": "docker-compose.yml",
+        "use": "@vercel/docker-compose"
+      }
+    ],
+    "routes": [
+      {
+        "src": "/(.*)",
+        "dest": "populus-viewer:9000/$1"
+      }
+    ]
+  }

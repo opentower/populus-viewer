@@ -91,18 +91,18 @@ export default class SpacesManager extends Component {
   }
 
   addCollection = _ => {
-    Modal.set(<AddCollection />, "Add New Collection")
+    Modal.set(<AddCollection />, "Додати нову мед. карту")
   }
 
   render(props, state) {
     return <div id="spaces-manager">
-      <h1>Collections</h1>
+      <h1>Карти пацієнта</h1>
       <hr class="styled-rule" />
       <div id="spaces-list">
         {state.spaces.map(room => <SpaceListing filterToggle={this.filterToggle} oneColumn={props.oneColumn} key={room.roomId} room={room} />)}
       </div>
       <div>
-        <button onclick={this.addCollection} id="add-space">Add Collection</button>
+        <button onclick={this.addCollection} id="add-space">Додати нову мед. картку</button>
       </div>
     </div>
   }
@@ -206,7 +206,7 @@ class SpaceListing extends Component {
   }
 
   joinChild = roomId => Client.client.joinRoom(roomId, { viaServers: this.state.via[roomId] })
-    .catch(toastError("Couldn't join this discussion"))
+    .catch(toastError("Не вдалося долучитися до обговорення"))
 
   toggleChild = (roomId, name) => this.props.filterToggle({
     value: roomId,
@@ -215,17 +215,17 @@ class SpaceListing extends Component {
 
   openSettings = _ => {
     this.setState({ actionsVisible: false })
-    Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Room Settings", `for ${this.props.room.name}`)
+    Modal.set(<RoomSettings joinLink={true} room={this.props.room} />, "Налаштування", `для ${this.props.room.name}`)
   }
 
   openMembership = _ => {
     this.setState({ actionsVisible: false })
-    Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
+    Modal.set(<ManageMembership room={this.props.room} />, "Хто спілкується", `в ${this.props.room.name}`)
   }
 
-  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Leave Room?", `for ${this.props.room.name}`)
+  handleClose = _ => Modal.set(<LeaveRoom room={this.props.room} />, "Видалити мед. карту?", ` ${this.props.room.name}`)
 
-  archiveRoom = _ => Modal.set(<ArchiveRoom room={this.props.room} />, "Archive Collection?", `for ${this.props.room.name}`)
+  archiveRoom = _ => Modal.set(<ArchiveRoom room={this.props.room} />, "Перенести до архіву?", `>>> ${this.props.room.name}`)
 
   roomColor = new RoomColor(this.props.room.name)
 
@@ -359,8 +359,8 @@ class AddChild extends Component {
     return <Fragment>
       <SearchBar search={state.search} setSearch={this.filterDiscussions} />
       <div id="manage-discussion-select-view" class="select-view">
-        <button onClick={this.addDiscussions} data-current-button={state.adding}>Add Discussions</button>
-        <button onClick={this.removeDiscussions} data-current-button={!state.adding}>Remove Discussions</button>
+        <button onClick={this.addDiscussions} data-current-button={state.adding}>Додати обговорення</button>
+        <button onClick={this.removeDiscussions} data-current-button={!state.adding}>Видалити обговорення</button>
       </div>
       <div id="manage-discussion-list-wrapper" ref={this.currentListWrapper}>
         {state.adding
@@ -381,10 +381,10 @@ class CurrentDiscussionListing extends Component {
     this.setState({pending: true})
     await Client.client
       .sendStateEvent(this.props.collection.roomId, Matrix.EventType.SpaceChild, {}, this.props.child.room_id)
-      .catch(toastError("Couldn't remove discussion from collection"))
+      .catch(toastError("Не вдалося видалити дискусію з списку"))
     await Client.client
       .sendStateEvent(this.props.child.room_id, Matrix.EventType.SpaceParent, {}, this.props.collection.roomId)
-      .catch(toastError("Couldn't remove collection as parent of discussion"))
+      .catch(toastError("Не вдалося видалити мед. карту, що містить обговорення"))
   }
 
   render(props, state) {
@@ -409,10 +409,10 @@ class AvailableDiscussionListing extends Component {
     const parentContent = { via: [theDomain] }
     await Client.client
       .sendStateEvent(this.props.collection.roomId, Matrix.EventType.SpaceChild, childContent, this.props.room.roomId)
-      .catch(toastError("Couldn't add discussion to collection"))
+      .catch(toastError("Не вдалося додати обговорення до колекції"))
     await Client.client
       .sendStateEvent(this.props.room.roomId, Matrix.EventType.SpaceParent, parentContent, this.props.collection.roomId)
-      .catch(toastError("Couldn't add collection as parent of discussion"))
+      .catch(toastError("Не вдалося додати картоку як батька обговорення"))
   }
 
   render(props, state) {

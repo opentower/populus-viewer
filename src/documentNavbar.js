@@ -102,7 +102,7 @@ export default class DocumentNavbar extends Component {
     ev.preventDefault();
     const currentPage = Number.isNaN(parseInt(this.state.value, 10)) ? 1 : parseInt(this.state.value, 10)
     if (currentPage > 0 && currentPage <= this.props.total) History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${currentPage}/`)
-    else alert("Out of range");
+    else alert("Поза зоною дії");
   }
 
   handleClick = e => History.push(`/${encodeURIComponent(this.props.resourceAlias)}/${parseInt(e.target.value, 10)}`)
@@ -118,13 +118,13 @@ export default class DocumentNavbar extends Component {
   mainMenu = _ => History.push("/")
 
   download = _ => {
-    if (confirm("do you want to download the file you're annotating?")) {
+    if (confirm("Ви хочете завантажити файл, який ви анотуєте?")) {
       const file = new Resource(this.props.room)
       window.open(file.httpUrl)
     }
   }
 
-  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Manage Membership", `for ${this.props.room.name}`)
+  openMembership = _ => Modal.set(<ManageMembership room={this.props.room} />, "Управління доступом", `для ${this.props.room.name}`)
 
   zoomOut = _ => this.props.setZoom(zoomFactor => zoomFactor - 0.1)
 
@@ -146,26 +146,26 @@ export default class DocumentNavbar extends Component {
             current={props.pageFocused} />
         <div id="nav-background" />
         <div class="nav-button-wrapper top-wrapper">
-          <ToolTip content="Go to main menu (ESC)" offset={this.toolTipOffset}>
+          <ToolTip content="В головне меню (ESC)" offset={this.toolTipOffset}>
             <button onclick={this.mainMenu}>{Icons.home}</button>
           </ToolTip>
-          <ToolTip content="Add annotation (Alt + a)" offset={this.toolTipOffset} >
+          <ToolTip content="Додати анотацію (Alt + a)" offset={this.toolTipOffset} >
             <button disabled={this.canAnnotate && (props.hasSelection || props.pindropMode?.x) ? null : "disabled"}
               onclick={props.openAnnotation}>{Icons.addAnnotation}
             </button>
           </ToolTip>
-          <ToolTip content="Go to previous annotation (Alt + Shift + Tab)" offset={this.toolTipOffset}>
+          <ToolTip content="До попередньої анотації (Alt + Shift + Tab)" offset={this.toolTipOffset}>
             <button disabled={!props.hasAnnotations}
               onclick={props.focusPrev}>{Icons.chevronsLeft}
             </button>
           </ToolTip>
-          <ToolTip content="Go to previous page (k, ←)" offset={this.toolTipOffset}>
+          <ToolTip content="На попередню сторінку (k, ←)" offset={this.toolTipOffset}>
             <button disabled={props.pageFocused > 1 ? null : "disabled"}
               onclick={this.prevPage}>{Icons.chevronLeft}
             </button>
           </ToolTip>
           <form class="nav-position" onSubmit={this.handleSubmit}>
-            <ToolTip content="Show page navigation" offset={this.toolTipOffset}>
+            <ToolTip content="Show page navigationПоказати навігацію" offset={this.toolTipOffset}>
               <button type="button"
                 class={state.pageViewVisible ? "nav-toggled" : null}
                 onclick={this.togglePageNav}>{Icons.page}
@@ -181,49 +181,49 @@ export default class DocumentNavbar extends Component {
             <span>/</span>
             <span ref={this.pageTotal} id="nav-total-pages">{props.total}</span>
           </form>
-          <ToolTip content="Go to next page (j, →)" offset={this.toolTipOffset}>
+          <ToolTip content="На наступну сторінку (j, →)" offset={this.toolTipOffset}>
             <button disabled={props.total > props.pageFocused ? null : "disabled"} 
               onclick={this.nextPage}>{Icons.chevronRight}
             </button>
           </ToolTip>
-          <ToolTip content="Go to next annotation (Alt + Tab)" offset={[0, 30]}>
+          <ToolTip content="До наступної анотації (Alt + Tab)" offset={[0, 30]}>
             <button disabled={!props.hasAnnotations}
               onclick={props.focusNext}>{Icons.chevronsRight}
             </button>
           </ToolTip>
-          <ToolTip content="Remove annotation (Alt + r)" offset={this.toolTipOffset}>
+          <ToolTip content="Видалити анотацію (Alt + r)" offset={this.toolTipOffset}>
             <button disabled={this.canAnnotate && props.focus && !props.hasSelection ? null : "disabled"}
               onclick={props.closeAnnotation}>{Icons.removeAnnotation}
             </button>
           </ToolTip>
-          <ToolTip content="More options" offset={this.toolTipOffset}>
+          <ToolTip content="Більше варіантів" offset={this.toolTipOffset}>
             <button onClick={this.toggleMoreOptions}>{Icons.moreVertical}</button>
           </ToolTip>
         </div>
         <div inert={!state.moreOptionsVisible} ref={this.bottomWrapper} class="nav-button-wrapper bottom-wrapper">
-          <ToolTip content="Manage membership" theme="bordered">
+          <ToolTip content="Керуємо доступом" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.openMembership}>{Icons.userPlus}
             </button>
           </ToolTip>
-          <ToolTip content="Download PDF" theme="bordered">
+          <ToolTip content="Завантажити PDF" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.download}>{Icons.download} </button>
           </ToolTip>
-          <ToolTip content="Zoom out (-)" theme="bordered">
+          <ToolTip content="Зменшити (-)" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.zoomOut}>{Icons.zoomout}</button>
           </ToolTip>
-          <ToolTip content="Zoom in (+)" theme="bordered">
+          <ToolTip content="Збільшити (+)" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={this.zoomIn}>{Icons.zoomin}</button>
           </ToolTip>
-          <ToolTip content="Toggle annotation visibility (Alt + v)" theme="bordered">
+          <ToolTip content="Перемикання видимості анотацій (Alt + v)" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.toggleAnnotations}>{props.annotationsVisible ? Icons.eyeOff : Icons.eye}</button>
           </ToolTip>
-          <ToolTip content="Add Pin" theme="bordered">
+          <ToolTip content="Додати пін" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.startPindrop}>{Icons.pin}</button>
           </ToolTip>
-          <ToolTip content="Toggle Two-Up View" theme="bordered">
+          <ToolTip content="Переключити до двостороннього перегляду" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.content.current?.toggleSecondary}>{Icons.columns}</button>
           </ToolTip>
-          <ToolTip content="Search Within PDF" theme="bordered">
+          <ToolTip content="Пошук всередині PDF" theme="bordered">
             <button tabIndex={state.moreOptionsVisible ? 0 : -1} onClick={props.showSearch}>{Icons.search}</button>
           </ToolTip>
         </div>

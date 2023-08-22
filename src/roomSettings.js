@@ -195,7 +195,7 @@ export default class RoomSettings extends Component {
     Modal.hide()
   }
 
-  raiseErr = _ => alert("Something went wrong. You may not have permission to adjust some of these settings.")
+  raiseErr = _ => alert("Щось пішло не так. Можливо, у вас немає дозволу на зміну деяких з цих налаштувань.")
 
   publishReferences() {
     const theDomain = Client.client.getDomain()
@@ -254,11 +254,11 @@ export default class RoomSettings extends Component {
 
     return <Fragment>
       <div id="room-settings-select-view" class="select-view">
-        <button onClick={this.showAppearance} data-current-button={state.view==="APPEARANCE"}>Appearance</button>
-        <button onClick={this.showAccess} data-current-button={state.view==="ACCESS"}>Access</button>
-        <button onClick={this.showRoles} data-current-button={state.view==="ROLES"}>Roles</button>
-        <button onClick={this.showPermissions} data-current-button={state.view==="PERMISSIONS"}>Permissions</button>
-        {props.joinLink ? <button onClick={this.showLinks} data-current-button={state.view==="LINKS"}>Links</button> : null}
+        <button onClick={this.showAppearance} data-current-button={state.view==="APPEARANCE"}>Зовнішній вигляд</button>
+        <button onClick={this.showAccess} data-current-button={state.view==="ACCESS"}>Доступність</button>
+        <button onClick={this.showRoles} data-current-button={state.view==="ROLES"}>Медики</button>
+        <button onClick={this.showPermissions} data-current-button={state.view==="PERMISSIONS"}>Дозволи</button>
+        {props.joinLink ? <button onClick={this.showLinks} data-current-button={state.view==="LINKS"}>Посилання</button> : null}
       </div>
       <div ref={this.settingsFormWrapper} id="room-settings-form-wrapper">
         <form 
@@ -274,7 +274,7 @@ export default class RoomSettings extends Component {
                 handleUpdate={this.avatarUpdateHandler}
               />
               <div class="room-settings-info" />
-              <label htmlFor="room-name">Room Name</label>
+              <label htmlFor="room-name">Назва карти</label>
               <input name="room-name"
                 type="text"
                 class="styled-input"
@@ -284,7 +284,7 @@ export default class RoomSettings extends Component {
                 onInput={this.handleNameInput}
               />
               <div class="room-settings-info"></div>
-              <label class="top-aligned-label" htmlFor="room-topic">Topic</label>
+              <label class="top-aligned-label" htmlFor="room-topic">Примітки</label>
               <textarea ref={this.roomTopicTextarea} name="room-topic"
                 class="styled-input"
                 value={state.roomTopic}
@@ -296,56 +296,56 @@ export default class RoomSettings extends Component {
             </Fragment>
             : state.view === "ACCESS"
             ? <Fragment>
-              <label htmlFor="discovery">Discovery</label>
+              <label htmlFor="discovery">Видимість</label>
               <select disabled={!state.discovery|| !this.mayChangeDiscovery}
                 class="styled-input"
                 value={state.discovery}
                 name="discovery"
                 onchange={this.handleDiscoveryChange}>
-                <option value="private">Private</option>
-                <option value="public">Publicly Listed</option>
+                <option value="private">Приватно</option>
+                <option value="public">Публічний перегляд</option>
               </select>
               <div class="room-settings-info">
                 {state.discovery === "public"
-                  ? "the room will appear in room search results"
-                  : "the room will not appear in room search results"
+                  ? "запис з'явиться в результатах пошуку"
+                  : "запис не буде відображатися в результатах пошуку"
                 }
               </div>
-              <label htmlFor="joinRule">Join Rule</label>
+              <label htmlFor="joinRule">Обмеженя доступу</label>
               <select class="styled-input" value={state.joinRule} name="joinRule" onchange={this.handleJoinRuleChange}>
-                <option value="public">Public</option>
-                <option value="invite">Invite-Only</option>
-                <option disabled={!this.restrictedAvailable} value="restricted">Restricted</option>
+                <option value="public">Публічний</option>
+                <option value="invite">Для запрошених</option>
+                <option disabled={!this.restrictedAvailable} value="restricted">Обмежено</option>
               </select>
               <div class="room-settings-info">
-                { state.joinRule === "public" ? "anyone who can find the room may join"
-                : state.joinRule === "invite" ? "an explicit invitation is required before joining"
-                : props.resource ? "only someone with access to the resource being annotated may join"
-                : "only someone with access to a collection containing this resource may join"
+                { state.joinRule === "public" ? "Долучитися може кожен, хто знайде цей запис"
+                : state.joinRule === "invite" ? "для приєднання потрібне спеціальне запрошення"
+                : props.resource ? "приєднатися може лише той, хто має доступ до запису, що анотується"
+                : "тільки той, хто має доступ до мед. карти, що містить цей запис, може приєднатися"
                 }
               </div>
-              <label htmlFor="readability">Readability</label>
+              <label htmlFor="readability">Читабельність</label>
               <select class="styled-input" value={state.readability} disabled={!this.mayChangeReadability} name="readability" onchange={this.handleReadabilityChange}>
-                <option value="shared">Members Only</option>
-                <option value="world_readable">World Readable</option>
+                <option value="shared">Виключно для учасників</option>
+                <option value="world_readable">Загального доступу</option>
               </select>
               <div class="room-settings-info">
                 {state.readability === "world_readable"
-                  ? "anyone can see what's happening in the room"
-                  : "only room members can see what's happening in the room"
+                  ? "будь-хто може бачити, що відбувається"
+                  : "тільки запрошені учасники можуть бачити, що відбувається"
                 }
               </div>
               { this.initialSpaceVisibility 
                 ? <Fragment>
-                  <label htmlFor="spaceVisibility">Visibility</label>
+                  <label htmlFor="spaceVisibility">Видимість</label>
                   <select class="styled-input" value={state.spaceVisibility} disabled={!this.mayChangeSpaceVisibility} name="spaceVisibility" onchange={this.handleSpaceVisibilityChange}>
-                    <option value="visible">Visible </option>
-                    <option value="hidden">Hidden</option>
+                    <option value="visible">Видима </option>
+                    <option value="hidden">Пртховпна</option>
                   </select>
                   <div class="room-settings-info">
                     {state.spaceVisibility === "visible"
-                      ? "the annotation is visible to everyone"
-                      : "the annotation is hidden unless you've already seen it"
+                      ? "анотацію бачать усі"
+                      : "анотацію буде приховано, якщо ви її ще не бачили"
                     }
                   </div>
                 </Fragment>
@@ -353,13 +353,13 @@ export default class RoomSettings extends Component {
               }
             </Fragment>
             : state.view === "LINKS" ? <Fragment>
-                <label>Join Link</label>
+                <label>Приєднатися за посиланням</label>
                 <div class="room-settings-link-group">
                   <pre id="room-settings-join-link">{this.joinLink} </pre>
                   <CopyButton copy={this.joinLink}/>
                 </div>
                 <div class="room-settings-info">
-                  Clicking this link will cause an attempt to join this room
+                натискання на це посилання призведе до спроби отримати доступ до анотування запису
                 </div>
               </Fragment>
             : state.view === "ROLES" ? <Fragment>
@@ -383,14 +383,14 @@ export default class RoomSettings extends Component {
                   powerLevels={this.powerLevels}
                   powerKey="invite"
                   requiredRole={state.invite}
-                  label="Invite"
+                  label="Запросити"
                   member={this.member}
                   act="invite new members" />
                 <ConfigurePowerForKey
                   setPowerLevelRole={this.setPowerLevelRole}
                   powerLevels={this.powerLevels}
                   powerKey="kick"
-                  label="Kick"
+                  label="Видалити"
                   requiredRole={state.kick}
                   member={this.member}
                   act="remove users from the room" />
@@ -398,7 +398,7 @@ export default class RoomSettings extends Component {
                   setPowerLevelRole={this.setPowerLevelRole}
                   powerLevels={this.powerLevels}
                   powerKey="ban"
-                  label="Ban"
+                  label="Заблокувати"
                   requiredRole={state.ban}
                   member={this.member}
                   act="remove users and ban them from rejoining" />
@@ -406,7 +406,7 @@ export default class RoomSettings extends Component {
                   setPowerLevelRole={this.setPowerLevelRole}
                   powerLevels={this.powerLevels}
                   powerKey="redact"
-                  label="Redact"
+                  label="Редагувати"
                   requiredRole={state.redact}
                   member={this.member}
                   act="remove any message from the room" />
@@ -416,7 +416,7 @@ export default class RoomSettings extends Component {
                       setPowerLevelRole={this.setPowerLevelRole}
                       powerLevels={this.powerLevels}
                       powerKey="events_default"
-                      label="Message"
+                      label="Повідомлення"
                       requiredRole={state.events_default}
                       member={this.member}
                       act="send messages" />
@@ -427,7 +427,7 @@ export default class RoomSettings extends Component {
                       powerLevels={this.powerLevels}
                       type={Matrix.EventType.SpaceChild}
                       requiredRole={state[Matrix.EventType.SpaceChild]}
-                      label="Annotate"
+                      label="Анотації"
                       member={this.member}
                       act="create annotations" />
                   : null 
@@ -436,8 +436,8 @@ export default class RoomSettings extends Component {
             : null
           }
           <div id="room-settings-submit-wrapper">
-            <button disabled={!updated} className="styled-button" onClick={this.handleSubmit} >Save Changes</button>
-            <button className="styled-button" onClick={this.cancel} >Cancel</button>
+            <button disabled={!updated} className="styled-button" onClick={this.handleSubmit} >Зберегти зміни</button>
+            <button className="styled-button" onClick={this.cancel} >Відмовитись</button>
           </div>
           {typeof(state.progress) === "string"
             ? <div id="room-settings-progress">
@@ -498,16 +498,16 @@ class ConfigurePowerForState extends Component {
     return <Fragment>
         <label htmlFor={props.label}>{props.label}</label>
         <select class="styled-input" value={currentRole} disabled={!this.mayChangePowerLevel} name={props.label} onchange={this.handleChange}>
-          <option disabled={props.member.powerLevels < 100} value="admin">Administrators only</option>
-          <option disabled={props.member.powerLevels < 50} value="mod">Moderators and above</option>
-          <option value="member">Any member</option>
-          {this.initialRole === "custom" ? <option value="custom">Custom Value</option>: null}
+          <option disabled={props.member.powerLevels < 100} value="admin">Лише пацієнт</option>
+          <option disabled={props.member.powerLevels < 50} value="mod">Ведучий лікар </option>
+          <option value="member">Будь хто з мед. персоналу</option>
+          {this.initialRole === "custom" ? <option value="custom">Статус доступності</option>: null}
         </select>
         <div class="room-settings-info">
           {currentRole === "admin" ? `Only admins can ${props.act}`
-            : currentRole === "mod" ? `Admins and moderators can ${props.act}`
-            : currentRole === "member" ? `Any room member can ${props.act}`
-            : `Powerlevel ${this.initialPowerLevel} is required to ${props.act}`
+            : currentRole === "mod" ? `пацієнт та ведучий лікар ${props.act}`
+            : currentRole === "member" ? `інший мед. персонал ${props.act}`
+            : `Рівень доступу ${this.initialPowerLevel} є необхідним ${props.act}`
           }
         </div>
       </Fragment>
@@ -555,16 +555,16 @@ class ConfigurePowerForKey extends Component {
     return <Fragment>
         <label htmlFor={props.label}>{props.label}</label>
         <select class="styled-input" value={currentRole} disabled={!this.mayChangePowerLevel} name={props.label} onchange={this.handleChange}>
-          <option value="admin">Administrators only</option>
-          <option value="mod">Moderators and above</option>
-          <option value="member">Any member</option>
-          {this.initialRole === "custom" ? <option value="custom">Custom Value</option>: null}
+          <option value="admin">Втключно пацієнт</option>
+          <option value="mod">Ведучий лікар та пацієнт</option>
+          <option value="member">Інший мед. персонал</option>
+          {this.initialRole === "custom" ? <option value="custom">Рівень доступності</option>: null}
         </select>
         <div class="room-settings-info">
-          {currentRole === "admin" ? `Only admins can ${props.act}`
-            : currentRole === "mod" ? `Admins and moderators can ${props.act}`
-            : currentRole === "member" ? `Any room member can ${props.act}`
-            : `Powerlevel ${this.initialPowerLevel} is required to ${props.act}`
+          {currentRole === "admin" ? `Лише пацієнт ${props.act}`
+            : currentRole === "mod" ? `Пацієнт та ведучий лікар ${props.act}`
+            : currentRole === "member" ? `Всі хто має доступ ${props.act}`
+            : `Powerlevel ${this.initialPowerLevel}  можуть ${props.act}`
           }
         </div>
       </Fragment>
@@ -603,7 +603,7 @@ class AdminList extends Component {
           />)
     }
     if (admins.length > 0) return admins
-    else return <div class="room-settings-role-empty">No admins!</div>
+    else return <div class="room-settings-role-empty">Не вибрано пацієнта</div>
   }
 
   toggleAdmin = user => {
@@ -623,7 +623,7 @@ class AdminList extends Component {
 
   render(props) {
     return <div class="room-settings-role-list">
-      <h5>Administrators</h5>
+      <h5>Пацієнт</h5>
       {this.getAdmins()}
       {this.canAdd ? <AddRole users={props.users} addRole={this.addAdmin} room={props.room}/> : null}
     </div>
@@ -699,7 +699,7 @@ class ModList extends Component {
           power={50} />)
     }
     if (mods.length > 0) return mods
-    else return <div class="room-settings-role-empty">None</div>
+    else return <div class="room-settings-role-empty">Пусто</div>
   }
 
   toggleMod = user => {
@@ -719,7 +719,7 @@ class ModList extends Component {
 
   render(props) {
     return <div class="room-settings-role-list">
-      <h5>Moderators</h5>
+      <h5>Ведучий лікар</h5>
       {this.getMods()}
       {this.canAdd ? <AddRole users={props.users} addRole={this.addMod} room={props.room}/> : null}
     </div>
@@ -744,11 +744,11 @@ class RoleListing extends Component {
         class="room-settings-role-listing">
         <span class="small-icon">{props.deactivated ? Icons.userPlus : Icons.userMinus}</span>
         <span class="room-settings-role-user"> {props.user}</span>
-        {props.activated ? <span class="room-settings-role-change-info">will be added to this role</span> : null}
-        {props.deactivated ? <span class="room-settings-role-change-info">will be removed from this role</span> : null}
+        {props.activated ? <span class="room-settings-role-change-info">буде додано в цю роль</span> : null}
+        {props.deactivated ? <span class="room-settings-role-change-info">буде усунуто з цієї ролі</span> : null}
         {(props.deactivated || props.activated) && Client.client.getUserId() === props.user 
             ? <span style={{marginTop: "5px", color:"red"}} class="room-settings-role-change-info">
-                <b>Warning</b>: changing your own role can be irreversible, and can cause you to lose control of the room.
+                <b>Уважно!</b>:Зміна власної ролі може бути незворотною і призвести до того, що ви втратите доступ до запису.
             </span> 
             : null
         }
@@ -772,7 +772,7 @@ class OtherRoleList extends Component {
   render() {
     if (!this.getOtherRoles()) return null
     else return <div class="room-settings-role-list">
-      <h5>Other Roles</h5>
+      <h5>Інші ролі</h5>
       {this.getOtherRoles()}
     </div>
   }

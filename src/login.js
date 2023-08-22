@@ -193,15 +193,15 @@ class Login extends Component {
 
   render(props, state) {
     const connectionMessage = state.loading === "loading"
-      ? "loading server information..."
+      ? "завантаження інформації про сервер..."
       : state.loading === "failed"
-      ? "couldn't connect to server"
+      ? "не вдалося підключитися до сервера"
       : state.loading === "badurl"
-      ? "the server name should look like 'matrix.org'"
+      ? "ім'я сервера має виглядати як 'matrix.org'"
       : null
-    if (this.doingSSO) return <div id="login-sso-loader">Redirecting...</div>
+    if (this.doingSSO) return <div id="login-sso-loader">переходимо...</div>
     return <div ref={props.loginElement} id="login">
-      <h3>Login To Populus</h3>
+      <h3>Зайти в МедКарти</h3>
       <form id="loginForm" onSubmit={this.handleSubmit}>
         <UserData
           connectionMessage={connectionMessage}
@@ -212,12 +212,12 @@ class Login extends Component {
           setName={props.setName}
           name={props.name} />
         <div>
-          <button disabled={!this.canSubmit()} class="styled-button" >Login</button>
+          <button disabled={!this.canSubmit()} class="styled-button" >Вхід на сервіс</button>
         </div>
       </form>
       {state.SSOProviders.length > 0 
         ? <Fragment>
-            <h4>Or, login via:</h4>
+            <h4>Або увійдіть за допомогою:</h4>
             <div id="login-sso-providers">
               {
                 state.SSOProviders.map(
@@ -244,8 +244,8 @@ class Login extends Component {
         }
       <div id="login-options">
         <hr class="styled-rule" />
-        <span>Don't have an account? </span>
-        <a disabled={state.submitting} onClick={props.switchView("register")} >Register</a>
+        <span>Не зареєстровані? </span>
+        <a disabled={state.submitting} onClick={props.switchView("register")} >Зареєструватись</a>
       </div>
     </div>
   }
@@ -284,16 +284,16 @@ class Registration extends Component {
           // should analyze for other errors here.
           case "ConnectionError" : {
             Toast.set(<Fragment>
-              <h3 id="toast-header">Can't connect</h3>
-              <div><p>Tried to connect to a server at {Client.client.getHomeserverUrl()}</p><p> Double-check that address?</p></div>
+              <h3 id="toast-header">Не можу з'єднатися</h3>
+              <div><p>Спробував підключитися до сервера за адресою {Client.client.getHomeserverUrl()}</p><p> Перевірте ще раз цю адресу</p></div>
               </Fragment>
             )
             break
           }
           case "M_USER_IN_USE" : {
             Toast.set(<Fragment>
-              <h3 id="toast-header">Can't register</h3>
-              <div><p>Sorry, the name <code>{this.props.name}</code> is already in use at <code>{Client.client.getHomeserverUrl()}</code></p><p> Try a different name or server?</p></div>
+              <h3 id="toast-header">Не вдається зареєструватися</h3>
+              <div><p>Вибачте, ім'я <code>{this.props.name}</code> вже застосовується на <code>{Client.client.getHomeserverUrl()}</code></p><p> Спробуйте інше ім'я</p></div>
               </Fragment>
             )
             this.props.setName("")
@@ -301,8 +301,8 @@ class Registration extends Component {
           }
           default : 
             Toast.set(<Fragment>
-              <h3 id="toast-header">Something went wrong</h3>
-              <div>Sorry, here's the error</div>
+              <h3 id="toast-header">Щось не так</h3>
+              <div>Вибачте, сталася помилка</div>
               <pre>{err.name}: {err.message}</pre>
               </Fragment>
             )
@@ -371,14 +371,14 @@ class Registration extends Component {
                 data-callback="recaptchaHandler" />
             </div>
             <hl style="styled-rule" />
-            <div>OR, <button class="styled-button" onClick={props.switchView("login")} >Login With Existing Account</button></div>
+            <div>OR, <button class="styled-button" onClick={props.switchView("login")} >Увійдіть з існуючим обліковим записом</button></div>
             <script src="https://www.google.com/recaptcha/api.js" async defer />
           </form>
         </div>
       }
       case "awaiting-server" : {
         return <div ref={props.loginElement} id="registration">
-          <h3>Register an account</h3>
+          <h3>Зареєструйте обліковий запис</h3>
           <form
             onSubmit={this.beginRegistrationFlow}
             id="registerForm">
@@ -390,12 +390,12 @@ class Registration extends Component {
               password={props.password}
               setName={props.setName}
               name={props.name} />
-            <div><button disabled={!this.canSubmit()} class="styled-button">Register a New Account</button></div>
+            <div><button disabled={!this.canSubmit()} class="styled-button">Зареєструйте новий обліковий запис</button></div>
             <div id="login-options">
               <hr class="styled-rule" />
-              <span>Already have an account? </span>
+              <span>Вже маєте обліковий запис? </span>
               <a onClick={props.switchView("login")} >
-                Login With Existing Account
+                Увійдіть з існуючим обліковим записом
               </a>
             </div>
           </form>
@@ -414,7 +414,7 @@ class UserData extends Component {
     this.props.setName(e.target.value)
     if (/[^a-zA-Z0-9._=/]/.test(e.target.value)) {
       this.usernameInput.current.setCustomValidity("Bad Character")
-      this.setState({usernameMessage: "Usernames can include only a-z, 0-9, =, _ or '.'"})
+      this.setState({usernameMessage: "Імена користувачів можуть містити лише символи a-z, 0-9, =, _ або '.'"})
     } else {
       this.usernameInput.current.setCustomValidity("")
       this.setState({usernameMessage: null})
@@ -425,7 +425,7 @@ class UserData extends Component {
     this.props.setPassword(e.target.value)
     if (e.target.value.length < 8 && e.target.value.length > 0) {
       this.passwordInput.current.setCustomValidity("Bad Password")
-      this.setState({passwordMessage: "Passwords must be at least 8 characters"})
+      this.setState({passwordMessage: "Пароль повинен містити щонайменше 8 символів"})
     } else {
       this.passwordInput.current.setCustomValidity("")
       this.setState({passwordMessage: null})
@@ -439,13 +439,13 @@ class UserData extends Component {
   render (props, state) {
     return (
       <Fragment>
-        <label htmlFor="servername">Server</label>
-        <input class="styled-input" value={props.server} onfocus={this.handleFocus} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="populus.open-tower.com" />
+        <label htmlFor="servername">Сервер</label>
+        <input class="styled-input" value={props.server} onfocus={this.handleFocus} oninput={this.handleServerInput} type="text" id="servername" name="servername" placeholder="conduit.m-e.pp.ua" />
         <div class="userdata-form-info">{props.connectionMessage}</div>
-        <label htmlFor="username">Username</label>
+        <label htmlFor="username">Пацієнт</label>
         <input class="styled-input" autocomplete="username" value={props.name} onfocus={this.handleFocus} onInput={this.validateUsername} type="text" ref={this.usernameInput} id="username" name="username" />
         <div class="userdata-form-info">{state.usernameMessage}</div>
-        <label htmlFor="password">Password</label>
+        <label htmlFor="password">Пароль</label>
         <input class="styled-input" autocomplete={props.newAccount ? "new-password" : "current-password"} onfocus={this.handleFocus} value={props.password} oninput={this.validatePassword} type="password" ref={this.passwordInput} id="password" name="password" />
         <div class="userdata-form-info">{state.passwordMessage}</div>
       </Fragment>
